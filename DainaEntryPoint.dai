@@ -1,0 +1,19 @@
+
+
+[] (DainaCompiler) 
+{
+	^ *{
+		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompiler;
+		\dainaCompiler:runDainaCompiler;
+	}
+}
+
+
+[DainaCompiler] () 
+{
+	~ newDainaCompiler *{}
+
+	++ runDainaCompiler *{
+
+	}
+}
