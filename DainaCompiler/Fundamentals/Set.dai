@@ -1,0 +1,78 @@
+
+@@
+
+Set<E:[SetObject]> : [Object]
+	:: setWithPredicateTrueIfObjectIsInSet [[[&E] -> [Boolean]] -> [Set]]
+	:: newEmptySet [ -> [Set]]
+	++ complementOfSet [ -> [Set<[&E]>]]
+	++ setByUnionWithSet [[Set<[&E]>] -> [Set<[&E]>]]
+	++ setByIntersectionWithSet [[Set<[&E]>] -> [Set<[&E]>]]
+	++ isObjectInSet [[&E] -> [Boolean]]
+	++ addObjectToSet [[&E] -> ]
+	++ removeObjectFromSet [[&E] -> ]
+	
+@@
+
+
+
+
+[Set<E [SetObject]> : [Object]] (Object, Boolean, SetObject, Mapping, Conjecture, Container)
+	[[&E]->[Boolean]] initialPredicateDeterminingIfAnObjectIsInTheSet
+	[Mapping<[&E][Boolean]>] mappingOfObjectToIsObjectInSet
+{
+
+	~ setWithPredicateTrueIfObjectIsInSet *([[&E]->[Boolean]] isObjectInSet) {
+		\::new;
+		.initialPredicateDeterminingIfAnObjectIsInTheSet = isObjectInSet;
+		.mappingOfObjectToIsObjectInSet = \[Mapping<[&E][Boolean]>]:newEmptyMapping;
+	}
+
+	~ newEmptySet *{
+		\::setWithPredicateTrueIfObjectIsInSet *([]o)->\[Boolean]:false;
+	}
+
+	++ complementOfSet * -> \[Set<[&E]>]:setWithPredicateTrueIfObjectIsInSet 
+		*([&E] e)-> \[Boolean]:not (\:isObjectInSet e)
+
+	++ setByUnionWithSet *([Set<[&E]>] theSetToUnionWith) -> \[Set<[&E]>]:setWithPredicateTrueIfObjectIsInSet 
+		*([&E] e)-> \[Boolean]:or (\:isObjectInSet e) (\theSetToUnionWith:isObjectInSet e)
+
+	++ setByIntersectionWithSet *([Set<[&E]>] theSetToUnionWith) -> \[Set<[&E]>]:setWithPredicateTrueIfObjectIsInSet 
+		*([&E] e)-> \[Boolean]:and (\:isObjectInSet e) (\theSetToUnionWith:isObjectInSet e)
+
+	++ isObjectInSet *([&E] theObjectInQuestion) -> [Boolean] {
+		[Conjecture] objectIsInSet = \[Conjecture]:propose;
+		[Boolean] initialPredicateIncludesObjectInSet 
+			= \.initialPredicateDeterminingIfAnObjectIsInTheSet theObjectInQuestion;
+		\initialPredicateIncludesObjectInSet:ifTrue objectIsInSet:declareTrue;
+
+		\.mappingOfObjectToIsObjectInSet:retriveMappedValueWithKey theObjectInQuestion 
+				(*([Boolean] mappingDeclaresThatObjectIsInSet) {
+
+				\mappingDeclaresThatObjectIsInSet:ifTrue objectIsInSet:declareTrue;
+				\mappingDeclaresThatObjectIsInSet:ifFalse objectIsInSet:declareFalse
+			})
+	} -> \objectIsInSet:isTrue
+
+	++ addObjectToSet *([&E] theObjectInQuestion) {
+		\.mappingOfObjectToIsObjectInSet:mapKeyToValue theObjectInQuestion \[Boolean]:true
+	}
+
+	++ removeObjectFromSet *([&E] theObjectInQuestion) {
+		\.mappingOfObjectToIsObjectInSet:mapKeyToValue theObjectInQuestion \[Boolean]:false
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

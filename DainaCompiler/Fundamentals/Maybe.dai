@@ -1,0 +1,48 @@
+
+@@
+
+Maybe<E:[Object]> : [Object]
+	:: nothing [ -> [Maybe]]
+	:: just [[&E] -> [Maybe]]
+	++ ifNothing [[ -> ] -> ]
+	++ ifJust [[[&E] -> ] -> ]
+	
+@@
+
+
+
+[Maybe<E [Object]> : [Object]] (Object, Container, Wrapper, Boolean)
+	[Container<[&E]>] possiblyContainingAnObject 
+{
+	~ nothing *{
+		\::new;
+		.possiblyContainingAnObject = \[Container<[&E]>]:newEmptyContainer;
+	}
+
+	~ just *([&E] theObjectThatThisMaybeIsJust) {
+		\::new;
+		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
+	}
+
+	++ ifNothing *([->] actOnNothing) {
+		[Boolean] nothingToSeeHere = \.possiblyContainingAnObject:isEmpty;
+		\nothingToSeeHere:ifTrue *{\actOnNothing}
+	}
+
+	++ ifJust *([[&E]->] actOnJust) {
+		\.possiblyContainingAnObject:retrive actOnJust
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,52 @@
+
+@@
+
+WeakReference<E:[Object]> : [Object]
+	:: weakReferenceTo [[&E] -> [WeakReference]]
+	++ referencedObject [ -> [&E]]
+
+@@
+
+
+[InternalNonReleasingReference<E [Object]> : [Object]] (Object) -> (WeakReference)
+	[&E] referenceToObject
+{
+
+	~ nonReleasingReferenceTo *([&E] referenceToObject) {
+		\::new;
+		.referenceToObject = referenceToObject;
+		<instant
+		##
+			ReleaseDynamicObject(Z_local_referenceToObject);
+		##;
+	}
+
+	++ referencedObject *->.referenceToObject
+
+	<deallocator
+	##
+		{return NULL;}
+	##
+}
+
+[WeakReference<E [Object]> : [Object]] (Object, InternalNonReleasingReference)
+	[InternalNonReleasingReference<[&E]>] nonReleasingReference
+{
+
+	~ weakReferenceTo *([&E] objectToHaveWeakReferenceTo) {
+		\::new;
+		.nonReleasingReference = \[InternalNonReleasingReference<[&E]>]:nonReleasingReferenceTo objectToHaveWeakReferenceTo;
+	}
+
+	++ referencedObject *->\.nonReleasingReference:referencedObject
+}
+
+
+
+
+
+
+
+
+
+

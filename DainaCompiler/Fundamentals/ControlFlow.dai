@@ -1,0 +1,54 @@
+@@
+
+
+
+ControlFlow : []
+	:: repeatWhile [[ -> [Boolean]],[ -> ] -> ]
+	:: ifThenElse [[ -> [Boolean]],[ -> ],[ -> ] -> ]
+	:: repeatNTimes [[Natural],[[Natural] -> ] -> ]
+
+@@
+
+
+
+
+
+[ControlFlow] (Boolean, Natural, Wrapper, Object, CoreFlow)
+{
+	:: repeatWhile *([->[Boolean]] conditionForRepeat, [->] lambdaToRepeat) {
+		\[CoreFlow]:repeatUntilStopped *([->] stop) {
+			\[ControlFlow]:ifThenElse conditionForRepeat lambdaToRepeat stop;
+		};
+	}
+
+	:: ifThenElse *([->[Boolean]] conditionForIf, [->] onTrue, [->] onFalse) {
+		[Boolean] conditionResult = \conditionForIf;
+		\conditionResult:ifTrue onTrue;
+		\conditionResult:ifFalse onFalse;
+	}
+
+	:: repeatNTimes *([Natural] numberOfTimesToRepeat, [[Natural]->] lambdaToRepeatReceivingCurrentCount) {
+		[Wrapper<[Natural]>] wrappedCurrentCount = \[Wrapper<[Natural]>]:wrapperWithObject (\[Natural]:one);
+
+		(\[ControlFlow]:repeatWhile currentCountHasNotExceededNumberOfTimesToRepeat *{
+			\lambdaToRepeatReceivingCurrentCount \wrappedCurrentCount:unwrap;
+			\incrementCount;
+
+		})	!{
+				[->[Boolean]] currentCountHasNotExceededNumberOfTimesToRepeat = *-> (\numberOfTimesToRepeat:isGreaterThanOrEqualTo \wrappedCurrentCount:unwrap);
+				
+				[->] incrementCount = *{
+					\wrappedCurrentCount:transformStoredObject *([Natural] count)-> (\count:naturalByAddingOne);
+				};
+			};
+	}
+
+}
+
+
+
+
+
+
+
+

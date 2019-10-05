@@ -1,0 +1,42 @@
+
+@@
+
+Byte : [Object]
+	:: newByte [[%BYTE] -> [Byte]]
+	++ sameAsByte [[Byte] -> [Boolean]]
+
+@@
+
+
+
+[Byte : [Object]] (Object, Boolean)
+	[] internalByte
+{
+	~ newByte *([%BYTE] constantByte) {
+		\::new;
+		[] constantByteInternal = ();
+		<instant ## Z_local_constantByteInternal = Z_local_constantByte; ##;
+		.internalByte = constantByteInternal;
+	}
+
+	++ sameAsByte *([Byte] anotherByte) -> [Boolean] {
+		[Boolean] bytesAreTheSame = \[Boolean]:false;
+		<instant
+		##
+		if (((struct Z_template_Byte *)(Z_self))->Z_attribute_Byte_internalByte == ((struct Z_template_Byte *)(Z_local_anotherByte))->Z_attribute_Byte_internalByte)
+			((struct Z_template_Boolean *)(Z_local_bytesAreTheSame))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
+		##;
+	} -> bytesAreTheSame
+}
+
+
+
+
+
+
+
+
+
+
+
+

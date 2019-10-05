@@ -1,0 +1,156 @@
+
+@@
+
+Data : [Object]
+	:: emptyData [ -> [Data]]
+	:: dataFromBytesWithByteProvider [[[[Byte] -> ] -> ] -> [Data]]
+	:: isDataIdenticalToData [[Data],[Data] -> [Boolean]]
+	++ dataByAppendingData [[Data] -> [Data]]
+	
+@@
+
+
+
+
+[InternalPointer] -> (Data)
+	[] automaticallyReleasedCPointer
+{
+
+	~ newInternalPointerHavingNULLCPointerAllocation *{
+		.automaticallyReleasedCPointer = ();
+	}
+
+<deallocator
+	##
+		#define GET_CPOINTER_FROM_INTERNALPOINTER(_internalPointerObject) ((struct Z_template_InternalPointer *)(_internalPointerObject))->Z_attribute_InternalPointer_automaticallyReleasedCPointer
+
+		void *internalCPointer = ((struct Z_template_InternalPointer *)(object))->Z_attribute_InternalPointer_automaticallyReleasedCPointer;
+		if (internalCPointer != NULL) free(internalCPointer);
+	##
+}
+
+
+
+[Data : [Object]] (Object, Boolean, InternalPointer, Byte)
+	[InternalPointer] dataBlock
+	[] dataBlockSize
+{
+	~ emptyData *{
+		\::new;
+		.dataBlock = \[InternalPointer]:newInternalPointerHavingNULLCPointerAllocation;
+		.dataBlockSize = ();
+	}
+
+	:: dataFromBytesWithByteProvider *([[[Byte]->]->] byteProvider) -> [Data] {
+		[Data] newData = \[Data]:emptyData;
+		\byteProvider *([Byte] aByteGivenByProvider) {
+			[Data] currentData = newData;
+			<instant
+			##
+				size_t currentSize = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_local_newData);
+				if (currentSize > 0) {
+					injected_DATA_RESIZE_WITH_SIZE_AND_DATA_OBJECT(currentSize+1, Z_local_newData);
+				} else {
+					injected_DATA_REALLOCATE_WITH_SIZE_AND_DATA_OBJECT(1, Z_local_newData);
+				}
+				char *dataPointer = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_local_newData);
+				dataPointer[currentSize] = (char)((long)(((struct Z_template_Byte *)(Z_local_aByteGivenByProvider))->Z_attribute_Byte_internalByte));
+			##;
+		};
+	} -> newData
+
+	:: isDataIdenticalToData *([Data] data1, [Data] data2) -> [Boolean] {
+		[Boolean] dataIsIdentical = \[Boolean]:false;
+		<instant
+		##
+			size_t firstDataSize = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_local_data1);
+			void *firstDataPointer = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_local_data1);
+			size_t secondDataSize = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_local_data2);
+			void *secondDataPointer = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_local_data2);
+			if (firstDataSize == secondDataSize) {
+				if (memcmp(firstDataPointer, secondDataPointer, firstDataSize) == 0) {
+					((struct Z_template_Boolean *)(Z_local_dataIsIdentical))->Z_attribute_Boolean_internalBoolean 
+						= (void *)(0==0);
+				}
+			}
+		##;
+	} -> dataIsIdentical
+
+	++ dataByAppendingData *([Data] someOtherData) -> [Data] {
+		[Data] newData = \[Data]:emptyData;
+		<instant
+		##
+			size_t firstDataSize = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_self);
+			void *firstDataPointer = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_self);
+			size_t secondDataSize = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_local_someOtherData);
+			void *secondDataPointer = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_local_someOtherData);
+			injected_DATA_REALLOCATE_WITH_SIZE_AND_DATA_OBJECT(firstDataSize + secondDataSize, Z_local_newData);
+			injected_DATA_COPY_WITH_SIZE_DATAFROM_AND_DATA_OBJECT(firstDataSize, firstDataPointer, Z_local_newData);
+			injected_DATA_COPY_WITH_SIZE_DATAFROM_DATAOBJECT_AND_OFFSETINDATAOBJECT(secondDataSize, secondDataPointer, Z_local_newData, firstDataSize);
+		##;
+		
+	} -> newData
+
+	- debugASCIIDumpOfData *{
+		<instant
+		##
+			size_t size = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_self);
+			char *dataBytes = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_self);
+			size_t i;
+			printf("{");
+			for (i=0;i<size;++i)
+				printf(" %x", 0xff & (dataBytes[i]));
+			printf(" }\n");
+		##;
+	}
+
+	<deallocator
+	##
+
+		#define injected_DATA_REALLOCATE_FILLWITHZEROS_WITH_SIZE_AND_DATA_OBJECT(_size, _dataObject) \
+		void *dataBlock = GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock); \
+		if (dataBlock != NULL) free(dataBlock); \
+		GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock) = calloc(_size, 1); \
+		((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlockSize = (void *)_size;
+
+		#define injected_DATA_RESIZE_WITH_SIZE_AND_DATA_OBJECT(_size, _dataObject) \
+		void *dataBlock = GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock); \
+		GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock) = realloc(GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock), _size); \
+		((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlockSize = (void *)_size;
+
+		#define injected_DATA_REALLOCATE_WITH_SIZE_AND_DATA_OBJECT(_size, _dataObject) \
+		void *dataBlock = GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock); \
+		if (dataBlock != NULL) free(dataBlock); \
+		GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock) = malloc(_size); \
+		((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlockSize = (void *)_size;
+
+		#define injected_DATA_CHANGE_SIZE_WITH_SIZE_AND_DATA_OBJECT(_size, _dataObject) \
+		((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlockSize = (void *)_size;
+
+		#define injected_DATA_COPY_WITH_SIZE_DATAFROM_AND_DATA_OBJECT(_size, _fromDataPointer, _dataObject) \
+		memcpy(GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock), _fromDataPointer, _size);
+
+		#define injected_DATA_COPY_WITH_SIZE_DATAFROM_DATAOBJECT_AND_OFFSETINDATAOBJECT(_size, _fromDataPointer, _dataObject, _offsetInDataObject) \
+		memcpy(GET_CPOINTER_FROM_INTERNALPOINTER(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock) + _offsetInDataObject, _fromDataPointer, _size);
+
+		#define injected_DATA_SIZE_WITH_DATA_OBJECT(_dataObject) \
+		((size_t)(((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlockSize))
+
+		#define injected_DATA_POINTER_WITH_DATA_OBJECT(_dataObject) \
+		(GET_CPOINTER_FROM_INTERNALPOINTER((((struct Z_template_Data *)(_dataObject))->Z_attribute_Data_dataBlock)))
+	##
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+

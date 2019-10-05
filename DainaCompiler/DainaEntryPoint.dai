@@ -1,0 +1,25 @@
+
+
+[] (DainaCompiler) 
+{
+	^ *{
+		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompiler;
+		\dainaCompiler:runDainaCompiler;
+	}
+}
+
+
+[DainaCompiler] (DainaCommandInterface, DainaCommand) 
+{
+	~ newDainaCompiler *{}
+
+	++ runDainaCompiler *{
+		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterface;
+		\dainaCommandInterface:receiveCommandsUntilExitCommandIsReceivedWithCommandReceiver
+		 	:receiveDainaCommandAndPerformCorrespondingAction;
+	}
+
+	- receiveDainaCommandAndPerformCorrespondingAction *([DainaCommand] receivedDainaCommand) {
+
+	}
+}
