@@ -9,7 +9,8 @@
 }
 
 
-[DainaCompiler] (DainaCommandInterface, DainaCommand) 
+[DainaCompiler] (DainaCommandInterface, DainaCommand, DainaSyntaxTree) 
+	[DainaSyntaxTree] 
 {
 	~ newDainaCompiler *{}
 
