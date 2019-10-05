@@ -15,11 +15,11 @@
 
 	++ runDainaCompiler *{
 		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterface;
-		\dainaCommandInterface:receiveCommandsUntilExitCommandIsReceivedWithCommandReceiver
-		 	:receiveDainaCommandAndPerformCorrespondingAction;
+		\dainaCommandInterface:receiveCommandsFromUserUntilExitCommandIsReceivedWithCommandReceiver
+		 	:performCorrespondingActionForDainaCommand;
 	}
 
-	- receiveDainaCommandAndPerformCorrespondingAction *([DainaCommand] receivedDainaCommand) {
+	- performCorrespondingActionForDainaCommand *([DainaCommand] dainaCommandInQuestion) {
 
 	}
 }
