@@ -26,6 +26,7 @@
 	- performCorrespondingActionForDainaCommand *([DainaCommand] dainaCommandInQuestion) {
 		\dainaCommandInQuestion:ifCommandIsParseDainaSourceFile loadFileAndParseIntoSyntaxTreeRepresentingParsedProgram;
 		\dainaCommandInQuestion:ifCommandIsAnalyseAndSynthesiseSyntaxTree analyseAndSynthesiseSyntaxTreeRepresentingParsedProgram;
-		\dainaCommandInQuestion:ifCommandIsCompileToJaa
+		\dainaCommandInQuestion:ifCommandIsCompileToJavaInDirectory compileSyntaxTreeIntoJavaWithinGivenDirectory;
+		\dainaCommandInQuestion:ifCommandIsCompileToCInDirectory compileSyntaxTreeIntoCWithinGivenDirectory;
 	}
 }
