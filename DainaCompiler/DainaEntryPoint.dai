@@ -9,10 +9,13 @@
 }
 
 
-[DainaCompiler] (DainaCommandInterface, DainaCommand, DainaSyntaxTree) 
-	[DainaSyntaxTree] 
+[DainaCompiler : [Object]] (DainaCommandInterface, DainaCommand, DainaSyntaxTree, File) 
+	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
 {
-	~ newDainaCompiler *{}
+	~ newDainaCompiler *{
+		\::newObject;
+		.syntaxTreeRepresentingParsedProgram = \[DainaSyntaxTree]:newEmptySyntaxTree;
+	}
 
 	++ runDainaCompiler *{
 		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterface;
@@ -21,6 +24,8 @@
 	}
 
 	- performCorrespondingActionForDainaCommand *([DainaCommand] dainaCommandInQuestion) {
-
+		\dainaCommandInQuestion:ifCommandIsParseDainaSourceFile loadFileAndParseIntoSyntaxTreeRepresentingParsedProgram;
+		\dainaCommandInQuestion:ifCommandIsAnalyseAndSynthesiseSyntaxTree analyseAndSynthesiseSyntaxTreeRepresentingParsedProgram;
+		\dainaCommandInQuestion:ifCommandIsCompileToJaa
 	}
 }
