@@ -1,0 +1,15 @@
+[DainaCommandInterface : [Object]] (DainaStatusReporter)
+	[DainaStatusReporter] dainaStatusReporter
+{
+
+	~ newDainaCommandInterface *() {
+		\::new;
+	}
+
+
+receiveCommandsFromUserUntilExitCommandIsReceivedWithCommandReceiver DainaCommand
+
+
+	++ provideDainaStatusReporter *{}-> .dainaStatusReporter
+
+}
