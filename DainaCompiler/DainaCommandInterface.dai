@@ -1,13 +1,11 @@
 [DainaCommandInterface : [Object]] (DainaStatusReporter, InputStream, InputStream, OutputStream, SystemInputOutput)
 	[InputStream] commandInputStream
-	[OutputStream] statusOutputStream
 	[DainaStatusReporter] dainaStatusReporter
 {
 
 	~ newDainaCommandInterface *() {
 		\::new;
 		.commandInputStream = commandInputStream;
-		.statusOutputStream = statusOutputStream;
 		.dainaStatusReporter = \[DainaStatusReporter]:statusReporterWithOutputStreamToReceiveStatus statusOutputStream;
 	} !{
 			[InputStream] commandInputStream = \[SystemInputOutput]:stdinInputStream;
@@ -16,7 +14,7 @@
 
 
 	++ receiveCommandsFromUserUntilExitCommandIsReceivedWithCommandReceiver([[DainaCommand]->] receiveCommand) {
-		
+
 	}
 
 
