@@ -49,7 +49,7 @@ SystemIO : []
 
 
 
-[SystemIO] (OutputStream, InputStream, Object, AutomaticallyClosingInputFileDataStream, Maybe, SocketBinding,
+[SystemInputOutput] (OutputStream, InputStream, Object, AutomaticallyClosingInputFileDataStream, Maybe, SocketBinding,
 		AutomaticallyClosingOutputFileDataStream, String, Data, SocketPort, SocketConnection, IPAddress) 
 {
 
@@ -213,6 +213,9 @@ SystemIO : []
 			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_systemInputStream, stdin);
 		##;
 	} -> systemInputStream
+
+	:: stdoutOutputStream *{} -> (\[SystemInputOutput]:stdout)
+	:: stdinInputStream *{} -> (\[SystemInputOutput]:stdin)
 	
 }
 
