@@ -95,7 +95,7 @@ InputStream : [DataStream]
 }
 
 
-[InputStream : [DataStream]] (DataStream, Data, Byte, Maybe) 
+[InputStream : [DataStream]] (DataStream, Data, Byte, Maybe, String) 
 {
 
 	<header
@@ -139,6 +139,12 @@ InputStream : [DataStream]
 			//}
 		##;
 	} -> maybeSomeDataThatWasRead
+
+	++ readNextLineAsString *()->[String] {
+		[Data] nextLineAsData = \[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideByte) {
+			[V]
+		}
+	} -> (\[String]:stringWithASCIIDataRepresentationOfString nextLineAsData)
 
 	++ readNextByte *() -> [Maybe<[Byte]>] {
 		@[] dataObjectPointer = dataToWrite;
