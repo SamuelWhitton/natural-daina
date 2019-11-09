@@ -1,0 +1,11 @@
+[DainaCommand] ()
+
+{
+
+		\dainaCommandInQuestion:ifCommandIsParseDainaSourceFile loadSourceFileWithNameAndParseIntoSyntaxTreeRepresentingParsedProgram;
+	\dainaCommandInQuestion:ifCommandIsAnalyseAndSynthesiseSyntaxTree analyseAndSynthesiseSyntaxTreeRepresentingParsedProgram;
+		\dainaCommandInQuestion:ifCommandIsCompileToJavaInDirectory compileSyntaxTreeIntoJavaWithinGivenDirectory;
+		\dainaCommandInQuestion:ifCommandIsCompileToCInDirectory compileSyntaxTreeIntoCWithinGivenDirectory;
+
+
+}

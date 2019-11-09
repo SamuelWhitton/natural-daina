@@ -1,4 +1,5 @@
-[DainaCommandInterface : [Object]] (DainaStatusReporter, InputStream, InputStream, OutputStream, SystemInputOutput)
+[DainaCommandInterface : [Object]] (DainaStatusReporter, InputStream, InputStream, OutputStream, SystemInputOutput
+									String, Variable, ControlFlow)
 	[InputStream] commandInputStream
 	[DainaStatusReporter] dainaStatusReporter
 {
@@ -14,10 +15,27 @@
 
 
 	++ receiveCommandsFromUserUntilExitCommandIsReceivedWithCommandReceiver([[DainaCommand]->] receiveCommand) {
+		\.dainaStatusReporter:reportStatusThatDainaCommandReceiverIsNowReceivingCommands;
+		\[ControlFlow]:repeatUntilStopped receiveCommandsAndStopWhenExitCommandIsReceived 
+		!{
+			[[->]->] receiveCommandsAndStopWhenExitCommandIsReceived = *([->] stopReceivingCommands) {
+				[String] parsedCommand = \:getNextCommandStringInput;
+				\parsedCommandIsExit:ifTrue stopReceivingCommands;
+				\parsedCommandIs
+				[Variable<[Maybe<[String]>]>] lastComm
+				[] 
+			}	!{
 
-	}
+				}
+		}	
+	}	!{
+			[->[String]] receiveNe
+		}
+
+	- getNextCommandStringInput *()->[String] {} -> \.commandInputStream:parseDataAsStringUntilNewline
 
 
 	++ provideDainaStatusReporter *{}-> .dainaStatusReporter
 
 }
+
