@@ -1,64 +1,61 @@
 [DainaCommand : [Object]] (String, Object)
-	[[[String]->][->][[String]->][[String]->][->]->] ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+	[[[String]->][->][[String]->][[String]->]->] ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
 {
 	~ commandToParseDainaSourceFile *([String] dainaSourceFilePath) {
 		\::new;
-		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4) {
 				\_1 dainaSourceFilePath
 			}
 	}
 	++ ifCommandIsParseDainaSourceFile *([[String]->] _1) {
-		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			_1 *(){} *([]_){} *([]_){} *(){}
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			_1 *(){} *([]_){} *([]_){}
 	}
 
 	~ commandToAnalyseAndSynthesiseSyntaxTree *() {
 		\::new;
-		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4) {
 				\_2
 			}
 	}
 	++ ifCommandIsAnalyseAndSynthesiseSyntaxTree *([->] _2) {
-		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			*([]_){} _2 *([]_){} *([]_){} *(){}
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			*([]_){} _2 *([]_){} *([]_){}
 	}
 
 	~ commandToCompileToJavaInDirectory *([String] javaCompilationDirectory) {
 		\::new;
-		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4) {
 				\_3 javaCompilationDirectory
 			}
 	}
 	++ ifCommandIsCompileToJavaInDirectory *([[String]->] _3) {
-		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			*([]_){} *(){} _3 *([]_){} *(){}
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			*([]_){} *(){} _3 *([]_){}
 	}
 
 	~ commandToCompileToCInDirectory *([String] cCompilationDirectory) {
 		\::new;
-		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4) {
 				\_4 cCompilationDirectory
 			}
 	}
 	++ ifCommandIsCompileToCInDirectory *([[String]->] _4) {
-		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			*([]_){} *(){} *([]_){} _4 *(){}
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory
+			*([]_){} *(){} *([]_){} _4
 	}
 
-	~ commandToExitDaina *() {
-		\::new;
-		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
-				\_5
-			}
-	}
-	++ ifCommandIsExitDaina *([->] _5) {
-		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
-			*([]_){} *(){} *([]_){} *([]_){} _5
-	}
+	:: exitCommandString *->(\[String]:newString "exit")
+	:: parseDainaSourceFileCommandString *->(\[String]:newString "parse dainasource")
+	:: analyseAndSynthesiseSyntaxTreeCommandString *->(\[String]:newString "synthesise")
+	:: compileToJavaInDirectoryCommandString *->(\[String]:newString "compileto java")
+	:: compileToCInDirectoryCommandString *->(\[String]:newString "compileto c")
 }
+
+
+
 
