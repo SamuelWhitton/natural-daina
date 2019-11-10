@@ -1,11 +1,64 @@
-[DainaCommand] ()
-
+[DainaCommand : [Object]] (String, Object)
+	[[[String]->][->][[String]->][[String]->][->]->] ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
 {
+	~ commandToParseDainaSourceFile *([String] dainaSourceFilePath) {
+		\::new;
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+				\_1 dainaSourceFilePath
+			}
+	}
+	++ ifCommandIsParseDainaSourceFile *([[String]->] _1) {
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			_1 *(){} *([]_){} *([]_){} *(){}
+	}
 
-		\dainaCommandInQuestion:ifCommandIsParseDainaSourceFile loadSourceFileWithNameAndParseIntoSyntaxTreeRepresentingParsedProgram;
-	\dainaCommandInQuestion:ifCommandIsAnalyseAndSynthesiseSyntaxTree analyseAndSynthesiseSyntaxTreeRepresentingParsedProgram;
-		\dainaCommandInQuestion:ifCommandIsCompileToJavaInDirectory compileSyntaxTreeIntoJavaWithinGivenDirectory;
-		\dainaCommandInQuestion:ifCommandIsCompileToCInDirectory compileSyntaxTreeIntoCWithinGivenDirectory;
+	~ commandToAnalyseAndSynthesiseSyntaxTree *() {
+		\::new;
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+				\_2
+			}
+	}
+	++ ifCommandIsAnalyseAndSynthesiseSyntaxTree *([->] _2) {
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			*([]_){} _2 *([]_){} *([]_){} *(){}
+	}
 
+	~ commandToCompileToJavaInDirectory *([String] javaCompilationDirectory) {
+		\::new;
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+				\_3 javaCompilationDirectory
+			}
+	}
+	++ ifCommandIsCompileToJavaInDirectory *([[String]->] _3) {
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			*([]_){} *(){} _3 *([]_){} *(){}
+	}
 
+	~ commandToCompileToCInDirectory *([String] cCompilationDirectory) {
+		\::new;
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+				\_4 cCompilationDirectory
+			}
+	}
+	++ ifCommandIsCompileToCInDirectory *([[String]->] _4) {
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			*([]_){} *(){} *([]_){} _4 *(){}
+	}
+
+	~ commandToExitDaina *() {
+		\::new;
+		.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			= *([[String]->] _1, [->]_2, [[String]->]_3, [[String]->]_4, [->]_5) {
+				\_5
+			}
+	}
+	++ ifCommandIsExitDaina *([->] _5) {
+		\.ifCommandIsParseDainaSourceFile_ifCommandIsAnalyseAndSynthesiseSyntaxTree_ifCommandIsCompileToJavaInDirectory_ifCommandIsCompileToCInDirectory_ifCommandIsExit
+			*([]_){} *(){} *([]_){} *([]_){} _5
+	}
 }
+
