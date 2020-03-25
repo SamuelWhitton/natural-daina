@@ -59,6 +59,29 @@ Boolean : [Object]
 
 	:: and *([Boolean] boolean1, [Boolean] boolean2) -> (\[Boolean]:not (\[Boolean]:or (\[Boolean]:not boolean1) (\[Boolean]:not boolean2)))
 
+	:: logicalOR *([Boolean] boolean1, [Boolean] boolean2) -> [Boolean] {
+		[Boolean] result = \[Boolean]:false;
+		<instant
+		##
+			int orResult = ((struct Z_template_Boolean *)(Z_local_boolean1))->Z_attribute_Boolean_internalBoolean
+			|| ((struct Z_template_Boolean *)(Z_local_boolean2))->Z_attribute_Boolean_internalBoolean;
+			if (orResult)
+			((struct Z_template_Boolean *)(Z_local_result))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
+		##;
+	} -> result
+
+
+	:: logicalNOT *([Boolean] boolean1) -> [Boolean] {
+		[Boolean] result = \[Boolean]:false;
+		<instant
+		##
+			if (!((struct Z_template_Boolean *)(Z_local_boolean1))->Z_attribute_Boolean_internalBoolean)
+				((struct Z_template_Boolean *)(Z_local_result))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
+		##;
+	} -> result
+
+	:: logicalAND *([Boolean] boolean1, [Boolean] boolean2) -> (\[Boolean]:not (\[Boolean]:or (\[Boolean]:not boolean1) (\[Boolean]:not boolean2)))
+
 
 	:: xor *([Boolean] boolean1, [Boolean] boolean2) -> (\[Boolean]:or (\[Boolean]:and (\[Boolean]:not boolean1) (boolean2)) (\[Boolean]:and (\[Boolean]:not boolean2) (boolean1)))
 

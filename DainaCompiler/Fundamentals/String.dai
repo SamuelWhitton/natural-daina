@@ -34,6 +34,15 @@ String : [SetObject<[String]>]
 		##;
 	}
 
+	~ newStringFromConstant *([%STRING] constantString) {
+		\::newSetObject;
+		.internalString = \[Data]:emptyData;
+		<instant
+		##
+			injected_STRING_SET_INTERNAL_DATA_WITH_STRING_OBJECT_AND_C_STRING(Z_self, Z_local_constantString);
+		##;
+	}
+
 	|++ isEqualTo *([String] someOtherString) -> [Boolean] {
 		[Data] asciiRepForString1 = \:asciiDataRepresentationOfString;
 		[Data] asciiRepForString2 = \someOtherString:asciiDataRepresentationOfString;

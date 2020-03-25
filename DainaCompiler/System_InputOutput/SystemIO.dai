@@ -17,7 +17,7 @@ SystemIO : []
 
 
 
-[AutomaticallyClosingInputFileDataStream : [InputStream]] (InputStream) -> (SystemIO)
+[AutomaticallyClosingInputFileDataStream : [InputStream]] (InputStream) -> (SystemInputOutput)
 {
 	~ automaticallyClosingInputFileStreamConnectedToNullDevice *{
 		\::inputStreamConnectedToNullDevice;
@@ -32,7 +32,7 @@ SystemIO : []
 	##
 }
 
-[AutomaticallyClosingOutputFileDataStream : [OutputStream]] (OutputStream) -> (SystemIO)
+[AutomaticallyClosingOutputFileDataStream : [OutputStream]] (OutputStream) -> (SystemInputOutput)
 {
 	~ automaticallyClosingOutputFileStreamConnectedToNullDevice *{
 		\::outputStreamConnectedToNullDevice;
@@ -212,10 +212,10 @@ SystemIO : []
 		##
 			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_systemInputStream, stdin);
 		##;
-	} -> systemInputStream
+	} -> (systemInputStream)
 
-	:: stdoutOutputStream *{} -> (\[SystemInputOutput]:stdout)
-	:: stdinInputStream *{} -> (\[SystemInputOutput]:stdin)
+	:: stdoutOutputStream * -> (\[SystemInputOutput]:stdout)
+	:: stdinInputStream * -> (\[SystemInputOutput]:stdin)
 	
 }
 

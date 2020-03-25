@@ -95,7 +95,7 @@ InputStream : [DataStream]
 }
 
 
-[InputStream : [DataStream]] (DataStream, Data, Byte, Maybe, String) 
+[InputStream : [DataStream]] (DataStream, Data, Byte, Maybe, String, CoreFlow, Boolean) 
 {
 
 	<header
@@ -140,11 +140,22 @@ InputStream : [DataStream]
 		##;
 	} -> maybeSomeDataThatWasRead
 
-	++ readNextLineAsString *()->[String] {
+	++ parseDataAsStringUntilNewlineOrEndOfFile *()->[String] {
 		[Data] nextLineAsData = \[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideByte) {
-			[V]
+			\[CoreFlow]:repeatUntilStopped *([->] endOfLineReachedSoStop) {
+				[Maybe<[Byte]>] maybeNextByte = \:readNextByte;
+				\maybeNextByte:ifJust *([Byte] nextByte) {
+					[Boolean] nextByteIsEndOfLine = (\nextByte:sameAsByte (\[Byte]:newByte 0b0A));
+					\nextByteIsEndOfLine:ifTrue endOfLineReachedSoStop;
+					\nextByteIsEndOfLine:ifFalse *{\provideByte nextByte}
+				};
+				\maybeNextByte:ifNothing *{
+					\endOfLineReachedSoStop
+				}
+			}
 		}
 	} -> (\[String]:stringWithASCIIDataRepresentationOfString nextLineAsData)
+
 
 	++ readNextByte *() -> [Maybe<[Byte]>] {
 		@[] dataObjectPointer = dataToWrite;

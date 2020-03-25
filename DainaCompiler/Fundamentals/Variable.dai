@@ -12,7 +12,7 @@
 	++ getInstance *->.variableObject
 
 	++ setInstance *([&E] newInstantiation) {
-		.variableObject = initialInstantiation;
+		.variableObject = newInstantiation;
 	}
 }
 

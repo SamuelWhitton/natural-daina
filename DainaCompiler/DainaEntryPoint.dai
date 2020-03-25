@@ -9,7 +9,7 @@
 }
 
 
-[DainaCompiler : [Object]] (DainaCommandInterface, DainaCommand, DainaSyntaxTree, File, String, DainaStatusReporter, DainaToJavaCompiler, DainaToCCompiler) 
+[DainaCompiler : [Object]] (Object, DainaCommandInterface, DainaCommand, DainaSyntaxTree, File, String, DainaStatusReporter@@, DainaToJavaCompiler, DainaToCCompiler@@) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
 	[DainaCommandInterface] dainaCommandInterface
 {
@@ -32,19 +32,19 @@
 	} !	{
 			[DainaStatusReporter] dainaStatusReporter = (\.dainaCommandInterface:provideDainaStatusReporter);
 			[[String]->] loadSourceFileWithNameAndParseIntoSyntaxTreeRepresentingParsedProgram = *([String] nameOfDainaSourceFile) {
-				[File] dainaSourceFile = \[File]:readFileWithName nameOfDainaSourceFile;
-				\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter;
+				@[File] dainaSourceFile = \[File]:readFileWithName nameOfDainaSourceFile;
+				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter;
 			}
 			[->] analyseAndSynthesiseSyntaxTreeRepresentingParsedProgram = *{
-				\.syntaxTreeRepresentingParsedProgram:analyseAndSynthesiseSyntaxTreeWithStatusReporter dainaStatusReporter;
+				@\.syntaxTreeRepresentingParsedProgram:analyseAndSynthesiseSyntaxTreeWithStatusReporter dainaStatusReporter;
 			}
 			[[String]->] compileSyntaxTreeIntoJavaWithinGivenDirectory = *([String] javaCompilationDirectory) {
-				[DainaToJavaCompiler] dainaToJavaCompiler = \[DainaToJavaCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
-				\dainaToJavaCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram javaCompilationDirectory;
+				@[DainaToJavaCompiler] dainaToJavaCompiler = \[DainaToJavaCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
+				@\dainaToJavaCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram javaCompilationDirectory;
 			}
 			[[String]->] compileSyntaxTreeIntoCWithinGivenDirectory = *([String] cCompilationDirectory) {
-				[DainaToCCompiler] dainaToCCompiler = \[DainaToCCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
-				\dainaToCCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram cCompilationDirectory;
+				@[DainaToCCompiler] dainaToCCompiler = \[DainaToCCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
+				@\dainaToCCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram cCompilationDirectory;
 			}
 		}
 }

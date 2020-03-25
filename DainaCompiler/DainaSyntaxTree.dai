@@ -1,0 +1,10 @@
+
+
+[DainaSyntaxTree : [Object]] (Object)
+{
+	~ newEmptySyntaxTree *{
+		\::newObject;
+	}
+}
+
+

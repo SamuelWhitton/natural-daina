@@ -24,6 +24,16 @@ Maybe<E:[Object]> : [Object]
 		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
 	}
 
+	~ asNothing *{
+		\::new;
+		.possiblyContainingAnObject = \[Container<[&E]>]:newEmptyContainer;
+	}
+
+	~ asJust *([&E] theObjectThatThisMaybeIsJust) {
+		\::new;
+		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
+	}
+
 	++ ifNothing *([->] actOnNothing) {
 		[Boolean] nothingToSeeHere = \.possiblyContainingAnObject:isEmpty;
 		\nothingToSeeHere:ifTrue *{\actOnNothing}

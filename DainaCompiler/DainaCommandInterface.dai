@@ -1,11 +1,11 @@
-[DainaCommandInterface : [Object]] (DainaStatusReporter, InputStream, InputStream, OutputStream, SystemInputOutput,
+[DainaCommandInterface : [Object]] (Object, DainaStatusReporter, InputStream, OutputStream, SystemInputOutput,
 									String, Variable, ControlFlow, DainaCommand, Boolean)
 	[InputStream] commandInputStream
 	[DainaStatusReporter] dainaStatusReporter
 {
 
 	~ newDainaCommandInterface *() {
-		\::new;
+		\::newObject;
 		.commandInputStream = commandInputStream;
 		.dainaStatusReporter = \[DainaStatusReporter]:statusReporterWithOutputStreamToReceiveStatus statusOutputStream;
 	} !{
@@ -13,36 +13,37 @@
 			[OutputStream] statusOutputStream = \[SystemInputOutput]:stdoutOutputStream;
 		}
 
-
 	++ receiveCommandsFromUserUntilExitCommandIsReceivedWithCommandReceiver *([[DainaCommand]->] receiveCommand) {
 		\.dainaStatusReporter:reportStatusThatDainaCommandReceiverIsNowReceivingCommands;
 		\[ControlFlow]:repeatUntilStopped receiveCommandsAndStopWhenExitCommandIsReceived
 		!{
 			[[->]->] receiveCommandsAndStopWhenExitCommandIsReceived = *([->] stopReceivingCommands) {
-				[String] parsedCommand = \:getNextCommandStringInput;
-				\parsedCommandIsExit:ifTrue stopReceivingCommands;
-				\parsedCommandIsParseDainaSourceFile:ifTrue *{
+				
+				\nextCommandIsExit:ifTrue stopReceivingCommands;
+				\nextCommandIsParseDainaSourceFile:ifTrue *{
 					\receiveCommand (\[DainaCommand]:commandToParseDainaSourceFile (\:getNextCommandStringInput))};
-				\parsedCommandIsAnalyseAndSynthesiseSyntaxTree:ifTrue *{
+				\nextCommandIsAnalyseAndSynthesiseSyntaxTree:ifTrue *{
 					\receiveCommand (\[DainaCommand]:commandToAnalyseAndSynthesiseSyntaxTree)};
-				\parsedCommandIsCompileToJavaInDirectory:ifTrue *{
+				\nextCommandIsCompileToJavaInDirectory:ifTrue *{
 					\receiveCommand (\[DainaCommand]:commandToCompileToJavaInDirectory (\:getNextCommandStringInput))};
-				\parsedCommandIsCompileToCInDirectory:ifTrue *{
+				\nextCommandIsCompileToCInDirectory:ifTrue *{
 					\receiveCommand (\[DainaCommand]:commandToCompileToCInDirectory (\:getNextCommandStringInput))};
-				\parsedCommandIsInvalid:ifTrue *{
+				\nextCommandIsInvalid:ifTrue *{
 					\.dainaStatusReporter:reportStatusInvalidCommand};
 			}	!{
-					[Boolean] parsedCommandIsExit = \parsedCommand:isEqualTo \[DainaCommand]:exitCommandString;
-					[Boolean] parsedCommandIsParseDainaSourceFile = \parsedCommand:isEqualTo \[DainaCommand]:parseDainaSourceFileCommandString;
-					[Boolean] parsedCommandIsAnalyseAndSynthesiseSyntaxTree = \parsedCommand:isEqualTo \[DainaCommand]:parsedCommandIsAnalyseAndSynthesiseSyntaxTree;
-					[Boolean] parsedCommandIsCompileToJavaInDirectory = \parsedCommand:isEqualTo \[DainaCommand]:compileToJavaInDirectoryCommandString;
-					[Boolean] parsedCommandIsCompileToJavaInDirectory = \parsedCommand:isEqualTo \[DainaCommand]:compileToJavaInDirectoryCommandString;
+					[String] nextCommand = \:getNextCommandStringInput;
+					[Boolean] nextCommandIsExit = \nextCommand:isEqualTo \[DainaCommand]:exitCommandString;
+					[Boolean] nextCommandIsParseDainaSourceFile = \nextCommand:isEqualTo \[DainaCommand]:parseDainaSourceFileCommandString;
+					[Boolean] nextCommandIsAnalyseAndSynthesiseSyntaxTree = \nextCommand:isEqualTo \[DainaCommand]:analyseAndSynthesiseSyntaxTreeCommandString;
+					[Boolean] nextCommandIsCompileToJavaInDirectory = \nextCommand:isEqualTo \[DainaCommand]:compileToJavaInDirectoryCommandString;
+					[Boolean] nextCommandIsCompileToCInDirectory = \nextCommand:isEqualTo \[DainaCommand]:compileToCInDirectoryCommandString;
+					[Boolean] nextCommandIsInvalid = \[Boolean]:logicalNOT (\[Boolean]:logicalOR (\[Boolean]:logicalOR (\[Boolean]:logicalOR (\[Boolean]:logicalOR nextCommandIsExit nextCommandIsParseDainaSourceFile) nextCommandIsAnalyseAndSynthesiseSyntaxTree) nextCommandIsCompileToJavaInDirectory) nextCommandIsCompileToCInDirectory)
 				}
 		};
 		\.dainaStatusReporter:reportStatusThatDainaCommandReceiverIsStoppingSinceExitCommandWasReceived	
 	}
 
-	- getNextCommandStringInput *()->[String] {} -> \.commandInputStream:parseDataAsStringUntilNewline
+	- getNextCommandStringInput *()->[String] {} -> \.commandInputStream:parseDataAsStringUntilNewlineOrEndOfFile
 
 	++ provideDainaStatusReporter *-> .dainaStatusReporter
 }
