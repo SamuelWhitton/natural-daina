@@ -202,6 +202,7 @@ OutputStream : [DataStream]
 
 DainaStatusReporter : [Object]
 	:: statusReporterWithOutputStreamToReceiveStatus [[OutputStream] -> [DainaStatusReporter]]
+	:: statusReeporterWithOutputStreamToReceiveStatus [[OutputStream] -> [DainaStatusReporter]]
 	++ reportStatusThatDainaCommandReceiverIsNowReceivingCommands [ -> ]
 	++ reportStatusInvalidCommand [ -> ]
 	++ reportStatusThatDainaCommandReceiverIsStoppingSinceExitCommandWasReceived [ -> ]
@@ -7516,6 +7517,8 @@ DainaCompiler : [Object]
 /*C*/   }
         //DECLARE METHOD classmethod_DainaStatusReporter_statusReporterWithOutputStreamToReceiveStatus(local_outputStreamToReportStatusTo)
 /*C*/   void* Z_classmethod_DainaStatusReporter_statusReporterWithOutputStreamToReceiveStatus(void* frame, void* Z_local_outputStreamToReportStatusTo);
+        //DECLARE METHOD classmethod_DainaStatusReporter_statusReeporterWithOutputStreamToReceiveStatus(local_outputStreamToReportStatusTo)
+/*C*/   void* Z_classmethod_DainaStatusReporter_statusReeporterWithOutputStreamToReceiveStatus(void* frame, void* Z_local_outputStreamToReportStatusTo);
         //DECLARE METHOD classmethod_DainaStatusReporter_reportStatusThatDainaCommandReceiverIsNowReceivingCommands()
 /*C*/   void* Z_classmethod_DainaStatusReporter_reportStatusThatDainaCommandReceiverIsNowReceivingCommands(void* frame);
         //DECLARE METHOD classmethod_DainaStatusReporter_reportStatusInvalidCommand()
@@ -7558,6 +7561,36 @@ DainaCompiler : [Object]
 /*C*/      RetainDynamicObject(Z_temporary_4);
            //ASSIGN (self AS template_DainaStatusReporter)->attribute_DainaStatusReporter_outputStreamToReportStatusTo = temporary_4
 /*C*/      ((struct Z_template_DainaStatusReporter *)(Z_self))->Z_attribute_DainaStatusReporter_outputStreamToReportStatusTo = Z_temporary_4;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaStatusReporter_statusReeporterWithOutputStreamToReceiveStatus(local_outputStreamToReportStatusTo)
+/*C*/      void* Z_classmethod_DainaStatusReporter_statusReeporterWithOutputStreamToReceiveStatus(void* frame, void* Z_local_outputStreamToReportStatusTo) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_2 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_2 = ((void *)(0));
+           //ASSIGN temporary_2 = local_outputStreamToReportStatusTo
+/*C*/      Z_temporary_2 = Z_local_outputStreamToReportStatusTo;
+           //RETAIN temporary_2
+/*C*/      RetainDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT temporary_4 WITH METHOD classmethod_DainaStatusReporter_statusReporterWithOutputStreamToReceiveStatus
+/*C*/      void* Z_temporary_4 = &Z_classmethod_DainaStatusReporter_statusReporterWithOutputStreamToReceiveStatus;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_4 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(1,1,Z_temporary_4);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_3+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_3(temporary_2)
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda), Z_temporary_2);
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
            //RETURN self
 /*C*/      return Z_self;
         //FINISH METHOD

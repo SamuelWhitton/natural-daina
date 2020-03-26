@@ -1,0 +1,16 @@
+
+
+[DainaCommandReceiver : [Object]] (Object) 
+{
+	~ newDainaCommandReceiver {
+		\::newObject;
+	}
+
+	++ receiveInvalidCommand *{}
+	++ receiveExitCommand *{}
+	++ receiveCommandToParseDainaSourceFileWithPath *([String] dainaSourceFilePath){}
+	++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{}
+	++ receiveCommandToCompileToJavaInDirectory *([String] javaCompilationDirectory){}
+	++ receiveCommandToCompileToCInDirectory *([String] cCompilationDirectory){}
+}
+

@@ -14,8 +14,12 @@ Object : []
 
 [Object] () 
 {
-	~ new *{}
-	~ newObject *{}
+	~ new *{
+
+	}
+
+	~ newObject *{
+	}
 
 	- debugDumpToSTDOUT *([%STRING] stringLabel) {
 		<instant

@@ -1,0 +1,63 @@
+
+[DainaCommandParser : [Object]] (String, Object, DainaCommandReceiver, DainaCommandStrings, Mapping, Action, DainaCommandParsingAction)
+	[Mapping<[String][Action]>] mappingOfCommandStringToParsingAction
+{
+	~ newDainaCommandParser *() {
+		\::newObject;
+		.mappingOfCommandStringToParsingAction = mappingOfCommandStringToParsingAction
+	} 	!{
+			[Mapping<[String][Action]>] mappingOfCommandStringToParsing = \[Mapping<[String][Action]>]:newEmptyMapping;
+		}
+
+	++ parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider *([DainaCommandReceiver] dainaCommandReceiver, [->[String]] commandStringSegmentProvider) {
+		\nextCommandIsExit:ifTrue *{
+			\.dainaCommandReceiver:receiveExitCommand};
+		\nextCommandIsParseDainaSourceFile:ifTrue *{
+			\.dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPath (\getNextCommandStringInput)};
+		\nextCommandIsAnalyseAndSynthesiseSyntaxTree:ifTrue *{
+			\.dainaCommandReceiver:receiveCommandToAnalyseAndSynthesiseSyntaxTree};
+		\nextCommandIsCompileToJavaInDirectory:ifTrue *{
+			\.dainaCommandReceiver:receiveCommandToCompileToJavaInDirectory (\getNextCommandStringInput)};
+		\nextCommandIsCompileToCInDirectory:ifTrue *{
+			\.dainaCommandReceiver:receiveCommandToCompileToCInDirectory (\getNextCommandStringInput)};
+		\nextCommandIsInvalid:ifTrue *{
+			\.dainaCommandReceiver:receiveInvalidCommand};
+	}	!{
+			[->[String]] getNextCommandStringInput = commandStringSegmentProvider;
+			[String] nextCommand = \getNextCommandStringInput;
+			[Boolean] nextCommandIsExit = \nextCommand:isEqualTo \[DainaCommandStrings]:exitCommandString;
+			[Boolean] nextCommandIsParseDainaSourceFile = \nextCommand:isEqualTo \[DainaCommandStrings]:parseDainaSourceFileCommandString;
+			[Boolean] nextCommandIsAnalyseAndSynthesiseSyntaxTree = \nextCommand:isEqualTo \[DainaCommandStrings]:analyseAndSynthesiseSyntaxTreeCommandString;
+			[Boolean] nextCommandIsCompileToJavaInDirectory = \nextCommand:isEqualTo \[DainaCommandStrings]:compileToJavaInDirectoryCommandString;
+			[Boolean] nextCommandIsCompileToCInDirectory = \nextCommand:isEqualTo \[DainaCommandStrings]:compileToCInDirectoryCommandString;
+			[Boolean] nextCommandIsInvalid = \[Boolean]:logicalNOT (\[Boolean]:logicalOR (\[Boolean]:logicalOR (\[Boolean]:logicalOR (\[Boolean]:logicalOR nextCommandIsExit nextCommandIsParseDainaSourceFile) nextCommandIsAnalyseAndSynthesiseSyntaxTree) nextCommandIsCompileToJavaInDirectory) nextCommandIsCompileToCInDirectory)
+		}
+}
+
+[DainaCommandParsingAction] (Object) -> (DainaCommandParser)
+	[[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+{
+	~ newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver *([[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver) {
+		\::newObject;
+		.parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver = parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+	}
+
+	++ performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver *([->[String]] commandStringSegmentProvider, [DainaCommandReceiver] dainaCommandReceiver) {
+		\.parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver commandStringSegmentProvider dainaCommandReceiver
+	}
+
+
+}
+
+[DainaCommandStrings] (String) -> (DainaCommandParser)
+{
+	:: exitCommandString *->(\[String]:newString "exit")
+	:: parseDainaSourceFileCommandString *->(\[String]:newString "parse dainasource")
+	:: analyseAndSynthesiseSyntaxTreeCommandString *->(\[String]:newString "synthesise")
+	:: compileToJavaInDirectoryCommandString *->(\[String]:newString "compileto java")
+	:: compileToCInDirectoryCommandString *->(\[String]:newString "compileto c")
+} 
+
+
+
+
