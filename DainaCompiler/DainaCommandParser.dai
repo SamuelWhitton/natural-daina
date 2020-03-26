@@ -7,6 +7,11 @@
 		.mappingOfCommandStringToParsingAction = mappingOfCommandStringToParsingAction
 	} 	!{
 			[Mapping<[String][Action]>] mappingOfCommandStringToParsing = \[Mapping<[String][Action]>]:newEmptyMapping;
+			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:EXIT) (\[DainaCommandParsingAction]:parseCommandToExit)
+			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFile)
+			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE) (\[DainaCommandParsingAction]:parseCommandToAnalyseAndSynthesiseSyntaxTree)
+			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:COMPILE_INTO_JAVA_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoJavaWithinDirectory)
+			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:COMPILE_INTO_C_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoCWithinDirectory)
 		}
 
 	++ parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider *([DainaCommandReceiver] dainaCommandReceiver, [->[String]] commandStringSegmentProvider) {
@@ -16,23 +21,24 @@
 			\.dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPath (\getNextCommandStringInput)};
 		\nextCommandIsAnalyseAndSynthesiseSyntaxTree:ifTrue *{
 			\.dainaCommandReceiver:receiveCommandToAnalyseAndSynthesiseSyntaxTree};
-		\nextCommandIsCompileToJavaInDirectory:ifTrue *{
-			\.dainaCommandReceiver:receiveCommandToCompileToJavaInDirectory (\getNextCommandStringInput)};
-		\nextCommandIsCompileToCInDirectory:ifTrue *{
-			\.dainaCommandReceiver:receiveCommandToCompileToCInDirectory (\getNextCommandStringInput)};
+		\nextCommandIsCompileIntoJavaWithinDirectory:ifTrue *{
+			\.dainaCommandReceiver:receiveCommandToCompileIntoJavaWithinDirectory (\getNextCommandStringInput)};
+		\nextCommandIsCompileIntoCWithinDirectory:ifTrue *{
+			\.dainaCommandReceiver:receiveCommandToCompileIntoCWithinDirectory (\getNextCommandStringInput)};
 		\nextCommandIsInvalid:ifTrue *{
 			\.dainaCommandReceiver:receiveInvalidCommand};
-	}	!{
-			[->[String]] getNextCommandStringInput = commandStringSegmentProvider;
-			[String] nextCommand = \getNextCommandStringInput;
-			[Boolean] nextCommandIsExit = \nextCommand:isEqualTo \[DainaCommandStrings]:exitCommandString;
-			[Boolean] nextCommandIsParseDainaSourceFile = \nextCommand:isEqualTo \[DainaCommandStrings]:parseDainaSourceFileCommandString;
-			[Boolean] nextCommandIsAnalyseAndSynthesiseSyntaxTree = \nextCommand:isEqualTo \[DainaCommandStrings]:analyseAndSynthesiseSyntaxTreeCommandString;
-			[Boolean] nextCommandIsCompileToJavaInDirectory = \nextCommand:isEqualTo \[DainaCommandStrings]:compileToJavaInDirectoryCommandString;
-			[Boolean] nextCommandIsCompileToCInDirectory = \nextCommand:isEqualTo \[DainaCommandStrings]:compileToCInDirectoryCommandString;
-			[Boolean] nextCommandIsInvalid = \[Boolean]:logicalNOT (\[Boolean]:logicalOR (\[Boolean]:logicalOR (\[Boolean]:logicalOR (\[Boolean]:logicalOR nextCommandIsExit nextCommandIsParseDainaSourceFile) nextCommandIsAnalyseAndSynthesiseSyntaxTree) nextCommandIsCompileToJavaInDirectory) nextCommandIsCompileToCInDirectory)
-		}
+	}	
 }
+
+[DainaCommandStrings] (String) -> (DainaCommandParser)
+{
+	:: EXIT *->(\[String]:newString "exit")
+	:: PARSE_DAINA_SOURCE_FILE *->(\[String]:newString "parse dainasource")
+	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString "synthesise")
+	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString "compileinto java")
+	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString "compileinto c")
+} 
+
 
 [DainaCommandParsingAction] (Object) -> (DainaCommandParser)
 	[[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -46,17 +52,50 @@
 		\.parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver commandStringSegmentProvider dainaCommandReceiver
 	}
 
+	~ parseCommandToExit *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				\dainaCommandReceiver:receiveExitCommand
+			}
+	}
+
+	~ parseCommandToParseDainaSourceFile *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				\dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPath (\getNextCommandStringSegment)
+			}
+	}
+
+	~ parseCommandToAnalyseAndSynthesiseSyntaxTree *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				\dainaCommandReceiver:receiveCommandToAnalyseAndSynthesiseSyntaxTree
+			}
+	}
+
+	~ parseCommandToCompileIntoJavaWithinDirectory *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				\dainaCommandReceiver:receiveCommandToCompileIntoJavaWithinDirectory (\getNextCommandStringSegment)
+			}
+	}
+
+	~ parseCommandToCompileIntoCWithinDirectory *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				\dainaCommandReceiver:receiveCommandToCompileIntoCWithinDirectory (\getNextCommandStringSegment)
+			}
+	}
+
+	~ parseInvalidCommand *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				\dainaCommandReceiver:receiveInvalidCommand
+			}
+	}
 
 }
 
-[DainaCommandStrings] (String) -> (DainaCommandParser)
-{
-	:: exitCommandString *->(\[String]:newString "exit")
-	:: parseDainaSourceFileCommandString *->(\[String]:newString "parse dainasource")
-	:: analyseAndSynthesiseSyntaxTreeCommandString *->(\[String]:newString "synthesise")
-	:: compileToJavaInDirectoryCommandString *->(\[String]:newString "compileto java")
-	:: compileToCInDirectoryCommandString *->(\[String]:newString "compileto c")
-} 
 
 
 
