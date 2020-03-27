@@ -87,7 +87,7 @@ Trains<A:[Object],B:[Object]> : []
 
 
 
-[Train<E [Object]> : [Object]] (Object, TrainCarriage, Container, Boolean, Wrapper, CoreFlow, Conjecture)
+[Train<E [Object]> : [Object]] (List, Object, TrainCarriage, Container, Boolean, Wrapper, CoreFlow, Conjecture)
 	[TrainCarriage<[&E]>] backCarriage
 	[TrainCarriage<[&E]>] frontCarriage
 {
@@ -95,7 +95,6 @@ Trains<A:[Object],B:[Object]> : []
 		\::new;
 		.backCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
 		.frontCarriage = .backCarriage;
-		
 	}
 
 	++ isEmpty * -> [Boolean] {
@@ -216,8 +215,6 @@ Trains<A:[Object],B:[Object]> : []
 			\carriage:retriveCargoWithReceiver cargoReceiver;
 		};
 	}
-
-
 	
 	++ deleteObjectsOnTrainWhenPrediateIsTrue *([[&E]->[Boolean]] determineIfWeShouldRemoveCargoFromTrain) {
 		\:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {

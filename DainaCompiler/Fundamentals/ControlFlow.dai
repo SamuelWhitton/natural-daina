@@ -13,7 +13,7 @@ ControlFlow : []
 
 
 
-[ControlFlow] (Boolean, Natural, Wrapper, Object, CoreFlow)
+[ControlFlow<Q [Object]>] (Boolean, Natural, Wrapper, Object, CoreFlow, Variable)
 {
 	:: repeatWhile *([->[Boolean]] conditionForRepeat, [->] lambdaToRepeat) {
 		\[CoreFlow]:repeatUntilStopped *([->] stop) {
@@ -26,6 +26,14 @@ ControlFlow : []
 		\conditionResult:ifTrue onTrue;
 		\conditionResult:ifFalse onFalse;
 	}
+
+	:: selectWithSelectorOrDefault *([[[&Q]->]->] selector, [->[&Q]] default) -> [&Q] {
+		[Variable<[->[&Q]]>] currentSelection = \[Variable<[->[&Q]]>]:as default;
+		\selector *([&Q] selectedThing) {
+			\currentSelection:set selectedThing;
+		}
+		[->[&Q]] finalSelection = \currentSelection:get;
+	} -> \finalSelection
 
 	:: repeatNTimes *([Natural] numberOfTimesToRepeat, [[Natural]->] lambdaToRepeatReceivingCurrentCount) {
 		[Wrapper<[Natural]>] wrappedCurrentCount = \[Wrapper<[Natural]>]:wrapperWithObject (\[Natural]:one);

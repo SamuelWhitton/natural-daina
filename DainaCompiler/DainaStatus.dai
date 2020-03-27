@@ -1,19 +1,54 @@
 
 
-
-
-
-
-[DainaStatus : [Object]] (DainaStatusClassification, String, Object) 
-	[DainaStatusClassification] statusClassification
+[DainaStatusClassification : [String]] (String) -> (DainaStatusClassification, GeneralDainaStatus, SyntaxError)
 {
-	~ statusWithClassificationAndStatusString *()
+	~ GENERAL *{\::newStringFromConstant ("Daina");}
+	~ PARSING_ERROR *{\::newStringFromConstant ("Parsing Error");}
+	~ SYNTAX_ERROR *{\::newStringFromConstant ("Syntax Error");}
+	~ COMPILATION_ERROR *{\::newStringFromConstant ("Compilation Error");}
+}
+
+[GeneralDainaStatus] (DainaStatus, DainaStatusClassification)
+{
+	:: dainaCompilerStartedAndIsNowReceivingCommands *->
+		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
+			(\[String]:newStringFromConstant "Daina compiler started, enter commands..."))
+
+	:: invalidCommandReceived *->
+		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
+			(\[String]:newStringFromConstant "command was invalid"))
+
+	++ reportStatusInvalidCommand *{
+		\:reportStatusString (\[String]:newStringFromConstant "Invalid command")
+	}
+
+	++ reportStatusThatDainaCommandReceiverIsStoppingSinceExitCommandWasReceived *{
+		\:reportStatusString (\[String]:newStringFromConstant "Exit command received")
+	}
+
 }
 
 
-[DainaStatusClassification : [String]]
-GENERAL
-newStringFromConstant
+[DainaStatus : [Object]] (DainaStatusClassification, String, Object) 
+	[String] dainaStatusMessage
+{
+	~ statusWithClassificationAndDescription *([DainaStatusClassification] statusClassification, [String] statusDescription) {
+		.dainaStatusMessage = \statusWithClassificationAndStatusDescription:stringByAppendingString newLine
+	}	!{
+			[String] newLine = \[String]newStringWithLiteral "\n";
+			[String] statusWithClassificationAndStatusDescription = (\statusClassification:stringByAppendingString (statusString)) 
+				!{
+					[String] classificationAndStatusStringSeperator = \[String]newStringWithLiteral " - ";
+				}
+		}
+
+	++ getHumanReadableStringRepresentationOfStatus *-> .dainaStatusMessage
+}
+
+
+
+
+
 
 
 

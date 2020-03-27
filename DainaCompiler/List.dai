@@ -1,0 +1,22 @@
+
+
+[List<E [Object]> : [Object]] (Object)
+	[[[&E]->]] listIterator
+{
+	~ listWithIterator *([[[&E]->]] listIterator) {
+		\::newObject;
+		.listIterator = listIterator;
+	}
+@@
+	~ emptyList *{
+		\::listWithIterator *([]_){}
+	}@@
+
+	++ iterateThroughObjectsInList *([[&E]->] objectReceiver) {
+		\listIterator objectReceiver;
+	}
+}
+
+
+
+
