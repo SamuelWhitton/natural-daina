@@ -42,6 +42,14 @@ Maybe<E:[Object]> : [Object]
 	++ ifJust *([[&E]->] actOnJust) {
 		\.possiblyContainingAnObject:retrive actOnJust
 	}
+
+	++ justThisOrAlternative *([&E] alternative) -> [&E] {
+		[Variable<[&E]>] justThisOrAlternative = \[Variable<[&E]>]:as alternative;
+		\:ifJust *([&E] justThis) {
+			\justThisOrAlternative:set justThis
+		}
+	} -> \justThisOrAlternative:get
+
 }
 
 

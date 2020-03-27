@@ -1,12 +1,12 @@
 
-[DainaCommandParser : [Object]] (String, Object, DainaCommandReceiver, DainaCommandStrings, Mapping, Action, DainaCommandParsingAction)
-	[Mapping<[String][Action]>] mappingOfCommandStringToParsingAction
+[DainaCommandParser : [Object]] (String, Object, DainaCommandReceiver, DainaCommandStrings, Mapping, DainaCommandParsingAction)
+	[Mapping<[String][DainaCommandParsingAction]>] mappingOfCommandStringToParsingAction
 {
 	~ newDainaCommandParser *() {
 		\::newObject;
 		.mappingOfCommandStringToParsingAction = mappingOfCommandStringToParsingAction
 	} 	!{
-			[Mapping<[String][Action]>] mappingOfCommandStringToParsing = \[Mapping<[String][Action]>]:newEmptyMapping;
+			[Mapping<[String][DainaCommandParsingAction]>] mappingOfCommandStringToParsing = \[Mapping<[String][DainaCommandParsingAction]>]:newEmptyMapping;
 			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:EXIT) (\[DainaCommandParsingAction]:parseCommandToExit)
 			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFile)
 			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE) (\[DainaCommandParsingAction]:parseCommandToAnalyseAndSynthesiseSyntaxTree)
@@ -15,18 +15,10 @@
 		}
 
 	++ parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider *([DainaCommandReceiver] dainaCommandReceiver, [->[String]] commandStringSegmentProvider) {
-		\nextCommandIsExit:ifTrue *{
-			\.dainaCommandReceiver:receiveExitCommand};
-		\nextCommandIsParseDainaSourceFile:ifTrue *{
-			\.dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPath (\getNextCommandStringInput)};
-		\nextCommandIsAnalyseAndSynthesiseSyntaxTree:ifTrue *{
-			\.dainaCommandReceiver:receiveCommandToAnalyseAndSynthesiseSyntaxTree};
-		\nextCommandIsCompileIntoJavaWithinDirectory:ifTrue *{
-			\.dainaCommandReceiver:receiveCommandToCompileIntoJavaWithinDirectory (\getNextCommandStringInput)};
-		\nextCommandIsCompileIntoCWithinDirectory:ifTrue *{
-			\.dainaCommandReceiver:receiveCommandToCompileIntoCWithinDirectory (\getNextCommandStringInput)};
-		\nextCommandIsInvalid:ifTrue *{
-			\.dainaCommandReceiver:receiveInvalidCommand};
+		[String] nextCommandString = \commandStringSegmentProvider;
+		[Maybe<[DainaCommandParsingAction]>] maybeParsingActionForCommandString = \.mappingOfCommandStringToParsingAction:maybeRetriveMappedValueWithKey nextCommandString;
+		[DainaCommandParsingAction] parsingActionForCommandString = \maybeParsingActionForCommandString:justThisOrAlternative (\[DainaCommandParsingAction]:parseInvalidCommand);
+		\parsingActionForCommandString:performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver commandStringSegmentProvider dainaCommandReceiver;
 	}	
 }
 

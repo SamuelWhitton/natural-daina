@@ -1,0 +1,19 @@
+
+
+
+
+
+
+[DainaStatus : [Object]] (DainaStatusClassification, String, Object) 
+	[DainaStatusClassification] statusClassification
+{
+	~ statusWithClassificationAndStatusString *()
+}
+
+
+[DainaStatusClassification : [String]]
+GENERAL
+newStringFromConstant
+
+
+

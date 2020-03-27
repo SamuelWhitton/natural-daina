@@ -16,7 +16,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 
 [Mapping<KEY [SetObject], VALUE [Object]> : [Object]] (
 					BinaryTree, MappingBucket, Object, SetObject	
-					,Integer, Data, String, Container, Boolean, Conjecture
+					,Integer, Data, String, Container, Boolean, Conjecture, Maybe, Variable
 					) 
 	[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] treeOfMappedKeyValuePairs
 {
@@ -67,6 +67,17 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 			};
 		\containerWithFoundValueMatchingKey:retrive valueRetriver;
 	}	
+
+	++ maybeRetriveMappedValueWithKey *([&KEY] key) -> [Maybe<[&VALUE]>] {
+		[Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:asNothing);
+		[Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+		\:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
+			*([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
+				\bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
+					\foundValueMatchingKey:set theValueThatWasFoundMatchingKey;
+				};
+			};
+	}	-> \foundValueMatchingKey:get
 
 
 	- retriveBucketWithIdentifierIfItExists 

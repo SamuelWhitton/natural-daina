@@ -4,6 +4,8 @@
 [Variable<E [Object]> : [Object]] (Object)
 	[&E] variableObject
 {
+
+@@
 	~ newWithInstance *([&E] initialInstantiation) {
 		\::new;
 		.variableObject = initialInstantiation;
@@ -12,6 +14,17 @@
 	++ getInstance *->.variableObject
 
 	++ setInstance *([&E] newInstantiation) {
+		.variableObject = newInstantiation;
+	}@@
+
+	~ as *([&E] initialInstantiation) {
+		\::newObject;
+		.variableObject = initialInstantiation;
+	}
+
+	++ get *->.variableObject
+
+	++ set *([&E] newInstantiation) {
 		.variableObject = newInstantiation;
 	}
 }
