@@ -1,22 +1,17 @@
 
-[DainaCommandParser : [Object]] (String, Object, DainaCommandReceiver, DainaCommandStrings, Mapping, DainaCommandParsingAction)
-	[Mapping<[String][DainaCommandParsingAction]>] mappingOfCommandStringToParsingAction
-	[DainaCommandParsingAction] parsingActionForInvalidCommand
+[DainaCommandParser : [Object]] (String, Object, DainaCommandReceiver, DainaCommandStrings, Mapping, DainaCommandParsingAction, ValidDainaCommandsToParse)
+	[ValidDainaCommandsToParse] validDainaCommandsToParse
 {
-	~ newDainaCommandParserWithMappingOfCommandStringToParsingActionWithActionForInvalidCommands *([Mapping<[String][DainaCommandParsingAction]>] mappingOfCommandStringToParsingAction, [DainaCommandParsingAction] parsingActionForInvalidCommand) {
+	~ newDainaCommandParser *() {
 		\::newObject;
-		.mappingOfCommandStringToParsingAction = mappingOfCommandStringToParsingAction
-		.parsingActionForInvalidCommand = parsingActionForInvalidCommand
-	} 	
-
-	@@!{
-			[Mapping<[String][DainaCommandParsingAction]>] mappingOfCommandStringToParsing = \[Mapping<[String][DainaCommandParsingAction]>]:newEmptyMapping;
-			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:EXIT) (\[DainaCommandParsingAction]:parseCommandToExit)
-			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFile)
-			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE) (\[DainaCommandParsingAction]:parseCommandToAnalyseAndSynthesiseSyntaxTree)
-			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:COMPILE_INTO_JAVA_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoJavaWithinDirectory)
-			\mappingOfCommandStringToParsing:mapKeyToValue (\[DainaCommandStrings]:COMPILE_INTO_C_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoCWithinDirectory)
-		}@@
+		.validDainaCommandsToParse = validDainaCommandsToParse
+	} 	!{
+			[ValidDainaCommandsToParse] validDainaCommandsToParse = \[ValidDainaCommandsToParse]:emptyListOfValidDainaCommandsToParse;
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFile) (\[DainaCommandDescriptionStrings]:PARSE_DAINA_SOURCE_FILE);
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE) (\[DainaCommandParsingAction]:parseCommandToAnalyseAndSynthesiseSyntaxTree) (\[DainaCommandDescriptionStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE);
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:COMPILE_INTO_JAVA_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoJavaWithinDirectory) (\[DainaCommandDescriptionStrings]:COMPILE_INTO_JAVA_WITHIN_DIRECTORY);
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:COMPILE_INTO_C_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoCWithinDirectory) (\[DainaCommandDescriptionStrings]:COMPILE_INTO_C_WITHIN_DIRECTORY);
+		}
 
 	++ parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider *([DainaCommandReceiver] dainaCommandReceiver, [->[String]] commandStringSegmentProvider) {
 		[String] nextCommandString = \commandStringSegmentProvider;
@@ -24,11 +19,12 @@
 		[DainaCommandParsingAction] parsingActionForCommandString = \[ControlFlow<[DainaCommandParsingAction]>]:selectWithSelectorOrDefault maybeParsingActionForCommandString:isJust ([DainaCommandParsingAction]:parseInvalidCommand);
 		\parsingActionForCommandString:performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver commandStringSegmentProvider dainaCommandReceiver;
 	}	
+
+	++ getDescriptionOfValidDainaCommands *->\.validDainaCommandsToParse:getDescriptionOfValidDainaCommands
 }
 
 [DainaCommandStrings] (String) -> (DainaCommandParser)
 {
-	:: EXIT *->(\[String]:newString "exit")
 	:: PARSE_DAINA_SOURCE_FILE *->(\[String]:newString "parse dainasource")
 	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString "synthesise")
 	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString "compileinto java")
@@ -37,16 +33,34 @@
 
 [DainaCommandDescriptionStrings] (String) -> (DainaCommandParser)
 {
-	:: EXIT *->(\[String]:newString "will exit daina")
 	:: PARSE_DAINA_SOURCE_FILE *->(\[String]:newString "next input will be parsed as a Daina source file and integrated into the current syntax tree and any errors will be given")
 	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString "current syntax tree will be synthesised and any errors will be given")
 	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString "next input is where the Java source will be constructed from the current syntax tree and any errors will be given")
 	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString "next input is where the C source will be constructed from the current syntax tree and any errors will be given")
 } 
 
-[ValidDainaCommands : [List<[DainaCommandParsingAction]>]] (DainaCommandParsingAction, List)
+[ValidDainaCommandsToParse : [Object]] (DainaCommandParsingAction, Object, Variable, String, Mapping) -> DainaCommandParser
+	[Mapping<[String][DainaCommandParsingAction]>] mappingOfValidCommandStringToParsingAction
+	[Variable<[String]>] descriptionOfAllValidCommands
 {
-	DainaCommandParser
+	~ emptyListOfValidDainaCommandsToParse *{
+		\::newObject;
+		.descriptionOfAllValidCommands = \[String]:newStringWithLiteral "valid Daina commands are:";
+		.mappingOfValidCommandStringToParsingAction = \[Mapping<[String][DainaCommandParsingAction]>]:newEmptyMapping;
+	}
+
+	++ getDescriptionOfValidDainaCommands *->.descriptionOfAllValidCommands:get
+
+	++ maybeParsingActionForCommandStringIfValidDainaCommand*([String] commandStringInQuestion) -> [Maybe<[DainaCommandParsingAction]>] {
+	} -> (\.mappingOfValidCommandStringToParsingAction:maybeRetriveMappedValueWithKey commandStringInQuestion)
+
+	++ addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand *([String] commandString, [DainaCommandParsingAction] parsingAction, [String] descriptionOfCommand) {
+		\.mappingOfValidCommandStringToParsingAction:mapKeyToValue commandString parsingAction;
+		\.descriptionOfAllValidCommands:set (\currentDescriptionOfAllValidCommands:stringByAppendingString (\newLineAndTab:stringByAppendingString descriptionOfCommand));
+	}	!{
+			[String] currentDescriptionOfAllValidCommands = \.descriptionOfAllValidCommands:get; 
+			[String] newLineAndTab = \[String]:newStringWithLiteral "\n\t";
+		}
 }
 
 [DainaCommandParsingAction] (Object) -> (DainaCommandParser)
@@ -59,13 +73,6 @@
 
 	++ performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver *([->[String]] commandStringSegmentProvider, [DainaCommandReceiver] dainaCommandReceiver) {
 		\.parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver commandStringSegmentProvider dainaCommandReceiver
-	}
-
-	~ parseCommandToExit *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
-			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
-				\dainaCommandReceiver:receiveExitCommand
-			}
 	}
 
 	~ parseCommandToParseDainaSourceFile *{

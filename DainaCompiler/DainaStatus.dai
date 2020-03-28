@@ -1,6 +1,6 @@
 
 
-[DainaStatusClassification : [String]] (String) -> (DainaStatusClassification, GeneralDainaStatus, SyntaxError)
+[DainaStatusClassification : [String]] (String) -> (DainaStatusClassification, GeneralDainaStatus)
 {
 	~ GENERAL *{\::newStringFromConstant ("Daina");}
 	~ PARSING_ERROR *{\::newStringFromConstant ("Parsing Error");}
@@ -10,22 +10,13 @@
 
 [GeneralDainaStatus] (DainaStatus, DainaStatusClassification)
 {
-	:: dainaCompilerStartedAndIsNowReceivingCommands *->
+	:: DAINA_COMPILER_STARTED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
-			(\[String]:newStringFromConstant "Daina compiler started, enter commands..."))
+			(\[String]:newStringFromConstant "Daina compiler started..."))
 
-	:: invalidCommandReceived *->
+	:: INVALID_DAINA_COMMAND_RECEIVED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
 			(\[String]:newStringFromConstant "command was invalid"))
-
-	++ reportStatusInvalidCommand *{
-		\:reportStatusString (\[String]:newStringFromConstant "Invalid command")
-	}
-
-	++ reportStatusThatDainaCommandReceiverIsStoppingSinceExitCommandWasReceived *{
-		\:reportStatusString (\[String]:newStringFromConstant "Exit command received")
-	}
-
 }
 
 

@@ -7,7 +7,6 @@
 	}
 
 	++ receiveInvalidCommand *{}
-	++ receiveExitCommand *{}
 	++ receiveCommandToParseDainaSourceFileWithPath *([String] dainaSourceFilePath){}
 	++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{}
 	++ receiveCommandToCompileToJavaInDirectory *([String] javaCompilationDirectory){}

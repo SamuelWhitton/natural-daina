@@ -1,11 +1,17 @@
 
 
-[] (DainaCompiler) 
+[] (DainaCompiler, DainaCommandInterface, ControlFlow, DainaStatusReporter) 
 {
 	^ *{
-		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompiler;
-		\dainaCompiler:runDainaCompiler;
-	}
+		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterface;
+		[DainaStatusReporter] statusReporterForCompiler = \dainaCommandInterface:provideDainaStatusReporterWhichReportsToThisCommandInterface;
+		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus statusReporterForCompiler;
+		\[ControlFlow]:repeatUntilStopped sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop;
+	}	!{
+			[[->]->] sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = *([]_){
+				\dainaCommandInterface:processNextUserCommandAndSendingValidCommandsToCommandReceiver dainaCompiler;
+			}
+		}
 }
 
 

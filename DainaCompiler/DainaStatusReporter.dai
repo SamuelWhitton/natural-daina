@@ -1,6 +1,6 @@
 
 
-[DainaStatusReporter : [Object]] (Object, OutputStream, String)
+[DainaStatusReporter : [Object]] (Object, OutputStream, String, DainaStatus)
 	[OutputStream] outputStreamToReportStatusTo
 {
 	~ statusReporterWithOutputStreamToReceiveStatus *([OutputStream] outputStreamToReportStatusTo) {
@@ -8,16 +8,8 @@
 		.outputStreamToReportStatusTo = outputStreamToReportStatusTo
 	}
 
-	++ reportStatusThatDainaCommandReceiverIsNowReceivingCommands *{
-		\:reportStatusString (\[String]:newStringFromConstant "Now receiving commands")
-	}
-
-	++ reportStatusInvalidCommand *{
-		\:reportStatusString (\[String]:newStringFromConstant "Invalid command")
-	}
-
-	++ reportStatusThatDainaCommandReceiverIsStoppingSinceExitCommandWasReceived *{
-		\:reportStatusString (\[String]:newStringFromConstant "Exit command received")
+	++ reportStatus *([DainaStatus] statusToReport){
+		\:reportStatusString (\statusToReport:getHumanReadableStringRepresentationOfStatus)
 	}
 
 	- reportStatusString *([String] statusString) {
