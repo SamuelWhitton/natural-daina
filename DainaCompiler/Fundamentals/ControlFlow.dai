@@ -13,7 +13,7 @@ ControlFlow : []
 
 
 
-[ControlFlow<Q [Object]>] (Boolean, Natural, Wrapper, Object, CoreFlow, Variable)
+[ControlFlow<Q [Object]>] (Boolean, Natural, Wrapper, Object, CoreFlow, Variable, VariableReturnerOfThing)
 {
 	:: repeatWhile *([->[Boolean]] conditionForRepeat, [->] lambdaToRepeat) {
 		\[CoreFlow]:repeatUntilStopped *([->] stop) {
@@ -28,12 +28,18 @@ ControlFlow : []
 	}
 
 	:: selectWithSelectorOrDefault *([[[&Q]->]->] selector, [->[&Q]] default) -> [&Q] {
-		[Variable<[->[&Q]]>] currentSelection = \[Variable<[->[&Q]]>]:as default;
+		[Variable<[&Q]>] returnThing = \[Variable<[&Q]>]:as (\default);
 		\selector *([&Q] selectedThing) {
-			\currentSelection:set selectedThing;
-		}
-		[->[&Q]] finalSelection = \currentSelection:get;
-	} -> \finalSelection
+			\returnThing:set (selectedThing);
+		};
+
+		@compiler if segfaulting here, just ignore it untill we trash this compiler
+		@@[VariableReturnerOfThing<[&Q]>] currentSelection = \[VariableReturnerOfThing<[&Q]>]:as default;
+		\selector *([&Q] selectedThing) {
+			\currentSelection:set (*->selectedThing);
+		};
+		[->[&Q]] finalSelection = \currentSelection:get;@@
+	} -> (\returnThing:get)
 
 	:: repeatNTimes *([Natural] numberOfTimesToRepeat, [[Natural]->] lambdaToRepeatReceivingCurrentCount) {
 		[Wrapper<[Natural]>] wrappedCurrentCount = \[Wrapper<[Natural]>]:wrapperWithObject (\[Natural]:one);
@@ -74,6 +80,22 @@ ControlFlow : []
 		##;
 	}
 
+}
+
+
+[VariableReturnerOfThing<THING [Object]> : [Object]] (Object)
+	[->[&THING]] thingThatReturns
+{
+	~ as *([->[&THING]] thingThatReturns) {
+		\::newObject;
+		.thingThatReturns = thingThatReturns
+	}
+
+	++ set *([->[&THING]] thingThatReturns) {
+		.thingThatReturns = thingThatReturns
+	}
+
+	++ get *->.thingThatReturns
 }
 
 

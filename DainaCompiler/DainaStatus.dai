@@ -1,22 +1,30 @@
 
 
-[DainaStatusClassification : [String]] (String) -> (DainaStatusClassification, GeneralDainaStatus)
+[DainaStatusClassification : [String]] (String) -> (GeneralDainaStatus, DainaStatus, InformationStatus)
 {
-	~ GENERAL *{\::newStringFromConstant ("Daina");}
-	~ PARSING_ERROR *{\::newStringFromConstant ("Parsing Error");}
-	~ SYNTAX_ERROR *{\::newStringFromConstant ("Syntax Error");}
-	~ COMPILATION_ERROR *{\::newStringFromConstant ("Compilation Error");}
+	~ INFORMATION *{\::newStringFromLiteral ("Information");}
+	~ GENERAL *{\::newStringFromLiteral ("Daina");}
+	~ PARSING_ERROR *{\::newStringFromLiteral ("Parsing Error");}
+	~ SYNTAX_ERROR *{\::newStringFromLiteral ("Syntax Error");}
+	~ COMPILATION_ERROR *{\::newStringFromLiteral ("Compilation Error");}
 }
 
-[GeneralDainaStatus] (DainaStatus, DainaStatusClassification)
+[GeneralDainaStatus] (DainaStatus, DainaStatusClassification, String)
 {
 	:: DAINA_COMPILER_STARTED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
-			(\[String]:newStringFromConstant "Daina compiler started..."))
+			(\[String]:newStringFromLiteral "Daina compiler started..."))
 
 	:: INVALID_DAINA_COMMAND_RECEIVED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
-			(\[String]:newStringFromConstant "command was invalid"))
+			(\[String]:newStringFromLiteral "command was invalid"))
+}
+
+[InformationStatus] (DainaStatus, DainaStatusClassification, String)
+{
+	:: INFORMATION_WITH_INFORMATION_STRING *([String] informationString)->[DainaStatus]{}->
+		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:INFORMATION)
+			(informationString))
 }
 
 
@@ -24,12 +32,12 @@
 	[String] dainaStatusMessage
 {
 	~ statusWithClassificationAndDescription *([DainaStatusClassification] statusClassification, [String] statusDescription) {
-		.dainaStatusMessage = \statusWithClassificationAndStatusDescription:stringByAppendingString newLine
+		\::newObject;
+		.dainaStatusMessage = statusWithClassificationAndStatusDescription
 	}	!{
-			[String] newLine = \[String]newStringWithLiteral "\n";
-			[String] statusWithClassificationAndStatusDescription = (\statusClassification:stringByAppendingString (statusString)) 
+			[String] statusWithClassificationAndStatusDescription = (\statusClassification:stringByAppendingString (\classificationAndStatusStringSeperator:stringByAppendingString statusDescription)) 
 				!{
-					[String] classificationAndStatusStringSeperator = \[String]newStringWithLiteral " - ";
+					[String] classificationAndStatusStringSeperator = \[String]:newStringFromLiteral " - ";
 				}
 		}
 

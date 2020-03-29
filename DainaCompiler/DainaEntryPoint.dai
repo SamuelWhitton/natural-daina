@@ -3,13 +3,15 @@
 [] (DainaCompiler, DainaCommandInterface, ControlFlow, DainaStatusReporter) 
 {
 	^ *{
-		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterface;
+		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterfaceReadyToReceiveCommands;
 		[DainaStatusReporter] statusReporterForCompiler = \dainaCommandInterface:provideDainaStatusReporterWhichReportsToThisCommandInterface;
 		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus statusReporterForCompiler;
-		\[ControlFlow]:repeatUntilStopped sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop;
+		\sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop dainaCommandInterface dainaCompiler;
 	}	!{
-			[[->]->] sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = *([]_){
-				\dainaCommandInterface:processNextUserCommandAndSendingValidCommandsToCommandReceiver dainaCompiler;
+			[[DainaCommandInterface][DainaCompiler]->] sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = *([DainaCommandInterface] dainaCommandInterface, [DainaCompiler] dainaCompiler) {
+				\[ControlFlow]:repeatUntilStopped *([]_){
+					\dainaCommandInterface:processNextUserCommandAndSendingValidCommandsToCommandReceiver dainaCompiler;
+				}
 			}
 		}
 }

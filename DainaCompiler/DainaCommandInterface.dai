@@ -1,12 +1,16 @@
 [DainaCommandInterface : [Object]] (Object, DainaStatusReporter, InputStream, OutputStream, SystemInputOutput,
 									String, Variable, ControlFlow, DainaCommandReceiver, Boolean, DainaCommandParser,
-									DainaCommandResponder, GeneralDainaStatus)
+									DainaCommandResponder, GeneralDainaStatus, InformationStatus)
 	[InputStream] commandInputStream
 	[DainaStatusReporter] dainaStatusReporter
 	[DainaCommandParser] dainaCommandParser
 {
+	:: newDainaCommandInterfaceReadyToReceiveCommands *() -> [DainaCommandInterface] {
+		[DainaCommandInterface] newCommandInterface = \[DainaCommandInterface]:___asdasd;
+		\newCommandInterface:_reportTheAvaliableValidComandsToCommandInterface;
+	} -> newCommandInterface
 
-	~ newDainaCommandInterface *() {
+	~ ___asdasd *() {
 		\::newObject;
 		.dainaCommandParser = \[DainaCommandParser]:newDainaCommandParser;
 		.commandInputStream = commandInputStream;
@@ -20,8 +24,21 @@
 		\.dainaCommandParser:parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider commandReponderThatWillSendValidCommandsToGivenCommandReceiver commandStringSegmentProvider;
 	}	!{
 			[->[String]] commandStringSegmentProvider = :getNextCommandStringInput;
-			[DainaCommandResponder] commandReponderThatWillSendValidCommandsToGivenCommandReceiver = \[DainaCommandResponder]:newDainaCommandResponderWithStatusReporterToRespondToAndCommandReceiverToSendValidCommandsTo .dainaStatusReporter givenCommandReceiver;
+			[DainaCommandResponder] commandReponderThatWillSendValidCommandsToGivenCommandReceiver = (\[DainaCommandResponder]:newDainaCommandResponderWithCommandReceiverToSendValidCommandsToAndResponseForInvalidCommand givenCommandReceiver invalidCommandResponse)
+				!{
+					[->] invalidCommandResponse = *{
+						\.dainaStatusReporter:reportStatus (\[GeneralDainaStatus]:INVALID_DAINA_COMMAND_RECEIVED);
+						\:_reportTheAvaliableValidComandsToCommandInterface;
+					}
+				}
 		}
+
+	++ _reportTheAvaliableValidComandsToCommandInterface *{
+		\.dainaStatusReporter:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING UsageDescriptionOfValidDainaCommands)
+			!{
+				[String] UsageDescriptionOfValidDainaCommands = \.dainaCommandParser:getUsageDescriptionOfValidDainaCommands
+			};
+	}
 
 	- getNextCommandStringInput *()->[String] {} -> \.commandInputStream:parseDataAsStringUntilNewlineOrEndOfFile
 
@@ -29,18 +46,18 @@
 }
 
 
-[DainaCommandResponder : [DainaCommandReceiver]] (DainaCommandReceiver, String, GeneralDainaStatus, DainaStatusReporter, DainaStatus) -> (DainaCommandInterface)
+[DainaCommandResponder : [DainaCommandReceiver]] (DainaCommandReceiver, String, GeneralDainaStatus, DainaStatus) -> (DainaCommandInterface)
 	[DainaCommandReceiver] commandReceiverToSendValidCommandsTo
-	[DainaStatusReporter] statusReporterToRespondTo
+	[->] invalidCommandResponse
 {
-	~ newDainaCommandResponderWithStatusReporterToRespondToAndCommandReceiverToSendValidCommandsTo *([DainaStatusReporter] statusReporterToRespondTo, [DainaCommandReceiver] commandReceiverToSendValidCommandsTo) {
+	~ newDainaCommandResponderWithCommandReceiverToSendValidCommandsToAndResponseForInvalidCommand *([DainaCommandReceiver] commandReceiverToSendValidCommandsTo, [->] invalidCommandResponse) {
 		\::newDainaCommandReceiver;
 		.commandReceiverToSendValidCommandsTo = commandReceiverToSendValidCommandsTo;
-		.statusReporterToRespondTo = statusReporterToRespondTo;
+		.invalidCommandResponse = invalidCommandResponse;
 	}
 
 	|++ receiveInvalidCommand *{
-		\.statusReporterToRespondTo:reportStatus (\[GeneralDainaStatus]:INVALID_DAINA_COMMAND_RECEIVED);
+		\.invalidCommandResponse;
 	}
 
 	|++ receiveCommandToParseDainaSourceFileWithPath *([String] dainaSourceFilePath) {
@@ -51,12 +68,12 @@
 		\.commandReceiverToSendValidCommandsTo:receiveCommandToAnalyseAndSynthesiseSyntaxTree;
 	}
 
-	|++ receiveCommandToCompileToJavaInDirectory *([String] javaCompilationDirectory) {
-		\.commandReceiverToSendValidCommandsTo:receiveCommandToCompileToJavaInDirectory javaCompilationDirectory;
+	|++ receiveCommandToCompileIntoJavaWithinDirectory *([String] javaCompilationDirectory) {
+		\.commandReceiverToSendValidCommandsTo:receiveCommandToCompileIntoJavaWithinDirectory javaCompilationDirectory;
 	}
 
-	|++ receiveCommandToCompileToCInDirectory *([String] cCompilationDirectory) {
-		\.commandReceiverToSendValidCommandsTo:receiveCommandToCompileToCInDirectory cCompilationDirectory;
+	|++ receiveCommandToCompileIntoCWithinDirectory *([String] cCompilationDirectory) {
+		\.commandReceiverToSendValidCommandsTo:receiveCommandToCompileIntoCWithinDirectory cCompilationDirectory;
 	}
 }
 

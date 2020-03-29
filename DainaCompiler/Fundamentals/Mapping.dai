@@ -74,7 +74,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 		\:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
 			*([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
 				\bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
-					\foundValueMatchingKey:set theValueThatWasFoundMatchingKey;
+					\foundValueMatchingKey:set (\[Maybe<[&VALUE]>]:asJust theValueThatWasFoundMatchingKey);
 				};
 			};
 	}	-> \foundValueMatchingKey:get
