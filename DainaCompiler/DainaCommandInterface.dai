@@ -1,6 +1,20 @@
-[DainaCommandInterface : [Object]] (Object, DainaStatusReporter, InputStream, OutputStream, SystemInputOutput,
-									String, Variable, ControlFlow, DainaCommandReceiver, Boolean, DainaCommandParser,
-									DainaCommandResponder, GeneralDainaStatus, InformationStatus)
+
+[DainaCommandInterface : [Object]] (
+		Object, 
+		DainaStatusReporter, 
+		InputStream, 
+		OutputStream, 
+		SystemInputOutput,
+		String, 
+		Variable, 
+		ControlFlow, 
+		DainaCommandReceiver, 
+		Boolean, 
+		DainaCommandParser,
+		DainaCommandResponder, 
+		GeneralDainaStatus, 
+		InformationStatus
+	)
 	[InputStream] commandInputStream
 	[DainaStatusReporter] dainaStatusReporter
 	[DainaCommandParser] dainaCommandParser
@@ -46,7 +60,15 @@
 }
 
 
-[DainaCommandResponder : [DainaCommandReceiver]] (DainaCommandReceiver, String, GeneralDainaStatus, DainaStatus) -> (DainaCommandInterface)
+[DainaCommandResponder : [DainaCommandReceiver]] (
+		DainaCommandReceiver, 
+		String, 
+		GeneralDainaStatus, 
+		DainaStatus, 
+		DainaNamespaceReference
+	) -> (
+			DainaCommandInterface
+		)
 	[DainaCommandReceiver] commandReceiverToSendValidCommandsTo
 	[->] invalidCommandResponse
 {
@@ -60,8 +82,8 @@
 		\.invalidCommandResponse;
 	}
 
-	|++ receiveCommandToParseDainaSourceFileWithPath *([String] dainaSourceFilePath) {
-		\.commandReceiverToSendValidCommandsTo:receiveCommandToParseDainaSourceFileWithPath dainaSourceFilePath;
+	|++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
+		\.commandReceiverToSendValidCommandsTo:receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection dainaSourceFilePath dainaNamespaceSelection;
 	}
 
 	|++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{

@@ -1,31 +1,18 @@
 
 
-[DainaCommandReceiver : [Object]] (Object, String, DainaNamespaceSelection) 
+[DainaCommandReceiver : [Object]] (Object, String, DainaNamespaceReference) 
 {
 	~ newDainaCommandReceiver *{
 		\::newObject;
 	}
 
 	++ receiveInvalidCommand *{}
-	++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceSelection] dainaNamespaceSelection){}
+	++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){}
 	++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{}
 	++ receiveCommandToCompileIntoJavaWithinDirectory *([String] javaCompilationDirectory){}
 	++ receiveCommandToCompileIntoCWithinDirectory *([String] cCompilationDirectory){}
 }
 
 
-[MaybeDainaNamespaceSelection : [Object]] (Object, String) 
-{
-	~ newDainaCommandReceiver *{
-		\::newObject;
-	}
-}
-
-[DainaNamespaceSelection : [Object]] (Object, String) 
-{
-	~ newDainaNamespaceSelectionWithPrivateNamespace *{
-		\::newObject;
-	}
-}
 
 

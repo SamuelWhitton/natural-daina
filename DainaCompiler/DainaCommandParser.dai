@@ -18,7 +18,9 @@
 		.validDainaCommandsToParse = validDainaCommandsToParse
 	} 	!{
 			[ValidDainaCommandsToParse] validDainaCommandsToParse = \[ValidDainaCommandsToParse]:emptyListOfValidDainaCommandsToParse;
-			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFile) (\[DainaCommandDescriptionStrings]:PARSE_DAINA_SOURCE_FILE);
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFileInExposedNamespace) (\[DainaCommandDescriptionStrings]:PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE);
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFileInExposedAndPrivateNamespace) (\[DainaCommandDescriptionStrings]:PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE);
+			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE) (\[DainaCommandParsingAction]:parseCommandToParseDainaSourceFileInPrivateNamespace) (\[DainaCommandDescriptionStrings]:PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE);
 			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE) (\[DainaCommandParsingAction]:parseCommandToAnalyseAndSynthesiseSyntaxTree) (\[DainaCommandDescriptionStrings]:ANALYSE_AND_SYNTHESISE_SYNTAX_TREE);
 			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:COMPILE_INTO_JAVA_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoJavaWithinDirectory) (\[DainaCommandDescriptionStrings]:COMPILE_INTO_JAVA_WITHIN_DIRECTORY);
 			\validDainaCommandsToParse:addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand (\[DainaCommandStrings]:COMPILE_INTO_C_WITHIN_DIRECTORY) (\[DainaCommandParsingAction]:parseCommandToCompileIntoCWithinDirectory) (\[DainaCommandDescriptionStrings]:COMPILE_INTO_C_WITHIN_DIRECTORY);
@@ -83,7 +85,7 @@
 		}
 }
 
-[DainaCommandParsingAction : [Object]] (Object, String, DainaCommandReceiver) -> (DainaCommandParser, ValidDainaCommandsToParse)
+[DainaCommandParsingAction : [Object]] (Object, String, DainaCommandReceiver, DainaNamespaceReference) -> (DainaCommandParser, ValidDainaCommandsToParse)
 	[[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 {
 	~ newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver *([[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver) {
@@ -95,10 +97,30 @@
 		\.parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver commandStringSegmentProvider dainaCommandReceiver
 	}
 
-	~ parseCommandToParseDainaSourceFile *{
+	~ parseCommandToParseDainaSourceFileInExposedNamespace *{
 		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
-				\dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPath (\getNextCommandStringSegment)
+				[DainaNamespaceReference] exposedNamespace = \[DainaNamespaceReference]:referToExposedNamespace;
+				[String] dainaSourceFilePath = (\getNextCommandStringSegment);
+				\dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection dainaSourceFilePath exposedNamespace;
+			}
+	}
+
+	~ parseCommandToParseDainaSourceFileInExposedAndPrivateNamespace *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				[DainaNamespaceReference] privateAndExposedNamespace = \[DainaNamespaceReference]:referToExposedNamespaceAndPrivateNamespaceWithName (\getNextCommandStringSegment);
+				[String] dainaSourceFilePath = (\getNextCommandStringSegment);
+				\dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection dainaSourceFilePath privateAndExposedNamespace;
+			}
+	}
+
+	~ parseCommandToParseDainaSourceFileInPrivateNamespace *{
+		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
+				[DainaNamespaceReference] privateNamespace = \[DainaNamespaceReference]:referToPrivateNamespaceWithName (\getNextCommandStringSegment);
+				[String] dainaSourceFilePath = (\getNextCommandStringSegment);
+				\dainaCommandReceiver:receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection dainaSourceFilePath privateNamespace;
 			}
 	}
 

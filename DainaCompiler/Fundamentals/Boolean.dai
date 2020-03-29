@@ -36,6 +36,24 @@ Boolean : [Object]
 		##;
 	}
 
+	~ FALSE * {
+		\::new;
+		.internalBoolean = ();
+		<instant
+		##
+			((struct Z_template_Boolean *)(Z_self))->Z_attribute_Boolean_internalBoolean = (void *)(0!=0);
+		##;
+	}
+
+	~ TRUE * {
+		\::new;
+		.internalBoolean = ();
+		<instant
+		##
+			((struct Z_template_Boolean *)(Z_self))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
+		##;
+	}
+
 	:: or *([Boolean] boolean1, [Boolean] boolean2) -> [Boolean] {
 		[Boolean] result = \[Boolean]:false;
 		<instant
@@ -100,6 +118,30 @@ Boolean : [Object]
 	}
 
 	++ ifFalse *([->] doIfFalse) {
+		<instant
+		##
+			if (!(((struct Z_template_Boolean *)(Z_self))->Z_attribute_Boolean_internalBoolean)) {
+		##;
+		\doIfFalse;
+	 	<instant
+		##
+			}
+		##;
+	}
+
+	++ ifTRUE *([->] doIfTrue) {
+		 <instant
+		##
+			if ((((struct Z_template_Boolean *)(Z_self))->Z_attribute_Boolean_internalBoolean)) {
+		##;
+		\doIfTrue;
+	 	<instant
+		##
+			}
+		##;
+	}
+
+	++ ifFALSE *([->] doIfFalse) {
 		<instant
 		##
 			if (!(((struct Z_template_Boolean *)(Z_self))->Z_attribute_Boolean_internalBoolean)) {
