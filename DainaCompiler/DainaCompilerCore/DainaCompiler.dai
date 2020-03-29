@@ -1,7 +1,6 @@
 
 [DainaCompiler : [DainaCommandReceiver]] (
 		Object, 
-		DainaCommandInterface, 
 		GeneralDainaStatus, 
 		DainaSyntaxTree, 
 		DainaCommandReceiver, 
@@ -9,7 +8,7 @@
 		FilingSystem,
 		File,
 		DainaNamespaceReference,
-		DainaStatusReporter@@, DainaToJavaCompiler, DainaToCCompiler@@
+		DainaStatusReporter@@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
 	[DainaStatusReporter] reporterToReportCompilerStatus
@@ -33,12 +32,12 @@
 	}
 
 	|++ receiveCommandToCompileIntoJavaWithinDirectory *([String] javaCompilationDirectory){
-		@[DainaToJavaCompiler] dainaToJavaCompiler = \[DainaToJavaCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
+		@[DainaSyntaxTreeToJavaCompiler] dainaToJavaCompiler = \[DainaSyntaxTreeToJavaCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
 		@\dainaToJavaCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram javaCompilationDirectory;
 	}
 
 	|++ receiveCommandToCompileIntoCWithinDirectory *([String] cCompilationDirectory){
-		@[DainaToCCompiler] dainaToCCompiler = \[DainaToCCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
+		@[DainaSyntaxTreeToCCompiler] dainaToCCompiler = \[DainaSyntaxTreeToCCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
 		@\dainaToCCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram cCompilationDirectory;
 	}
 }

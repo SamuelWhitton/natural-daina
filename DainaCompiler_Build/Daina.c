@@ -41,9 +41,6 @@ Analysis: analysing class - String...
 Analysis: analysing class - MappingBucket...
 Analysis: analysing class - Maybe...
 Analysis: analysing class - Mapping...
-Analysis: analysing class - DainaNamespaceReference...
-Analysis: analysing class - File...
-Analysis: analysing class - DainaSyntaxTree...
 Analysis: analysing class - DainaCommandStrings...
 Analysis: analysing class - DainaCommandDescriptionStrings...
 Analysis: analysing class - SocketPort...
@@ -53,7 +50,6 @@ Analysis: analysing class - AutomaticallyClosingSocketLink...
 Analysis: analysing class - OutputStream...
 Analysis: analysing class - SocketLinkOutputStream...
 Analysis: analysing class - InputStream...
-Analysis: analysing class - FilingSystem...
 Analysis: analysing class - SocketLinkInputStream...
 Analysis: analysing class - SocketConnection...
 Analysis: analysing class - SocketBinding...
@@ -61,6 +57,10 @@ Analysis: analysing class - AutomaticallyClosingInputFileDataStream...
 Analysis: analysing class - AutomaticallyClosingOutputFileDataStream...
 Analysis: analysing class - IPAddress...
 Analysis: analysing class - SystemInputOutput...
+Analysis: analysing class - DainaNamespaceReference...
+Analysis: analysing class - FilingSystem...
+Analysis: analysing class - File...
+Analysis: analysing class - DainaSyntaxTree...
 Analysis: analysing class - DainaStatusClassification...
 Analysis: analysing class - DainaStatus...
 Analysis: analysing class - DainaStatusReporter...
@@ -277,18 +277,6 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 	++ retriveMappedValueWithKey [[&KEY],[[&VALUE] -> ] -> ]
 	++ maybeRetriveMappedValueWithKey [[&KEY] -> [Maybe<[&VALUE]>]]
 
-DainaNamespaceReference : [Object]
-	:: referToExposedNamespace [ -> [DainaNamespaceReference]]
-	:: referToPrivateNamespaceWithName [[String] -> [DainaNamespaceReference]]
-	:: referToExposedNamespaceAndPrivateNamespaceWithName [[String] -> [DainaNamespaceReference]]
-	++ doesReferToExposedNamespace [ -> [Boolean]]
-	++ maybeReferedToPrivateNamespaceName [ -> [Maybe<[String]>]]
-
-File : [Object]
-
-DainaSyntaxTree : [Object]
-	:: newEmptySyntaxTree [ -> [DainaSyntaxTree]]
-
 DainaCommandStrings : []
 	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE [ -> [String]]
 	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE [ -> [String]]
@@ -332,9 +320,6 @@ InputStream : [DataStream]
 	++ parseDataAsStringUntilNewlineOrEndOfFile [ -> [String]]
 	++ readNextByte [ -> [Maybe<[Byte]>]]
 
-FilingSystem : [Object]
-	:: newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider [[[String] -> [Maybe<[InputStream]>]],[[String] -> [Maybe<[OutputStream]>]] -> [FilingSystem]]
-
 SocketLinkInputStream : [InputStream]
 	:: inputStreamWithSocketLink [[AutomaticallyClosingSocketLink] -> [SocketLinkInputStream]]
 
@@ -366,6 +351,21 @@ SystemInputOutput : []
 	:: stdin [ -> [InputStream]]
 	:: stdoutOutputStream [ -> [OutputStream]]
 	:: stdinInputStream [ -> [InputStream]]
+
+DainaNamespaceReference : [Object]
+	:: referToExposedNamespace [ -> [DainaNamespaceReference]]
+	:: referToPrivateNamespaceWithName [[String] -> [DainaNamespaceReference]]
+	:: referToExposedNamespaceAndPrivateNamespaceWithName [[String] -> [DainaNamespaceReference]]
+	++ doesReferToExposedNamespace [ -> [Boolean]]
+	++ maybeReferedToPrivateNamespaceName [ -> [Maybe<[String]>]]
+
+FilingSystem : [Object]
+	:: newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider [[[String] -> [Maybe<[InputStream]>]],[[String] -> [Maybe<[OutputStream]>]] -> [FilingSystem]]
+
+File : [Object]
+
+DainaSyntaxTree : [Object]
+	:: newEmptySyntaxTree [ -> [DainaSyntaxTree]]
 
 DainaStatusClassification : [String]
 	:: INFORMATION [ -> [DainaStatusClassification]]
@@ -13665,356 +13665,6 @@ DainaCompiler : [DainaCommandReceiver]
         //FINISH METHOD
 /*C*/   }return NULL;}
         //---------------------------------------------------------------
-        //BEGIN TEMPLATE template_DainaNamespaceReference
-/*C*/   struct Z_template_DainaNamespaceReference {
-/*C*/    long references;void* deallocator;
-           //TEMPLATE DYNAMIC_OBJECT attribute_DainaNamespaceReference_doesReferToExposedNamespace
-/*C*/      void* Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace;
-           //TEMPLATE DYNAMIC_OBJECT attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName
-/*C*/      void* Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName;
-        //END TEMPLATE
-/*C*/   };
-/*C*/   void* dealloc_Z_template_DainaNamespaceReference(void* object) {
-/*C*/    ReleaseDynamicObject(((struct Z_template_DainaNamespaceReference *)(object))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace);
-/*C*/    ReleaseDynamicObject(((struct Z_template_DainaNamespaceReference *)(object))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName);
-/*C*/    return NULL;
-/*C*/   }
-/*C*/   void* alloc_Z_template_DainaNamespaceReference() {
-/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_DainaNamespaceReference));
-/*C*/   
-/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
-/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_DainaNamespaceReference;
-/*C*/    return newAllocatedObject;
-/*C*/   }
-        //DECLARE METHOD classmethod_DainaNamespaceReference_doesReferToExposedNamespace()
-/*C*/   void* Z_classmethod_DainaNamespaceReference_doesReferToExposedNamespace(void* frame);
-        //DECLARE METHOD classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName()
-/*C*/   void* Z_classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName(void* frame);
-        //DECLARE METHOD classmethod_DainaNamespaceReference_referToExposedNamespace()
-/*C*/   void* Z_classmethod_DainaNamespaceReference_referToExposedNamespace(void* frame);
-        //DECLARE METHOD classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(local_privateNamespaceName)
-/*C*/   void* Z_classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName);
-        //DECLARE METHOD classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(local_privateNamespaceName)
-/*C*/   void* Z_classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName);
-        //START METHOD allocator_DainaNamespaceReference()
-/*C*/      void* Z_allocator_DainaNamespaceReference(void* frame) {{
-           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_DainaNamespaceReference
-/*C*/      void* Z_newObject = alloc_Z_template_DainaNamespaceReference();
-           //RETURN newObject
-/*C*/      return Z_newObject;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_DainaNamespaceReference_doesReferToExposedNamespace()
-/*C*/      void* Z_classmethod_DainaNamespaceReference_doesReferToExposedNamespace(void* frame) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //CREATE OBJECT retval = (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace
-/*C*/      void* Z_retval = ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace;
-           //RETAIN retval
-/*C*/      RetainDynamicObject(Z_retval);
-           //RETURN retval
-/*C*/      return Z_retval;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName()
-/*C*/      void* Z_classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName(void* frame) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //CREATE OBJECT retval = (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName
-/*C*/      void* Z_retval = ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName;
-           //RETAIN retval
-/*C*/      RetainDynamicObject(Z_retval);
-           //RETURN retval
-/*C*/      return Z_retval;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_DainaNamespaceReference_referToExposedNamespace()
-/*C*/      void* Z_classmethod_DainaNamespaceReference_referToExposedNamespace(void* frame) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //RETAIN self
-/*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //CREATE STATIC_OBJECT temporary_8 WITH METHOD allocator_Boolean
-/*C*/      void* Z_temporary_8 = &Z_allocator_Boolean;
-           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
-           //CREATE OBJECT temporary_6 = INVOKE temporary_7()
-/*C*/      void* Z_temporary_6 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda));
-           //RELEASE temporary_7
-/*C*/      ReleaseDynamicObject(Z_temporary_7);
-           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_Boolean_TRUE
-/*C*/      void* Z_temporary_9 = &Z_classmethod_Boolean_TRUE;
-           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(temporary_6)}
-/*C*/      void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_9);
-/*C*/      RetainDynamicObject(Z_temporary_6);
-/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_6;
-           //RELEASE temporary_6
-/*C*/      ReleaseDynamicObject(Z_temporary_6);
-           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
-/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
-           //RELEASE temporary_5
-/*C*/      ReleaseDynamicObject(Z_temporary_5);
-           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace = temporary_4
-/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace = Z_temporary_4;
-           //CREATE STATIC_OBJECT temporary_14 WITH METHOD allocator_Maybe
-/*C*/      void* Z_temporary_14 = &Z_allocator_Maybe;
-           //CREATE DYNAMIC_OBJECT temporary_13 WITH METHOD[STATIC_OBJECT] temporary_14 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_13 = allocateDynamicLambda(0,0,Z_temporary_14);
-           //CREATE OBJECT temporary_12 = INVOKE temporary_13()
-/*C*/      void* Z_temporary_12 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_13))->method))(Z_temporary_13+sizeof(DynamicLambda));
-           //RELEASE temporary_13
-/*C*/      ReleaseDynamicObject(Z_temporary_13);
-           //CREATE STATIC_OBJECT temporary_15 WITH METHOD classmethod_Maybe_asNothing
-/*C*/      void* Z_temporary_15 = &Z_classmethod_Maybe_asNothing;
-           //CREATE DYNAMIC_OBJECT temporary_11 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC(temporary_12)}
-/*C*/      void* Z_temporary_11 = allocateDynamicLambda(1,1,Z_temporary_15);
-/*C*/      RetainDynamicObject(Z_temporary_12);
-/*C*/      *(((void* *)(Z_temporary_11+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_12;
-           //RELEASE temporary_12
-/*C*/      ReleaseDynamicObject(Z_temporary_12);
-           //CREATE OBJECT temporary_10 = INVOKE temporary_11()
-/*C*/      void* Z_temporary_10 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_11))->method))(Z_temporary_11+sizeof(DynamicLambda));
-           //RELEASE temporary_11
-/*C*/      ReleaseDynamicObject(Z_temporary_11);
-           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = temporary_10
-/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = Z_temporary_10;
-           //RETURN self
-/*C*/      return Z_self;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(local_privateNamespaceName)
-/*C*/      void* Z_classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //RETAIN self
-/*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //CREATE STATIC_OBJECT temporary_8 WITH METHOD allocator_Boolean
-/*C*/      void* Z_temporary_8 = &Z_allocator_Boolean;
-           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
-           //CREATE OBJECT temporary_6 = INVOKE temporary_7()
-/*C*/      void* Z_temporary_6 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda));
-           //RELEASE temporary_7
-/*C*/      ReleaseDynamicObject(Z_temporary_7);
-           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_Boolean_FALSE
-/*C*/      void* Z_temporary_9 = &Z_classmethod_Boolean_FALSE;
-           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(temporary_6)}
-/*C*/      void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_9);
-/*C*/      RetainDynamicObject(Z_temporary_6);
-/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_6;
-           //RELEASE temporary_6
-/*C*/      ReleaseDynamicObject(Z_temporary_6);
-           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
-/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
-           //RELEASE temporary_5
-/*C*/      ReleaseDynamicObject(Z_temporary_5);
-           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace = temporary_4
-/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace = Z_temporary_4;
-           //CREATE STATIC_OBJECT temporary_11 WITH EMPTY_VALUE
-/*C*/      void* Z_temporary_11 = ((void *)(0));
-           //ASSIGN temporary_11 = local_privateNamespaceName
-/*C*/      Z_temporary_11 = Z_local_privateNamespaceName;
-           //RETAIN temporary_11
-/*C*/      RetainDynamicObject(Z_temporary_11);
-           //CREATE STATIC_OBJECT temporary_15 WITH METHOD allocator_Maybe
-/*C*/      void* Z_temporary_15 = &Z_allocator_Maybe;
-           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
-           //CREATE OBJECT temporary_13 = INVOKE temporary_14()
-/*C*/      void* Z_temporary_13 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_14))->method))(Z_temporary_14+sizeof(DynamicLambda));
-           //RELEASE temporary_14
-/*C*/      ReleaseDynamicObject(Z_temporary_14);
-           //CREATE STATIC_OBJECT temporary_16 WITH METHOD classmethod_Maybe_asJust
-/*C*/      void* Z_temporary_16 = &Z_classmethod_Maybe_asJust;
-           //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_16 FRAME{STATIC(),DYNAMIC(temporary_13)}
-/*C*/      void* Z_temporary_12 = allocateDynamicLambda(1,1,Z_temporary_16);
-/*C*/      RetainDynamicObject(Z_temporary_13);
-/*C*/      *(((void* *)(Z_temporary_12+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_13;
-           //RELEASE temporary_13
-/*C*/      ReleaseDynamicObject(Z_temporary_13);
-           //CREATE OBJECT temporary_10 = INVOKE temporary_12(temporary_11)
-/*C*/      void* Z_temporary_10 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_12))->method))(Z_temporary_12+sizeof(DynamicLambda), Z_temporary_11);
-           //RELEASE temporary_12
-/*C*/      ReleaseDynamicObject(Z_temporary_12);
-           //RELEASE temporary_11
-/*C*/      ReleaseDynamicObject(Z_temporary_11);
-           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = temporary_10
-/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = Z_temporary_10;
-           //RETURN self
-/*C*/      return Z_self;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(local_privateNamespaceName)
-/*C*/      void* Z_classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //RETAIN self
-/*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //CREATE STATIC_OBJECT temporary_8 WITH METHOD allocator_Boolean
-/*C*/      void* Z_temporary_8 = &Z_allocator_Boolean;
-           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
-           //CREATE OBJECT temporary_6 = INVOKE temporary_7()
-/*C*/      void* Z_temporary_6 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda));
-           //RELEASE temporary_7
-/*C*/      ReleaseDynamicObject(Z_temporary_7);
-           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_Boolean_TRUE
-/*C*/      void* Z_temporary_9 = &Z_classmethod_Boolean_TRUE;
-           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(temporary_6)}
-/*C*/      void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_9);
-/*C*/      RetainDynamicObject(Z_temporary_6);
-/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_6;
-           //RELEASE temporary_6
-/*C*/      ReleaseDynamicObject(Z_temporary_6);
-           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
-/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
-           //RELEASE temporary_5
-/*C*/      ReleaseDynamicObject(Z_temporary_5);
-           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace = temporary_4
-/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace = Z_temporary_4;
-           //CREATE STATIC_OBJECT temporary_11 WITH EMPTY_VALUE
-/*C*/      void* Z_temporary_11 = ((void *)(0));
-           //ASSIGN temporary_11 = local_privateNamespaceName
-/*C*/      Z_temporary_11 = Z_local_privateNamespaceName;
-           //RETAIN temporary_11
-/*C*/      RetainDynamicObject(Z_temporary_11);
-           //CREATE STATIC_OBJECT temporary_15 WITH METHOD allocator_Maybe
-/*C*/      void* Z_temporary_15 = &Z_allocator_Maybe;
-           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
-           //CREATE OBJECT temporary_13 = INVOKE temporary_14()
-/*C*/      void* Z_temporary_13 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_14))->method))(Z_temporary_14+sizeof(DynamicLambda));
-           //RELEASE temporary_14
-/*C*/      ReleaseDynamicObject(Z_temporary_14);
-           //CREATE STATIC_OBJECT temporary_16 WITH METHOD classmethod_Maybe_asJust
-/*C*/      void* Z_temporary_16 = &Z_classmethod_Maybe_asJust;
-           //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_16 FRAME{STATIC(),DYNAMIC(temporary_13)}
-/*C*/      void* Z_temporary_12 = allocateDynamicLambda(1,1,Z_temporary_16);
-/*C*/      RetainDynamicObject(Z_temporary_13);
-/*C*/      *(((void* *)(Z_temporary_12+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_13;
-           //RELEASE temporary_13
-/*C*/      ReleaseDynamicObject(Z_temporary_13);
-           //CREATE OBJECT temporary_10 = INVOKE temporary_12(temporary_11)
-/*C*/      void* Z_temporary_10 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_12))->method))(Z_temporary_12+sizeof(DynamicLambda), Z_temporary_11);
-           //RELEASE temporary_12
-/*C*/      ReleaseDynamicObject(Z_temporary_12);
-           //RELEASE temporary_11
-/*C*/      ReleaseDynamicObject(Z_temporary_11);
-           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = temporary_10
-/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = Z_temporary_10;
-           //RETURN self
-/*C*/      return Z_self;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //---------------------------------------------------------------
-        //BEGIN TEMPLATE template_File
-/*C*/   struct Z_template_File {
-/*C*/    long references;void* deallocator;
-        //END TEMPLATE
-/*C*/   };
-/*C*/   void* dealloc_Z_template_File(void* object) {
-/*C*/    return NULL;
-/*C*/   }
-/*C*/   void* alloc_Z_template_File() {
-/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_File));
-/*C*/   
-/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
-/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_File;
-/*C*/    return newAllocatedObject;
-/*C*/   }
-        //START METHOD allocator_File()
-/*C*/      void* Z_allocator_File(void* frame) {{
-           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_File
-/*C*/      void* Z_newObject = alloc_Z_template_File();
-           //RETURN newObject
-/*C*/      return Z_newObject;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //---------------------------------------------------------------
-        //BEGIN TEMPLATE template_DainaSyntaxTree
-/*C*/   struct Z_template_DainaSyntaxTree {
-/*C*/    long references;void* deallocator;
-        //END TEMPLATE
-/*C*/   };
-/*C*/   void* dealloc_Z_template_DainaSyntaxTree(void* object) {
-/*C*/    return NULL;
-/*C*/   }
-/*C*/   void* alloc_Z_template_DainaSyntaxTree() {
-/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_DainaSyntaxTree));
-/*C*/   
-/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
-/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_DainaSyntaxTree;
-/*C*/    return newAllocatedObject;
-/*C*/   }
-        //DECLARE METHOD classmethod_DainaSyntaxTree_newEmptySyntaxTree()
-/*C*/   void* Z_classmethod_DainaSyntaxTree_newEmptySyntaxTree(void* frame);
-        //START METHOD allocator_DainaSyntaxTree()
-/*C*/      void* Z_allocator_DainaSyntaxTree(void* frame) {{
-           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_DainaSyntaxTree
-/*C*/      void* Z_newObject = alloc_Z_template_DainaSyntaxTree();
-           //RETURN newObject
-/*C*/      return Z_newObject;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_DainaSyntaxTree_newEmptySyntaxTree()
-/*C*/      void* Z_classmethod_DainaSyntaxTree_newEmptySyntaxTree(void* frame) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //RETAIN self
-/*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //RETURN self
-/*C*/      return Z_self;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //---------------------------------------------------------------
         //BEGIN TEMPLATE template_DainaCommandStrings
 /*C*/   struct Z_template_DainaCommandStrings {
 /*C*/    long references;void* deallocator;
@@ -15537,76 +15187,6 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      ReleaseDynamicObject(Z_local_possiblyAByte);
            //RETURN retval
 /*C*/      return Z_retval;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //---------------------------------------------------------------
-        //BEGIN TEMPLATE template_FilingSystem
-/*C*/   struct Z_template_FilingSystem {
-/*C*/    long references;void* deallocator;
-           //TEMPLATE DYNAMIC_OBJECT attribute_FilingSystem_filePathToInputStreamProvider
-/*C*/      void* Z_attribute_FilingSystem_filePathToInputStreamProvider;
-           //TEMPLATE DYNAMIC_OBJECT attribute_FilingSystem_filePathToOutputStreamProvider
-/*C*/      void* Z_attribute_FilingSystem_filePathToOutputStreamProvider;
-        //END TEMPLATE
-/*C*/   };
-/*C*/   void* dealloc_Z_template_FilingSystem(void* object) {
-/*C*/    ReleaseDynamicObject(((struct Z_template_FilingSystem *)(object))->Z_attribute_FilingSystem_filePathToInputStreamProvider);
-/*C*/    ReleaseDynamicObject(((struct Z_template_FilingSystem *)(object))->Z_attribute_FilingSystem_filePathToOutputStreamProvider);
-/*C*/    return NULL;
-/*C*/   }
-/*C*/   void* alloc_Z_template_FilingSystem() {
-/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_FilingSystem));
-/*C*/   
-/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
-/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_FilingSystem;
-/*C*/    return newAllocatedObject;
-/*C*/   }
-        //DECLARE METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(local_filePathToInputStreamProvider, local_filePathToOutputStreamProvider)
-/*C*/   void* Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(void* frame, void* Z_local_filePathToInputStreamProvider, void* Z_local_filePathToOutputStreamProvider);
-        //START METHOD allocator_FilingSystem()
-/*C*/      void* Z_allocator_FilingSystem(void* frame) {{
-           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_FilingSystem
-/*C*/      void* Z_newObject = alloc_Z_template_FilingSystem();
-           //RETURN newObject
-/*C*/      return Z_newObject;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(local_filePathToInputStreamProvider, local_filePathToOutputStreamProvider)
-/*C*/      void* Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(void* frame, void* Z_local_filePathToInputStreamProvider, void* Z_local_filePathToOutputStreamProvider) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //RETAIN self
-/*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //CREATE STATIC_OBJECT temporary_4 WITH EMPTY_VALUE
-/*C*/      void* Z_temporary_4 = ((void *)(0));
-           //ASSIGN temporary_4 = local_filePathToInputStreamProvider
-/*C*/      Z_temporary_4 = Z_local_filePathToInputStreamProvider;
-           //RETAIN temporary_4
-/*C*/      RetainDynamicObject(Z_temporary_4);
-           //ASSIGN (self AS template_FilingSystem)->attribute_FilingSystem_filePathToInputStreamProvider = temporary_4
-/*C*/      ((struct Z_template_FilingSystem *)(Z_self))->Z_attribute_FilingSystem_filePathToInputStreamProvider = Z_temporary_4;
-           //CREATE STATIC_OBJECT temporary_5 WITH EMPTY_VALUE
-/*C*/      void* Z_temporary_5 = ((void *)(0));
-           //ASSIGN temporary_5 = local_filePathToOutputStreamProvider
-/*C*/      Z_temporary_5 = Z_local_filePathToOutputStreamProvider;
-           //RETAIN temporary_5
-/*C*/      RetainDynamicObject(Z_temporary_5);
-           //ASSIGN (self AS template_FilingSystem)->attribute_FilingSystem_filePathToOutputStreamProvider = temporary_5
-/*C*/      ((struct Z_template_FilingSystem *)(Z_self))->Z_attribute_FilingSystem_filePathToOutputStreamProvider = Z_temporary_5;
-           //RETURN self
-/*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
         //---------------------------------------------------------------
@@ -17196,6 +16776,426 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      ReleaseDynamicObject(Z_temporary_1);
            //RETURN retval
 /*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //---------------------------------------------------------------
+        //BEGIN TEMPLATE template_DainaNamespaceReference
+/*C*/   struct Z_template_DainaNamespaceReference {
+/*C*/    long references;void* deallocator;
+           //TEMPLATE DYNAMIC_OBJECT attribute_DainaNamespaceReference_doesReferToExposedNamespace
+/*C*/      void* Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace;
+           //TEMPLATE DYNAMIC_OBJECT attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName
+/*C*/      void* Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName;
+        //END TEMPLATE
+/*C*/   };
+/*C*/   void* dealloc_Z_template_DainaNamespaceReference(void* object) {
+/*C*/    ReleaseDynamicObject(((struct Z_template_DainaNamespaceReference *)(object))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace);
+/*C*/    ReleaseDynamicObject(((struct Z_template_DainaNamespaceReference *)(object))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName);
+/*C*/    return NULL;
+/*C*/   }
+/*C*/   void* alloc_Z_template_DainaNamespaceReference() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_DainaNamespaceReference));
+/*C*/   
+/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_DainaNamespaceReference;
+/*C*/    return newAllocatedObject;
+/*C*/   }
+        //DECLARE METHOD classmethod_DainaNamespaceReference_doesReferToExposedNamespace()
+/*C*/   void* Z_classmethod_DainaNamespaceReference_doesReferToExposedNamespace(void* frame);
+        //DECLARE METHOD classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName()
+/*C*/   void* Z_classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName(void* frame);
+        //DECLARE METHOD classmethod_DainaNamespaceReference_referToExposedNamespace()
+/*C*/   void* Z_classmethod_DainaNamespaceReference_referToExposedNamespace(void* frame);
+        //DECLARE METHOD classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(local_privateNamespaceName)
+/*C*/   void* Z_classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName);
+        //DECLARE METHOD classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(local_privateNamespaceName)
+/*C*/   void* Z_classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName);
+        //START METHOD allocator_DainaNamespaceReference()
+/*C*/      void* Z_allocator_DainaNamespaceReference(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_DainaNamespaceReference
+/*C*/      void* Z_newObject = alloc_Z_template_DainaNamespaceReference();
+           //RETURN newObject
+/*C*/      return Z_newObject;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaNamespaceReference_doesReferToExposedNamespace()
+/*C*/      void* Z_classmethod_DainaNamespaceReference_doesReferToExposedNamespace(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //CREATE OBJECT retval = (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace
+/*C*/      void* Z_retval = ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace;
+           //RETAIN retval
+/*C*/      RetainDynamicObject(Z_retval);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName()
+/*C*/      void* Z_classmethod_DainaNamespaceReference_maybeReferedToPrivateNamespaceName(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //CREATE OBJECT retval = (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName
+/*C*/      void* Z_retval = ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName;
+           //RETAIN retval
+/*C*/      RetainDynamicObject(Z_retval);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaNamespaceReference_referToExposedNamespace()
+/*C*/      void* Z_classmethod_DainaNamespaceReference_referToExposedNamespace(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
+/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD allocator_Boolean
+/*C*/      void* Z_temporary_8 = &Z_allocator_Boolean;
+           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
+           //CREATE OBJECT temporary_6 = INVOKE temporary_7()
+/*C*/      void* Z_temporary_6 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda));
+           //RELEASE temporary_7
+/*C*/      ReleaseDynamicObject(Z_temporary_7);
+           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_Boolean_TRUE
+/*C*/      void* Z_temporary_9 = &Z_classmethod_Boolean_TRUE;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(temporary_6)}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_9);
+/*C*/      RetainDynamicObject(Z_temporary_6);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_6;
+           //RELEASE temporary_6
+/*C*/      ReleaseDynamicObject(Z_temporary_6);
+           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace = temporary_4
+/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace = Z_temporary_4;
+           //CREATE STATIC_OBJECT temporary_14 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_14 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_13 WITH METHOD[STATIC_OBJECT] temporary_14 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_13 = allocateDynamicLambda(0,0,Z_temporary_14);
+           //CREATE OBJECT temporary_12 = INVOKE temporary_13()
+/*C*/      void* Z_temporary_12 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_13))->method))(Z_temporary_13+sizeof(DynamicLambda));
+           //RELEASE temporary_13
+/*C*/      ReleaseDynamicObject(Z_temporary_13);
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD classmethod_Maybe_asNothing
+/*C*/      void* Z_temporary_15 = &Z_classmethod_Maybe_asNothing;
+           //CREATE DYNAMIC_OBJECT temporary_11 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC(temporary_12)}
+/*C*/      void* Z_temporary_11 = allocateDynamicLambda(1,1,Z_temporary_15);
+/*C*/      RetainDynamicObject(Z_temporary_12);
+/*C*/      *(((void* *)(Z_temporary_11+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_12;
+           //RELEASE temporary_12
+/*C*/      ReleaseDynamicObject(Z_temporary_12);
+           //CREATE OBJECT temporary_10 = INVOKE temporary_11()
+/*C*/      void* Z_temporary_10 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_11))->method))(Z_temporary_11+sizeof(DynamicLambda));
+           //RELEASE temporary_11
+/*C*/      ReleaseDynamicObject(Z_temporary_11);
+           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = temporary_10
+/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = Z_temporary_10;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(local_privateNamespaceName)
+/*C*/      void* Z_classmethod_DainaNamespaceReference_referToPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
+/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD allocator_Boolean
+/*C*/      void* Z_temporary_8 = &Z_allocator_Boolean;
+           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
+           //CREATE OBJECT temporary_6 = INVOKE temporary_7()
+/*C*/      void* Z_temporary_6 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda));
+           //RELEASE temporary_7
+/*C*/      ReleaseDynamicObject(Z_temporary_7);
+           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_Boolean_FALSE
+/*C*/      void* Z_temporary_9 = &Z_classmethod_Boolean_FALSE;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(temporary_6)}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_9);
+/*C*/      RetainDynamicObject(Z_temporary_6);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_6;
+           //RELEASE temporary_6
+/*C*/      ReleaseDynamicObject(Z_temporary_6);
+           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace = temporary_4
+/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace = Z_temporary_4;
+           //CREATE STATIC_OBJECT temporary_11 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_11 = ((void *)(0));
+           //ASSIGN temporary_11 = local_privateNamespaceName
+/*C*/      Z_temporary_11 = Z_local_privateNamespaceName;
+           //RETAIN temporary_11
+/*C*/      RetainDynamicObject(Z_temporary_11);
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_15 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
+           //CREATE OBJECT temporary_13 = INVOKE temporary_14()
+/*C*/      void* Z_temporary_13 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_14))->method))(Z_temporary_14+sizeof(DynamicLambda));
+           //RELEASE temporary_14
+/*C*/      ReleaseDynamicObject(Z_temporary_14);
+           //CREATE STATIC_OBJECT temporary_16 WITH METHOD classmethod_Maybe_asJust
+/*C*/      void* Z_temporary_16 = &Z_classmethod_Maybe_asJust;
+           //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_16 FRAME{STATIC(),DYNAMIC(temporary_13)}
+/*C*/      void* Z_temporary_12 = allocateDynamicLambda(1,1,Z_temporary_16);
+/*C*/      RetainDynamicObject(Z_temporary_13);
+/*C*/      *(((void* *)(Z_temporary_12+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_13;
+           //RELEASE temporary_13
+/*C*/      ReleaseDynamicObject(Z_temporary_13);
+           //CREATE OBJECT temporary_10 = INVOKE temporary_12(temporary_11)
+/*C*/      void* Z_temporary_10 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_12))->method))(Z_temporary_12+sizeof(DynamicLambda), Z_temporary_11);
+           //RELEASE temporary_12
+/*C*/      ReleaseDynamicObject(Z_temporary_12);
+           //RELEASE temporary_11
+/*C*/      ReleaseDynamicObject(Z_temporary_11);
+           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = temporary_10
+/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = Z_temporary_10;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(local_privateNamespaceName)
+/*C*/      void* Z_classmethod_DainaNamespaceReference_referToExposedNamespaceAndPrivateNamespaceWithName(void* frame, void* Z_local_privateNamespaceName) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
+/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD allocator_Boolean
+/*C*/      void* Z_temporary_8 = &Z_allocator_Boolean;
+           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
+           //CREATE OBJECT temporary_6 = INVOKE temporary_7()
+/*C*/      void* Z_temporary_6 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda));
+           //RELEASE temporary_7
+/*C*/      ReleaseDynamicObject(Z_temporary_7);
+           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_Boolean_TRUE
+/*C*/      void* Z_temporary_9 = &Z_classmethod_Boolean_TRUE;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(temporary_6)}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_9);
+/*C*/      RetainDynamicObject(Z_temporary_6);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_6;
+           //RELEASE temporary_6
+/*C*/      ReleaseDynamicObject(Z_temporary_6);
+           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_doesReferToExposedNamespace = temporary_4
+/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_doesReferToExposedNamespace = Z_temporary_4;
+           //CREATE STATIC_OBJECT temporary_11 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_11 = ((void *)(0));
+           //ASSIGN temporary_11 = local_privateNamespaceName
+/*C*/      Z_temporary_11 = Z_local_privateNamespaceName;
+           //RETAIN temporary_11
+/*C*/      RetainDynamicObject(Z_temporary_11);
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_15 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
+           //CREATE OBJECT temporary_13 = INVOKE temporary_14()
+/*C*/      void* Z_temporary_13 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_14))->method))(Z_temporary_14+sizeof(DynamicLambda));
+           //RELEASE temporary_14
+/*C*/      ReleaseDynamicObject(Z_temporary_14);
+           //CREATE STATIC_OBJECT temporary_16 WITH METHOD classmethod_Maybe_asJust
+/*C*/      void* Z_temporary_16 = &Z_classmethod_Maybe_asJust;
+           //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_16 FRAME{STATIC(),DYNAMIC(temporary_13)}
+/*C*/      void* Z_temporary_12 = allocateDynamicLambda(1,1,Z_temporary_16);
+/*C*/      RetainDynamicObject(Z_temporary_13);
+/*C*/      *(((void* *)(Z_temporary_12+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_13;
+           //RELEASE temporary_13
+/*C*/      ReleaseDynamicObject(Z_temporary_13);
+           //CREATE OBJECT temporary_10 = INVOKE temporary_12(temporary_11)
+/*C*/      void* Z_temporary_10 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_12))->method))(Z_temporary_12+sizeof(DynamicLambda), Z_temporary_11);
+           //RELEASE temporary_12
+/*C*/      ReleaseDynamicObject(Z_temporary_12);
+           //RELEASE temporary_11
+/*C*/      ReleaseDynamicObject(Z_temporary_11);
+           //ASSIGN (self AS template_DainaNamespaceReference)->attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = temporary_10
+/*C*/      ((struct Z_template_DainaNamespaceReference *)(Z_self))->Z_attribute_DainaNamespaceReference_maybeReferedToPrivateNamespaceName = Z_temporary_10;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //---------------------------------------------------------------
+        //BEGIN TEMPLATE template_FilingSystem
+/*C*/   struct Z_template_FilingSystem {
+/*C*/    long references;void* deallocator;
+           //TEMPLATE DYNAMIC_OBJECT attribute_FilingSystem_filePathToInputStreamProvider
+/*C*/      void* Z_attribute_FilingSystem_filePathToInputStreamProvider;
+           //TEMPLATE DYNAMIC_OBJECT attribute_FilingSystem_filePathToOutputStreamProvider
+/*C*/      void* Z_attribute_FilingSystem_filePathToOutputStreamProvider;
+        //END TEMPLATE
+/*C*/   };
+/*C*/   void* dealloc_Z_template_FilingSystem(void* object) {
+/*C*/    ReleaseDynamicObject(((struct Z_template_FilingSystem *)(object))->Z_attribute_FilingSystem_filePathToInputStreamProvider);
+/*C*/    ReleaseDynamicObject(((struct Z_template_FilingSystem *)(object))->Z_attribute_FilingSystem_filePathToOutputStreamProvider);
+/*C*/    return NULL;
+/*C*/   }
+/*C*/   void* alloc_Z_template_FilingSystem() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_FilingSystem));
+/*C*/   
+/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_FilingSystem;
+/*C*/    return newAllocatedObject;
+/*C*/   }
+        //DECLARE METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(local_filePathToInputStreamProvider, local_filePathToOutputStreamProvider)
+/*C*/   void* Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(void* frame, void* Z_local_filePathToInputStreamProvider, void* Z_local_filePathToOutputStreamProvider);
+        //START METHOD allocator_FilingSystem()
+/*C*/      void* Z_allocator_FilingSystem(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_FilingSystem
+/*C*/      void* Z_newObject = alloc_Z_template_FilingSystem();
+           //RETURN newObject
+/*C*/      return Z_newObject;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(local_filePathToInputStreamProvider, local_filePathToOutputStreamProvider)
+/*C*/      void* Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(void* frame, void* Z_local_filePathToInputStreamProvider, void* Z_local_filePathToOutputStreamProvider) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
+/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //CREATE STATIC_OBJECT temporary_4 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_4 = ((void *)(0));
+           //ASSIGN temporary_4 = local_filePathToInputStreamProvider
+/*C*/      Z_temporary_4 = Z_local_filePathToInputStreamProvider;
+           //RETAIN temporary_4
+/*C*/      RetainDynamicObject(Z_temporary_4);
+           //ASSIGN (self AS template_FilingSystem)->attribute_FilingSystem_filePathToInputStreamProvider = temporary_4
+/*C*/      ((struct Z_template_FilingSystem *)(Z_self))->Z_attribute_FilingSystem_filePathToInputStreamProvider = Z_temporary_4;
+           //CREATE STATIC_OBJECT temporary_5 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_5 = ((void *)(0));
+           //ASSIGN temporary_5 = local_filePathToOutputStreamProvider
+/*C*/      Z_temporary_5 = Z_local_filePathToOutputStreamProvider;
+           //RETAIN temporary_5
+/*C*/      RetainDynamicObject(Z_temporary_5);
+           //ASSIGN (self AS template_FilingSystem)->attribute_FilingSystem_filePathToOutputStreamProvider = temporary_5
+/*C*/      ((struct Z_template_FilingSystem *)(Z_self))->Z_attribute_FilingSystem_filePathToOutputStreamProvider = Z_temporary_5;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //---------------------------------------------------------------
+        //BEGIN TEMPLATE template_File
+/*C*/   struct Z_template_File {
+/*C*/    long references;void* deallocator;
+        //END TEMPLATE
+/*C*/   };
+/*C*/   void* dealloc_Z_template_File(void* object) {
+/*C*/    return NULL;
+/*C*/   }
+/*C*/   void* alloc_Z_template_File() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_File));
+/*C*/   
+/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_File;
+/*C*/    return newAllocatedObject;
+/*C*/   }
+        //START METHOD allocator_File()
+/*C*/      void* Z_allocator_File(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_File
+/*C*/      void* Z_newObject = alloc_Z_template_File();
+           //RETURN newObject
+/*C*/      return Z_newObject;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //---------------------------------------------------------------
+        //BEGIN TEMPLATE template_DainaSyntaxTree
+/*C*/   struct Z_template_DainaSyntaxTree {
+/*C*/    long references;void* deallocator;
+        //END TEMPLATE
+/*C*/   };
+/*C*/   void* dealloc_Z_template_DainaSyntaxTree(void* object) {
+/*C*/    return NULL;
+/*C*/   }
+/*C*/   void* alloc_Z_template_DainaSyntaxTree() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_DainaSyntaxTree));
+/*C*/   
+/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_DainaSyntaxTree;
+/*C*/    return newAllocatedObject;
+/*C*/   }
+        //DECLARE METHOD classmethod_DainaSyntaxTree_newEmptySyntaxTree()
+/*C*/   void* Z_classmethod_DainaSyntaxTree_newEmptySyntaxTree(void* frame);
+        //START METHOD allocator_DainaSyntaxTree()
+/*C*/      void* Z_allocator_DainaSyntaxTree(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_DainaSyntaxTree
+/*C*/      void* Z_newObject = alloc_Z_template_DainaSyntaxTree();
+           //RETURN newObject
+/*C*/      return Z_newObject;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_DainaSyntaxTree_newEmptySyntaxTree()
+/*C*/      void* Z_classmethod_DainaSyntaxTree_newEmptySyntaxTree(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
+/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RETURN self
+/*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
         //---------------------------------------------------------------
