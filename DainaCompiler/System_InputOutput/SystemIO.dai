@@ -50,7 +50,7 @@ SystemIO : []
 
 
 [SystemInputOutput] (OutputStream, InputStream, Object, AutomaticallyClosingInputFileDataStream, Maybe, SocketBinding,
-		AutomaticallyClosingOutputFileDataStream, String, Data, SocketPort, SocketConnection, IPAddress) 
+		AutomaticallyClosingOutputFileDataStream, String, Data, SocketPort, SocketConnection, IPAddress, ControlFlow, Boolean) 
 {
 
 
@@ -63,7 +63,7 @@ SystemIO : []
 			_outputCharPointer[originalDataLength] = 0;
 	##
 	
-	:: inputStreamForFileWithFilename *([String] filename) -> [InputStream] {
+	:: maybeInputStreamForFileWithFilename *([String] filename) -> [Maybe<[InputStream]>] {
 		[AutomaticallyClosingInputFileDataStream] fileInputStream = \[AutomaticallyClosingInputFileDataStream]:automaticallyClosingInputFileStreamConnectedToNullDevice;
 	   	[Data] filenameASCIIData = \filename:asciiDataRepresentationOfString;
 		<instant
@@ -74,9 +74,16 @@ SystemIO : []
 			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_fileInputStream, file);
     		free(filenameAsCString);
 		##;
-	} -> fileInputStream
+		[Maybe<[InputStream]>] maybeInputStreamIfNotConnectedToNullDevice = \[ControlFlow<[Maybe<[InputStream]>]>]:selectWithSelectorOrDefault 
+			*([[Maybe<[InputStream]>]->] selectInputStreamNotConnectedToNullDevice) {
+				[Boolean] streamIsNullDevice = \fileInputStream:isConnectedToNullDevice;
+				\streamIsNullDevice:ifFALSE *{
+					\selectInputStreamNotConnectedToNullDevice (\[Maybe<[InputStream]>]:asJust fileInputStream)
+				}
+			} (*->\[Maybe<[InputStream]>]:asNothing);
+	} -> maybeInputStreamIfNotConnectedToNullDevice
 
-	:: outputStreamForFileWithFilename *([String] filename) -> [OutputStream] {
+	:: maybeOutputStreamForFileWithFilename *([String] filename) -> [Maybe<[OutputStream]>] {
 		[AutomaticallyClosingOutputFileDataStream] fileOutputStream = \[AutomaticallyClosingOutputFileDataStream]:automaticallyClosingOutputFileStreamConnectedToNullDevice;
 	   	[Data] filenameASCIIData = \filename:asciiDataRepresentationOfString;
 		<instant
@@ -87,7 +94,14 @@ SystemIO : []
 			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_fileOutputStream, file);
     		free(filenameAsCString);
 		##;
-	} -> fileOutputStream
+		[Maybe<[OutputStream]>] maybeOutputStreamIfNotConnectedToNullDevice = \[ControlFlow<[Maybe<[OutputStream]>]>]:selectWithSelectorOrDefault 
+			*([[Maybe<[OutputStream]>]->] selectOutputStreamNotConnectedToNullDevice) {
+				[Boolean] streamIsNullDevice = \fileOutputStream:isConnectedToNullDevice;
+				\streamIsNullDevice:ifFALSE *{
+					\selectOutputStreamNotConnectedToNullDevice (\[Maybe<[OutputStream]>]:asJust fileOutputStream)
+				}
+			} (*->\[Maybe<[OutputStream]>]:asNothing);
+	} -> maybeOutputStreamIfNotConnectedToNullDevice
 
 
 	:: bindAndListenToSocketOnLocalPort *([SocketPort] portToListenOn) -> [Maybe<[SocketBinding]>] {

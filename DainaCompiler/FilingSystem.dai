@@ -1,0 +1,30 @@
+
+
+[FilingSystem : [Object]] (
+		Object, 
+		String, 
+		Maybe, 
+		InputStream, 
+		OutputStream
+	)
+	[[String]->[Maybe<[InputStream]>]] filePathToInputStreamProvider
+	[[String]->[Maybe<[OutputStream]>]] filePathToOutputStreamProvider
+{
+	~ newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider *(
+			[[String]->[Maybe<[InputStream]>]] filePathToInputStreamProvider, 
+			[[String]->[Maybe<[OutputStream]>]] filePathToOutputStreamProvider
+		) {
+		\::newObject;
+		.filePathToInputStreamProvider = filePathToInputStreamProvider;
+		.filePathToOutputStreamProvider = filePathToOutputStreamProvider;
+	}
+}
+
+[File : [Object]] (
+		Object
+	)
+{
+
+}
+
+

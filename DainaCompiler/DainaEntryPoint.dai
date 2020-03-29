@@ -1,18 +1,26 @@
 
 
-[] (DainaCompiler, DainaCommandInterface, ControlFlow, DainaStatusReporter) 
+[] (
+		DainaCompiler, 
+		DainaCommandInterface, 
+		ControlFlow, 
+		DainaStatusReporter, 
+		FilingSystem, 
+		SystemInputOutput
+	) 
 {
 	^ *{
 		[DainaCommandInterface] dainaCommandInterface = \[DainaCommandInterface]:newDainaCommandInterfaceReadyToReceiveCommands;
 		[DainaStatusReporter] statusReporterForCompiler = \dainaCommandInterface:provideDainaStatusReporterWhichReportsToThisCommandInterface;
-		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus statusReporterForCompiler;
+		[DainaCompiler] dainaCompiler = \[DainaCompiler]:newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles statusReporterForCompiler filingSystemForCompilationInputAndOutputFiles;
 		\sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop dainaCommandInterface dainaCompiler;
 	}	!{
 			[[DainaCommandInterface][DainaCompiler]->] sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = *([DainaCommandInterface] dainaCommandInterface, [DainaCompiler] dainaCompiler) {
 				\[ControlFlow]:repeatUntilStopped *([]_){
 					\dainaCommandInterface:processNextUserCommandAndSendingValidCommandsToCommandReceiver dainaCompiler;
 				}
-			}
+			};
+			[FilingSystem] filingSystemForCompilationInputAndOutputFiles = (\[FilingSystem]:newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider ([SystemInputOutput]:maybeInputStreamForFileWithFilename) ([SystemInputOutput]:maybeOutputStreamForFileWithFilename));
 		}
 }
 

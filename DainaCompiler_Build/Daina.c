@@ -53,6 +53,7 @@ Analysis: analysing class - AutomaticallyClosingSocketLink...
 Analysis: analysing class - OutputStream...
 Analysis: analysing class - SocketLinkOutputStream...
 Analysis: analysing class - InputStream...
+Analysis: analysing class - FilingSystem...
 Analysis: analysing class - SocketLinkInputStream...
 Analysis: analysing class - SocketConnection...
 Analysis: analysing class - SocketBinding...
@@ -284,7 +285,6 @@ DainaNamespaceReference : [Object]
 	++ maybeReferedToPrivateNamespaceName [ -> [Maybe<[String]>]]
 
 File : [Object]
-	:: readFileWithName [[String] -> [File]]
 
 DainaSyntaxTree : [Object]
 	:: newEmptySyntaxTree [ -> [DainaSyntaxTree]]
@@ -332,6 +332,9 @@ InputStream : [DataStream]
 	++ parseDataAsStringUntilNewlineOrEndOfFile [ -> [String]]
 	++ readNextByte [ -> [Maybe<[Byte]>]]
 
+FilingSystem : [Object]
+	:: newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider [[[String] -> [Maybe<[InputStream]>]],[[String] -> [Maybe<[OutputStream]>]] -> [FilingSystem]]
+
 SocketLinkInputStream : [InputStream]
 	:: inputStreamWithSocketLink [[AutomaticallyClosingSocketLink] -> [SocketLinkInputStream]]
 
@@ -354,8 +357,8 @@ IPAddress : [Object]
 	:: newIPAddressFromStringRepresentation [[String] -> [IPAddress]]
 
 SystemInputOutput : []
-	:: inputStreamForFileWithFilename [[String] -> [InputStream]]
-	:: outputStreamForFileWithFilename [[String] -> [OutputStream]]
+	:: maybeInputStreamForFileWithFilename [[String] -> [Maybe<[InputStream]>]]
+	:: maybeOutputStreamForFileWithFilename [[String] -> [Maybe<[OutputStream]>]]
 	:: bindAndListenToSocketOnLocalPort [[SocketPort] -> [Maybe<[SocketBinding]>]]
 	:: connectToOpenSocketWithIPAddressAndPort [[IPAddress],[SocketPort] -> [Maybe<[SocketConnection]>]]
 	:: stdout [ -> [OutputStream]]
@@ -432,7 +435,7 @@ DainaCommandInterface : [Object]
 	++ provideDainaStatusReporterWhichReportsToThisCommandInterface [ -> [DainaStatusReporter]]
 
 DainaCompiler : [DainaCommandReceiver]
-	:: newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus [[DainaStatusReporter] -> [DainaCompiler]]
+	:: newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles [[DainaStatusReporter],[FilingSystem] -> [DainaCompiler]]
 	|++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection [[String],[DainaNamespaceReference] -> ]
 	|++ receiveCommandToAnalyseAndSynthesiseSyntaxTree [ -> ]
 	|++ receiveCommandToCompileIntoJavaWithinDirectory [[String] -> ]
@@ -13955,36 +13958,12 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_File;
 /*C*/    return newAllocatedObject;
 /*C*/   }
-        //DECLARE METHOD classmethod_File_readFileWithName(local_fileName)
-/*C*/   void* Z_classmethod_File_readFileWithName(void* frame, void* Z_local_fileName);
         //START METHOD allocator_File()
 /*C*/      void* Z_allocator_File(void* frame) {{
            //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_File
 /*C*/      void* Z_newObject = alloc_Z_template_File();
            //RETURN newObject
 /*C*/      return Z_newObject;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_File_readFileWithName(local_fileName)
-/*C*/      void* Z_classmethod_File_readFileWithName(void* frame, void* Z_local_fileName) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //RETAIN self
-/*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //RETURN self
-/*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
         //---------------------------------------------------------------
@@ -15561,6 +15540,76 @@ DainaCompiler : [DainaCommandReceiver]
         //FINISH METHOD
 /*C*/   }return NULL;}
         //---------------------------------------------------------------
+        //BEGIN TEMPLATE template_FilingSystem
+/*C*/   struct Z_template_FilingSystem {
+/*C*/    long references;void* deallocator;
+           //TEMPLATE DYNAMIC_OBJECT attribute_FilingSystem_filePathToInputStreamProvider
+/*C*/      void* Z_attribute_FilingSystem_filePathToInputStreamProvider;
+           //TEMPLATE DYNAMIC_OBJECT attribute_FilingSystem_filePathToOutputStreamProvider
+/*C*/      void* Z_attribute_FilingSystem_filePathToOutputStreamProvider;
+        //END TEMPLATE
+/*C*/   };
+/*C*/   void* dealloc_Z_template_FilingSystem(void* object) {
+/*C*/    ReleaseDynamicObject(((struct Z_template_FilingSystem *)(object))->Z_attribute_FilingSystem_filePathToInputStreamProvider);
+/*C*/    ReleaseDynamicObject(((struct Z_template_FilingSystem *)(object))->Z_attribute_FilingSystem_filePathToOutputStreamProvider);
+/*C*/    return NULL;
+/*C*/   }
+/*C*/   void* alloc_Z_template_FilingSystem() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_FilingSystem));
+/*C*/   
+/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_FilingSystem;
+/*C*/    return newAllocatedObject;
+/*C*/   }
+        //DECLARE METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(local_filePathToInputStreamProvider, local_filePathToOutputStreamProvider)
+/*C*/   void* Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(void* frame, void* Z_local_filePathToInputStreamProvider, void* Z_local_filePathToOutputStreamProvider);
+        //START METHOD allocator_FilingSystem()
+/*C*/      void* Z_allocator_FilingSystem(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_FilingSystem
+/*C*/      void* Z_newObject = alloc_Z_template_FilingSystem();
+           //RETURN newObject
+/*C*/      return Z_newObject;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(local_filePathToInputStreamProvider, local_filePathToOutputStreamProvider)
+/*C*/      void* Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider(void* frame, void* Z_local_filePathToInputStreamProvider, void* Z_local_filePathToOutputStreamProvider) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
+/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //CREATE STATIC_OBJECT temporary_4 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_4 = ((void *)(0));
+           //ASSIGN temporary_4 = local_filePathToInputStreamProvider
+/*C*/      Z_temporary_4 = Z_local_filePathToInputStreamProvider;
+           //RETAIN temporary_4
+/*C*/      RetainDynamicObject(Z_temporary_4);
+           //ASSIGN (self AS template_FilingSystem)->attribute_FilingSystem_filePathToInputStreamProvider = temporary_4
+/*C*/      ((struct Z_template_FilingSystem *)(Z_self))->Z_attribute_FilingSystem_filePathToInputStreamProvider = Z_temporary_4;
+           //CREATE STATIC_OBJECT temporary_5 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_5 = ((void *)(0));
+           //ASSIGN temporary_5 = local_filePathToOutputStreamProvider
+/*C*/      Z_temporary_5 = Z_local_filePathToOutputStreamProvider;
+           //RETAIN temporary_5
+/*C*/      RetainDynamicObject(Z_temporary_5);
+           //ASSIGN (self AS template_FilingSystem)->attribute_FilingSystem_filePathToOutputStreamProvider = temporary_5
+/*C*/      ((struct Z_template_FilingSystem *)(Z_self))->Z_attribute_FilingSystem_filePathToOutputStreamProvider = Z_temporary_5;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //---------------------------------------------------------------
         //BEGIN TEMPLATE template_SocketLinkInputStream
 /*C*/   struct Z_template_SocketLinkInputStream {
 /*C*/    long references;void* deallocator;
@@ -16202,10 +16251,10 @@ DainaCompiler : [DainaCommandReceiver]
 			_outputCharPointer[originalDataLength] = 0;
 	
 //HEADER INJECTION END
-        //DECLARE METHOD classmethod_SystemInputOutput_inputStreamForFileWithFilename(local_filename)
-/*C*/   void* Z_classmethod_SystemInputOutput_inputStreamForFileWithFilename(void* frame, void* Z_local_filename);
-        //DECLARE METHOD classmethod_SystemInputOutput_outputStreamForFileWithFilename(local_filename)
-/*C*/   void* Z_classmethod_SystemInputOutput_outputStreamForFileWithFilename(void* frame, void* Z_local_filename);
+        //DECLARE METHOD classmethod_SystemInputOutput_maybeInputStreamForFileWithFilename(local_filename)
+/*C*/   void* Z_classmethod_SystemInputOutput_maybeInputStreamForFileWithFilename(void* frame, void* Z_local_filename);
+        //DECLARE METHOD classmethod_SystemInputOutput_maybeOutputStreamForFileWithFilename(local_filename)
+/*C*/   void* Z_classmethod_SystemInputOutput_maybeOutputStreamForFileWithFilename(void* frame, void* Z_local_filename);
         //DECLARE METHOD classmethod_SystemInputOutput_bindAndListenToSocketOnLocalPort(local_portToListenOn)
 /*C*/   void* Z_classmethod_SystemInputOutput_bindAndListenToSocketOnLocalPort(void* frame, void* Z_local_portToListenOn);
         //DECLARE METHOD classmethod_SystemInputOutput_connectToOpenSocketWithIPAddressAndPort(local_ipAddressToConnectTo, local_portToConnectTo)
@@ -16228,8 +16277,151 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_newObject;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD classmethod_SystemInputOutput_inputStreamForFileWithFilename(local_filename)
-/*C*/      void* Z_classmethod_SystemInputOutput_inputStreamForFileWithFilename(void* frame, void* Z_local_filename) {{
+        //START METHOD anonymousmethod_106()
+/*C*/      void* Z_anonymousmethod_106(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(local_fileInputStream, local_selectInputStreamNotConnectedToNullDevice)}
+/*C*/      void* Z_local_fileInputStream = *(((void* *)(frame+sizeof(void*)*0)));
+/*C*/      void* Z_local_selectInputStreamNotConnectedToNullDevice = *(((void* *)(frame+sizeof(void*)*1)));
+           //CREATE STATIC_OBJECT temporary_3 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_3 = ((void *)(0));
+           //ASSIGN temporary_3 = local_fileInputStream
+/*C*/      Z_temporary_3 = Z_local_fileInputStream;
+           //RETAIN temporary_3
+/*C*/      RetainDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_7 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_7 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_6 WITH METHOD[STATIC_OBJECT] temporary_7 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_6 = allocateDynamicLambda(0,0,Z_temporary_7);
+           //CREATE OBJECT temporary_5 = INVOKE temporary_6()
+/*C*/      void* Z_temporary_5 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_6))->method))(Z_temporary_6+sizeof(DynamicLambda));
+           //RELEASE temporary_6
+/*C*/      ReleaseDynamicObject(Z_temporary_6);
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD classmethod_Maybe_asJust
+/*C*/      void* Z_temporary_8 = &Z_classmethod_Maybe_asJust;
+           //CREATE DYNAMIC_OBJECT temporary_4 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC(temporary_5)}
+/*C*/      void* Z_temporary_4 = allocateDynamicLambda(1,1,Z_temporary_8);
+/*C*/      RetainDynamicObject(Z_temporary_5);
+/*C*/      *(((void* *)(Z_temporary_4+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_5;
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //CREATE OBJECT temporary_2 = INVOKE temporary_4(temporary_3)
+/*C*/      void* Z_temporary_2 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_4))->method))(Z_temporary_4+sizeof(DynamicLambda), Z_temporary_3);
+           //RELEASE temporary_4
+/*C*/      ReleaseDynamicObject(Z_temporary_4);
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_9 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_9 = ((void *)(0));
+           //ASSIGN temporary_9 = local_selectInputStreamNotConnectedToNullDevice
+/*C*/      Z_temporary_9 = Z_local_selectInputStreamNotConnectedToNullDevice;
+           //RETAIN temporary_9
+/*C*/      RetainDynamicObject(Z_temporary_9);
+           //CREATE OBJECT temporary_1 = INVOKE temporary_9(temporary_2)
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_9))->method))(Z_temporary_9+sizeof(DynamicLambda), Z_temporary_2);
+           //RELEASE temporary_9
+/*C*/      ReleaseDynamicObject(Z_temporary_9);
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD anonymousmethod_105(local_selectInputStreamNotConnectedToNullDevice)
+/*C*/      void* Z_anonymousmethod_105(void* frame, void* Z_local_selectInputStreamNotConnectedToNullDevice) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(local_fileInputStream)}
+/*C*/      void* Z_local_fileInputStream = *(((void* *)(frame+sizeof(void*)*0)));
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_DataStream_isConnectedToNullDevice
+/*C*/      void* Z_temporary_3 = &Z_classmethod_DataStream_isConnectedToNullDevice;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(local_fileInputStream)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_local_fileInputStream);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_fileInputStream;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT local_streamIsNullDevice WITH EMPTY_VALUE
+/*C*/      void* Z_local_streamIsNullDevice = ((void *)(0));
+           //ASSIGN local_streamIsNullDevice = temporary_1
+/*C*/      Z_local_streamIsNullDevice = Z_temporary_1;
+           //CREATE STATIC_OBJECT temporary_6 WITH METHOD anonymousmethod_106
+/*C*/      void* Z_temporary_6 = &Z_anonymousmethod_106;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_6 FRAME{STATIC(),DYNAMIC(local_fileInputStream, local_selectInputStreamNotConnectedToNullDevice)}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(2,2,Z_temporary_6);
+/*C*/      RetainDynamicObject(Z_local_fileInputStream);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_fileInputStream;
+/*C*/      RetainDynamicObject(Z_local_selectInputStreamNotConnectedToNullDevice);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*1))) = Z_local_selectInputStreamNotConnectedToNullDevice;
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD classmethod_Boolean_ifFALSE
+/*C*/      void* Z_temporary_8 = &Z_classmethod_Boolean_ifFALSE;
+           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC(local_streamIsNullDevice)}
+/*C*/      void* Z_temporary_7 = allocateDynamicLambda(1,1,Z_temporary_8);
+/*C*/      RetainDynamicObject(Z_local_streamIsNullDevice);
+/*C*/      *(((void* *)(Z_temporary_7+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_streamIsNullDevice;
+           //CREATE OBJECT temporary_4 = INVOKE temporary_7(temporary_5)
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda), Z_temporary_5);
+           //RELEASE temporary_7
+/*C*/      ReleaseDynamicObject(Z_temporary_7);
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //RELEASE local_streamIsNullDevice
+/*C*/      ReleaseDynamicObject(Z_local_streamIsNullDevice);
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD anonymousmethod_107()
+/*C*/      void* Z_anonymousmethod_107(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
+           //CREATE STATIC_OBJECT temporary_4 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_4 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_4 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(0,0,Z_temporary_4);
+           //CREATE OBJECT temporary_2 = INVOKE temporary_3()
+/*C*/      void* Z_temporary_2 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda));
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_Maybe_asNothing
+/*C*/      void* Z_temporary_5 = &Z_classmethod_Maybe_asNothing;
+           //CREATE DYNAMIC_OBJECT temporary_1 WITH METHOD[STATIC_OBJECT] temporary_5 FRAME{STATIC(),DYNAMIC(temporary_2)}
+/*C*/      void* Z_temporary_1 = allocateDynamicLambda(1,1,Z_temporary_5);
+/*C*/      RetainDynamicObject(Z_temporary_2);
+/*C*/      *(((void* *)(Z_temporary_1+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_2;
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE OBJECT retval = INVOKE temporary_1()
+/*C*/      void* Z_retval = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_1))->method))(Z_temporary_1+sizeof(DynamicLambda));
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD anonymousmethod_108()
+/*C*/      void* Z_anonymousmethod_108(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
+           //CREATE STATIC_OBJECT temporary_4 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_4 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_4 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(0,0,Z_temporary_4);
+           //CREATE OBJECT temporary_2 = INVOKE temporary_3()
+/*C*/      void* Z_temporary_2 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda));
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_Maybe_asNothing
+/*C*/      void* Z_temporary_5 = &Z_classmethod_Maybe_asNothing;
+           //CREATE DYNAMIC_OBJECT temporary_1 WITH METHOD[STATIC_OBJECT] temporary_5 FRAME{STATIC(),DYNAMIC(temporary_2)}
+/*C*/      void* Z_temporary_1 = allocateDynamicLambda(1,1,Z_temporary_5);
+/*C*/      RetainDynamicObject(Z_temporary_2);
+/*C*/      *(((void* *)(Z_temporary_1+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_2;
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE OBJECT retval = INVOKE temporary_1()
+/*C*/      void* Z_retval = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_1))->method))(Z_temporary_1+sizeof(DynamicLambda));
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_SystemInputOutput_maybeInputStreamForFileWithFilename(local_filename)
+/*C*/      void* Z_classmethod_SystemInputOutput_maybeInputStreamForFileWithFilename(void* frame, void* Z_local_filename) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD allocator_AutomaticallyClosingInputFileDataStream
 /*C*/      void* Z_temporary_5 = &Z_allocator_AutomaticallyClosingInputFileDataStream;
@@ -16279,22 +16471,193 @@ DainaCompiler : [DainaCommandReceiver]
     		free(filenameAsCString);
 		
 //INJECTION END
+           //CREATE STATIC_OBJECT temporary_13 WITH METHOD anonymousmethod_105
+/*C*/      void* Z_temporary_13 = &Z_anonymousmethod_105;
+           //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_13 FRAME{STATIC(),DYNAMIC(local_fileInputStream)}
+/*C*/      void* Z_temporary_12 = allocateDynamicLambda(1,1,Z_temporary_13);
+/*C*/      RetainDynamicObject(Z_local_fileInputStream);
+/*C*/      *(((void* *)(Z_temporary_12+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_fileInputStream;
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD anonymousmethod_108
+/*C*/      void* Z_temporary_15 = &Z_anonymousmethod_108;
+           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
+           //CREATE STATIC_OBJECT temporary_17 WITH METHOD classmethod_ControlFlow_selectWithSelectorOrDefault
+/*C*/      void* Z_temporary_17 = &Z_classmethod_ControlFlow_selectWithSelectorOrDefault;
+           //CREATE DYNAMIC_OBJECT temporary_16 WITH METHOD[STATIC_OBJECT] temporary_17 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_16 = allocateDynamicLambda(0,0,Z_temporary_17);
+           //CREATE OBJECT temporary_11 = INVOKE temporary_16(temporary_12, temporary_14)
+/*C*/      void* Z_temporary_11 = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_16))->method))(Z_temporary_16+sizeof(DynamicLambda), Z_temporary_12, Z_temporary_14);
+           //RELEASE temporary_16
+/*C*/      ReleaseDynamicObject(Z_temporary_16);
+           //RELEASE temporary_12
+/*C*/      ReleaseDynamicObject(Z_temporary_12);
+           //RELEASE temporary_14
+/*C*/      ReleaseDynamicObject(Z_temporary_14);
+           //CREATE STATIC_OBJECT local_maybeInputStreamIfNotConnectedToNullDevice WITH EMPTY_VALUE
+/*C*/      void* Z_local_maybeInputStreamIfNotConnectedToNullDevice = ((void *)(0));
+           //ASSIGN local_maybeInputStreamIfNotConnectedToNullDevice = temporary_11
+/*C*/      Z_local_maybeInputStreamIfNotConnectedToNullDevice = Z_temporary_11;
            //CREATE STATIC_OBJECT retval WITH EMPTY_VALUE
 /*C*/      void* Z_retval = ((void *)(0));
-           //ASSIGN retval = local_fileInputStream
-/*C*/      Z_retval = Z_local_fileInputStream;
+           //ASSIGN retval = local_maybeInputStreamIfNotConnectedToNullDevice
+/*C*/      Z_retval = Z_local_maybeInputStreamIfNotConnectedToNullDevice;
            //RETAIN retval
 /*C*/      RetainDynamicObject(Z_retval);
            //RELEASE local_fileInputStream
 /*C*/      ReleaseDynamicObject(Z_local_fileInputStream);
            //RELEASE local_filenameASCIIData
 /*C*/      ReleaseDynamicObject(Z_local_filenameASCIIData);
+           //RELEASE local_maybeInputStreamIfNotConnectedToNullDevice
+/*C*/      ReleaseDynamicObject(Z_local_maybeInputStreamIfNotConnectedToNullDevice);
            //RETURN retval
 /*C*/      return Z_retval;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD classmethod_SystemInputOutput_outputStreamForFileWithFilename(local_filename)
-/*C*/      void* Z_classmethod_SystemInputOutput_outputStreamForFileWithFilename(void* frame, void* Z_local_filename) {{
+        //START METHOD anonymousmethod_110()
+/*C*/      void* Z_anonymousmethod_110(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(local_fileOutputStream, local_selectOutputStreamNotConnectedToNullDevice)}
+/*C*/      void* Z_local_fileOutputStream = *(((void* *)(frame+sizeof(void*)*0)));
+/*C*/      void* Z_local_selectOutputStreamNotConnectedToNullDevice = *(((void* *)(frame+sizeof(void*)*1)));
+           //CREATE STATIC_OBJECT temporary_3 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_3 = ((void *)(0));
+           //ASSIGN temporary_3 = local_fileOutputStream
+/*C*/      Z_temporary_3 = Z_local_fileOutputStream;
+           //RETAIN temporary_3
+/*C*/      RetainDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_7 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_7 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_6 WITH METHOD[STATIC_OBJECT] temporary_7 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_6 = allocateDynamicLambda(0,0,Z_temporary_7);
+           //CREATE OBJECT temporary_5 = INVOKE temporary_6()
+/*C*/      void* Z_temporary_5 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_6))->method))(Z_temporary_6+sizeof(DynamicLambda));
+           //RELEASE temporary_6
+/*C*/      ReleaseDynamicObject(Z_temporary_6);
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD classmethod_Maybe_asJust
+/*C*/      void* Z_temporary_8 = &Z_classmethod_Maybe_asJust;
+           //CREATE DYNAMIC_OBJECT temporary_4 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC(temporary_5)}
+/*C*/      void* Z_temporary_4 = allocateDynamicLambda(1,1,Z_temporary_8);
+/*C*/      RetainDynamicObject(Z_temporary_5);
+/*C*/      *(((void* *)(Z_temporary_4+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_5;
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //CREATE OBJECT temporary_2 = INVOKE temporary_4(temporary_3)
+/*C*/      void* Z_temporary_2 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_4))->method))(Z_temporary_4+sizeof(DynamicLambda), Z_temporary_3);
+           //RELEASE temporary_4
+/*C*/      ReleaseDynamicObject(Z_temporary_4);
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_9 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_9 = ((void *)(0));
+           //ASSIGN temporary_9 = local_selectOutputStreamNotConnectedToNullDevice
+/*C*/      Z_temporary_9 = Z_local_selectOutputStreamNotConnectedToNullDevice;
+           //RETAIN temporary_9
+/*C*/      RetainDynamicObject(Z_temporary_9);
+           //CREATE OBJECT temporary_1 = INVOKE temporary_9(temporary_2)
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_9))->method))(Z_temporary_9+sizeof(DynamicLambda), Z_temporary_2);
+           //RELEASE temporary_9
+/*C*/      ReleaseDynamicObject(Z_temporary_9);
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD anonymousmethod_109(local_selectOutputStreamNotConnectedToNullDevice)
+/*C*/      void* Z_anonymousmethod_109(void* frame, void* Z_local_selectOutputStreamNotConnectedToNullDevice) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(local_fileOutputStream)}
+/*C*/      void* Z_local_fileOutputStream = *(((void* *)(frame+sizeof(void*)*0)));
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_DataStream_isConnectedToNullDevice
+/*C*/      void* Z_temporary_3 = &Z_classmethod_DataStream_isConnectedToNullDevice;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(local_fileOutputStream)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_local_fileOutputStream);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_fileOutputStream;
+           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT local_streamIsNullDevice WITH EMPTY_VALUE
+/*C*/      void* Z_local_streamIsNullDevice = ((void *)(0));
+           //ASSIGN local_streamIsNullDevice = temporary_1
+/*C*/      Z_local_streamIsNullDevice = Z_temporary_1;
+           //CREATE STATIC_OBJECT temporary_6 WITH METHOD anonymousmethod_110
+/*C*/      void* Z_temporary_6 = &Z_anonymousmethod_110;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_6 FRAME{STATIC(),DYNAMIC(local_fileOutputStream, local_selectOutputStreamNotConnectedToNullDevice)}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(2,2,Z_temporary_6);
+/*C*/      RetainDynamicObject(Z_local_fileOutputStream);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_fileOutputStream;
+/*C*/      RetainDynamicObject(Z_local_selectOutputStreamNotConnectedToNullDevice);
+/*C*/      *(((void* *)(Z_temporary_5+sizeof(DynamicLambda)+sizeof(void*)*1))) = Z_local_selectOutputStreamNotConnectedToNullDevice;
+           //CREATE STATIC_OBJECT temporary_8 WITH METHOD classmethod_Boolean_ifFALSE
+/*C*/      void* Z_temporary_8 = &Z_classmethod_Boolean_ifFALSE;
+           //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC(local_streamIsNullDevice)}
+/*C*/      void* Z_temporary_7 = allocateDynamicLambda(1,1,Z_temporary_8);
+/*C*/      RetainDynamicObject(Z_local_streamIsNullDevice);
+/*C*/      *(((void* *)(Z_temporary_7+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_streamIsNullDevice;
+           //CREATE OBJECT temporary_4 = INVOKE temporary_7(temporary_5)
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_7))->method))(Z_temporary_7+sizeof(DynamicLambda), Z_temporary_5);
+           //RELEASE temporary_7
+/*C*/      ReleaseDynamicObject(Z_temporary_7);
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //RELEASE local_streamIsNullDevice
+/*C*/      ReleaseDynamicObject(Z_local_streamIsNullDevice);
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD anonymousmethod_111()
+/*C*/      void* Z_anonymousmethod_111(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
+           //CREATE STATIC_OBJECT temporary_4 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_4 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_4 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(0,0,Z_temporary_4);
+           //CREATE OBJECT temporary_2 = INVOKE temporary_3()
+/*C*/      void* Z_temporary_2 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda));
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_Maybe_asNothing
+/*C*/      void* Z_temporary_5 = &Z_classmethod_Maybe_asNothing;
+           //CREATE DYNAMIC_OBJECT temporary_1 WITH METHOD[STATIC_OBJECT] temporary_5 FRAME{STATIC(),DYNAMIC(temporary_2)}
+/*C*/      void* Z_temporary_1 = allocateDynamicLambda(1,1,Z_temporary_5);
+/*C*/      RetainDynamicObject(Z_temporary_2);
+/*C*/      *(((void* *)(Z_temporary_1+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_2;
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE OBJECT retval = INVOKE temporary_1()
+/*C*/      void* Z_retval = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_1))->method))(Z_temporary_1+sizeof(DynamicLambda));
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD anonymousmethod_112()
+/*C*/      void* Z_anonymousmethod_112(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
+           //CREATE STATIC_OBJECT temporary_4 WITH METHOD allocator_Maybe
+/*C*/      void* Z_temporary_4 = &Z_allocator_Maybe;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_4 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(0,0,Z_temporary_4);
+           //CREATE OBJECT temporary_2 = INVOKE temporary_3()
+/*C*/      void* Z_temporary_2 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda));
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_Maybe_asNothing
+/*C*/      void* Z_temporary_5 = &Z_classmethod_Maybe_asNothing;
+           //CREATE DYNAMIC_OBJECT temporary_1 WITH METHOD[STATIC_OBJECT] temporary_5 FRAME{STATIC(),DYNAMIC(temporary_2)}
+/*C*/      void* Z_temporary_1 = allocateDynamicLambda(1,1,Z_temporary_5);
+/*C*/      RetainDynamicObject(Z_temporary_2);
+/*C*/      *(((void* *)(Z_temporary_1+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_2;
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE OBJECT retval = INVOKE temporary_1()
+/*C*/      void* Z_retval = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_1))->method))(Z_temporary_1+sizeof(DynamicLambda));
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_SystemInputOutput_maybeOutputStreamForFileWithFilename(local_filename)
+/*C*/      void* Z_classmethod_SystemInputOutput_maybeOutputStreamForFileWithFilename(void* frame, void* Z_local_filename) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD allocator_AutomaticallyClosingOutputFileDataStream
 /*C*/      void* Z_temporary_5 = &Z_allocator_AutomaticallyClosingOutputFileDataStream;
@@ -16344,16 +16707,44 @@ DainaCompiler : [DainaCommandReceiver]
     		free(filenameAsCString);
 		
 //INJECTION END
+           //CREATE STATIC_OBJECT temporary_13 WITH METHOD anonymousmethod_109
+/*C*/      void* Z_temporary_13 = &Z_anonymousmethod_109;
+           //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_13 FRAME{STATIC(),DYNAMIC(local_fileOutputStream)}
+/*C*/      void* Z_temporary_12 = allocateDynamicLambda(1,1,Z_temporary_13);
+/*C*/      RetainDynamicObject(Z_local_fileOutputStream);
+/*C*/      *(((void* *)(Z_temporary_12+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_fileOutputStream;
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD anonymousmethod_112
+/*C*/      void* Z_temporary_15 = &Z_anonymousmethod_112;
+           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
+           //CREATE STATIC_OBJECT temporary_17 WITH METHOD classmethod_ControlFlow_selectWithSelectorOrDefault
+/*C*/      void* Z_temporary_17 = &Z_classmethod_ControlFlow_selectWithSelectorOrDefault;
+           //CREATE DYNAMIC_OBJECT temporary_16 WITH METHOD[STATIC_OBJECT] temporary_17 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_16 = allocateDynamicLambda(0,0,Z_temporary_17);
+           //CREATE OBJECT temporary_11 = INVOKE temporary_16(temporary_12, temporary_14)
+/*C*/      void* Z_temporary_11 = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_16))->method))(Z_temporary_16+sizeof(DynamicLambda), Z_temporary_12, Z_temporary_14);
+           //RELEASE temporary_16
+/*C*/      ReleaseDynamicObject(Z_temporary_16);
+           //RELEASE temporary_12
+/*C*/      ReleaseDynamicObject(Z_temporary_12);
+           //RELEASE temporary_14
+/*C*/      ReleaseDynamicObject(Z_temporary_14);
+           //CREATE STATIC_OBJECT local_maybeOutputStreamIfNotConnectedToNullDevice WITH EMPTY_VALUE
+/*C*/      void* Z_local_maybeOutputStreamIfNotConnectedToNullDevice = ((void *)(0));
+           //ASSIGN local_maybeOutputStreamIfNotConnectedToNullDevice = temporary_11
+/*C*/      Z_local_maybeOutputStreamIfNotConnectedToNullDevice = Z_temporary_11;
            //CREATE STATIC_OBJECT retval WITH EMPTY_VALUE
 /*C*/      void* Z_retval = ((void *)(0));
-           //ASSIGN retval = local_fileOutputStream
-/*C*/      Z_retval = Z_local_fileOutputStream;
+           //ASSIGN retval = local_maybeOutputStreamIfNotConnectedToNullDevice
+/*C*/      Z_retval = Z_local_maybeOutputStreamIfNotConnectedToNullDevice;
            //RETAIN retval
 /*C*/      RetainDynamicObject(Z_retval);
            //RELEASE local_fileOutputStream
 /*C*/      ReleaseDynamicObject(Z_local_fileOutputStream);
            //RELEASE local_filenameASCIIData
 /*C*/      ReleaseDynamicObject(Z_local_filenameASCIIData);
+           //RELEASE local_maybeOutputStreamIfNotConnectedToNullDevice
+/*C*/      ReleaseDynamicObject(Z_local_maybeOutputStreamIfNotConnectedToNullDevice);
            //RETURN retval
 /*C*/      return Z_retval;
         //FINISH METHOD
@@ -17768,8 +18159,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      ReleaseDynamicObject(Z_temporary_3);
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_105(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_105(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_113(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_113(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD allocator_DainaNamespaceReference
 /*C*/      void* Z_temporary_5 = &Z_allocator_DainaNamespaceReference;
@@ -17847,8 +18238,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_105
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_105;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_113
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_113;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -17869,8 +18260,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_106(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_106(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_114(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_114(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_3 WITH EMPTY_VALUE
 /*C*/      void* Z_temporary_3 = ((void *)(0));
@@ -17960,8 +18351,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_106
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_106;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_114
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_114;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -17982,8 +18373,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_107(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_107(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_115(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_115(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_3 WITH EMPTY_VALUE
 /*C*/      void* Z_temporary_3 = ((void *)(0));
@@ -18073,8 +18464,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_107
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_107;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_115
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_115;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -18095,8 +18486,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_108(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_108(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_116(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_116(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE OBJECT temporary_3 = (local_dainaCommandReceiver AS template_DainaCommandReceiver)->instancemethod_receiveCommandToAnalyseAndSynthesiseSyntaxTree
 /*C*/      void* Z_temporary_3 = ((struct Z_template_DainaCommandReceiver *)(Z_local_dainaCommandReceiver))->Z_instancemethod_receiveCommandToAnalyseAndSynthesiseSyntaxTree;
@@ -18116,8 +18507,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_108
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_108;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_116
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_116;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -18138,8 +18529,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_109(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_109(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_117(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_117(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_3 WITH EMPTY_VALUE
 /*C*/      void* Z_temporary_3 = ((void *)(0));
@@ -18171,8 +18562,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_109
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_109;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_117
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_117;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -18193,8 +18584,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_110(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_110(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_118(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_118(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE STATIC_OBJECT temporary_3 WITH EMPTY_VALUE
 /*C*/      void* Z_temporary_3 = ((void *)(0));
@@ -18226,8 +18617,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_110
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_110;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_118
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_118;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -18248,8 +18639,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_111(local_getNextCommandStringSegment, local_dainaCommandReceiver)
-/*C*/      void* Z_anonymousmethod_111(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
+        //START METHOD anonymousmethod_119(local_getNextCommandStringSegment, local_dainaCommandReceiver)
+/*C*/      void* Z_anonymousmethod_119(void* frame, void* Z_local_getNextCommandStringSegment, void* Z_local_dainaCommandReceiver) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
            //CREATE OBJECT temporary_3 = (local_dainaCommandReceiver AS template_DainaCommandReceiver)->instancemethod_receiveInvalidCommand
 /*C*/      void* Z_temporary_3 = ((struct Z_template_DainaCommandReceiver *)(Z_local_dainaCommandReceiver))->Z_instancemethod_receiveInvalidCommand;
@@ -18269,8 +18660,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_111
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_111;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_119
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_119;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC()}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(0,0,Z_temporary_3);
            //CREATE STATIC_OBJECT temporary_5 WITH METHOD classmethod_DainaCommandParsingAction_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
@@ -19068,8 +19459,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_112()
-/*C*/      void* Z_anonymousmethod_112(void* frame) {{
+        //START METHOD anonymousmethod_120()
+/*C*/      void* Z_anonymousmethod_120(void* frame) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self, local_commandStringSegmentProvider, local_dainaCommandReceiver, local_nextCommandString)}
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
 /*C*/      void* Z_local_commandStringSegmentProvider = *(((void* *)(frame+sizeof(void*)*1)));
@@ -19225,8 +19616,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_local_nextCommandStringIsEmpty = ((void *)(0));
            //ASSIGN local_nextCommandStringIsEmpty = temporary_3
 /*C*/      Z_local_nextCommandStringIsEmpty = Z_temporary_3;
-           //CREATE STATIC_OBJECT temporary_15 WITH METHOD anonymousmethod_112
-/*C*/      void* Z_temporary_15 = &Z_anonymousmethod_112;
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD anonymousmethod_120
+/*C*/      void* Z_temporary_15 = &Z_anonymousmethod_120;
            //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC(self, local_commandStringSegmentProvider, local_dainaCommandReceiver, local_nextCommandString)}
 /*C*/      void* Z_temporary_14 = allocateDynamicLambda(4,4,Z_temporary_15);
 /*C*/      RetainDynamicObject(Z_self);
@@ -19733,8 +20124,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_113()
-/*C*/      void* Z_anonymousmethod_113(void* frame) {{
+        //START METHOD anonymousmethod_121()
+/*C*/      void* Z_anonymousmethod_121(void* frame) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //CREATE STATIC_OBJECT temporary_4 WITH METHOD classmethod_GeneralDainaStatus_INVALID_DAINA_COMMAND_RECEIVED
@@ -19793,8 +20184,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/         void* Z_temporary_4 = ((void *)(0));
               //ENTER LOCAL SCOPE
 /*C*/         {
-                 //CREATE STATIC_OBJECT temporary_6 WITH METHOD anonymousmethod_113
-/*C*/            void* Z_temporary_6 = &Z_anonymousmethod_113;
+                 //CREATE STATIC_OBJECT temporary_6 WITH METHOD anonymousmethod_121
+/*C*/            void* Z_temporary_6 = &Z_anonymousmethod_121;
                  //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_6 FRAME{STATIC(),DYNAMIC(self)}
 /*C*/            void* Z_temporary_5 = allocateDynamicLambda(1,1,Z_temporary_6);
 /*C*/            RetainDynamicObject(Z_self);
@@ -19997,11 +20388,14 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_attribute_DainaCompiler_syntaxTreeRepresentingParsedProgram;
            //TEMPLATE DYNAMIC_OBJECT attribute_DainaCompiler_reporterToReportCompilerStatus
 /*C*/      void* Z_attribute_DainaCompiler_reporterToReportCompilerStatus;
+           //TEMPLATE DYNAMIC_OBJECT attribute_DainaCompiler_filingSystemForReadingAndWritingFiles
+/*C*/      void* Z_attribute_DainaCompiler_filingSystemForReadingAndWritingFiles;
         //END TEMPLATE
 /*C*/   };
 /*C*/   void* dealloc_Z_template_DainaCompiler(void* object) {
 /*C*/    ReleaseDynamicObject(((struct Z_template_DainaCompiler *)(object))->Z_attribute_DainaCompiler_syntaxTreeRepresentingParsedProgram);
 /*C*/    ReleaseDynamicObject(((struct Z_template_DainaCompiler *)(object))->Z_attribute_DainaCompiler_reporterToReportCompilerStatus);
+/*C*/    ReleaseDynamicObject(((struct Z_template_DainaCompiler *)(object))->Z_attribute_DainaCompiler_filingSystemForReadingAndWritingFiles);
 /*C*/    return NULL;
 /*C*/   }
 /*C*/   void* alloc_Z_template_DainaCompiler() {
@@ -20011,8 +20405,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_DainaCompiler;
 /*C*/    return newAllocatedObject;
 /*C*/   }
-        //DECLARE METHOD classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus(local_reporterToReportCompilerStatus)
-/*C*/   void* Z_classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus(void* frame, void* Z_local_reporterToReportCompilerStatus);
+        //DECLARE METHOD classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles(local_reporterToReportCompilerStatus, local_filingSystemForReadingAndWritingFiles)
+/*C*/   void* Z_classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles(void* frame, void* Z_local_reporterToReportCompilerStatus, void* Z_local_filingSystemForReadingAndWritingFiles);
         //DECLARE METHOD classmethod_DainaCompiler_receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection(local_dainaSourceFilePath, local_dainaNamespaceSelection)
 /*C*/   void* Z_classmethod_DainaCompiler_receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection(void* frame, void* Z_local_dainaSourceFilePath, void* Z_local_dainaNamespaceSelection);
         //DECLARE METHOD classmethod_DainaCompiler_receiveCommandToAnalyseAndSynthesiseSyntaxTree()
@@ -20065,8 +20459,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      return Z_newObject;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus(local_reporterToReportCompilerStatus)
-/*C*/      void* Z_classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus(void* frame, void* Z_local_reporterToReportCompilerStatus) {{
+        //START METHOD classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles(local_reporterToReportCompilerStatus, local_filingSystemForReadingAndWritingFiles)
+/*C*/      void* Z_classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles(void* frame, void* Z_local_reporterToReportCompilerStatus, void* Z_local_filingSystemForReadingAndWritingFiles) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
@@ -20113,26 +20507,34 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      RetainDynamicObject(Z_temporary_10);
            //ASSIGN (self AS template_DainaCompiler)->attribute_DainaCompiler_reporterToReportCompilerStatus = temporary_10
 /*C*/      ((struct Z_template_DainaCompiler *)(Z_self))->Z_attribute_DainaCompiler_reporterToReportCompilerStatus = Z_temporary_10;
-           //CREATE STATIC_OBJECT temporary_14 WITH METHOD classmethod_GeneralDainaStatus_DAINA_COMPILER_STARTED
-/*C*/      void* Z_temporary_14 = &Z_classmethod_GeneralDainaStatus_DAINA_COMPILER_STARTED;
-           //CREATE DYNAMIC_OBJECT temporary_13 WITH METHOD[STATIC_OBJECT] temporary_14 FRAME{STATIC(),DYNAMIC()}
-/*C*/      void* Z_temporary_13 = allocateDynamicLambda(0,0,Z_temporary_14);
-           //CREATE OBJECT temporary_12 = INVOKE temporary_13()
-/*C*/      void* Z_temporary_12 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_13))->method))(Z_temporary_13+sizeof(DynamicLambda));
+           //CREATE STATIC_OBJECT temporary_11 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_11 = ((void *)(0));
+           //ASSIGN temporary_11 = local_filingSystemForReadingAndWritingFiles
+/*C*/      Z_temporary_11 = Z_local_filingSystemForReadingAndWritingFiles;
+           //RETAIN temporary_11
+/*C*/      RetainDynamicObject(Z_temporary_11);
+           //ASSIGN (self AS template_DainaCompiler)->attribute_DainaCompiler_filingSystemForReadingAndWritingFiles = temporary_11
+/*C*/      ((struct Z_template_DainaCompiler *)(Z_self))->Z_attribute_DainaCompiler_filingSystemForReadingAndWritingFiles = Z_temporary_11;
+           //CREATE STATIC_OBJECT temporary_15 WITH METHOD classmethod_GeneralDainaStatus_DAINA_COMPILER_STARTED
+/*C*/      void* Z_temporary_15 = &Z_classmethod_GeneralDainaStatus_DAINA_COMPILER_STARTED;
+           //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_15 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_14 = allocateDynamicLambda(0,0,Z_temporary_15);
+           //CREATE OBJECT temporary_13 = INVOKE temporary_14()
+/*C*/      void* Z_temporary_13 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_14))->method))(Z_temporary_14+sizeof(DynamicLambda));
+           //RELEASE temporary_14
+/*C*/      ReleaseDynamicObject(Z_temporary_14);
+           //CREATE STATIC_OBJECT temporary_17 WITH METHOD classmethod_DainaStatusReporter_reportStatus
+/*C*/      void* Z_temporary_17 = &Z_classmethod_DainaStatusReporter_reportStatus;
+           //CREATE DYNAMIC_OBJECT temporary_16 WITH METHOD[STATIC_OBJECT] temporary_17 FRAME{STATIC(),DYNAMIC(local_reporterToReportCompilerStatus)}
+/*C*/      void* Z_temporary_16 = allocateDynamicLambda(1,1,Z_temporary_17);
+/*C*/      RetainDynamicObject(Z_local_reporterToReportCompilerStatus);
+/*C*/      *(((void* *)(Z_temporary_16+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_reporterToReportCompilerStatus;
+           //CREATE OBJECT temporary_12 = INVOKE temporary_16(temporary_13)
+/*C*/      void* Z_temporary_12 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_16))->method))(Z_temporary_16+sizeof(DynamicLambda), Z_temporary_13);
+           //RELEASE temporary_16
+/*C*/      ReleaseDynamicObject(Z_temporary_16);
            //RELEASE temporary_13
 /*C*/      ReleaseDynamicObject(Z_temporary_13);
-           //CREATE STATIC_OBJECT temporary_16 WITH METHOD classmethod_DainaStatusReporter_reportStatus
-/*C*/      void* Z_temporary_16 = &Z_classmethod_DainaStatusReporter_reportStatus;
-           //CREATE DYNAMIC_OBJECT temporary_15 WITH METHOD[STATIC_OBJECT] temporary_16 FRAME{STATIC(),DYNAMIC(local_reporterToReportCompilerStatus)}
-/*C*/      void* Z_temporary_15 = allocateDynamicLambda(1,1,Z_temporary_16);
-/*C*/      RetainDynamicObject(Z_local_reporterToReportCompilerStatus);
-/*C*/      *(((void* *)(Z_temporary_15+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_reporterToReportCompilerStatus;
-           //CREATE OBJECT temporary_11 = INVOKE temporary_15(temporary_12)
-/*C*/      void* Z_temporary_11 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_15))->method))(Z_temporary_15+sizeof(DynamicLambda), Z_temporary_12);
-           //RELEASE temporary_15
-/*C*/      ReleaseDynamicObject(Z_temporary_15);
-           //RELEASE temporary_12
-/*C*/      ReleaseDynamicObject(Z_temporary_12);
            //RETURN self
 /*C*/      return Z_self;
         //FINISH METHOD
@@ -20161,8 +20563,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_115(local__)
-/*C*/      void* Z_anonymousmethod_115(void* frame, void* Z_local__) {{
+        //START METHOD anonymousmethod_123(local__)
+/*C*/      void* Z_anonymousmethod_123(void* frame, void* Z_local__) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC(local_dainaCommandInterface, local_dainaCompiler)}
 /*C*/      void* Z_local_dainaCommandInterface = *(((void* *)(frame+sizeof(void*)*0)));
 /*C*/      void* Z_local_dainaCompiler = *(((void* *)(frame+sizeof(void*)*1)));
@@ -20186,11 +20588,11 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      ReleaseDynamicObject(Z_temporary_2);
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD anonymousmethod_114(local_dainaCommandInterface, local_dainaCompiler)
-/*C*/      void* Z_anonymousmethod_114(void* frame, void* Z_local_dainaCommandInterface, void* Z_local_dainaCompiler) {{
+        //START METHOD anonymousmethod_122(local_dainaCommandInterface, local_dainaCompiler)
+/*C*/      void* Z_anonymousmethod_122(void* frame, void* Z_local_dainaCommandInterface, void* Z_local_dainaCompiler) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_115
-/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_115;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD anonymousmethod_123
+/*C*/      void* Z_temporary_3 = &Z_anonymousmethod_123;
            //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(local_dainaCommandInterface, local_dainaCompiler)}
 /*C*/      void* Z_temporary_2 = allocateDynamicLambda(2,2,Z_temporary_3);
 /*C*/      RetainDynamicObject(Z_local_dainaCommandInterface);
@@ -20217,98 +20619,142 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/      void* Z_retval = ((void *)(0));
            //ENTER LOCAL SCOPE
 /*C*/      {
-              //CREATE STATIC_OBJECT temporary_8 WITH METHOD anonymousmethod_114
-/*C*/         void* Z_temporary_8 = &Z_anonymousmethod_114;
+              //CREATE STATIC_OBJECT temporary_8 WITH METHOD anonymousmethod_122
+/*C*/         void* Z_temporary_8 = &Z_anonymousmethod_122;
               //CREATE DYNAMIC_OBJECT temporary_7 WITH METHOD[STATIC_OBJECT] temporary_8 FRAME{STATIC(),DYNAMIC()}
 /*C*/         void* Z_temporary_7 = allocateDynamicLambda(0,0,Z_temporary_8);
               //CREATE STATIC_OBJECT local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop WITH EMPTY_VALUE
 /*C*/         void* Z_local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = ((void *)(0));
               //ASSIGN local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = temporary_7
 /*C*/         Z_local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop = Z_temporary_7;
-              //CREATE STATIC_OBJECT temporary_11 WITH METHOD classmethod_DainaCommandInterface_newDainaCommandInterfaceReadyToReceiveCommands
-/*C*/         void* Z_temporary_11 = &Z_classmethod_DainaCommandInterface_newDainaCommandInterfaceReadyToReceiveCommands;
+              //CREATE STATIC_OBJECT temporary_11 WITH METHOD classmethod_SystemInputOutput_maybeInputStreamForFileWithFilename
+/*C*/         void* Z_temporary_11 = &Z_classmethod_SystemInputOutput_maybeInputStreamForFileWithFilename;
               //CREATE DYNAMIC_OBJECT temporary_10 WITH METHOD[STATIC_OBJECT] temporary_11 FRAME{STATIC(),DYNAMIC()}
 /*C*/         void* Z_temporary_10 = allocateDynamicLambda(0,0,Z_temporary_11);
-              //CREATE OBJECT temporary_9 = INVOKE temporary_10()
-/*C*/         void* Z_temporary_9 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_10))->method))(Z_temporary_10+sizeof(DynamicLambda));
-              //RELEASE temporary_10
-/*C*/         ReleaseDynamicObject(Z_temporary_10);
-              //CREATE STATIC_OBJECT local_dainaCommandInterface WITH EMPTY_VALUE
-/*C*/         void* Z_local_dainaCommandInterface = ((void *)(0));
-              //ASSIGN local_dainaCommandInterface = temporary_9
-/*C*/         Z_local_dainaCommandInterface = Z_temporary_9;
-              //CREATE STATIC_OBJECT temporary_14 WITH METHOD classmethod_DainaCommandInterface_provideDainaStatusReporterWhichReportsToThisCommandInterface
-/*C*/         void* Z_temporary_14 = &Z_classmethod_DainaCommandInterface_provideDainaStatusReporterWhichReportsToThisCommandInterface;
-              //CREATE DYNAMIC_OBJECT temporary_13 WITH METHOD[STATIC_OBJECT] temporary_14 FRAME{STATIC(),DYNAMIC(local_dainaCommandInterface)}
-/*C*/         void* Z_temporary_13 = allocateDynamicLambda(1,1,Z_temporary_14);
-/*C*/         RetainDynamicObject(Z_local_dainaCommandInterface);
-/*C*/         *(((void* *)(Z_temporary_13+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_dainaCommandInterface;
-              //CREATE OBJECT temporary_12 = INVOKE temporary_13()
-/*C*/         void* Z_temporary_12 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_13))->method))(Z_temporary_13+sizeof(DynamicLambda));
-              //RELEASE temporary_13
-/*C*/         ReleaseDynamicObject(Z_temporary_13);
-              //CREATE STATIC_OBJECT local_statusReporterForCompiler WITH EMPTY_VALUE
-/*C*/         void* Z_local_statusReporterForCompiler = ((void *)(0));
-              //ASSIGN local_statusReporterForCompiler = temporary_12
-/*C*/         Z_local_statusReporterForCompiler = Z_temporary_12;
-              //CREATE STATIC_OBJECT temporary_16 WITH EMPTY_VALUE
-/*C*/         void* Z_temporary_16 = ((void *)(0));
-              //ASSIGN temporary_16 = local_statusReporterForCompiler
-/*C*/         Z_temporary_16 = Z_local_statusReporterForCompiler;
-              //RETAIN temporary_16
-/*C*/         RetainDynamicObject(Z_temporary_16);
-              //CREATE STATIC_OBJECT temporary_20 WITH METHOD allocator_DainaCompiler
-/*C*/         void* Z_temporary_20 = &Z_allocator_DainaCompiler;
-              //CREATE DYNAMIC_OBJECT temporary_19 WITH METHOD[STATIC_OBJECT] temporary_20 FRAME{STATIC(),DYNAMIC()}
-/*C*/         void* Z_temporary_19 = allocateDynamicLambda(0,0,Z_temporary_20);
-              //CREATE OBJECT temporary_18 = INVOKE temporary_19()
-/*C*/         void* Z_temporary_18 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_19))->method))(Z_temporary_19+sizeof(DynamicLambda));
-              //RELEASE temporary_19
-/*C*/         ReleaseDynamicObject(Z_temporary_19);
-              //CREATE STATIC_OBJECT temporary_21 WITH METHOD classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus
-/*C*/         void* Z_temporary_21 = &Z_classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatus;
-              //CREATE DYNAMIC_OBJECT temporary_17 WITH METHOD[STATIC_OBJECT] temporary_21 FRAME{STATIC(),DYNAMIC(temporary_18)}
-/*C*/         void* Z_temporary_17 = allocateDynamicLambda(1,1,Z_temporary_21);
-/*C*/         RetainDynamicObject(Z_temporary_18);
-/*C*/         *(((void* *)(Z_temporary_17+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_18;
-              //RELEASE temporary_18
-/*C*/         ReleaseDynamicObject(Z_temporary_18);
-              //CREATE OBJECT temporary_15 = INVOKE temporary_17(temporary_16)
-/*C*/         void* Z_temporary_15 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_17))->method))(Z_temporary_17+sizeof(DynamicLambda), Z_temporary_16);
-              //RELEASE temporary_17
-/*C*/         ReleaseDynamicObject(Z_temporary_17);
+              //CREATE STATIC_OBJECT temporary_13 WITH METHOD classmethod_SystemInputOutput_maybeOutputStreamForFileWithFilename
+/*C*/         void* Z_temporary_13 = &Z_classmethod_SystemInputOutput_maybeOutputStreamForFileWithFilename;
+              //CREATE DYNAMIC_OBJECT temporary_12 WITH METHOD[STATIC_OBJECT] temporary_13 FRAME{STATIC(),DYNAMIC()}
+/*C*/         void* Z_temporary_12 = allocateDynamicLambda(0,0,Z_temporary_13);
+              //CREATE STATIC_OBJECT temporary_17 WITH METHOD allocator_FilingSystem
+/*C*/         void* Z_temporary_17 = &Z_allocator_FilingSystem;
+              //CREATE DYNAMIC_OBJECT temporary_16 WITH METHOD[STATIC_OBJECT] temporary_17 FRAME{STATIC(),DYNAMIC()}
+/*C*/         void* Z_temporary_16 = allocateDynamicLambda(0,0,Z_temporary_17);
+              //CREATE OBJECT temporary_15 = INVOKE temporary_16()
+/*C*/         void* Z_temporary_15 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_16))->method))(Z_temporary_16+sizeof(DynamicLambda));
               //RELEASE temporary_16
 /*C*/         ReleaseDynamicObject(Z_temporary_16);
-              //CREATE STATIC_OBJECT local_dainaCompiler WITH EMPTY_VALUE
-/*C*/         void* Z_local_dainaCompiler = ((void *)(0));
-              //ASSIGN local_dainaCompiler = temporary_15
-/*C*/         Z_local_dainaCompiler = Z_temporary_15;
-              //CREATE STATIC_OBJECT temporary_23 WITH EMPTY_VALUE
-/*C*/         void* Z_temporary_23 = ((void *)(0));
-              //ASSIGN temporary_23 = local_dainaCommandInterface
-/*C*/         Z_temporary_23 = Z_local_dainaCommandInterface;
-              //RETAIN temporary_23
-/*C*/         RetainDynamicObject(Z_temporary_23);
-              //CREATE STATIC_OBJECT temporary_24 WITH EMPTY_VALUE
-/*C*/         void* Z_temporary_24 = ((void *)(0));
-              //ASSIGN temporary_24 = local_dainaCompiler
-/*C*/         Z_temporary_24 = Z_local_dainaCompiler;
-              //RETAIN temporary_24
-/*C*/         RetainDynamicObject(Z_temporary_24);
-              //CREATE STATIC_OBJECT temporary_25 WITH EMPTY_VALUE
-/*C*/         void* Z_temporary_25 = ((void *)(0));
-              //ASSIGN temporary_25 = local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop
-/*C*/         Z_temporary_25 = Z_local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop;
-              //RETAIN temporary_25
-/*C*/         RetainDynamicObject(Z_temporary_25);
-              //CREATE OBJECT temporary_22 = INVOKE temporary_25(temporary_23, temporary_24)
-/*C*/         void* Z_temporary_22 = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_25))->method))(Z_temporary_25+sizeof(DynamicLambda), Z_temporary_23, Z_temporary_24);
-              //RELEASE temporary_25
-/*C*/         ReleaseDynamicObject(Z_temporary_25);
+              //CREATE STATIC_OBJECT temporary_18 WITH METHOD classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider
+/*C*/         void* Z_temporary_18 = &Z_classmethod_FilingSystem_newFilingSystemWithFilePathToInputStreamProviderAndFilePathToOutputStreamProvider;
+              //CREATE DYNAMIC_OBJECT temporary_14 WITH METHOD[STATIC_OBJECT] temporary_18 FRAME{STATIC(),DYNAMIC(temporary_15)}
+/*C*/         void* Z_temporary_14 = allocateDynamicLambda(1,1,Z_temporary_18);
+/*C*/         RetainDynamicObject(Z_temporary_15);
+/*C*/         *(((void* *)(Z_temporary_14+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_15;
+              //RELEASE temporary_15
+/*C*/         ReleaseDynamicObject(Z_temporary_15);
+              //CREATE OBJECT temporary_9 = INVOKE temporary_14(temporary_10, temporary_12)
+/*C*/         void* Z_temporary_9 = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_14))->method))(Z_temporary_14+sizeof(DynamicLambda), Z_temporary_10, Z_temporary_12);
+              //RELEASE temporary_14
+/*C*/         ReleaseDynamicObject(Z_temporary_14);
+              //RELEASE temporary_10
+/*C*/         ReleaseDynamicObject(Z_temporary_10);
+              //RELEASE temporary_12
+/*C*/         ReleaseDynamicObject(Z_temporary_12);
+              //CREATE STATIC_OBJECT local_filingSystemForCompilationInputAndOutputFiles WITH EMPTY_VALUE
+/*C*/         void* Z_local_filingSystemForCompilationInputAndOutputFiles = ((void *)(0));
+              //ASSIGN local_filingSystemForCompilationInputAndOutputFiles = temporary_9
+/*C*/         Z_local_filingSystemForCompilationInputAndOutputFiles = Z_temporary_9;
+              //CREATE STATIC_OBJECT temporary_21 WITH METHOD classmethod_DainaCommandInterface_newDainaCommandInterfaceReadyToReceiveCommands
+/*C*/         void* Z_temporary_21 = &Z_classmethod_DainaCommandInterface_newDainaCommandInterfaceReadyToReceiveCommands;
+              //CREATE DYNAMIC_OBJECT temporary_20 WITH METHOD[STATIC_OBJECT] temporary_21 FRAME{STATIC(),DYNAMIC()}
+/*C*/         void* Z_temporary_20 = allocateDynamicLambda(0,0,Z_temporary_21);
+              //CREATE OBJECT temporary_19 = INVOKE temporary_20()
+/*C*/         void* Z_temporary_19 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_20))->method))(Z_temporary_20+sizeof(DynamicLambda));
+              //RELEASE temporary_20
+/*C*/         ReleaseDynamicObject(Z_temporary_20);
+              //CREATE STATIC_OBJECT local_dainaCommandInterface WITH EMPTY_VALUE
+/*C*/         void* Z_local_dainaCommandInterface = ((void *)(0));
+              //ASSIGN local_dainaCommandInterface = temporary_19
+/*C*/         Z_local_dainaCommandInterface = Z_temporary_19;
+              //CREATE STATIC_OBJECT temporary_24 WITH METHOD classmethod_DainaCommandInterface_provideDainaStatusReporterWhichReportsToThisCommandInterface
+/*C*/         void* Z_temporary_24 = &Z_classmethod_DainaCommandInterface_provideDainaStatusReporterWhichReportsToThisCommandInterface;
+              //CREATE DYNAMIC_OBJECT temporary_23 WITH METHOD[STATIC_OBJECT] temporary_24 FRAME{STATIC(),DYNAMIC(local_dainaCommandInterface)}
+/*C*/         void* Z_temporary_23 = allocateDynamicLambda(1,1,Z_temporary_24);
+/*C*/         RetainDynamicObject(Z_local_dainaCommandInterface);
+/*C*/         *(((void* *)(Z_temporary_23+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_dainaCommandInterface;
+              //CREATE OBJECT temporary_22 = INVOKE temporary_23()
+/*C*/         void* Z_temporary_22 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_23))->method))(Z_temporary_23+sizeof(DynamicLambda));
               //RELEASE temporary_23
 /*C*/         ReleaseDynamicObject(Z_temporary_23);
-              //RELEASE temporary_24
-/*C*/         ReleaseDynamicObject(Z_temporary_24);
+              //CREATE STATIC_OBJECT local_statusReporterForCompiler WITH EMPTY_VALUE
+/*C*/         void* Z_local_statusReporterForCompiler = ((void *)(0));
+              //ASSIGN local_statusReporterForCompiler = temporary_22
+/*C*/         Z_local_statusReporterForCompiler = Z_temporary_22;
+              //CREATE STATIC_OBJECT temporary_26 WITH EMPTY_VALUE
+/*C*/         void* Z_temporary_26 = ((void *)(0));
+              //ASSIGN temporary_26 = local_statusReporterForCompiler
+/*C*/         Z_temporary_26 = Z_local_statusReporterForCompiler;
+              //RETAIN temporary_26
+/*C*/         RetainDynamicObject(Z_temporary_26);
+              //CREATE STATIC_OBJECT temporary_27 WITH EMPTY_VALUE
+/*C*/         void* Z_temporary_27 = ((void *)(0));
+              //ASSIGN temporary_27 = local_filingSystemForCompilationInputAndOutputFiles
+/*C*/         Z_temporary_27 = Z_local_filingSystemForCompilationInputAndOutputFiles;
+              //RETAIN temporary_27
+/*C*/         RetainDynamicObject(Z_temporary_27);
+              //CREATE STATIC_OBJECT temporary_31 WITH METHOD allocator_DainaCompiler
+/*C*/         void* Z_temporary_31 = &Z_allocator_DainaCompiler;
+              //CREATE DYNAMIC_OBJECT temporary_30 WITH METHOD[STATIC_OBJECT] temporary_31 FRAME{STATIC(),DYNAMIC()}
+/*C*/         void* Z_temporary_30 = allocateDynamicLambda(0,0,Z_temporary_31);
+              //CREATE OBJECT temporary_29 = INVOKE temporary_30()
+/*C*/         void* Z_temporary_29 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_30))->method))(Z_temporary_30+sizeof(DynamicLambda));
+              //RELEASE temporary_30
+/*C*/         ReleaseDynamicObject(Z_temporary_30);
+              //CREATE STATIC_OBJECT temporary_32 WITH METHOD classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles
+/*C*/         void* Z_temporary_32 = &Z_classmethod_DainaCompiler_newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles;
+              //CREATE DYNAMIC_OBJECT temporary_28 WITH METHOD[STATIC_OBJECT] temporary_32 FRAME{STATIC(),DYNAMIC(temporary_29)}
+/*C*/         void* Z_temporary_28 = allocateDynamicLambda(1,1,Z_temporary_32);
+/*C*/         RetainDynamicObject(Z_temporary_29);
+/*C*/         *(((void* *)(Z_temporary_28+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_29;
+              //RELEASE temporary_29
+/*C*/         ReleaseDynamicObject(Z_temporary_29);
+              //CREATE OBJECT temporary_25 = INVOKE temporary_28(temporary_26, temporary_27)
+/*C*/         void* Z_temporary_25 = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_28))->method))(Z_temporary_28+sizeof(DynamicLambda), Z_temporary_26, Z_temporary_27);
+              //RELEASE temporary_28
+/*C*/         ReleaseDynamicObject(Z_temporary_28);
+              //RELEASE temporary_26
+/*C*/         ReleaseDynamicObject(Z_temporary_26);
+              //RELEASE temporary_27
+/*C*/         ReleaseDynamicObject(Z_temporary_27);
+              //CREATE STATIC_OBJECT local_dainaCompiler WITH EMPTY_VALUE
+/*C*/         void* Z_local_dainaCompiler = ((void *)(0));
+              //ASSIGN local_dainaCompiler = temporary_25
+/*C*/         Z_local_dainaCompiler = Z_temporary_25;
+              //CREATE STATIC_OBJECT temporary_34 WITH EMPTY_VALUE
+/*C*/         void* Z_temporary_34 = ((void *)(0));
+              //ASSIGN temporary_34 = local_dainaCommandInterface
+/*C*/         Z_temporary_34 = Z_local_dainaCommandInterface;
+              //RETAIN temporary_34
+/*C*/         RetainDynamicObject(Z_temporary_34);
+              //CREATE STATIC_OBJECT temporary_35 WITH EMPTY_VALUE
+/*C*/         void* Z_temporary_35 = ((void *)(0));
+              //ASSIGN temporary_35 = local_dainaCompiler
+/*C*/         Z_temporary_35 = Z_local_dainaCompiler;
+              //RETAIN temporary_35
+/*C*/         RetainDynamicObject(Z_temporary_35);
+              //CREATE STATIC_OBJECT temporary_36 WITH EMPTY_VALUE
+/*C*/         void* Z_temporary_36 = ((void *)(0));
+              //ASSIGN temporary_36 = local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop
+/*C*/         Z_temporary_36 = Z_local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop;
+              //RETAIN temporary_36
+/*C*/         RetainDynamicObject(Z_temporary_36);
+              //CREATE OBJECT temporary_33 = INVOKE temporary_36(temporary_34, temporary_35)
+/*C*/         void* Z_temporary_33 = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_36))->method))(Z_temporary_36+sizeof(DynamicLambda), Z_temporary_34, Z_temporary_35);
+              //RELEASE temporary_36
+/*C*/         ReleaseDynamicObject(Z_temporary_36);
+              //RELEASE temporary_34
+/*C*/         ReleaseDynamicObject(Z_temporary_34);
+              //RELEASE temporary_35
+/*C*/         ReleaseDynamicObject(Z_temporary_35);
               //RELEASE local_dainaCommandInterface
 /*C*/         ReleaseDynamicObject(Z_local_dainaCommandInterface);
               //RELEASE local_statusReporterForCompiler
@@ -20317,6 +20763,8 @@ DainaCompiler : [DainaCommandReceiver]
 /*C*/         ReleaseDynamicObject(Z_local_dainaCompiler);
               //RELEASE local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop
 /*C*/         ReleaseDynamicObject(Z_local_sendValidCommandsFromCommandInterfaceToDainaCompilerAndNeverStop);
+              //RELEASE local_filingSystemForCompilationInputAndOutputFiles
+/*C*/         ReleaseDynamicObject(Z_local_filingSystemForCompilationInputAndOutputFiles);
 /*C*/      }
            //EXIT LOCAL SCOPE
 /*C*/   }
