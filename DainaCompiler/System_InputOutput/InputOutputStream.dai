@@ -95,7 +95,7 @@ InputStream : [DataStream]
 }
 
 
-[InputStream : [DataStream]] (DataStream, Data, Byte, Maybe, String, CoreFlow, Boolean) 
+[InputStream : [DataStream]] (DataStream, Data, Byte, Maybe, String, CoreFlow, Boolean, Variable, Conjecture, ControlFlow) 
 {
 
 	<header
@@ -140,21 +140,29 @@ InputStream : [DataStream]
 		##;
 	} -> maybeSomeDataThatWasRead
 
-	++ parseDataAsStringUntilNewlineOrEndOfFile *()->[String] {
+	++ maybeParseDataAsStringUntilNewlineOrEndOfFile *()->[Maybe<[String]>] {
+		[Conjecture] conjectureThatSomeDataHasBeenRead = \[Conjecture]:propose;
 		[Data] nextLineAsData = \[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideByte) {
-			\[CoreFlow]:repeatUntilStopped *([->] endOfLineReachedSoStop) {
+			\[CoreFlow]:repeatUntilStopped *([->] endOfLineOrEndOfFileReachedSoStop) {
 				[Maybe<[Byte]>] maybeNextByte = \:readNextByte;
 				\maybeNextByte:ifJust *([Byte] nextByte) {
 					[Boolean] nextByteIsEndOfLine = (\nextByte:sameAsByte (\[Byte]:newByte 0b0A));
-					\nextByteIsEndOfLine:ifTrue endOfLineReachedSoStop;
+					\conjectureThatSomeDataHasBeenRead:declareTrue;
+					\nextByteIsEndOfLine:ifTrue endOfLineOrEndOfFileReachedSoStop;
 					\nextByteIsEndOfLine:ifFalse *{\provideByte nextByte}
 				};
 				\maybeNextByte:ifNothing *{
-					\endOfLineReachedSoStop
+					\endOfLineOrEndOfFileReachedSoStop
 				}
 			}
-		}
-	} -> (\[String]:stringWithASCIIDataRepresentationOfString nextLineAsData)
+		};
+		[Maybe<[String]>] maybeDataAsString = \[ControlFlow<[Maybe<[String]>]>]:selectWithSelectorOrDefault *([[Maybe<[String]>]->] selectDataAsString) {
+    			[Boolean] someDataHasBeenRead = \conjectureThatSomeDataHasBeenRead:isTrue;
+    			\someDataHasBeenRead:ifTRUE *{
+    				\selectDataAsString (\[Maybe<[String]>]:asJust (\[String]:stringWithASCIIDataRepresentationOfString nextLineAsData))
+    			}
+			} (*->\[Maybe<[String]>]:asNothing);
+	} -> maybeDataAsString
 
 
 	++ readNextByte *() -> [Maybe<[Byte]>] {

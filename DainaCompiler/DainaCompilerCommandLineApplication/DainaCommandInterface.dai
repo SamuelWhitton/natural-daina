@@ -13,7 +13,8 @@
 		DainaCommandParser,
 		DainaCommandResponder, 
 		GeneralDainaStatus, 
-		InformationStatus
+		InformationStatus,
+		Maybe
 	)
 	[InputStream] commandInputStream
 	[DainaStatusReporter] dainaStatusReporter
@@ -54,7 +55,12 @@
 			};
 	}
 
-	- getNextCommandStringInput *()->[String] {} -> \.commandInputStream:parseDataAsStringUntilNewlineOrEndOfFile
+	- getNextCommandStringInput *()->[String] {
+		[String] nextCommandStringInput = \[ControlFlow<[String]>]:selectWithSelectorOrDefault *([[String]->] selectNextCommandStringInput) {
+				[Maybe<[String]>] maybeNextLineOfDataFromCommandInputStream = \.commandInputStream:maybeParseDataAsStringUntilNewlineOrEndOfFile;
+				\maybeNextLineOfDataFromCommandInputStream:ifJust *([String] s){ \selectNextCommandStringInput s };
+			} (*->\[String]:newStringFromLiteral "")
+	} -> nextCommandStringInput
 
 	++ provideDainaStatusReporterWhichReportsToThisCommandInterface *-> .dainaStatusReporter
 }

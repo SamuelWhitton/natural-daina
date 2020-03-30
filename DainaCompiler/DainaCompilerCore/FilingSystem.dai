@@ -5,7 +5,9 @@
 		String, 
 		Maybe, 
 		InputStream, 
-		OutputStream
+		OutputStream,
+		ControlFlow,
+		File
 	)
 	[[String]->[Maybe<[InputStream]>]] filePathToInputStreamProvider
 	[[String]->[Maybe<[OutputStream]>]] filePathToOutputStreamProvider
@@ -18,13 +20,35 @@
 		.filePathToInputStreamProvider = filePathToInputStreamProvider;
 		.filePathToOutputStreamProvider = filePathToOutputStreamProvider;
 	}
+
+	++ maybeGetFileFromFilingSystemWithFilePath *([String]filePath)->[Maybe<[File]>]{
+		[Maybe<[InputStream]>] maybeInputStreamToFileAtPath = \.filePathToInputStreamProvider filePath;
+	} -> (\[ControlFlow<[Maybe<[File]>]>]:selectWithSelectorOrDefault *([[Maybe<[File]>]->] selectMaybeFile) {
+			\maybeInputStreamToFileAtPath:ifJust *([InputStream] inputStreamToFileAtPath) {
+					\selectMaybeFile (\[Maybe<[File]>]:asJust fileAtPath)
+						!{
+							[File] fileAtPath = \[File]:fileWithInputStreamToFileAndFilePath inputStreamToFileAtPath filePath;
+						};
+				}
+		} (*->\[Maybe<[File]>]:asNothing))
 }
 
 [File : [Object]] (
-		Object
+		Object,
+		InputStream,
+		String
 	)
 {
-
+	~ fileWithInputStreamToFileAndFilePath *([InputStream]inputStreamToFile,[String]filePath){
+		\::newObject;
+	}
 }
+
+
+
+
+
+
+
 
 

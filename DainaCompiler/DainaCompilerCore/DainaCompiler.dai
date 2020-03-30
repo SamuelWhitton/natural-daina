@@ -8,6 +8,9 @@
 		FilingSystem,
 		File,
 		DainaNamespaceReference,
+		InformationStatus,
+		DainaStatus,
+		Maybe,
 		DainaStatusReporter@@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
@@ -16,16 +19,29 @@
 {
 	~ newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles *([DainaStatusReporter] reporterToReportCompilerStatus, [FilingSystem] filingSystemForReadingAndWritingFiles){
 		\::newDainaCommandReceiver;
-		.syntaxTreeRepresentingParsedProgram = \[DainaSyntaxTree]:newEmptySyntaxTree;
+		.syntaxTreeRepresentingParsedProgram = \[DainaSyntaxTree]:newEmptyDainaSyntaxTree;
 		.reporterToReportCompilerStatus = reporterToReportCompilerStatus;
 		.filingSystemForReadingAndWritingFiles = filingSystemForReadingAndWritingFiles;
 		\reporterToReportCompilerStatus:reportStatus (\[GeneralDainaStatus]:DAINA_COMPILER_STARTED);
 	}
 
 	|++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
-		@[File] dainaSourceFile = \[File]:readFileWithName nameOfDainaSourceFile;
-		@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter;
-	}
+		[Maybe<[File]>] maybeDainaSourceFile = \.filingSystemForReadingAndWritingFiles:maybeGetFileFromFilingSystemWithFilePath dainaSourceFilePath;
+		\maybeDainaSourceFile:ifJust *([File]dainaSourceFile){
+				\parseDainaSourceFileWithNamespaceSelection dainaSourceFile dainaNamespaceSelection;
+			};
+		\maybeDainaSourceFile:ifNothing *{
+			\reportErrorThatDainaSourceFileCouldNotBeFoundWithPath dainaSourceFilePath;
+		};
+	}	!{
+			[[File][DainaNamespaceReference]->] parseDainaSourceFileWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
+				\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:newStringFromLiteral "Test parse"))
+				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter
+			}
+			[[String]->] reportErrorThatDainaSourceFileCouldNotBeFoundWithPath = *([String]dainaSourceFilePath) {
+				\:reportStatus (\[GeneralDainaStatus]:DAINA_SOURCE_FILE_NOT_FOUND_WITH_PATH dainaSourceFilePath)
+			}
+		}
 
 	|++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{
 		@\.syntaxTreeRepresentingParsedProgram:analyseAndSynthesiseSyntaxTreeWithStatusReporter dainaStatusReporter;
@@ -39,6 +55,10 @@
 	|++ receiveCommandToCompileIntoCWithinDirectory *([String] cCompilationDirectory){
 		@[DainaSyntaxTreeToCCompiler] dainaToCCompiler = \[DainaSyntaxTreeToCCompiler]:newCompilerWithStatusReporter dainaStatusReporter;
 		@\dainaToCCompiler:compileDainaSyntaxTreeIntoDirectory .syntaxTreeRepresentingParsedProgram cCompilationDirectory;
+	}
+
+	- reportStatus *([DainaStatus] statusToReport) {
+		\.reporterToReportCompilerStatus:reportStatus statusToReport
 	}
 }
 

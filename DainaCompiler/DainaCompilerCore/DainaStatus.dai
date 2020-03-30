@@ -18,6 +18,13 @@
 	:: INVALID_DAINA_COMMAND_RECEIVED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
 			(\[String]:newStringFromLiteral "command was invalid"))
+
+	:: DAINA_SOURCE_FILE_NOT_FOUND_WITH_PATH *([String] sourceFilePath)->[DainaStatus]{
+			[String] sourceFileNotFoundWithPathMessage = (\[String]:newStringFromLiteral "daina source file not found at path: ")
+		}->
+		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
+			(\sourceFileNotFoundWithPathMessage:stringByAppendingString sourceFilePath))
+
 }
 
 [InformationStatus] (DainaStatus, DainaStatusClassification, String)
