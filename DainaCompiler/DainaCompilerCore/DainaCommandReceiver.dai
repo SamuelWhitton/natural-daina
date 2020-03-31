@@ -6,7 +6,6 @@
 		\::newObject;
 	}
 
-	++ receiveInvalidCommand *{}
 	++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){}
 	++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{}
 	++ receiveCommandToCompileIntoJavaWithinDirectory *([String] javaCompilationDirectory){}

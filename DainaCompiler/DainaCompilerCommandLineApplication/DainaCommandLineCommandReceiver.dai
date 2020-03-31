@@ -1,0 +1,25 @@
+
+[DainaCommandLineCommandReceiver : [DainaCommandReceiver]] (DainaCommandReceiver, String, DainaNamespaceReference)
+	[DainaCommandReceiver] dainaCommandReceiverToSendDainaCommandsTo
+{
+	~ newDainaCommandLineCommandReceiverWithDainaCommandReceiverToReceiveDainaCommands *([DainaCommandReceiver] dainaCommandReceiverToSendDainaCommandsTo){
+		\::newDainaCommandReceiver;
+		.dainaCommandReceiverToSendDainaCommandsTo = dainaCommandReceiverToSendDainaCommandsTo
+	}
+
+	++ receiveInvalidCommand *{}
+	++ receiveExitCommand *{}
+
+	|++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
+		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection dainaSourceFilePath dainaNamespaceSelection
+	}
+	|++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{
+		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToAnalyseAndSynthesiseSyntaxTree
+	}
+	|++ receiveCommandToCompileIntoJavaWithinDirectory *([String] javaCompilationDirectory){
+		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToCompileIntoJavaWithinDirectory javaCompilationDirectory
+	}
+	|++ receiveCommandToCompileIntoCWithinDirectory *([String] cCompilationDirectory){
+		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToCompileIntoCWithinDirectory cCompilationDirectory 
+	}
+}
