@@ -1,0 +1,14 @@
+
+[TokeniserRule<PARTICLE [Object], TOKEN [Object]> : [Object]] (Object, ParticleStream, TokeniserDecision)
+	[[ParticleStream<[&PARTICLE]>]->[TokeniserDecision<[&TOKEN]>]] tokeniserDecisionFromParticleStream
+{
+	~ newTokeniserRuleWithTokeniserDecisionFromParticleStream *([[ParticleStream<[&PARTICLE]>]->[TokeniserDecision<[&TOKEN]>]] tokeniserDecisionFromParticleStream) {
+		\::newObject;
+		.tokeniserDecisionFromParticleStream = tokeniserDecisionFromParticleStream;
+	}
+
+	++ applyRuleToParticleStreamProducingATokeniserDecision *([ParticleStream<[&PARTICLE]>] givenParticleStream){
+	} -> (\.tokeniserDecisionFromParticleStream givenParticleStream)
+}
+
+

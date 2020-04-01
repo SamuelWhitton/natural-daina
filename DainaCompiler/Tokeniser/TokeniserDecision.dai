@@ -1,0 +1,18 @@
+
+[TokeniserDecision<TOKEN [Object]> : [Object]] (Object, Maybe)
+	[Maybe<[&TOKEN]>] maybeTokenProduced
+{
+	~ dontProduceAnyToken *{
+		\::newObject;
+		.maybeTokenProduced = \[Maybe<[&TOKEN]>]:asNothing;
+	}
+
+	~ produceGivenToken *([&TOKEN] tokenToProduce){
+		\::newObject;
+		.maybeTokenProduced = \[Maybe<[&TOKEN]>]:asJust tokenToProduce;
+	}
+
+	++ maybeGetTokenProducedByThisDecision *([[&TOKEN]->] tokenReceiver) {
+		\.maybeTokenProduced:ifJust tokenReceiver;
+	}
+}

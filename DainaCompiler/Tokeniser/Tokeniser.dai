@@ -1,5 +1,5 @@
 
-[Tokeniser : [Object]] (Object)
+[Tokeniser<PARTICLE [Object], TOKEN [Object]> : [Object]] (Object)
 {
-	
+	~ 
 }
