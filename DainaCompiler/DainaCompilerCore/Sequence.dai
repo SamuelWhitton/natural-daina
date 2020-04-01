@@ -1,0 +1,45 @@
+
+
+[Sequence<ENUMERATED_OBJECT [Object]>] (Object, Boolean, LambdaAToB, Variable)
+	[[->][[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->]->] ifEmptySequence_and_ifFirstAndRestOfSequence
+{	
+	~ emptySequence *{
+		\::newObject;
+		.ifEmptySequence_and_ifFirstAndRestOfSequence = *([->] onEmptySequence, [[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+			\onEmptySequence;
+		}
+	}
+
+	~ sequenceWithFirstAndRestOfSequenceProvider *([&ENUMERATED_OBJECT] firstInSequence, [->[Sequence<[&ENUMERATED_OBJECT]>]] provideRestOfSequence){
+		\::newObject;
+		.ifEmptySequence_and_ifFirstAndRestOfSequence = *([->] onEmptySequence, [[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+			\onFirstInSequenceAndRestOfList firstInSequence (\provideRestOfSequence);
+		}
+	}
+
+	:: sequenceWithIterator *([[[&ENUMERATED_OBJECT]->]->] iterateElementsInSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
+		[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>] variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>]:as (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as (*([Sequence<[&ENUMERATED_OBJECT]>]a)->a));
+		\iterateElementsInSequence consumeEachElementToBuildSequence;
+		[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>] sequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:get;
+	}	!{
+			[[&ENUMERATED_OBJECT]->] consumeEachElementToBuildSequence = *([&ENUMERATED_OBJECT] nextElementInSequence) {
+				[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>] originalSequencePrependedToGivenTail = \variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:get;
+				\variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:set (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as 
+					(*([Sequence<[&ENUMERATED_OBJECT]>]tailSequence)-> \originalSequencePrependedToGivenTail (\[Sequence<[&ENUMERATED_OBJECT]>]:sequenceWithFirstAndRestOfSequenceProvider nextElementInSequence (*->tailSequence))));
+			}
+		}
+	 -> (\sequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence (\[Sequence<[&ENUMERATED_OBJECT]>]:emptySequence))
+
+	++ ifEmptySequence *([->] onEmptySequence) {
+		\ifEmptySequence_and_ifFirstAndRestOfSequence onEmptySequence (*([]_,[]__){})
+	}
+
+	++ ifFirstAndRestOfSequence *([[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+		\ifEmptySequence_and_ifFirstAndRestOfSequence (*{}) onFirstInSequenceAndRestOfList
+	}
+}
+
+
+
+
+
