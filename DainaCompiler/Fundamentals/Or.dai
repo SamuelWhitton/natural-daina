@@ -1,0 +1,22 @@
+
+[Or<LEFT_OBJECT[Object],RIGHT_OBJECT[Object]> : [Object]] (Object)
+	[[&LEFT_OBJECT][&RIGHT_OBJECT]->] isLeftOrRight
+{
+	~ asLeft *([&LEFT_OBJECT] leftObject){
+		\::newObject;
+		.isLeftOrRight = *([&LEFT_OBJECT] leftObjectReceiver, [&RIGHT_OBJECT] rightObjectReceiver) {
+			\leftObjectReceiver leftObject
+		}
+	}
+
+	~ asRight *([&LEFT_OBJECT] rightObject){
+		\::newObject;
+		.isLeftOrRight = *([&LEFT_OBJECT] leftObjectReceiver, [&RIGHT_OBJECT] rightObjectReceiver) {
+			\rightObjectReceiver rightObject
+		}
+	}
+
+	++ isLeftOrRight *([&LEFT_OBJECT] leftObjectReceiver, [&RIGHT_OBJECT] rightObjectReceiver) {
+		\.isLeftOrRight leftObjectReceiver rightObjectReceiver;
+	}
+}

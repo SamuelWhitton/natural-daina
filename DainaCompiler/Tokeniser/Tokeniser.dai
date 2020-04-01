@@ -1,5 +1,19 @@
 
-[Tokeniser<PARTICLE [Object], TOKEN [Object]> : [Object]] (Object)
+[Tokeniser<PARTICLE [Object], TOKEN [Object]> : [Object]] (
+		Object, 
+		Sequence, 
+		TokenisingRule,
+		Or
+	)
+		[Sequence<[TokenisingRule<[&PARTICLE][&TOKEN]>]>] sequenceOfTokenisingRulesInDecendingOrderOfGreedyness
 {
-	~ 
+	~ tokeniserWithSequenceOfTokenisingRulesInDecendingOrderOfGreedyness *([Sequence<[TokenisingRule<[&PARTICLE][&TOKEN]>]>] sequenceOfTokenisingRulesInDecendingOrderOfGreedyness){
+		\::newObject;
+		.sequenceOfTokenisingRulesInDecendingOrderOfGreedyness = sequenceOfTokenisingRulesInDecendingOrderOfGreedyness;
+	}
+
+	++ tokeniseParticlesIntoTokensAndRemainingUntokenisedParticles *([Sequence<[&PARTICLE]>] givenParticleSequence) -> [Sequence<[Or<[&TOKEN][&PARTICLE]>]>] {
+		
+	}
 }
+

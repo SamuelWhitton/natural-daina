@@ -1,7 +1,11 @@
 
 
 [ParticleStream<PARTICLE [Object]> : [Object]] (Object)
+	[->[Maybe<[&PARTICLE]>]] particleProviderForStream
 {
-	
+	~ streamWithParticleProvider *([->[Maybe<[&PARTICLE]>]] particleProviderForStream) {
+		\::newObject;
+		.particleProviderForStream = particleProviderForStream;
+	}
 }
 
