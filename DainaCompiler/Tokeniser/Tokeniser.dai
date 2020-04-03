@@ -3,7 +3,8 @@
 		Object, 
 		Sequence, 
 		TokenisingRule,
-		Or
+		Or,
+		ParticleSequenceProcessor
 	)
 		[Sequence<[TokenisingRule<[&PARTICLE][&TOKEN]>]>] sequenceOfTokenisingRulesInDecendingOrderOfGreedyness
 {
@@ -12,8 +13,26 @@
 		.sequenceOfTokenisingRulesInDecendingOrderOfGreedyness = sequenceOfTokenisingRulesInDecendingOrderOfGreedyness;
 	}
 
-	++ tokeniseParticlesIntoTokensAndRemainingUntokenisedParticles *([Sequence<[&PARTICLE]>] givenParticleSequence) -> [Sequence<[Or<[&TOKEN][&PARTICLE]>]>] {
-		
+	++ tokeniseParticlesIntoTokensAndRemainingUntokenisedParticles *([Sequence<[&PARTICLE]>] givenParticleSequence) -> [Sequence<[Or<[&TOKEN][&PARTICLE]>]>] { 
+		[ParticleSequenceProcessor<[&PARTICLE][&TOKEN]>] processorForGivenParticleSequence = \[ParticleSequenceProcessor<[&PARTICLE][&TOKEN]>]:newProcessorOfParticleSequenceWithTokenisingRulesInDecendingOrderOfGreedyness givenParticleSequence (.sequenceOfTokenisingRulesInDecendingOrderOfGreedyness);
+		[Sequence<[Or<[&TOKEN][&PARTICLE]>]>] tokensAndRemainingUntokenisedParticles = \[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]
+	}
+}
+
+[ParticleSequenceProcessor<PARTICLE [Object], TOKEN [Object]> : [Object]] (
+		Object,
+		Sequence,
+		TokenisingRule
+	) -> (
+			Tokeniser
+		)
+{
+	~ newProcessorOfParticleSequenceWithTokenisingRulesInDecendingOrderOfGreedyness *([Sequence<[&PARTICLE]>] particleSequence, [Sequence<[TokenisingRule<[&PARTICLE][&TOKEN]>]>] tokenisingRulesInDecendingOrderOfGreedyness) {
+		\::newObject;
+	}
+
+	++ maybeProcessNextTokenOrReturnNextUnprocessedParticle *()-> [Maybe<[Or<[&TOKEN][&PARTICLE]>]>] {
+
 	}
 }
 
