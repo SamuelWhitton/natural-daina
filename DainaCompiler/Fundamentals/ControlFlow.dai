@@ -13,7 +13,7 @@ ControlFlow : []
 
 
 
-[ControlFlow<Q [Object]>] (Boolean, Natural, Wrapper, Object, CoreFlow, Variable, VariableReturnerOfThing)
+[ControlFlow<Q [Object], V [Object]>] (Boolean, Natural, Wrapper, Object, CoreFlow, Variable, ControlFlowRecursiveConstructor, ControlFlowRecursiveTransformer)
 {
 	:: repeatWhile *([->[Boolean]] conditionForRepeat, [->] lambdaToRepeat) {
 		\[CoreFlow]:repeatUntilStopped *([->] stop) {
@@ -57,6 +57,14 @@ ControlFlow : []
 			};
 	}
 
+	:: constructRecursively *([[->[&Q]]->[&Q]] recursiveConstructorOperation) -> [&Q] {
+		[ControlFlowRecursiveConstructor<[&Q]>] recursiveConstructor = \[ControlFlowRecursiveConstructor<[&Q]>]:constructorWithRecursiveConstructorOperation recursiveConstructorOperation;
+	} -> (\recursiveConstructor:construct)
+
+	:: transformRecursively *([&V] objectToTransform, [[&V][[&V]->[&Q]]->[&Q]] recursiveTransformationOperation) -> [&Q] {
+		[ControlFlowRecursiveTransformer<[&V][&Q]>] recursiveTransformer = \[ControlFlowRecursiveTransformer<[&V][&Q]>]:transformerWithRecursiveTransformerOperation recursiveTransformationOperation;
+	} -> (\recursiveTransformer:transform objectToTransform)
+
 	:: repeatUntilStopped *([[->]->] lambdaToRepeatUntilStopped) {
 		[Wrapper<[Boolean]>] wrappedShouldStop = \[Wrapper<[Boolean]>]:wrapperWithObject \[Boolean]:false;
 		[Boolean] shouldStop = \[Boolean]:false;
@@ -83,6 +91,28 @@ ControlFlow : []
 }
 
 
+[ControlFlowRecursiveConstructor<Q [Object]>] (Object) -> (ControlFlow)
+	[[->[&Q]]->[&Q]] recursiveConstructorOperation
+{
+	~ constructorWithRecursiveConstructorOperation *([[->[&Q]]->[&Q]] recursiveConstructorOperation) {
+		.recursiveConstructorOperation = recursiveConstructorOperation
+	}
+
+	++ construct *()->[&Q] {} -> \.recursiveConstructorOperation (:construct)
+}
+
+[ControlFlowRecursiveTransformer<FROM [Object], TO [Object]>] (Object) -> (ControlFlow)
+	[[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation
+{
+	~ constructorWithRecursiveTransformationOperation *([[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation) {
+		.recursiveTransformationOperation = recursiveTransformationOperation
+	}
+
+	++ transform *([&FROM] from)->[&TO] {} -> \.recursiveTransformationOperation (from (:transform))
+}
+
+@@
+
 [VariableReturnerOfThing<THING [Object]> : [Object]] (Object)
 	[->[&THING]] thingThatReturns
 {
@@ -96,7 +126,7 @@ ControlFlow : []
 	}
 
 	++ get *->.thingThatReturns
-}
+}@@
 
 
 

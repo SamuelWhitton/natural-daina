@@ -17,6 +17,15 @@
 		}
 	}
 
+	++ ifEmptySequence *([->] onEmptySequence) {
+		\ifEmptySequence_and_ifFirstAndRestOfSequence onEmptySequence (*([]_,[]__){})
+	}
+
+	++ ifFirstAndRestOfSequence *([[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+		\ifEmptySequence_and_ifFirstAndRestOfSequence (*{}) onFirstInSequenceAndRestOfList
+	}
+
+	@@
 	:: sequenceWithIterator *([[[&ENUMERATED_OBJECT]->]->] iterateElementsInSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>] variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>]:as (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as (*([Sequence<[&ENUMERATED_OBJECT]>]a)->a));
 		\iterateElementsInSequence consumeEachElementToBuildSequence;
@@ -29,15 +38,35 @@
 			}
 		}
 	 -> (\sequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence (\[Sequence<[&ENUMERATED_OBJECT]>]:emptySequence))
-
-	++ ifEmptySequence *([->] onEmptySequence) {
-		\ifEmptySequence_and_ifFirstAndRestOfSequence onEmptySequence (*([]_,[]__){})
-	}
-
-	++ ifFirstAndRestOfSequence *([[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
-		\ifEmptySequence_and_ifFirstAndRestOfSequence (*{}) onFirstInSequenceAndRestOfList
-	}
+@@
 }
+
+[Sequences<ENUMERATED_OBJECT [Object], A [Object]>] (Object, Variable, Sequence)
+{
+	:: foldSequenceWithInitialResultAndOperationToFoldResultIntoSequenceElement *([Sequence<[&ENUMERATED_OBJECT]>] givenSequence, [&A] initialResult, [[&A][&ENUMERATED_OBJECT]->[&A]] operationToFoldResultIntoSequenceElement) {
+		[Variable<[&A]>] currentResult = \[Variable<[&A]>]:as initialResult;
+		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] currentUnfoldedSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as givenSequence;
+		\[ControlFlow]:repeatUntilStopped *([->] stopFolding) {
+			[Sequence<[&ENUMERATED_OBJECT]>] unfoldedSequence = \currentUnfoldedSequence:get;
+			\unfoldedSequence:ifEmptySequence stopFolding;
+			\unfoldedSequence:ifFirstAndRestOfSequence foldFirstInSequenceAndSetCurrentUnfoldedSequenceToRestOfSequence
+				!{
+					[[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] foldFirstInSequenceAndSetCurrentUnfoldedSequenceToRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
+						\currentResult:set (\operationToFoldResultIntoSequenceElement (\currentResult:get) firstInSequence); 
+						\currentUnfoldedSequence:set restOfSequence;
+					}
+				}
+		}
+	} -> (\currentResult:get)
+
+}
+
+
+
+
+
+
+
 
 
 
