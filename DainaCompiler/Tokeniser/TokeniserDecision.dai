@@ -12,7 +12,5 @@
 		.maybeTokenProduced = \[Maybe<[&TOKEN]>]:asJust tokenToProduce;
 	}
 
-	++ maybeGetTokenProducedByThisDecision *([[&TOKEN]->] tokenReceiver) {
-		\.maybeTokenProduced:ifJust tokenReceiver;
-	}
+	++ maybeGetTokenProducedByThisDecision *->.maybeTokenProduced
 }

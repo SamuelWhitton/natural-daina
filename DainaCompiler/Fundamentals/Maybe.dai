@@ -11,7 +11,7 @@ Maybe<E:[Object]> : [Object]
 
 
 
-[Maybe<E [Object]> : [Object]] (Object, Container, Wrapper, Boolean)
+[Maybe<E [Object], Q [Object]> : [Object]] (Object, Container, Wrapper, Boolean)
 	[Container<[&E]>] possiblyContainingAnObject 
 {
 	~ nothing *{
@@ -43,7 +43,9 @@ Maybe<E:[Object]> : [Object]
 		\.possiblyContainingAnObject:retrive actOnJust
 	}
 
-	@++ applyTransformFromNothingOrJust *([->[&Q]], )
+	@@++ constructFromNothingOrJust *([->[&Q]], [[&E]->[&Q]]) -> [&Q] {
+
+	}@@
 
 	@@++ justThisOrAlternative *([&E] alternative) -> [&E] {
 		[Variable<[&E]>] justThisOrAlternative = \[Variable<[&E]>]:as alternative;
