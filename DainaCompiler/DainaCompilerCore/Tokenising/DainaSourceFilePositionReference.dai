@@ -1,0 +1,12 @@
+
+[DainaSourceFilePositionReference : [Object]] (
+		Object,
+		String,
+		Natural
+	)
+{
+	~ dainaSourceFileReferenceWithFilePathAndLineNumberAndLineContentAndLinePosition *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition) {
+		
+	}
+}
+

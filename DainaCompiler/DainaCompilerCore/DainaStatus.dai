@@ -4,9 +4,25 @@
 {
 	~ INFORMATION *{\::newStringFromLiteral ("Information");}
 	~ GENERAL *{\::newStringFromLiteral ("Daina");}
-	~ PARSING_ERROR *{\::newStringFromLiteral ("Parsing Error");}
+	@~ PARSING_ERROR *{\::newStringFromLiteral ("Parsing Error");}
 	~ SYNTAX_ERROR *{\::newStringFromLiteral ("Syntax Error");}
 	~ COMPILATION_ERROR *{\::newStringFromLiteral ("Compilation Error");}
+}
+
+[DainaStatus : [Object]] (DainaStatusClassification, String, Object) 
+	[String] dainaStatusMessage
+{
+	~ statusWithClassificationAndDescription *([DainaStatusClassification] statusClassification, [String] statusDescription) {
+		\::newObject;
+		.dainaStatusMessage = statusWithClassificationAndStatusDescription
+	}	!{
+			[String] statusWithClassificationAndStatusDescription = (\statusClassification:stringByAppendingString (\classificationAndStatusStringSeperator:stringByAppendingString statusDescription)) 
+				!{
+					[String] classificationAndStatusStringSeperator = \[String]:newStringFromLiteral " - ";
+				}
+		}
+
+	++ getHumanReadableStringRepresentationOfStatus *-> .dainaStatusMessage
 }
 
 [GeneralDainaStatus] (DainaStatus, DainaStatusClassification, String)
@@ -35,21 +51,7 @@
 }
 
 
-[DainaStatus : [Object]] (DainaStatusClassification, String, Object) 
-	[String] dainaStatusMessage
-{
-	~ statusWithClassificationAndDescription *([DainaStatusClassification] statusClassification, [String] statusDescription) {
-		\::newObject;
-		.dainaStatusMessage = statusWithClassificationAndStatusDescription
-	}	!{
-			[String] statusWithClassificationAndStatusDescription = (\statusClassification:stringByAppendingString (\classificationAndStatusStringSeperator:stringByAppendingString statusDescription)) 
-				!{
-					[String] classificationAndStatusStringSeperator = \[String]:newStringFromLiteral " - ";
-				}
-		}
 
-	++ getHumanReadableStringRepresentationOfStatus *-> .dainaStatusMessage
-}
 
 
 

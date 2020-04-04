@@ -1,0 +1,31 @@
+
+[DainaSourceFileTokeniser : [Object]] (
+		Object,
+		Sequence,
+		DainaToken,
+		File,
+		DainaStatusReporter,
+		DainaSourceFileReader
+	)
+{
+	~ newDainaSourceFileTokeniser *{
+		\::newObject;
+	}
+
+	++ tokeniseDainaSourceFileIntoSequenceOfTokensWithDainaStatusReporter *([File] dainaSourceFile, [DainaStatusReporter] dainaStatusReporter) -> [Sequence<[DainaToken]>] {
+		[DainaSourceFileReader] readerForDainaSourceFile = \[DainaSourceFileReader]:readerForDainaSourceFile dainaSourceFile;
+
+	}
+}
+
+[DainaSourceFileReader : [Object]] (
+		Object,
+		File
+	) -> (
+			DainaSourceFileTokeniser
+		)
+{
+	~ readerForDainaSourceFile *([File] dainaSourceFile) {
+
+	}
+}

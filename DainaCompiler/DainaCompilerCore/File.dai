@@ -1,0 +1,14 @@
+
+[File : [Object]] (
+		Object,
+		InputStream,
+		String
+	)
+{
+	~ fileWithInputStreamFromFileAndFilePath *([InputStream]inputStreamFromFile,[String]filePath){
+		\::newObject;
+	}
+}
+
+
+

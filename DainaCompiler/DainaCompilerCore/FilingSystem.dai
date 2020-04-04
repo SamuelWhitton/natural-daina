@@ -27,22 +27,13 @@
 			\maybeInputStreamToFileAtPath:ifJust *([InputStream] inputStreamToFileAtPath) {
 					\selectMaybeFile (\[Maybe<[File]>]:asJust fileAtPath)
 						!{
-							[File] fileAtPath = \[File]:fileWithInputStreamToFileAndFilePath inputStreamToFileAtPath filePath;
+							[File] fileAtPath = \[File]:fileWithInputStreamFromFileAndFilePath inputStreamToFileAtPath filePath;
 						};
 				}
 		} (*->\[Maybe<[File]>]:asNothing))
 }
 
-[File : [Object]] (
-		Object,
-		InputStream,
-		String
-	)
-{
-	~ fileWithInputStreamToFileAndFilePath *([InputStream]inputStreamToFile,[String]filePath){
-		\::newObject;
-	}
-}
+
 
 
 

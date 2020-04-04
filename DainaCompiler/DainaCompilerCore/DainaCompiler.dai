@@ -11,6 +11,8 @@
 		InformationStatus,
 		DainaStatus,
 		Maybe,
+		Sequence,
+		DainaToken,
 		DainaStatusReporter@@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
@@ -25,19 +27,23 @@
 		\reporterToReportCompilerStatus:reportStatus (\[GeneralDainaStatus]:DAINA_COMPILER_STARTED);
 	}
 
-	|++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
+	|++ receiveCommandToParseDainaSourceFileIntoSyntaxTreeWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
 		[Maybe<[File]>] maybeDainaSourceFile = \.filingSystemForReadingAndWritingFiles:maybeGetFileFromFilingSystemWithFilePath dainaSourceFilePath;
 		\maybeDainaSourceFile:ifJust *([File]dainaSourceFile){
-				\parseDainaSourceFileWithNamespaceSelection dainaSourceFile dainaNamespaceSelection;
+				\parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection dainaSourceFile dainaNamespaceSelection;
 			};
 		\maybeDainaSourceFile:ifNothing *{
 			\reportErrorThatDainaSourceFileCouldNotBeFoundWithPath dainaSourceFilePath;
 		};
 	}	!{
-			[[File][DainaNamespaceReference]->] parseDainaSourceFileWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
-				\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:newStringFromLiteral "Test parse"))
+			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
+				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokensWithDainaStatusReporter dainaSourceFile (.reporterToReportCompilerStatus);
+				@[]
+				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:newStringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter
-			}
+			}	!{
+					[DainaSourceFileTokeniser] dainaSourceFileTokeniser = \[DainaSourceFileTokeniser]:newDainaSourceFileTokeniser;
+				};
 			[[String]->] reportErrorThatDainaSourceFileCouldNotBeFoundWithPath = *([String]dainaSourceFilePath) {
 				\:reportStatus (\[GeneralDainaStatus]:DAINA_SOURCE_FILE_NOT_FOUND_WITH_PATH dainaSourceFilePath)
 			}

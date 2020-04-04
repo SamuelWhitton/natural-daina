@@ -10,8 +10,8 @@
 	++ receiveInvalidCommand *{}
 	++ receiveExitCommand *{}
 
-	|++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
-		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection dainaSourceFilePath dainaNamespaceSelection
+	|++ receiveCommandToParseDainaSourceFileIntoSyntaxTreeWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
+		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToParseDainaSourceFileIntoSyntaxTreeWithPathAndNamespaceSelection dainaSourceFilePath dainaNamespaceSelection
 	}
 	|++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{
 		\.dainaCommandReceiverToSendDainaCommandsTo:receiveCommandToAnalyseAndSynthesiseSyntaxTree

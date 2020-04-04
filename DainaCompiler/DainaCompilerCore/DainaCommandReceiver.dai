@@ -6,7 +6,7 @@
 		\::newObject;
 	}
 
-	++ receiveCommandToParseDainaSourceFileWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){}
+	++ receiveCommandToParseDainaSourceFileIntoSyntaxTreeWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){}
 	++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{}
 	++ receiveCommandToCompileIntoJavaWithinDirectory *([String] javaCompilationDirectory){}
 	++ receiveCommandToCompileIntoCWithinDirectory *([String] cCompilationDirectory){}
