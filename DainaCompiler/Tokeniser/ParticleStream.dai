@@ -18,10 +18,10 @@
 	} -> maybeNextParticle
 
 	++ maybePeekAtNextAvaliableParticle *()->[Maybe<[&PARTICLE]>] {	
-	} -> \.maybeCurrentNextAvaliableParticle:get;
+	} -> \.maybeCurrentNextAvaliableParticle:get
 
 	++ maybePeekAtNextOverAvaliableParticle *()->[Maybe<[&PARTICLE]>] {
-	} -> \.maybeCurrentNextOverAvaliableParticle:get;
+	} -> \.maybeCurrentNextOverAvaliableParticle:get
 
 	- moveToNextParticle *{
 		\.maybeCurrentNextAvaliableParticle:set (\.maybeCurrentNextOverAvaliableParticle:get);

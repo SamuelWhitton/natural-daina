@@ -43,7 +43,7 @@
 
 [Sequences<ENUMERATED_OBJECT [Object], A [Object]>] (Object, Variable, Sequence)
 {
-	:: foldSequenceWithInitialResultAndOperationToFoldResultIntoSequenceElement *([Sequence<[&ENUMERATED_OBJECT]>] givenSequence, [&A] initialResult, [[&A][&ENUMERATED_OBJECT]->[&A]] operationToFoldResultIntoSequenceElement) {
+	:: foldSequenceWithInitialResultAndOperationToFoldResultIntoSequenceElement *([Sequence<[&ENUMERATED_OBJECT]>] givenSequence, [&A] initialResult, [[&A][&ENUMERATED_OBJECT]->[&A]] operationToFoldResultIntoSequenceElement) -> [&A] {
 		[Variable<[&A]>] currentResult = \[Variable<[&A]>]:as initialResult;
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] currentUnfoldedSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as givenSequence;
 		\[ControlFlow]:repeatUntilStopped *([->] stopFolding) {
@@ -51,7 +51,7 @@
 			\unfoldedSequence:ifEmptySequence stopFolding;
 			\unfoldedSequence:ifFirstAndRestOfSequence foldFirstInSequenceAndSetCurrentUnfoldedSequenceToRestOfSequence
 				!{
-					[[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] foldFirstInSequenceAndSetCurrentUnfoldedSequenceToRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
+					[[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] foldFirstInSequenceAndSetCurrentUnfoldedSequenceToRestOfSequence = *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
 						\currentResult:set (\operationToFoldResultIntoSequenceElement (\currentResult:get) firstInSequence); 
 						\currentUnfoldedSequence:set restOfSequence;
 					}

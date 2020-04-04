@@ -7,7 +7,7 @@
 		.tokeniserDecisionFromParticleStream = tokeniserDecisionFromParticleStream;
 	}
 
-	++ applyRuleToParticleStreamProducingATokeniserDecision *([ParticleStream<[&PARTICLE]>] givenParticleStream){
+	++ applyRuleToParticleStreamProducingATokeniserDecision *([ParticleStream<[&PARTICLE]>] givenParticleStream) -> [TokeniserDecision<[&TOKEN]>]{
 	} -> (\.tokeniserDecisionFromParticleStream givenParticleStream)
 }
 

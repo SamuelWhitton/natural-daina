@@ -62,7 +62,7 @@ ControlFlow : []
 	} -> (\recursiveConstructor:construct)
 
 	:: transformRecursively *([&V] objectToTransform, [[&V][[&V]->[&Q]]->[&Q]] recursiveTransformationOperation) -> [&Q] {
-		[ControlFlowRecursiveTransformer<[&V][&Q]>] recursiveTransformer = \[ControlFlowRecursiveTransformer<[&V][&Q]>]:transformerWithRecursiveTransformerOperation recursiveTransformationOperation;
+		[ControlFlowRecursiveTransformer<[&V][&Q]>] recursiveTransformer = \[ControlFlowRecursiveTransformer<[&V][&Q]>]:transformerWithRecursiveTransformationOperation recursiveTransformationOperation;
 	} -> (\recursiveTransformer:transform objectToTransform)
 
 	:: repeatUntilStopped *([[->]->] lambdaToRepeatUntilStopped) {
@@ -104,11 +104,11 @@ ControlFlow : []
 [ControlFlowRecursiveTransformer<FROM [Object], TO [Object]>] (Object) -> (ControlFlow)
 	[[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation
 {
-	~ constructorWithRecursiveTransformationOperation *([[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation) {
+	~ transformerWithRecursiveTransformationOperation *([[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation) {
 		.recursiveTransformationOperation = recursiveTransformationOperation
 	}
 
-	++ transform *([&FROM] from)->[&TO] {} -> \.recursiveTransformationOperation (from (:transform))
+	++ transform *([&FROM] from)->[&TO] {} -> \.recursiveTransformationOperation from (:transform)
 }
 
 @@

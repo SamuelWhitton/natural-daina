@@ -51,7 +51,7 @@
 		[Boolean] streamWasAccessedByOneOrMoreTokenisingRules = \.monitoredStreamOfUnprocessedParticles:particleStreamWasAccessedSinceLastMonitorReset;
 		(\[ControlFlow<[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]>]:selectWithSelectorOrDefault selectNextTokenIfAvaliableOrUnprocessedParticleIfStreamWasNotAccessed defaultToNothing)
 			!{
-				[[[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]->]->] selectNextTokenIfAvaliableOrUnprocessedParticleIfStreamWasNotAccessed *([[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]->] selectNextTokenOrUnprocessedParticle) {
+				[[[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]->]->] selectNextTokenIfAvaliableOrUnprocessedParticleIfStreamWasNotAccessed = *([[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]->] selectNextTokenOrUnprocessedParticle) {
 					\maybeNextToken:ifJust *([&TOKEN] nextToken) {
 						\selectNextTokenOrUnprocessedParticle (\[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]:asJust (\[Or<[&TOKEN][&PARTICLE]>]:asLeft nextToken));
 					};
@@ -75,10 +75,10 @@
 				= *([Maybe<[&TOKEN]>] maybeTokenFromPreviousTokenisingRuleThatWasApplied, [TokenisingRule<[&PARTICLE][&TOKEN]>] nextTokenisingRule) -> [Maybe<[&TOKEN]>] {
 					[Maybe<[&TOKEN]>] maybeNextToken = (\[ControlFlow<[Maybe<[&TOKEN]>]>]:selectWithSelectorOrDefault selectTokenOfPreviousTokenisingRuleIfExists maybeProduceTokenByApplyingNextTokenisingRule) 
 						!{
-							[[[Maybe<[&TOKEN]>]->]->] selectTokenOfPreviousTokenisingRuleIfExists *([[Maybe<[&TOKEN]>]->] selectTokenOfPreviousTokenisingRule) {
+							[[[Maybe<[&TOKEN]>]->]->] selectTokenOfPreviousTokenisingRuleIfExists = *([[Maybe<[&TOKEN]>]->] selectTokenOfPreviousTokenisingRule) {
 								\maybeTokenFromPreviousTokenisingRuleThatWasApplied:ifJust selectTokenOfPreviousTokenisingRule;
 							};
-							[->[Maybe<[&TOKEN]>]] maybeProduceTokenByApplyingNextTokenisingRule *() -> [Maybe<[&TOKEN]>] {
+							[->[Maybe<[&TOKEN]>]] maybeProduceTokenByApplyingNextTokenisingRule = *() -> [Maybe<[&TOKEN]>] {
 								[TokeniserDecision<[&TOKEN]>] tokeniserDecisionFromApplyingNextTokenisingRule = \nextTokenisingRule:applyRuleToParticleStreamProducingATokeniserDecision .monitoredStreamOfUnprocessedParticles;
 							} -> \tokeniserDecisionFromApplyingNextTokenisingRule:maybeGetTokenProducedByThisDecision
 						}
@@ -102,12 +102,24 @@
 		.particleStreamHasBeenAccessedSinceLastMonitorReset = particleStreamHasBeenAccessedSinceLastMonitorReset;
 	}	!{
 			[Variable<[Boolean]>] particleStreamHasBeenAccessedSinceLastMonitorReset = \[Variable<[Boolean]>]:set (\[Boolean]:FALSE);
-			[Variable<[Sequence<[&PARTICLE]>]>] particleThatHaveNotYetBeenProvided = \[Variable<[Sequence<[&PARTICLE]>]>]:set (particleSequence);
+			[Variable<[Sequence<[&PARTICLE]>]>] currentParticlesThatHaveNotYetBeenProvided = \[Variable<[Sequence<[&PARTICLE]>]>]:set (particleSequence);
 			[->[Maybe<[&PARTICLE]>]] provideMaybeNextParticleInParticleSequence = *() -> [Maybe<[&PARTICLE]>] {
 				\particleStreamHasBeenAccessedSinceLastMonitorReset:set (\[Boolean]:TRUE);
-				[Maybe<[&PARTICLE]>] maybeNextParticleInParticleSequence = (\[ControlFlow<[Maybe<[&PARTICLE]>]>]:selectWithSelectorOrDefault )
-				
-			}
+				[Maybe<[&PARTICLE]>] maybeNextParticleInParticleSequence = (\[ControlFlow<[Maybe<[&PARTICLE]>]>]:selectWithSelectorOrDefault provideNextParticleIfAvaliable defaultToNothing)
+					!{
+						[->[Maybe<[&PARTICLE]>]] defaultToNothing = *->\[Maybe<[&PARTICLE]>]:asNothing;
+						[[[Maybe<[&PARTICLE]>]->]->] provideNextParticleIfAvaliable = *([[Maybe<[&PARTICLE]>]->] provideNextParticle) {
+							[Sequence<[&PARTICLE]>] particlesThatHaveNotYetBeenProvided = \currentParticlesThatHaveNotYetBeenProvided:get;
+							\particlesThatHaveNotYetBeenProvided:ifFirstAndRestOfSequence provideFirstParticleInSequence
+								!{
+									[[&PARTICLE][Sequence<[&PARTICLE]>]->] provideFirstParticleInSequence = *([&PARTICLE] firstPartileInSequence, [Sequence<[&PARTICLE]>] restOfParticleSequence) {
+										\provideNextParticle firstPartileInSequence;
+										\currentParticlesThatHaveNotYetBeenProvided:set restOfParticleSequence;
+									}
+								}
+						}	
+					}
+			} -> maybeNextParticleInParticleSequence
 		}
 
 	++ resetMonitor *{

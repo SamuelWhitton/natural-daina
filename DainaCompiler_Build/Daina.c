@@ -13,13 +13,21 @@ PARSER LOG: finished parsing root tree
 /*
 Analysis: class order found...
 Analysis: pruning classes not in main dependancy tree...
-Analysis: pruning class - Tokeniser
+Analysis: pruning class - And
 Analysis: pruning class - LambdaAToB
+Analysis: pruning class - Sequence
+Analysis: pruning class - Sequences
 Analysis: pruning class - Trains
+Analysis: pruning class - TokeniserDecision
+Analysis: pruning class - ParticleStream
+Analysis: pruning class - MonitoredParticleStream
+Analysis: pruning class - TokenisingRule
+Analysis: pruning class - ParticleSequenceProcessor
 Analysis: pruning class - Set
+Analysis: pruning class - Or
+Analysis: pruning class - Tokeniser
 Analysis: pruning class - DEVELOPMENT_Logger
 Analysis: pruning class - InputStreamParser
-Analysis: pruning class - Sequence
 Analysis: analysing class - InternalPointer...
 Analysis: analysing class - Object...
 Analysis: analysing class - Variable...
@@ -28,7 +36,8 @@ Analysis: analysing class - WeakReference...
 Analysis: analysing class - Boolean...
 Analysis: analysing class - Container...
 Analysis: analysing class - TrainCarriage...
-Analysis: analysing class - VariableReturnerOfThing...
+Analysis: analysing class - ControlFlowRecursiveConstructor...
+Analysis: analysing class - ControlFlowRecursiveTransformer...
 Analysis: analysing class - SingleMapping...
 Analysis: analysing class - BinaryTree...
 Analysis: analysing class - Byte...
@@ -146,10 +155,13 @@ TrainCarriage<E:[Object]> : [Container<[&E]>]
 	++ disconnectBackCoupler [ -> ]
 	++ disconnectFrontCoupler [ -> ]
 
-VariableReturnerOfThing<THING:[Object]> : [Object]
-	:: as [[ -> [&THING]] -> [VariableReturnerOfThing]]
-	++ set [[ -> [&THING]] -> ]
-	++ get [ -> [ -> [&THING]]]
+ControlFlowRecursiveConstructor<Q:[Object]> : []
+	:: constructorWithRecursiveConstructorOperation [[[ -> [&Q]] -> [&Q]] -> [ControlFlowRecursiveConstructor]]
+	++ construct [ -> [&Q]]
+
+ControlFlowRecursiveTransformer<FROM:[Object],TO:[Object]> : []
+	:: transformerWithRecursiveTransformationOperation [[[&FROM],[[&FROM] -> [&TO]] -> [&TO]] -> [ControlFlowRecursiveTransformer]]
+	++ transform [[&FROM] -> [&TO]]
 
 SingleMapping<KEY:[Object],VALUE:[Object]> : [Object]
 	:: newSingleMappingWithKeyAndValue [[&KEY],[&VALUE] -> [SingleMapping]]
@@ -245,11 +257,13 @@ Natural : [Integer]
 	++ naturalByAddingOne [ -> [Natural]]
 	++ naturalByAdding [[Natural] -> [Natural]]
 
-ControlFlow<Q:[Object]> : []
+ControlFlow<Q:[Object],V:[Object]> : []
 	:: repeatWhile [[ -> [Boolean]],[ -> ] -> ]
 	:: ifThenElse [[ -> [Boolean]],[ -> ],[ -> ] -> ]
 	:: selectWithSelectorOrDefault [[[[&Q] -> ] -> ],[ -> [&Q]] -> [&Q]]
 	:: repeatNTimes [[Natural],[[Natural] -> ] -> ]
+	:: constructRecursively [[[ -> [&Q]] -> [&Q]] -> [&Q]]
+	:: transformRecursively [[&V],[[&V],[[&V] -> [&Q]] -> [&Q]] -> [&Q]]
 	:: repeatUntilStopped [[[ -> ] -> ] -> ]
 
 String : [SetObject<[String]>]
@@ -269,7 +283,7 @@ MappingBucket<KEY:[SetObject],VALUE:[Object]> : [Object]
 	++ retriveValueForKeyIfItExists [[&KEY],[[&VALUE] -> ] -> ]
 	++ branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger [[Integer],[ -> ],[ -> ],[ -> ] -> ]
 
-Maybe<E:[Object]> : [Object]
+Maybe<E:[Object],Q:[Object]> : [Object]
 	:: nothing [ -> [Maybe]]
 	:: just [[&E] -> [Maybe]]
 	:: asNothing [ -> [Maybe]]
@@ -2471,94 +2485,155 @@ DainaCommandLineApplication : []
         //FINISH METHOD
 /*C*/   }return NULL;}
         //---------------------------------------------------------------
-        //BEGIN TEMPLATE template_VariableReturnerOfThing
-/*C*/   struct Z_template_VariableReturnerOfThing {
+        //BEGIN TEMPLATE template_ControlFlowRecursiveConstructor
+/*C*/   struct Z_template_ControlFlowRecursiveConstructor {
 /*C*/    long references;void* deallocator;
-           //TEMPLATE DYNAMIC_OBJECT attribute_VariableReturnerOfThing_thingThatReturns
-/*C*/      void* Z_attribute_VariableReturnerOfThing_thingThatReturns;
+           //TEMPLATE DYNAMIC_OBJECT attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation
+/*C*/      void* Z_attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation;
         //END TEMPLATE
 /*C*/   };
-/*C*/   void* dealloc_Z_template_VariableReturnerOfThing(void* object) {
-/*C*/    ReleaseDynamicObject(((struct Z_template_VariableReturnerOfThing *)(object))->Z_attribute_VariableReturnerOfThing_thingThatReturns);
+/*C*/   void* dealloc_Z_template_ControlFlowRecursiveConstructor(void* object) {
+/*C*/    ReleaseDynamicObject(((struct Z_template_ControlFlowRecursiveConstructor *)(object))->Z_attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation);
 /*C*/    return NULL;
 /*C*/   }
-/*C*/   void* alloc_Z_template_VariableReturnerOfThing() {
-/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_VariableReturnerOfThing));
+/*C*/   void* alloc_Z_template_ControlFlowRecursiveConstructor() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_ControlFlowRecursiveConstructor));
 /*C*/   
 /*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
-/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_VariableReturnerOfThing;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_ControlFlowRecursiveConstructor;
 /*C*/    return newAllocatedObject;
 /*C*/   }
-        //DECLARE METHOD classmethod_VariableReturnerOfThing_as(local_thingThatReturns)
-/*C*/   void* Z_classmethod_VariableReturnerOfThing_as(void* frame, void* Z_local_thingThatReturns);
-        //DECLARE METHOD classmethod_VariableReturnerOfThing_set(local_thingThatReturns)
-/*C*/   void* Z_classmethod_VariableReturnerOfThing_set(void* frame, void* Z_local_thingThatReturns);
-        //DECLARE METHOD classmethod_VariableReturnerOfThing_get()
-/*C*/   void* Z_classmethod_VariableReturnerOfThing_get(void* frame);
-        //START METHOD allocator_VariableReturnerOfThing()
-/*C*/      void* Z_allocator_VariableReturnerOfThing(void* frame) {{
-           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_VariableReturnerOfThing
-/*C*/      void* Z_newObject = alloc_Z_template_VariableReturnerOfThing();
+        //DECLARE METHOD classmethod_ControlFlowRecursiveConstructor_constructorWithRecursiveConstructorOperation(local_recursiveConstructorOperation)
+/*C*/   void* Z_classmethod_ControlFlowRecursiveConstructor_constructorWithRecursiveConstructorOperation(void* frame, void* Z_local_recursiveConstructorOperation);
+        //DECLARE METHOD classmethod_ControlFlowRecursiveConstructor_construct()
+/*C*/   void* Z_classmethod_ControlFlowRecursiveConstructor_construct(void* frame);
+        //START METHOD allocator_ControlFlowRecursiveConstructor()
+/*C*/      void* Z_allocator_ControlFlowRecursiveConstructor(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_ControlFlowRecursiveConstructor
+/*C*/      void* Z_newObject = alloc_Z_template_ControlFlowRecursiveConstructor();
            //RETURN newObject
 /*C*/      return Z_newObject;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD classmethod_VariableReturnerOfThing_as(local_thingThatReturns)
-/*C*/      void* Z_classmethod_VariableReturnerOfThing_as(void* frame, void* Z_local_thingThatReturns) {{
+        //START METHOD classmethod_ControlFlowRecursiveConstructor_constructorWithRecursiveConstructorOperation(local_recursiveConstructorOperation)
+/*C*/      void* Z_classmethod_ControlFlowRecursiveConstructor_constructorWithRecursiveConstructorOperation(void* frame, void* Z_local_recursiveConstructorOperation) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //RETAIN self
 /*C*/      RetainDynamicObject(Z_self);
-           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_Object_newObject
-/*C*/      void* Z_temporary_3 = &Z_classmethod_Object_newObject;
-           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
-/*C*/      RetainDynamicObject(Z_self);
-/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
-           //CREATE OBJECT temporary_1 = INVOKE temporary_2()
-/*C*/      void* Z_temporary_1 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_2))->method))(Z_temporary_2+sizeof(DynamicLambda));
-           //RELEASE temporary_2
-/*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //RELEASE temporary_1
-/*C*/      ReleaseDynamicObject(Z_temporary_1);
-           //CREATE STATIC_OBJECT temporary_4 WITH EMPTY_VALUE
-/*C*/      void* Z_temporary_4 = ((void *)(0));
-           //ASSIGN temporary_4 = local_thingThatReturns
-/*C*/      Z_temporary_4 = Z_local_thingThatReturns;
-           //RETAIN temporary_4
-/*C*/      RetainDynamicObject(Z_temporary_4);
-           //ASSIGN (self AS template_VariableReturnerOfThing)->attribute_VariableReturnerOfThing_thingThatReturns = temporary_4
-/*C*/      ((struct Z_template_VariableReturnerOfThing *)(Z_self))->Z_attribute_VariableReturnerOfThing_thingThatReturns = Z_temporary_4;
+           //CREATE STATIC_OBJECT temporary_1 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_1 = ((void *)(0));
+           //ASSIGN temporary_1 = local_recursiveConstructorOperation
+/*C*/      Z_temporary_1 = Z_local_recursiveConstructorOperation;
+           //RETAIN temporary_1
+/*C*/      RetainDynamicObject(Z_temporary_1);
+           //ASSIGN (self AS template_ControlFlowRecursiveConstructor)->attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation = temporary_1
+/*C*/      ((struct Z_template_ControlFlowRecursiveConstructor *)(Z_self))->Z_attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation = Z_temporary_1;
            //RETURN self
 /*C*/      return Z_self;
         //FINISH METHOD
 /*C*/   }return NULL;}
-        //START METHOD classmethod_VariableReturnerOfThing_set(local_thingThatReturns)
-/*C*/      void* Z_classmethod_VariableReturnerOfThing_set(void* frame, void* Z_local_thingThatReturns) {{
+        //START METHOD classmethod_ControlFlowRecursiveConstructor_construct()
+/*C*/      void* Z_classmethod_ControlFlowRecursiveConstructor_construct(void* frame) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //CREATE STATIC_OBJECT temporary_2 WITH METHOD classmethod_ControlFlowRecursiveConstructor_construct
+/*C*/      void* Z_temporary_2 = &Z_classmethod_ControlFlowRecursiveConstructor_construct;
+           //CREATE DYNAMIC_OBJECT temporary_1 WITH METHOD[STATIC_OBJECT] temporary_2 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_1 = allocateDynamicLambda(1,1,Z_temporary_2);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_1+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_3 = (self AS template_ControlFlowRecursiveConstructor)->attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation
+/*C*/      void* Z_temporary_3 = ((struct Z_template_ControlFlowRecursiveConstructor *)(Z_self))->Z_attribute_ControlFlowRecursiveConstructor_recursiveConstructorOperation;
+           //RETAIN temporary_3
+/*C*/      RetainDynamicObject(Z_temporary_3);
+           //CREATE OBJECT retval = INVOKE temporary_3(temporary_1)
+/*C*/      void* Z_retval = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda), Z_temporary_1);
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //---------------------------------------------------------------
+        //BEGIN TEMPLATE template_ControlFlowRecursiveTransformer
+/*C*/   struct Z_template_ControlFlowRecursiveTransformer {
+/*C*/    long references;void* deallocator;
+           //TEMPLATE DYNAMIC_OBJECT attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation
+/*C*/      void* Z_attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation;
+        //END TEMPLATE
+/*C*/   };
+/*C*/   void* dealloc_Z_template_ControlFlowRecursiveTransformer(void* object) {
+/*C*/    ReleaseDynamicObject(((struct Z_template_ControlFlowRecursiveTransformer *)(object))->Z_attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation);
+/*C*/    return NULL;
+/*C*/   }
+/*C*/   void* alloc_Z_template_ControlFlowRecursiveTransformer() {
+/*C*/    void* newAllocatedObject = malloc(sizeof(struct Z_template_ControlFlowRecursiveTransformer));
+/*C*/   
+/*C*/    ((DynamicObject *)(newAllocatedObject))->references=1;
+/*C*/    ((DynamicObject *)(newAllocatedObject))->deallocator=&dealloc_Z_template_ControlFlowRecursiveTransformer;
+/*C*/    return newAllocatedObject;
+/*C*/   }
+        //DECLARE METHOD classmethod_ControlFlowRecursiveTransformer_transformerWithRecursiveTransformationOperation(local_recursiveTransformationOperation)
+/*C*/   void* Z_classmethod_ControlFlowRecursiveTransformer_transformerWithRecursiveTransformationOperation(void* frame, void* Z_local_recursiveTransformationOperation);
+        //DECLARE METHOD classmethod_ControlFlowRecursiveTransformer_transform(local_from)
+/*C*/   void* Z_classmethod_ControlFlowRecursiveTransformer_transform(void* frame, void* Z_local_from);
+        //START METHOD allocator_ControlFlowRecursiveTransformer()
+/*C*/      void* Z_allocator_ControlFlowRecursiveTransformer(void* frame) {{
+           //CREATE DYNAMIC_OBJECT newObject WITH TEMPLATE template_ControlFlowRecursiveTransformer
+/*C*/      void* Z_newObject = alloc_Z_template_ControlFlowRecursiveTransformer();
+           //RETURN newObject
+/*C*/      return Z_newObject;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_ControlFlowRecursiveTransformer_transformerWithRecursiveTransformationOperation(local_recursiveTransformationOperation)
+/*C*/      void* Z_classmethod_ControlFlowRecursiveTransformer_transformerWithRecursiveTransformationOperation(void* frame, void* Z_local_recursiveTransformationOperation) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
+           //RETAIN self
+/*C*/      RetainDynamicObject(Z_self);
+           //CREATE STATIC_OBJECT temporary_1 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_1 = ((void *)(0));
+           //ASSIGN temporary_1 = local_recursiveTransformationOperation
+/*C*/      Z_temporary_1 = Z_local_recursiveTransformationOperation;
+           //RETAIN temporary_1
+/*C*/      RetainDynamicObject(Z_temporary_1);
+           //ASSIGN (self AS template_ControlFlowRecursiveTransformer)->attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation = temporary_1
+/*C*/      ((struct Z_template_ControlFlowRecursiveTransformer *)(Z_self))->Z_attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation = Z_temporary_1;
+           //RETURN self
+/*C*/      return Z_self;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_ControlFlowRecursiveTransformer_transform(local_from)
+/*C*/      void* Z_classmethod_ControlFlowRecursiveTransformer_transform(void* frame, void* Z_local_from) {{
            //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
 /*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
            //CREATE STATIC_OBJECT temporary_1 WITH EMPTY_VALUE
 /*C*/      void* Z_temporary_1 = ((void *)(0));
-           //ASSIGN temporary_1 = local_thingThatReturns
-/*C*/      Z_temporary_1 = Z_local_thingThatReturns;
+           //ASSIGN temporary_1 = local_from
+/*C*/      Z_temporary_1 = Z_local_from;
            //RETAIN temporary_1
 /*C*/      RetainDynamicObject(Z_temporary_1);
-           //CREATE OBJECT temporary_2 = (self AS template_VariableReturnerOfThing)->attribute_VariableReturnerOfThing_thingThatReturns
-/*C*/      void* Z_temporary_2 = ((struct Z_template_VariableReturnerOfThing *)(Z_self))->Z_attribute_VariableReturnerOfThing_thingThatReturns;
+           //CREATE STATIC_OBJECT temporary_3 WITH METHOD classmethod_ControlFlowRecursiveTransformer_transform
+/*C*/      void* Z_temporary_3 = &Z_classmethod_ControlFlowRecursiveTransformer_transform;
+           //CREATE DYNAMIC_OBJECT temporary_2 WITH METHOD[STATIC_OBJECT] temporary_3 FRAME{STATIC(),DYNAMIC(self)}
+/*C*/      void* Z_temporary_2 = allocateDynamicLambda(1,1,Z_temporary_3);
+/*C*/      RetainDynamicObject(Z_self);
+/*C*/      *(((void* *)(Z_temporary_2+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_self;
+           //CREATE OBJECT temporary_4 = (self AS template_ControlFlowRecursiveTransformer)->attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation
+/*C*/      void* Z_temporary_4 = ((struct Z_template_ControlFlowRecursiveTransformer *)(Z_self))->Z_attribute_ControlFlowRecursiveTransformer_recursiveTransformationOperation;
+           //RETAIN temporary_4
+/*C*/      RetainDynamicObject(Z_temporary_4);
+           //CREATE OBJECT retval = INVOKE temporary_4(temporary_1, temporary_2)
+/*C*/      void* Z_retval = ((void*(*)(void*,void*,void*))(((DynamicLambda *)(Z_temporary_4))->method))(Z_temporary_4+sizeof(DynamicLambda), Z_temporary_1, Z_temporary_2);
+           //RELEASE temporary_4
+/*C*/      ReleaseDynamicObject(Z_temporary_4);
+           //RELEASE temporary_1
+/*C*/      ReleaseDynamicObject(Z_temporary_1);
            //RELEASE temporary_2
 /*C*/      ReleaseDynamicObject(Z_temporary_2);
-           //ASSIGN (self AS template_VariableReturnerOfThing)->attribute_VariableReturnerOfThing_thingThatReturns = temporary_1
-/*C*/      ((struct Z_template_VariableReturnerOfThing *)(Z_self))->Z_attribute_VariableReturnerOfThing_thingThatReturns = Z_temporary_1;
-        //FINISH METHOD
-/*C*/   }return NULL;}
-        //START METHOD classmethod_VariableReturnerOfThing_get()
-/*C*/      void* Z_classmethod_VariableReturnerOfThing_get(void* frame) {{
-           //PULL OBJECTS FRAME{STATIC(),DYNAMIC(self)}
-/*C*/      void* Z_self = *(((void* *)(frame+sizeof(void*)*0)));
-           //CREATE OBJECT retval = (self AS template_VariableReturnerOfThing)->attribute_VariableReturnerOfThing_thingThatReturns
-/*C*/      void* Z_retval = ((struct Z_template_VariableReturnerOfThing *)(Z_self))->Z_attribute_VariableReturnerOfThing_thingThatReturns;
-           //RETAIN retval
-/*C*/      RetainDynamicObject(Z_retval);
            //RETURN retval
 /*C*/      return Z_retval;
         //FINISH METHOD
@@ -9955,6 +10030,10 @@ DainaCommandLineApplication : []
 /*C*/   void* Z_classmethod_ControlFlow_selectWithSelectorOrDefault(void* frame, void* Z_local_selector, void* Z_local_default);
         //DECLARE METHOD classmethod_ControlFlow_repeatNTimes(local_numberOfTimesToRepeat, local_lambdaToRepeatReceivingCurrentCount)
 /*C*/   void* Z_classmethod_ControlFlow_repeatNTimes(void* frame, void* Z_local_numberOfTimesToRepeat, void* Z_local_lambdaToRepeatReceivingCurrentCount);
+        //DECLARE METHOD classmethod_ControlFlow_constructRecursively(local_recursiveConstructorOperation)
+/*C*/   void* Z_classmethod_ControlFlow_constructRecursively(void* frame, void* Z_local_recursiveConstructorOperation);
+        //DECLARE METHOD classmethod_ControlFlow_transformRecursively(local_objectToTransform, local_recursiveTransformationOperation)
+/*C*/   void* Z_classmethod_ControlFlow_transformRecursively(void* frame, void* Z_local_objectToTransform, void* Z_local_recursiveTransformationOperation);
         //DECLARE METHOD classmethod_ControlFlow_repeatUntilStopped(local_lambdaToRepeatUntilStopped)
 /*C*/   void* Z_classmethod_ControlFlow_repeatUntilStopped(void* frame, void* Z_local_lambdaToRepeatUntilStopped);
         //START METHOD allocator_ControlFlow()
@@ -10452,6 +10531,116 @@ DainaCommandLineApplication : []
            //EXIT LOCAL SCOPE
            //RELEASE local_wrappedCurrentCount
 /*C*/      ReleaseDynamicObject(Z_local_wrappedCurrentCount);
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_ControlFlow_constructRecursively(local_recursiveConstructorOperation)
+/*C*/      void* Z_classmethod_ControlFlow_constructRecursively(void* frame, void* Z_local_recursiveConstructorOperation) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
+           //CREATE STATIC_OBJECT temporary_2 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_2 = ((void *)(0));
+           //ASSIGN temporary_2 = local_recursiveConstructorOperation
+/*C*/      Z_temporary_2 = Z_local_recursiveConstructorOperation;
+           //RETAIN temporary_2
+/*C*/      RetainDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT temporary_6 WITH METHOD allocator_ControlFlowRecursiveConstructor
+/*C*/      void* Z_temporary_6 = &Z_allocator_ControlFlowRecursiveConstructor;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_6 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(0,0,Z_temporary_6);
+           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //CREATE STATIC_OBJECT temporary_7 WITH METHOD classmethod_ControlFlowRecursiveConstructor_constructorWithRecursiveConstructorOperation
+/*C*/      void* Z_temporary_7 = &Z_classmethod_ControlFlowRecursiveConstructor_constructorWithRecursiveConstructorOperation;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_7 FRAME{STATIC(),DYNAMIC(temporary_4)}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(1,1,Z_temporary_7);
+/*C*/      RetainDynamicObject(Z_temporary_4);
+/*C*/      *(((void* *)(Z_temporary_3+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_4;
+           //RELEASE temporary_4
+/*C*/      ReleaseDynamicObject(Z_temporary_4);
+           //CREATE OBJECT temporary_1 = INVOKE temporary_3(temporary_2)
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda), Z_temporary_2);
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT local_recursiveConstructor WITH EMPTY_VALUE
+/*C*/      void* Z_local_recursiveConstructor = ((void *)(0));
+           //ASSIGN local_recursiveConstructor = temporary_1
+/*C*/      Z_local_recursiveConstructor = Z_temporary_1;
+           //CREATE STATIC_OBJECT temporary_9 WITH METHOD classmethod_ControlFlowRecursiveConstructor_construct
+/*C*/      void* Z_temporary_9 = &Z_classmethod_ControlFlowRecursiveConstructor_construct;
+           //CREATE DYNAMIC_OBJECT temporary_8 WITH METHOD[STATIC_OBJECT] temporary_9 FRAME{STATIC(),DYNAMIC(local_recursiveConstructor)}
+/*C*/      void* Z_temporary_8 = allocateDynamicLambda(1,1,Z_temporary_9);
+/*C*/      RetainDynamicObject(Z_local_recursiveConstructor);
+/*C*/      *(((void* *)(Z_temporary_8+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_recursiveConstructor;
+           //CREATE OBJECT retval = INVOKE temporary_8()
+/*C*/      void* Z_retval = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_8))->method))(Z_temporary_8+sizeof(DynamicLambda));
+           //RELEASE temporary_8
+/*C*/      ReleaseDynamicObject(Z_temporary_8);
+           //RELEASE local_recursiveConstructor
+/*C*/      ReleaseDynamicObject(Z_local_recursiveConstructor);
+           //RETURN retval
+/*C*/      return Z_retval;
+        //FINISH METHOD
+/*C*/   }return NULL;}
+        //START METHOD classmethod_ControlFlow_transformRecursively(local_objectToTransform, local_recursiveTransformationOperation)
+/*C*/      void* Z_classmethod_ControlFlow_transformRecursively(void* frame, void* Z_local_objectToTransform, void* Z_local_recursiveTransformationOperation) {{
+           //PULL OBJECTS FRAME{STATIC(),DYNAMIC()}
+           //CREATE STATIC_OBJECT temporary_2 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_2 = ((void *)(0));
+           //ASSIGN temporary_2 = local_recursiveTransformationOperation
+/*C*/      Z_temporary_2 = Z_local_recursiveTransformationOperation;
+           //RETAIN temporary_2
+/*C*/      RetainDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT temporary_6 WITH METHOD allocator_ControlFlowRecursiveTransformer
+/*C*/      void* Z_temporary_6 = &Z_allocator_ControlFlowRecursiveTransformer;
+           //CREATE DYNAMIC_OBJECT temporary_5 WITH METHOD[STATIC_OBJECT] temporary_6 FRAME{STATIC(),DYNAMIC()}
+/*C*/      void* Z_temporary_5 = allocateDynamicLambda(0,0,Z_temporary_6);
+           //CREATE OBJECT temporary_4 = INVOKE temporary_5()
+/*C*/      void* Z_temporary_4 = ((void*(*)(void*))(((DynamicLambda *)(Z_temporary_5))->method))(Z_temporary_5+sizeof(DynamicLambda));
+           //RELEASE temporary_5
+/*C*/      ReleaseDynamicObject(Z_temporary_5);
+           //CREATE STATIC_OBJECT temporary_7 WITH METHOD classmethod_ControlFlowRecursiveTransformer_transformerWithRecursiveTransformationOperation
+/*C*/      void* Z_temporary_7 = &Z_classmethod_ControlFlowRecursiveTransformer_transformerWithRecursiveTransformationOperation;
+           //CREATE DYNAMIC_OBJECT temporary_3 WITH METHOD[STATIC_OBJECT] temporary_7 FRAME{STATIC(),DYNAMIC(temporary_4)}
+/*C*/      void* Z_temporary_3 = allocateDynamicLambda(1,1,Z_temporary_7);
+/*C*/      RetainDynamicObject(Z_temporary_4);
+/*C*/      *(((void* *)(Z_temporary_3+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_temporary_4;
+           //RELEASE temporary_4
+/*C*/      ReleaseDynamicObject(Z_temporary_4);
+           //CREATE OBJECT temporary_1 = INVOKE temporary_3(temporary_2)
+/*C*/      void* Z_temporary_1 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_3))->method))(Z_temporary_3+sizeof(DynamicLambda), Z_temporary_2);
+           //RELEASE temporary_3
+/*C*/      ReleaseDynamicObject(Z_temporary_3);
+           //RELEASE temporary_2
+/*C*/      ReleaseDynamicObject(Z_temporary_2);
+           //CREATE STATIC_OBJECT local_recursiveTransformer WITH EMPTY_VALUE
+/*C*/      void* Z_local_recursiveTransformer = ((void *)(0));
+           //ASSIGN local_recursiveTransformer = temporary_1
+/*C*/      Z_local_recursiveTransformer = Z_temporary_1;
+           //CREATE STATIC_OBJECT temporary_8 WITH EMPTY_VALUE
+/*C*/      void* Z_temporary_8 = ((void *)(0));
+           //ASSIGN temporary_8 = local_objectToTransform
+/*C*/      Z_temporary_8 = Z_local_objectToTransform;
+           //RETAIN temporary_8
+/*C*/      RetainDynamicObject(Z_temporary_8);
+           //CREATE STATIC_OBJECT temporary_10 WITH METHOD classmethod_ControlFlowRecursiveTransformer_transform
+/*C*/      void* Z_temporary_10 = &Z_classmethod_ControlFlowRecursiveTransformer_transform;
+           //CREATE DYNAMIC_OBJECT temporary_9 WITH METHOD[STATIC_OBJECT] temporary_10 FRAME{STATIC(),DYNAMIC(local_recursiveTransformer)}
+/*C*/      void* Z_temporary_9 = allocateDynamicLambda(1,1,Z_temporary_10);
+/*C*/      RetainDynamicObject(Z_local_recursiveTransformer);
+/*C*/      *(((void* *)(Z_temporary_9+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_recursiveTransformer;
+           //CREATE OBJECT retval = INVOKE temporary_9(temporary_8)
+/*C*/      void* Z_retval = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_9))->method))(Z_temporary_9+sizeof(DynamicLambda), Z_temporary_8);
+           //RELEASE temporary_9
+/*C*/      ReleaseDynamicObject(Z_temporary_9);
+           //RELEASE temporary_8
+/*C*/      ReleaseDynamicObject(Z_temporary_8);
+           //RELEASE local_recursiveTransformer
+/*C*/      ReleaseDynamicObject(Z_local_recursiveTransformer);
+           //RETURN retval
+/*C*/      return Z_retval;
         //FINISH METHOD
 /*C*/   }return NULL;}
         //START METHOD anonymousmethod_78()
