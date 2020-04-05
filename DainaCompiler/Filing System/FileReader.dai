@@ -1,0 +1,13 @@
+
+[FileReader : [Object]] (
+		Object,
+		File
+	) -> (
+			DainaSourceFileTokeniser
+		)
+{
+	~ readerForFile *([File] file) {
+
+	}
+}
+

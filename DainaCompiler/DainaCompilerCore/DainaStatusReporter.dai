@@ -14,7 +14,10 @@
 
 	- reportStatusString *([String] statusString) {
 		\.outputStreamToReportStatusTo:writeString statusString;
-		\.outputStreamToReportStatusTo:writeString (\[String]:newStringFromLiteral "\n")
+		\.outputStreamToReportStatusTo:writeString newline
+			!{
+				[String] newline = (\[String]:newStringFromLiteral "\r\n");
+			};
 	}
 
 

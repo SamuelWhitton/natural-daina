@@ -31,7 +31,7 @@ Data : [Object]
 
 
 
-[Data : [Object]] (Object, Boolean, InternalPointer, Byte)
+[Data : [Object]] (Object, Boolean, InternalPointer, Byte, Sequence, Variable)
 	[InternalPointer] dataBlock
 	[] dataBlockSize
 {
@@ -88,8 +88,21 @@ Data : [Object]
 			injected_DATA_COPY_WITH_SIZE_DATAFROM_AND_DATA_OBJECT(firstDataSize, firstDataPointer, Z_local_newData);
 			injected_DATA_COPY_WITH_SIZE_DATAFROM_DATAOBJECT_AND_OFFSETINDATAOBJECT(secondDataSize, secondDataPointer, Z_local_newData, firstDataSize);
 		##;
-		
 	} -> newData
+
+	++ dataAsSequenceOfBytes *()->[Sequence<[Byte]>]{
+		
+		<instant
+		##
+			size_t size = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_self);
+			char *dataBytes = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_self);
+			size_t i;
+			printf("{");
+			for (i=0;i<size;++i)
+				printf(" %x", 0xff & (dataBytes[i]));
+			printf(" }\n");
+		##;
+	}
 
 	- debugASCIIDumpOfData *{
 		<instant
@@ -142,9 +155,6 @@ Data : [Object]
 
 
 }
-
-
-
 
 
 

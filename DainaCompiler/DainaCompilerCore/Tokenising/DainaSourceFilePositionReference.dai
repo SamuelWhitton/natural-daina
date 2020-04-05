@@ -2,11 +2,12 @@
 [DainaSourceFilePositionReference : [Object]] (
 		Object,
 		String,
-		Natural
+		Natural,
+		DainaSourceFileLineReference
 	)
 {
-	~ dainaSourceFileReferenceWithFilePathAndLineNumberAndLineContentAndLinePosition *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition) {
-		
+	~ dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition *([DainaSourceFileLineReference] lineReference, [Natural] linePosition) {
+		\::newObject;
 	}
 }
 

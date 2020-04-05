@@ -1,0 +1,14 @@
+
+ 
+[DainaSourceFileCharacter : [Object]] (
+		Object,
+		Byte,
+		DainaSourceFilePositionReference
+	)
+{
+	~ newDainaSourceFileCharacterRepresentingASCIICharacterByteInPosition *([Byte] asciiCharacterByte, [DainaSourceFilePositionReference] characterPosition) {
+		\::newObject;
+	}
+}
+
+

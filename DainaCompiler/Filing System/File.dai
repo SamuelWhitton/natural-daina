@@ -1,0 +1,39 @@
+
+[File : [Object]] (
+		Object,
+		InputStream,
+		String,
+		Data,
+		Variable,
+		Maybe
+	)
+	[Data] allDataInFile
+	[String] filePath
+{
+	~ fileWithInputStreamFromFileAndFilePath *([InputStream]inputStreamFromFile,[String]filePath){
+		\::newObject;
+		.filePath = filePath;
+		.allDataInFile = \pullAllDataFromInputStream inputStreamFromFile;
+	}	!{
+			[[InputStream]->[Data]] pullAllDataFromInputStream *([InputStream] inputStreamToPullAllDataFrom){
+				[Variable<[Data]>] currentDataPulledFromInputStream = \[Variable<[Data]>]:as (\[Data]:emptyData);
+				\[ControlFlow]:repeatUntilStopped readDataFromInputStreamUntilItIsAllRead
+					!{
+						[[->]->] readDataFromInputStreamUntilItIsAllRead *([->] stopSinceDataIsAllRead) {
+							[Maybe<[Data]>] maybeDataFromStream = \inputStreamToPullAllDataFrom:maybeReadNextChunkOfData;
+							\maybeDataFromStream:ifNothing stopSinceDataIsAllRead;
+							\maybeDataFromStream:ifJust *([Data] dataFromStream) {
+								[Data] previousDataPulledFromInputStream = \currentDataPulledFromInputStream:get;
+								\currentDataPulledFromInputStream:set (\previousDataPulledFromInputStream:dataByAppendingData dataFromStream);
+							};
+						}
+					};
+			}
+		}
+
+	++ getAllDataInFile *->.allDataInFile
+	++ getFilePathOfFile *->.filePath
+}
+
+
+

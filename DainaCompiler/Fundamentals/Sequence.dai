@@ -59,6 +59,13 @@
 		}
 	} -> (\currentResult:get)
 
+	:: sequenceByMappingTransformationOverSequence *([[&ENUMERATED_OBJECT]->[&A]] transformation, [Sequence<[&ENUMERATED_OBJECT]>] givenSequence) -> [Sequence<[&A]>] {
+		[Variable<[Sequence<[&A]>]>] sequenceToResturn = \[Variable<[Sequence<[&A]>]>]:as (\[Sequence<[&A]>]:emptySequence);
+		\givenSequence:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
+			\sequenceToResturn:set (\[Sequence<[&A]>]:sequenceWithFirstAndRestOfSequenceProvider (\transformation firstInSequence) (\[Sequences<[&ENUMERATED_OBJECT][&A]>]:sequenceByMappingTransformationOverSequence transformation restOfSequence)); 
+		}
+	}
+
 }
 
 

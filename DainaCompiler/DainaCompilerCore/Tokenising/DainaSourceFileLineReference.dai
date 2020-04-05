@@ -1,0 +1,12 @@
+
+[DainaSourceFileLineReference : [Object]] (
+		Object,
+		String,
+		Natural
+	)
+{
+	~ dainaSourceFilePathAndLineNumberAndLineContent *([String] filePath, [Natural] lineNumber, [String] lineContent) {
+		\::newObject;
+	}
+}
+
