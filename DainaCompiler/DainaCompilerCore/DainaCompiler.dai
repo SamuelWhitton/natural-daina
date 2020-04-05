@@ -18,12 +18,14 @@
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
 	[DainaStatusReporter] reporterToReportCompilerStatus
 	[FilingSystem] filingSystemForReadingAndWritingFiles
+	[DainaSourceFileTokeniser] dainaSourceFileTokeniser
 {
 	~ newDainaCompilerReadyToReceiveDainaCommandsWithReporterToReportCompilerStatusAndFilingSystemForReadingAndWritingFiles *([DainaStatusReporter] reporterToReportCompilerStatus, [FilingSystem] filingSystemForReadingAndWritingFiles){
 		\::newDainaCommandReceiver;
 		.syntaxTreeRepresentingParsedProgram = \[DainaSyntaxTree]:newEmptyDainaSyntaxTree;
 		.reporterToReportCompilerStatus = reporterToReportCompilerStatus;
 		.filingSystemForReadingAndWritingFiles = filingSystemForReadingAndWritingFiles;
+		.dainaSourceFileTokeniser = \[DainaSourceFileTokeniser]:newDainaSourceFileTokeniserWithDainaStatusReporter reporterToReportCompilerStatus; 
 		\reporterToReportCompilerStatus:reportStatus (\[GeneralDainaStatus]:DAINA_COMPILER_STARTED);
 	}
 
@@ -37,16 +39,14 @@
 		};
 	}	!{
 			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
-				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokensWithDainaStatusReporter dainaSourceFile (.reporterToReportCompilerStatus);
+				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokens dainaSourceFile;
 				@[]
 				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:newStringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter
-			}	!{
-					[DainaSourceFileTokeniser] dainaSourceFileTokeniser = \[DainaSourceFileTokeniser]:newDainaSourceFileTokeniser;
-				};
+			};
 			[[String]->] reportErrorThatDainaSourceFileCouldNotBeFoundWithPath = *([String]dainaSourceFilePath) {
 				\:reportStatus (\[GeneralDainaStatus]:DAINA_SOURCE_FILE_NOT_FOUND_WITH_PATH dainaSourceFilePath)
-			}
+			};
 		}
 
 	|++ receiveCommandToAnalyseAndSynthesiseSyntaxTree *{

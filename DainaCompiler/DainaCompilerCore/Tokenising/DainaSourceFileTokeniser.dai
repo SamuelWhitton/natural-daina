@@ -4,28 +4,46 @@
 		Sequence,
 		DainaToken,
 		File,
-		DainaStatusReporter,
-		DainaSourceFileReader
+		Data,
+		DainaStatusReporter
 	)
 {
-	~ newDainaSourceFileTokeniser *{
+	~ newDainaSourceFileTokeniserWithDainaStatusReporter *([DainaStatusReporter] dainaStatusReporter){
 		\::newObject;
 	}
 
-	++ tokeniseDainaSourceFileIntoSequenceOfTokensWithDainaStatusReporter *([File] dainaSourceFile, [DainaStatusReporter] dainaStatusReporter) -> [Sequence<[DainaToken]>] {
-		[DainaSourceFileReader] readerForDainaSourceFile = \[DainaSourceFileReader]:readerForDainaSourceFile dainaSourceFile;
+	++ tokeniseDainaSourceFileIntoSequenceOfTokensWithinNamespace *([File] dainaSourceFile, [DainaNamespace] namespace) -> [Sequence<[DainaToken]>] {
+		[Data] dataFromDainaSource = \dainaSourceFile:getAllDataInFile;
+		[Sequence<[Byte]>] byteSequenceFromDainaSource = \dataFromDainaSource:dataAsSequenceOfBytes;
+		[Sequence<[Sequence<[Byte]>]>] sequenceOfLinesInSourceRepresentedByByteSequences = \splitSequenceIntoSubsequencesBetweenNewlines byteSequenceFromDainaSource;
+		[Sequence<[DainaSourceFileCharacter]>] charactersInSource = \transformByteSequencesRepresentingLinesInSourceIntoCharacterSequence sequenceOfLinesInSourceRepresentedByByteSequences;
+	}	!{
+			splitSequenceIntoSubsequencesBetweenNewlines
+			transformByteSequencesRepresentingLinesInSourceIntoCharacterSequence
+					@\[Sequences<[Sequence<[Byte]>][Sequence<[DainaSourceFileCharacter]>]>]:sequenceByMappingTransformationOverSequence transformByteSequenceRepresentingLineInFileIntoCharacterSequence sequenceOfLinesInSourceRepresentedByByteSequences;
+
+		}
+	-> (\:tokeniseDainaSourceFileCharactersIntoSequenceOfTokensWithinNamespace charactersInSource namespace)
+
+	- tokeniseDainaSourceFileCharactersIntoSequenceOfTokensWithinNamespace *([Sequence<[DainaSourceFileCharacter]>] sourceFileCharacters, [DainaNamespace] namespace) -> [Sequence<[DainaToken]>] {
 
 	}
 }
-
+@@
 [DainaSourceFileReader : [Object]] (
 		Object,
-		File
+		File,
+		Sequence,
+		Byte,
+		Variable
 	) -> (
 			DainaSourceFileTokeniser
 		)
+	[Variable<[Sequence<[DainaSourceFileCharacter]>]>] variableUnreadBytesInCurrentDainaSourceFileLine
+	[Variable<[Sequence<[DainaSourceFileCharacter]>]>]
 {
 	~ readerForDainaSourceFile *([File] dainaSourceFile) {
 
 	}
 }
+@@
