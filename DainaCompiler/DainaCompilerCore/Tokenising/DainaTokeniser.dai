@@ -1,0 +1,38 @@
+
+[DainaTokeniser : [Tokeniser<[DainaSourceFileCharacter][DainaToken]>]] (
+		Tokeniser, 
+		Sequence, 
+		TokenisingRule,
+		Or,
+		ParticleSequenceProcessor,
+		DainaToken,
+		DainaNamespace,
+		DainaSourceFileCharacter
+	)
+{
+	~ dainaTokeniserWithDainaStatusReporterAndNamespace *([DainaStatusReporter] dainaStatusReporter, [DainaNamespace] namespace){
+		\::tokeniserWithSequenceOfTokenisingRulesInDecendingOrderOfGreedyness sequenceOfDainaTokenisingRulesInDecendingOrderOfGreedyness;
+	}	!{
+			[Sequence<[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]>] sequenceOfDainaTokenisingRulesInDecendingOrderOfGreedyness = \[Sequences<[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]>] 
+			*([[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]->] provideNextTokenisingRule) {
+				
+			}
+		}
+
+	++ tokeniseDainaSourceFileCharactersIntoSequenceOfTokens *([Sequence<[DainaSourceFileCharacter]>] sourceFileCharacters) -> [Sequence<[DainaToken]>] {
+
+	}
+
+	++ tokeniseParticlesIntoTokensAndRemainingUntokenisedParticles *([Sequence<[&PARTICLE]>] givenParticleSequence) -> [Sequence<[Or<[&TOKEN][&PARTICLE]>]>] { 
+		[ParticleSequenceProcessor<[&PARTICLE][&TOKEN]>] processorForGivenParticleSequence = \[ParticleSequenceProcessor<[&PARTICLE][&TOKEN]>]:newProcessorOfParticleSequenceWithTokenisingRulesInDecendingOrderOfGreedyness givenParticleSequence (.sequenceOfTokenisingRulesInDecendingOrderOfGreedyness);
+		[Sequence<[Or<[&TOKEN][&PARTICLE]>]>] tokensAndRemainingUntokenisedParticles = \[ControlFlow<[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]>]:constructRecursively *([->[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]] constructRestOfTokenOrUnprocessedParticleSequence) {
+			[Sequence<[Or<[&TOKEN][&PARTICLE]>]>] tokensAndRemainingUntokenisedParticles = \[ControlFlow<[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]>]:selectWithSelectorOrDefault *([[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]->] selectTokensAndRemainingUntokenisedParticles) {
+				[Maybe<[Or<[&TOKEN][&PARTICLE]>]>] maybeNextTokenOrUnprocessedParticle = \processorForGivenParticleSequence:processextTokenOrReturnNextUnprocessedParticle;
+				\maybeNextTokenOrUnprocessedParticle:ifJust *([Or<[&TOKEN][&PARTICLE]>] nextTokenOrUnprocessedParticle) {
+					\selectTokensAndRemainingUntokenisedParticles (\[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]:sequenceWithFirstAndRestOfSequenceProvider (\nextTokenOrUnprocessedParticle) constructRestOfTokenOrUnprocessedParticleSequence);
+				}
+			} (*->\[Sequence<[Or<[&TOKEN][&PARTICLE]>]>]:emptySequence)
+		}
+	} -> tokensAndRemainingUntokenisedParticles
+}
+

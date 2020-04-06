@@ -29,7 +29,7 @@
 
 	++ parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider *([DainaCommandLineCommandReceiver] dainaCommandReceiver, [->[String]] commandStringSegmentProvider) {
 		[String] nextCommandString = \commandStringSegmentProvider;
-		[Boolean] nextCommandStringIsEmpty = \nextCommandString:isEqualTo (\[String]:newStringFromLiteral "");
+		[Boolean] nextCommandStringIsEmpty = \nextCommandString:isEqualTo (\[String]:stringFromLiteral "");
 		\nextCommandStringIsEmpty:ifFalse *{
 			[Maybe<[DainaCommandLineParsingAction]>] maybeParsingActionForCommandString = \.validDainaCommandsToParse:maybeParsingActionForCommandStringIfValidDainaCommand nextCommandString;
 			[DainaCommandLineParsingAction] parsingActionForCommandString = \[ControlFlow<[DainaCommandLineParsingAction]>]:selectWithSelectorOrDefault maybeParsingActionForCommandString:ifJust ([DainaCommandLineParsingAction]:parseInvalidCommand);
@@ -68,7 +68,7 @@
 {
 	~ emptyListOfValidDainaCommandsToParse *{
 		\::newObject;
-		.usageDescriptionOfAllValidCommands =\[Variable<[String]>]:as (\[String]:newStringFromLiteral "valid Daina commands are:");
+		.usageDescriptionOfAllValidCommands =\[Variable<[String]>]:as (\[String]:stringFromLiteral "valid Daina commands are:");
 		.mappingOfValidCommandStringToParsingAction = \[Mapping<[String][DainaCommandLineParsingAction]>]:newEmptyMapping;
 	}
 
@@ -82,8 +82,8 @@
 		\.usageDescriptionOfAllValidCommands:set (\currentDescriptionOfAllValidCommands:stringByAppendingString (\newLineAndTab:stringByAppendingString usageDescriptionOfCommand));
 	}	!{
 			[String] currentDescriptionOfAllValidCommands = \.usageDescriptionOfAllValidCommands:get; 
-			[String] newLineAndTab = \[String]:newStringFromLiteral "\n\t";
-			[String] colonAndSpace = \[String]:newStringFromLiteral ": ";
+			[String] newLineAndTab = \[String]:stringFromLiteral "\n\t";
+			[String] colonAndSpace = \[String]:stringFromLiteral ": ";
 			[String] usageDescriptionOfCommand = \commandString:stringByAppendingString (\colonAndSpace:stringByAppendingString descriptionOfCommand);
 		}
 }

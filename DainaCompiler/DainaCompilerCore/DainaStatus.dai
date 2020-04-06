@@ -2,11 +2,11 @@
 
 [DainaStatusClassification : [String]] (String) -> (GeneralDainaStatus, DainaStatus, InformationStatus)
 {
-	~ INFORMATION *{\::newStringFromLiteral ("Information");}
-	~ GENERAL *{\::newStringFromLiteral ("Daina");}
-	@~ PARSING_ERROR *{\::newStringFromLiteral ("Parsing Error");}
-	~ SYNTAX_ERROR *{\::newStringFromLiteral ("Syntax Error");}
-	~ COMPILATION_ERROR *{\::newStringFromLiteral ("Compilation Error");}
+	~ INFORMATION *{\::stringFromLiteral ("Information");}
+	~ GENERAL *{\::stringFromLiteral ("Daina");}
+	@~ PARSING_ERROR *{\::stringFromLiteral ("Parsing Error");}
+	~ SYNTAX_ERROR *{\::stringFromLiteral ("Syntax Error");}
+	~ COMPILATION_ERROR *{\::stringFromLiteral ("Compilation Error");}
 }
 
 [DainaStatus : [Object]] (DainaStatusClassification, String, Object) 
@@ -18,7 +18,7 @@
 	}	!{
 			[String] statusWithClassificationAndStatusDescription = (\statusClassification:stringByAppendingString (\classificationAndStatusStringSeperator:stringByAppendingString statusDescription)) 
 				!{
-					[String] classificationAndStatusStringSeperator = \[String]:newStringFromLiteral " - ";
+					[String] classificationAndStatusStringSeperator = \[String]:stringFromLiteral " - ";
 				}
 		}
 
@@ -29,14 +29,14 @@
 {
 	:: DAINA_COMPILER_STARTED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
-			(\[String]:newStringFromLiteral "Daina compiler started..."))
+			(\[String]:stringFromLiteral "Daina compiler started..."))
 
 	:: INVALID_DAINA_COMMAND_RECEIVED *->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
-			(\[String]:newStringFromLiteral "command was invalid"))
+			(\[String]:stringFromLiteral "command was invalid"))
 
 	:: DAINA_SOURCE_FILE_NOT_FOUND_WITH_PATH *([String] sourceFilePath)->[DainaStatus]{
-			[String] sourceFileNotFoundWithPathMessage = (\[String]:newStringFromLiteral "daina source file not found at path: ")
+			[String] sourceFileNotFoundWithPathMessage = (\[String]:stringFromLiteral "daina source file not found at path: ")
 		}->
 		(\[DainaStatus]:statusWithClassificationAndDescription (\[DainaStatusClassification]:GENERAL)
 			(\sourceFileNotFoundWithPathMessage:stringByAppendingString sourceFilePath))

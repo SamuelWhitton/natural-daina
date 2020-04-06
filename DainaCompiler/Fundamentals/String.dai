@@ -34,7 +34,7 @@ String : [SetObject<[String]>]
 		##;
 	}
 
-	~ newStringFromLiteral *([%STRING] literalString) {
+	~ stringFromLiteral *([%STRING] literalString) {
 		\::newSetObject;
 		.internalString = \[Data]:emptyData;
 		<instant

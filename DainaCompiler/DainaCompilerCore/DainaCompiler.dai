@@ -41,7 +41,7 @@
 			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
 				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokens dainaSourceFile;
 				@[]
-				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:newStringFromLiteral "Test parse"))
+				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:stringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter
 			};
 			[[String]->] reportErrorThatDainaSourceFileCouldNotBeFoundWithPath = *([String]dainaSourceFilePath) {
