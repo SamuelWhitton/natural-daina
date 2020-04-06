@@ -1,9 +1,65 @@
 
  
 [DainaToken : [Object]] (
-		Object
+		Object,
+		DainaTokenClassificationReader,
+		DainaSourceFilePositionReference
 	)
+	[[DainaTokenClassificationReader]->] provideDainaTokenClassificationForReader
+	[DainaSourceFilePositionReference] positionOfTokenInOriginalSourceFile
 {
+	++ classifyToken
 
+	++ getPositionOfTokenInOriginalSourceFile = *->.TokenInOriginalSourceFile
 }
+
+[DainaTokenClassificationReader] 
+{
+	++ 
+}
+
+[DainaTokens] (
+		DainaToken, 
+		DainaTokenClassificationReader
+	) 
+{
+	:: UNKNOWN_TOKEN *->\[DainaToken]
+}
+
+
+
++
+-
+::
+:
+%
+$
+&
+\
+!
+qwe_qwe22qweqw
+*
+^
+[
+]
+(
+)
+## ##
+@ qweqweqwe
+@@ asdasdasd @@
+.
+<
+>
+->
+{
+}
+;
+,
+~
+|
+-~
+
+
+
+
 
