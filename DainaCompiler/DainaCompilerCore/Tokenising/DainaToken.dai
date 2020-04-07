@@ -1,33 +1,42 @@
 
  
 [DainaToken : [Object]] (
-		Object,
-		DainaTokenClassificationReader,
-		DainaSourceFilePositionReference
+		@@@@@@Object,
+		DainaSourceFilePositionReference,
+		DainaTokenObserver@@@@@@
 	)
-	[[DainaTokenClassificationReader]->] provideDainaTokenClassificationForReader
-	[DainaSourceFilePositionReference] positionOfTokenInOriginalSourceFile
+	[[DainaTokenObserver]->] provideDainaTokenObservationToObserver
+	[DainaSourceFilePositionReference] positionOfTokenInSourceFile
 {
-	++ classifyToken
+	~ dainaTokenWithSourceFilePositionAndTokenObservationProvider *([DainaSourceFilePositionReference] positionOfTokenInSourceFile, [[DainaTokenObserver]->] tokenObservationProvider) {
+		\::newObject;
+		.positionOfTokenInSourceFile = positionOfTokenInSourceFile;
+		.provideDainaTokenObservationToObserver = tokenObservationProvider
+	}
 
-	++ getPositionOfTokenInOriginalSourceFile = *->.TokenInOriginalSourceFile
+	++ observeTokenWithObserver *([DainaTokenObserver] observer) {
+		\.provideDainaTokenObservationToObserver observer;
+	}
+
+	++ getPositionOfTokenInOriginalSourceFile *->.positionOfTokenInSourceFile
 }
 
-[DainaTokenClassificationReader] 
+[DainaTokenObserver] 
 {
-	++ 
+	++ observeUnknownToken *{}
 }
 
 [DainaTokens] (
 		DainaToken, 
-		DainaTokenClassificationReader
+		DainaTokenObserver
 	) 
 {
-	:: UNKNOWN_TOKEN *->\[DainaToken]
+	:: UNKNOWN_TOKEN_AT_POSITION *([DainaSourceFilePositionReference] position)->[DainaToken] {} -> (\[DainaToken]:dainaTokenWithSourceFilePositionAndTokenObservationProvider position (*([DainaTokenObserver] observer){
+		\observer:observeUnknownToken}))
 }
 
 
-
+@@
 +
 -
 ::
@@ -45,8 +54,6 @@ qwe_qwe22qweqw
 (
 )
 ## ##
-@ qweqweqwe
-@@ asdasdasd @@
 .
 <
 >
@@ -58,7 +65,9 @@ qwe_qwe22qweqw
 ~
 |
 -~
-
+@@
+@ qweqweqwe
+@@ asdasdasd @@
 
 
 

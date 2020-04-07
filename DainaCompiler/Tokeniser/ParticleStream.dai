@@ -1,6 +1,6 @@
 
 
-[ParticleStream<PARTICLE [Object]> : [Object]] (Object, Variable, Maybe)
+[ParticleStream<PARTICLE [Object]> : [Object]] (@@@@@@Object, Variable, Maybe@@@@@@)
 	[->[Maybe<[&PARTICLE]>]] particleProviderForStream
 	[Variable<[Maybe<[&PARTICLE]>]>] maybeCurrentNextAvaliableParticle
 	[Variable<[Maybe<[&PARTICLE]>]>] maybeCurrentNextOverAvaliableParticle

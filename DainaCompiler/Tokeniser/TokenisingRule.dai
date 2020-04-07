@@ -1,5 +1,5 @@
 
-[TokenisingRule<PARTICLE [Object], TOKEN [Object]> : [Object]] (Object, ParticleStream, TokeniserDecision)
+[TokenisingRule<PARTICLE [Object], TOKEN [Object]> : [Object]] (@@@@@@Object, ParticleStream, TokeniserDecision@@@@@@)
 	[[ParticleStream<[&PARTICLE]>]->[TokeniserDecision<[&TOKEN]>]] tokeniserDecisionFromParticleStream
 {
 	~ newTokeniserRuleWithTokeniserDecisionFromParticleStream *([[ParticleStream<[&PARTICLE]>]->[TokeniserDecision<[&TOKEN]>]] tokeniserDecisionFromParticleStream) {

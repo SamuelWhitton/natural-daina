@@ -1,6 +1,6 @@
 
 
-[Sequence<ENUMERATED_OBJECT [Object]>] (Object, Boolean, LambdaAToB, Variable)
+[Sequence<ENUMERATED_OBJECT [Object]>] (@@@@@@Object, Boolean, LambdaAToB, Variable@@@@@@)
 	[[->][[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->]->] ifEmptySequence_and_ifFirstAndRestOfSequence
 {	
 	~ emptySequence *{
@@ -26,7 +26,7 @@
 	}
 }
 
-[Sequences<ENUMERATED_OBJECT [Object], A [Object]>] (Object, Variable, Sequence, ControlFlow)
+[Sequences<ENUMERATED_OBJECT [Object], A [Object]>] (@@@@@@Object, Variable, Sequence, ControlFlow@@@@@@)
 {
 	:: iterateThroughSequenceWithReceiver *([Sequence<[&ENUMERATED_OBJECT]>] sequence, [[&ENUMERATED_OBJECT]->] receiveElement) {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] variableUniteratedSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as sequence;
@@ -43,7 +43,7 @@
 			}
 	}	
 
-	:: sequenceByAppendingSequenceToSequence *([Sequence<[&ENUMERATED_OBJECT]>] firstSequence, [Sequence<[&ENUMERATED_OBJECT]>] secondSequence) {
+	:: sequenceByAppendingSequenceToSequence *([Sequence<[&ENUMERATED_OBJECT]>] firstSequence, [Sequence<[&ENUMERATED_OBJECT]>] secondSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceToResturn = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as secondSequence;
 		\firstSequence:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
 			\sequenceToResturn:set (\[Sequence<[&ENUMERATED_OBJECT]>]:sequenceWithFirstAndRestOfSequenceProvider firstInSequence (\[Sequences<[&ENUMERATED_OBJECT]>]:sequenceByAppendingSequenceToSequence restOfSequence secondSequence));
@@ -101,7 +101,7 @@
 				};
 			}
 		} (*->\[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>]:emptySequence);
-	}
+	} -> splittedSequenceOfSequences
 
 	:: sequenceWithIterator *([[[&ENUMERATED_OBJECT]->]->] iterateElementsInSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>] variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>]:as (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as (*([Sequence<[&ENUMERATED_OBJECT]>]a)->a));

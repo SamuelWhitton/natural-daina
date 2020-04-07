@@ -1,10 +1,10 @@
 
 [Tokeniser<PARTICLE [Object], TOKEN [Object]> : [Object]] (
-		Object, 
+		@@@@@@Object, 
 		Sequence, 
 		TokenisingRule,
 		Or,
-		ParticleSequenceProcessor
+		ParticleSequenceProcessor@@@@@@
 	)
 		[Sequence<[TokenisingRule<[&PARTICLE][&TOKEN]>]>] sequenceOfTokenisingRulesInDecendingOrderOfGreedyness
 {
@@ -27,12 +27,12 @@
 }
 
 [ParticleSequenceProcessor<PARTICLE [Object], TOKEN [Object]> : [Object]] (
-		Object,
+		@@@@@@Object,
 		Sequence,
 		TokenisingRule,
 		ParticleStream,
 		MonitoredParticleStream,
-		Boolean
+		Boolean@@@@@@
 	) -> (
 			Tokeniser
 		)
@@ -88,10 +88,10 @@
 }
 
 [MonitoredParticleStream<PARTICLE [Object]> : [ParticleStream<[&PARTICLE]>]] (
-		Boolean,
+		@@@@@@Boolean,
 		ParticleStream,
 		Sequence,
-		Variable
+		Variable@@@@@@
 	) -> (
 		ParticleSequenceProcessor
 	)

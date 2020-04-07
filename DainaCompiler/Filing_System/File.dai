@@ -15,11 +15,11 @@
 		.filePath = filePath;
 		.allDataInFile = \pullAllDataFromInputStream inputStreamFromFile;
 	}	!{
-			[[InputStream]->[Data]] pullAllDataFromInputStream *([InputStream] inputStreamToPullAllDataFrom){
+			[[InputStream]->[Data]] pullAllDataFromInputStream = *([InputStream] inputStreamToPullAllDataFrom){
 				[Variable<[Data]>] currentDataPulledFromInputStream = \[Variable<[Data]>]:as (\[Data]:emptyData);
 				\[ControlFlow]:repeatUntilStopped readDataFromInputStreamUntilItIsAllRead
 					!{
-						[[->]->] readDataFromInputStreamUntilItIsAllRead *([->] stopSinceDataIsAllRead) {
+						[[->]->] readDataFromInputStreamUntilItIsAllRead = *([->] stopSinceDataIsAllRead) {
 							[Maybe<[Data]>] maybeDataFromStream = \inputStreamToPullAllDataFrom:maybeReadNextChunkOfData;
 							\maybeDataFromStream:ifNothing stopSinceDataIsAllRead;
 							\maybeDataFromStream:ifJust *([Data] dataFromStream) {

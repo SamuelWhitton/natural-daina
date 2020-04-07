@@ -41,7 +41,7 @@ Data : [Object]
 		.dataBlockSize = ();
 	}
 
-	:: dataFromSequenceOfBytes *([Sequence<[Byte]>] sequenceOfBytes) {
+	:: dataFromSequenceOfBytes *([Sequence<[Byte]>] sequenceOfBytes) -> [Data] {
 	} -> (\[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideByte) {
 			\[Sequences<[Byte]>]:iterateThroughSequenceWithReceiver sequenceOfBytes provideByte;
 		})

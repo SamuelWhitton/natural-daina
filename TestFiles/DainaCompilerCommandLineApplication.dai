@@ -1,12 +1,12 @@
 
 
 [] (
-		DainaCompiler, 
+		@@@@@@DainaCompiler, 
 		DainaCommandInterface, 
 		ControlFlow, 
 		DainaStatusReporter, 
 		FilingSystem, 
-		SystemInputOutput
+		SystemInputOutput@@@@@@
 	) 
 {
 	^ *{

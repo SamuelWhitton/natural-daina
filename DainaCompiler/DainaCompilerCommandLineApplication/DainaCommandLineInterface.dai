@@ -1,6 +1,6 @@
 
 [DainaCommandLineInterface : [Object]] (
-		Object, 
+		@@@@@@Object, 
 		DainaStatusReporter, 
 		InputStream, 
 		OutputStream, 
@@ -15,7 +15,7 @@
 		DainaCommandLineCommandReceiver,
 		GeneralDainaStatus, 
 		InformationStatus,
-		Maybe
+		Maybe@@@@@@
 	)
 	[InputStream] commandInputStream
 	[DainaStatusReporter] dainaStatusReporter
@@ -68,12 +68,12 @@
 
 
 [DainaCommandLineCommandResponder : [DainaCommandLineCommandReceiver]] (
-		DainaCommandLineCommandReceiver,
+		@@@@@@DainaCommandLineCommandReceiver,
 		String, 
 		GeneralDainaStatus, 
 		DainaCommandReceiver,
 		DainaStatus, 
-		DainaNamespaceReference
+		DainaNamespaceReference@@@@@@
 	) -> (
 			DainaCommandLineInterface
 		)
