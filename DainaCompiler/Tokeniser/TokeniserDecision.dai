@@ -1,5 +1,5 @@
 
-[TokeniserDecision<TOKEN [Object]> : [Object]] (@@@@@@Object, Maybe@@@@@@)
+[TokeniserDecision<TOKEN [Object]> : [Object]] (Object, Maybe)
 	[Maybe<[&TOKEN]>] maybeTokenProduced
 {
 	~ dontProduceAnyToken *{

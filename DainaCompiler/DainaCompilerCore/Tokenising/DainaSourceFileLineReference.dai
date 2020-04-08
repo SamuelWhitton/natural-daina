@@ -1,8 +1,8 @@
 
 [DainaSourceFileLineReference : [Object]] (
-		@@@@@@Object,
+		Object,
 		String,
-		Natural@@@@@@
+		Natural
 	)
 {
 	~ dainaSourceFilePathAndLineNumberAndLineContent *([String] filePath, [Natural] lineNumber, [String] lineContent) {

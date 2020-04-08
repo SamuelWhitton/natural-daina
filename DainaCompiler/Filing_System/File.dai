@@ -5,6 +5,7 @@
 		String,
 		Data,
 		Variable,
+		ControlFlow,
 		Maybe
 	)
 	[Data] allDataInFile
@@ -15,7 +16,7 @@
 		.filePath = filePath;
 		.allDataInFile = \pullAllDataFromInputStream inputStreamFromFile;
 	}	!{
-			[[InputStream]->[Data]] pullAllDataFromInputStream = *([InputStream] inputStreamToPullAllDataFrom){
+			[[InputStream]->[Data]] pullAllDataFromInputStream = *([InputStream] inputStreamToPullAllDataFrom)->[Data]{
 				[Variable<[Data]>] currentDataPulledFromInputStream = \[Variable<[Data]>]:as (\[Data]:emptyData);
 				\[ControlFlow]:repeatUntilStopped readDataFromInputStreamUntilItIsAllRead
 					!{
@@ -28,7 +29,7 @@
 							};
 						}
 					};
-			}
+			} -> \currentDataPulledFromInputStream:get
 		}
 
 	++ getAllDataInFile *->.allDataInFile

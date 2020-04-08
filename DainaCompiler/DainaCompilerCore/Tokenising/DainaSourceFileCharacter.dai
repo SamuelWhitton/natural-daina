@@ -1,15 +1,15 @@
 
  
 [DainaSourceFileCharacter : [Object]] (
-		@@@@@@Object,
+		Object,
 		Byte,
-		DainaSourceFilePositionReference@@@@@@
+		DainaSourceFilePositionReference
 	)
 	[DainaSourceFilePositionReference] positionInSourceFile
 {
 	~ newDainaSourceFileCharacterRepresentingASCIICharacterByteInPosition *([Byte] asciiCharacterByte, [DainaSourceFilePositionReference] characterPosition) {
 		\::newObject;
-		.characterPosition = positionInSourceFile;
+		.positionInSourceFile = characterPosition;
 	}
 
 	++ positionInSourceFile *->.positionInSourceFile

@@ -8,5 +8,5 @@
 		.lambdaRepresented = lambdaRepresented
 	}
 
-	~ do *([&A] input) ->(\.lambdaRepresented input)
+	++ do *([&A] input) ->(\.lambdaRepresented input)
 }

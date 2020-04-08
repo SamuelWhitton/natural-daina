@@ -1,6 +1,6 @@
 
 [DainaCommandLineCommandParser : [Object]] (
-		@@@@@@String, 
+		String, 
 		Object, 
 		DainaCommandLineCommandReceiver, 
 		DainaCommandStrings, 
@@ -9,7 +9,7 @@
 		ValidDainaCommandsToParse, 
 		DainaCommandDescriptionStrings,
 		ControlFlow,
-		Boolean@@@@@@
+		Boolean
 	)
 	[ValidDainaCommandsToParse] validDainaCommandsToParse
 {
@@ -51,7 +51,7 @@
 	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString "compileinto c")
 } 
 
-[DainaCommandDescriptionStrings] (String) -> (@@@@@@DainaCommandLineCommandParser@@@@@@)
+[DainaCommandDescriptionStrings] (String) -> (DainaCommandLineCommandParser)
 {
 	:: EXIT_COMMAND *->(\[String]:newString "daina compiler will exit")
 	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE *->(\[String]:newString "next file path input will be parsed as a Daina source file and integrated into the current syntax tree in the exposed namespace and any errors will be provided")
@@ -62,7 +62,7 @@
 	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString "next input is where the C source will be constructed from the current syntax tree and any errors will be provided")
 } 
 
-[ValidDainaCommandsToParse : [Object]] (@@@@@@DainaCommandLineParsingAction, Object, Variable, String, Mapping, Maybe) -> (DainaCommandLineCommandParser@@@@@@)
+[ValidDainaCommandsToParse : [Object]] (DainaCommandLineParsingAction, Object, Variable, String, Mapping, Maybe) -> (DainaCommandLineCommandParser)
 	[Mapping<[String][DainaCommandLineParsingAction]>] mappingOfValidCommandStringToParsingAction
 	[Variable<[String]>] usageDescriptionOfAllValidCommands
 {
@@ -88,7 +88,7 @@
 		}
 }
 
-[DainaCommandLineParsingAction : [Object]] (@@@@@@Object, String, DainaCommandLineCommandReceiver, DainaNamespaceReference@@@@@@) -> (DainaCommandLineCommandParser, ValidDainaCommandsToParse)
+[DainaCommandLineParsingAction : [Object]] (Object, String, DainaCommandLineCommandReceiver, DainaNamespaceReference) -> (DainaCommandLineCommandParser, ValidDainaCommandsToParse)
 	[[->[String]][DainaCommandLineCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 {
 	~ newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver *([[->[String]][DainaCommandLineCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver) {

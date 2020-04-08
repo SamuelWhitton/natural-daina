@@ -1,6 +1,6 @@
 
 [DainaCompiler : [DainaCommandReceiver]] (
-		@@@@@@Object, 
+		Object, 
 		GeneralDainaStatus, 
 		DainaSyntaxTree, 
 		DainaCommandReceiver, 
@@ -13,7 +13,8 @@
 		Maybe,
 		Sequence,
 		DainaToken,
-		DainaStatusReporter@@@@@@ @@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
+		DainaSourceFileTokeniser,
+		DainaStatusReporter @@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
 	[DainaStatusReporter] reporterToReportCompilerStatus

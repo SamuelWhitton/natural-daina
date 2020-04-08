@@ -7,14 +7,14 @@
 
 
 [DainaCommandLineApplication] (
-		@@@@@@DainaCompiler, 
+		DainaCompiler, 
 		DainaCommandLineInterface, 
 		DainaCommandLineCommandReceiver,
 		ControlFlow, 
 		DainaStatusReporter, 
 		FilingSystem, 
 		SystemInputOutput,
-		DainaExitCommandListener@@@@@@
+		DainaExitCommandListener
 	) 
 {
 	:: runApplication *{
@@ -34,8 +34,8 @@
 }
 
 [DainaExitCommandListener : [DainaCommandLineCommandReceiver]] (
-		@@@@@@DainaCommandLineCommandReceiver,
-		DainaCommandReceiver@@@@@@
+		DainaCommandLineCommandReceiver,
+		DainaCommandReceiver
 	) -> (
 			DainaCommandLineApplication
 		)

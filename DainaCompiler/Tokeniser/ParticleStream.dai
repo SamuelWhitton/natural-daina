@@ -1,6 +1,6 @@
 
 
-[ParticleStream<PARTICLE [Object]> : [Object]] (@@@@@@Object, Variable, Maybe@@@@@@)
+[ParticleStream<PARTICLE [Object]> : [Object]] (Object, Variable, Maybe)
 	[->[Maybe<[&PARTICLE]>]] particleProviderForStream
 	[Variable<[Maybe<[&PARTICLE]>]>] maybeCurrentNextAvaliableParticle
 	[Variable<[Maybe<[&PARTICLE]>]>] maybeCurrentNextOverAvaliableParticle
@@ -14,7 +14,7 @@
 
 	++ maybeTakeNextAvaliableParticle *()->[Maybe<[&PARTICLE]>] {
 		[Maybe<[&PARTICLE]>] maybeNextParticle = \.maybeCurrentNextAvaliableParticle:get;
-		\moveToNextParticle;
+		\:moveToNextParticle;
 	} -> maybeNextParticle
 
 	++ maybePeekAtNextAvaliableParticle *()->[Maybe<[&PARTICLE]>] {	
@@ -25,7 +25,7 @@
 
 	- moveToNextParticle *{
 		\.maybeCurrentNextAvaliableParticle:set (\.maybeCurrentNextOverAvaliableParticle:get);
-		\.maybeCurrentNextOverAvaliableParticle:set (\particleProviderForStream);
+		\.maybeCurrentNextOverAvaliableParticle:set (\.particleProviderForStream);
 	}
 }
 

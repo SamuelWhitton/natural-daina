@@ -9,7 +9,20 @@ Data : [Object]
 	
 @@
 
+[InternalValue] -> (Data)
+	[] value
+{
 
+	~ valueAs *([] value){
+		.value = value;
+	}
+
+	++ setValue *([] value){
+		.value = value;
+	}
+
+	++ getValue *->.value
+}
 
 
 [InternalPointer] -> (Data)
@@ -30,8 +43,24 @@ Data : [Object]
 }
 
 
+[Sequences2<ENUMERATED_OBJECT [Object], A [Object]>] (Variable, Sequence, Object, ControlFlow2) {
+	:: iterateThroughSequenceWithReceiver *([Sequence<[&ENUMERATED_OBJECT]>] sequence, [[&ENUMERATED_OBJECT]->] receiveElement) {
+		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] variableUniteratedSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as sequence;
+		\[ControlFlow2]:repeatUntilStopped sendEachElementToReceiverUntilEndOfSequence
+			!{
+				[[->]->] sendEachElementToReceiverUntilEndOfSequence = *([->] stopSinceEndOfSequenceWasReached) {
+					[Sequence<[&ENUMERATED_OBJECT]>] currentUniteratedSequence = \variableUniteratedSequence:get;
+					\currentUniteratedSequence:ifEmptySequence stopSinceEndOfSequenceWasReached;
+					\currentUniteratedSequence:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
+						\receiveElement firstInSequence;
+						\variableUniteratedSequence:set restOfSequence;
+					}
+				}
+			}
+	}	
+}
 
-[Data : [Object]] (Object, Boolean, InternalPointer, Byte, Sequence, Variable, ControlFlow)
+[Data : [Object]] (Object, Boolean, InternalPointer, Byte, Sequence, Sequences2, Variable, ControlFlow2, InternalValue)
 	[InternalPointer] dataBlock
 	[] dataBlockSize
 {
@@ -43,8 +72,10 @@ Data : [Object]
 
 	:: dataFromSequenceOfBytes *([Sequence<[Byte]>] sequenceOfBytes) -> [Data] {
 	} -> (\[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideByte) {
-			\[Sequences<[Byte]>]:iterateThroughSequenceWithReceiver sequenceOfBytes provideByte;
+			\[Sequences2<[Byte]>]:iterateThroughSequenceWithReceiver sequenceOfBytes provideByte;
 		})
+
+
 
 	:: dataFromBytesWithByteProvider *([[[Byte]->]->] byteProvider) -> [Data] {
 		[Data] newData = \[Data]:emptyData;
@@ -98,8 +129,10 @@ Data : [Object]
 
 	++ dataAsSequenceOfBytes *()->[Sequence<[Byte]>]{
 		[Data] __selfData = \:dataByAppendingData (\[Data]:emptyData);
-		[Sequence<[Byte]>] dataAsSequenceOfBytes = \[ControlFlow<[Sequence<[Byte]>]>]:transformRecursively _initialCountPointer *([] _currentDataPointer, [[]->[Sequence<[Byte]>]] recursivelyConstructRestOfDataAsSequenceOfBytesFromNextDataPointer) -> [Sequence<[Byte]>] {
+		[InternalValue] currentCount = \[InternalValue]:valueAs _initialCountPointer;
+		[Sequence<[Byte]>] dataAsSequenceOfBytes = \[ControlFlow2<[Sequence<[Byte]>]>]:constructRecursively *([->[Sequence<[Byte]>]] recursivelyConstructRestOfDataAsSequenceOfBytes) -> [Sequence<[Byte]>] {
 			[Data] selfData = __selfData;
+			[] _currentDataPointer = \currentCount:getValue;
 			[Variable<[Sequence<[Byte]>]>] sequenceOfBytesToReturn = \[Variable<[Sequence<[Byte]>]>]:as (\[Sequence<[Byte]>]:emptySequence);
 			[Byte] nextByteInSequence = \[Byte]:newByte (0b00);
 		<instant
@@ -111,14 +144,15 @@ Data : [Object]
 				((struct Z_template_Byte *)(Z_local_nextByteInSequence))->Z_attribute_Byte_internalByte = dataBytes[(size_t)Z_local__currentDataPointer];
 				(size_t)Z_local__currentDataPointer = (size_t)Z_local__currentDataPointer + 1;
 			##;
-			\sequenceOfBytesToReturn:set (\[Sequence<[Byte]>]:sequenceWithFirstAndRestOfSequenceProvider nextByteInSequence (*->(\recursivelyConstructRestOfDataAsSequenceOfBytesFromNextDataPointer _currentDataPointer)));
+			\currentCount:setValue _currentDataPointer;
+			\sequenceOfBytesToReturn:set (\[Sequence<[Byte]>]:sequenceWithFirstAndRestOfSequenceProvider nextByteInSequence (*->(\recursivelyConstructRestOfDataAsSequenceOfBytes)));
 			<instant
 		##
 			}
 		##;
-		} -> sequenceOfBytesToReturn;
+		} -> \sequenceOfBytesToReturn:get;
 	}	!{
-			[] _initialDataPointer = ();
+			[] _initialCountPointer = ();
 		}
 	-> dataAsSequenceOfBytes
 

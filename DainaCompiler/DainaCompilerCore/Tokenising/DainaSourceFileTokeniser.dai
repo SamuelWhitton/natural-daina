@@ -1,6 +1,6 @@
 
 [DainaSourceFileTokeniser : [Object]] (
-		@@@@@@Object,
+		Object,
 		Sequence,
 		DainaToken,
 		File,
@@ -12,7 +12,7 @@
 		DainaSourceFileLineReference,
 		DainaSourceFilePositionReference,
 		DainaTokeniser,
-		DainaNamespace@@@@@@
+		DainaNamespace
 	)
 	[DainaStatusReporter] dainaStatusReporter
 {

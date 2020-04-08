@@ -1,5 +1,5 @@
 
-[DainaCommandLineCommandReceiver : [DainaCommandReceiver]] (@@@@@@DainaCommandReceiver, String, DainaNamespaceReference@@@@@@)
+[DainaCommandLineCommandReceiver : [DainaCommandReceiver]] (DainaCommandReceiver, String, DainaNamespaceReference)
 	[DainaCommandReceiver] dainaCommandReceiverToSendDainaCommandsTo
 {
 	~ newDainaCommandLineCommandReceiverWithDainaCommandReceiverToReceiveDainaCommands *([DainaCommandReceiver] dainaCommandReceiverToSendDainaCommandsTo){

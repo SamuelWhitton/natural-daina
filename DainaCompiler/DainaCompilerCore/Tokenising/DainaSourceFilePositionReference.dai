@@ -1,9 +1,9 @@
 
 [DainaSourceFilePositionReference : [Object]] (
-		@@@@@@Object,
+		Object,
 		String,
 		Natural,
-		DainaSourceFileLineReference@@@@@@
+		DainaSourceFileLineReference
 	)
 {
 	~ dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition *([DainaSourceFileLineReference] lineReference, [Natural] linePosition) {

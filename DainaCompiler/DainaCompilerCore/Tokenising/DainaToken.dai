@@ -1,9 +1,9 @@
 
  
 [DainaToken : [Object]] (
-		@@@@@@Object,
+		Object,
 		DainaSourceFilePositionReference,
-		DainaTokenObserver@@@@@@
+		DainaTokenObserver
 	)
 	[[DainaTokenObserver]->] provideDainaTokenObservationToObserver
 	[DainaSourceFilePositionReference] positionOfTokenInSourceFile
@@ -28,7 +28,8 @@
 
 [DainaTokens] (
 		DainaToken, 
-		DainaTokenObserver
+		DainaTokenObserver,
+		DainaSourceFilePositionReference
 	) 
 {
 	:: UNKNOWN_TOKEN_AT_POSITION *([DainaSourceFilePositionReference] position)->[DainaToken] {} -> (\[DainaToken]:dainaTokenWithSourceFilePositionAndTokenObservationProvider position (*([DainaTokenObserver] observer){
