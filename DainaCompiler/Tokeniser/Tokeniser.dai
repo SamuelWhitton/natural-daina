@@ -1,4 +1,37 @@
 
+
+[Tokeniser : [Object]] (
+		Object, 
+		Sequence, 
+		TokenisingRule,
+		ControlFlow,
+		Maybe,
+		Or,
+		ParticleSequenceProcessor,
+		DainaSourceFileCharacter,
+		DainaToken
+	)
+		[Sequence<[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]>] sequenceOfTokenisingRulesInDecendingOrderOfGreedyness
+{
+	~ tokeniserWithSequenceOfTokenisingRulesInDecendingOrderOfGreedyness *([Sequence<[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]>] sequenceOfTokenisingRulesInDecendingOrderOfGreedyness){
+		\::newObject;
+		.sequenceOfTokenisingRulesInDecendingOrderOfGreedyness = sequenceOfTokenisingRulesInDecendingOrderOfGreedyness;
+	}
+
+	++ tokeniseParticlesIntoTokensAndRemainingUntokenisedParticles *([Sequence<[DainaSourceFileCharacter]>] givenParticleSequence) -> [Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] { 
+		[ParticleSequenceProcessor<[DainaSourceFileCharacter][DainaToken]>] processorForGivenParticleSequence = \[ParticleSequenceProcessor<[DainaSourceFileCharacter][DainaToken]>]:newProcessorOfParticleSequenceWithTokenisingRulesInDecendingOrderOfGreedyness givenParticleSequence (.sequenceOfTokenisingRulesInDecendingOrderOfGreedyness);
+		[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] tokensAndRemainingUntokenisedParticles = \[ControlFlow<[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]>]:constructRecursively *([->[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]] constructRestOfTokenOrUnprocessedParticleSequence) -> [Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] {
+			[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] tokensAndRemainingUntokenisedParticles = \[ControlFlow<[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]>]:selectWithSelectorOrDefault *([[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]->] selectTokensAndRemainingUntokenisedParticles) {
+				[Maybe<[Or<[DainaToken][DainaSourceFileCharacter]>]>] maybeNextTokenOrUnprocessedParticle = \processorForGivenParticleSequence:maybeProcessNextTokenOrReturnNextUnprocessedParticle;
+				\maybeNextTokenOrUnprocessedParticle:ifJust *([Or<[DainaToken][DainaSourceFileCharacter]>] nextTokenOrUnprocessedParticle) {
+					\selectTokensAndRemainingUntokenisedParticles (\[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]:sequenceWithFirstAndRestOfSequenceProvider (nextTokenOrUnprocessedParticle) constructRestOfTokenOrUnprocessedParticleSequence);
+				}
+			} (*->\[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]:emptySequence)
+		} -> tokensAndRemainingUntokenisedParticles
+	} -> tokensAndRemainingUntokenisedParticles
+}
+
+@@
 [Tokeniser<PARTICLE [Object], TOKEN [Object]> : [Object]] (
 		Object, 
 		Sequence, 
@@ -27,6 +60,8 @@
 		} -> tokensAndRemainingUntokenisedParticles
 	} -> tokensAndRemainingUntokenisedParticles
 }
+
+@@
 
 [ParticleSequenceProcessor<PARTICLE [Object], TOKEN [Object]> : [Object]] (
 		Object,

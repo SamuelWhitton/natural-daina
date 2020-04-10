@@ -13,6 +13,7 @@
 		Maybe,
 		Sequence,
 		DainaToken,
+		DainaNamespace,
 		DainaSourceFileTokeniser,
 		DainaStatusReporter @@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
@@ -40,7 +41,7 @@
 		};
 	}	!{
 			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
-				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokens dainaSourceFile;
+				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokensWithinNamespace dainaSourceFile \[DainaNamespace]:testNamespace;
 				@[]
 				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:stringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter

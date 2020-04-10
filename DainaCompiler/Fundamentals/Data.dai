@@ -139,10 +139,15 @@ Data : [Object]
 		##
 			size_t size = injected_DATA_SIZE_WITH_DATA_OBJECT(Z_local_selfData);
 			if (size > (size_t)Z_local__currentDataPointer) {
-				char *dataBytes = injected_DATA_POINTER_WITH_DATA_OBJECT(Z__local_selfData);
+				printf("%ld\n", (size_t)Z_local__currentDataPointer);
+				char *dataBytes = injected_DATA_POINTER_WITH_DATA_OBJECT(Z_local_selfData);
 				//blablabla
-				((struct Z_template_Byte *)(Z_local_nextByteInSequence))->Z_attribute_Byte_internalByte = dataBytes[(size_t)Z_local__currentDataPointer];
-				(size_t)Z_local__currentDataPointer = (size_t)Z_local__currentDataPointer + 1;
+				void * theDatas = (dataBytes[(size_t)Z_local__currentDataPointer]);
+				((struct Z_template_Byte *)(Z_local_nextByteInSequence))->Z_attribute_Byte_internalByte = theDatas;
+				size_t currentDataPointer_as_size_t = (size_t)Z_local__currentDataPointer;
+				currentDataPointer_as_size_t = currentDataPointer_as_size_t + 1;
+				Z_local__currentDataPointer = *((void**)(&currentDataPointer_as_size_t));
+				//Z_local__currentDataPointer = (void *)((*((size_t*)&Z_local__currentDataPointer)) + 1);
 			##;
 			\currentCount:setValue _currentDataPointer;
 			\sequenceOfBytesToReturn:set (\[Sequence<[Byte]>]:sequenceWithFirstAndRestOfSequenceProvider nextByteInSequence (*->(\recursivelyConstructRestOfDataAsSequenceOfBytes)));

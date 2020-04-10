@@ -74,7 +74,7 @@
 	:: sequenceByMappingTransformationOverSequence *([[&ENUMERATED_OBJECT]->[&A]] transformation, [Sequence<[&ENUMERATED_OBJECT]>] givenSequence) -> [Sequence<[&A]>] {
 		[Variable<[Sequence<[&A]>]>] sequenceToResturn = \[Variable<[Sequence<[&A]>]>]:as (\[Sequence<[&A]>]:emptySequence);
 		\givenSequence:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
-			\sequenceToResturn:set (\[Sequence<[&A]>]:sequenceWithFirstAndRestOfSequenceProvider (\transformation firstInSequence) (*->\[Sequences<[&ENUMERATED_OBJECT][&A]>]:sequenceByMappingTransformationOverSequence transformation restOfSequence)); 
+			\sequenceToResturn:set (\[Sequence<[&A]>]:sequenceWithFirstAndRestOfSequenceProvider (\transformation firstInSequence) (*()->[Sequence<[&A]>]{[Sequence<[&A]>] res = \[Sequences<[&ENUMERATED_OBJECT][&A]>]:sequenceByMappingTransformationOverSequence transformation restOfSequence}->res)); 
 		}
 	} -> (\sequenceToResturn:get)
 
@@ -87,7 +87,7 @@
 				};
 		};
 	} -> (\sequenceToResturn:get)
-
+@@
 	:: sequenceBySplittingSequenceWithShouldSplitOnGivenElement *([Sequence<[&ENUMERATED_OBJECT]>] sequenceToSplit, [[&ENUMERATED_OBJECT]->[Boolean]] shouldSplitOnGivenElement) -> [Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] {
 		[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] splittedSequenceOfSequences = \[ControlFlow<[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>]>]:selectWithSelectorOrDefault *([[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>]->] selectSplittedSequenceOfSequences) {
 			\sequenceToSplit:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequenceToSplit, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequenceToSplit) {
@@ -107,7 +107,7 @@
 			}
 		} (*->\[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>]:emptySequence);
 	} -> splittedSequenceOfSequences
-
+@@
 	:: sequenceWithIterator *([[[&ENUMERATED_OBJECT]->]->] iterateElementsInSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>] variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>]:as (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as (*([Sequence<[&ENUMERATED_OBJECT]>]a)->a));
 		\iterateElementsInSequence consumeEachElementToBuildSequence

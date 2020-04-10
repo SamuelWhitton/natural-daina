@@ -1,7 +1,9 @@
 
 [DainaNamespace : [Object]] (Object)
 {
-
+	~ testNamespace *() {
+		\::newObject;
+	}
 }
 
 

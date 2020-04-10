@@ -1,0 +1,44 @@
+
+[DainaSourceFilePosition : [Object]] (
+		Object,
+		String,
+		Natural,
+		DainaSourceFileLineReference
+	)
+	[DainaSourceFileLineReference] lineReference
+	[Natural] linePosition
+{
+	~ dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition *([DainaSourceFileLineReference] lineReference, [Natural] linePosition) {
+		\::newObject;
+		.lineReference = lineReference
+		.linePosition = linePosition
+	}
+
+
+	:: firstPositionInDainaSourceFileWithFilePathAndFirstLineContent *([String] filePath, [String] firstLineContent) {
+		
+	} -> (\[DainaSourceFilePosition]:dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (\[DainaSourceFileLineReference]:dainaSourceFilePathAndLineNumberAndLineContent filePath (\[Natural]:naturalFromLiteral 1) firstLineContent) (\[Natural]:naturalFromLiteral 1))
+
+	++ nextPositionOnSameLine *()->[DainaSourceFilePosition]{
+		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
+	}
+
+	~ nextPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
+		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
+	}
+}
+
+
+[DainaSourceFileLineReference : [Object]] (
+		Object,
+		String,
+		Natural
+	) -> (DainaSourceFilePosition)
+{
+	~ dainaSourceFilePathAndLineNumberAndLineContent *([String] filePath, [Natural] lineNumber, [String] lineContent) {
+		\::newObject;
+	}
+
+	:: 
+}
+

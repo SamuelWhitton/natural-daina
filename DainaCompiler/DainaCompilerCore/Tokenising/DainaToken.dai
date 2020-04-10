@@ -2,13 +2,13 @@
  
 [DainaToken : [Object]] (
 		Object,
-		DainaSourceFilePositionReference,
+		DainaSourceFilePosition,
 		DainaTokenObserver
 	)
 	[[DainaTokenObserver]->] provideDainaTokenObservationToObserver
-	[DainaSourceFilePositionReference] positionOfTokenInSourceFile
+	[DainaSourceFilePosition] positionOfTokenInSourceFile
 {
-	~ dainaTokenWithSourceFilePositionAndTokenObservationProvider *([DainaSourceFilePositionReference] positionOfTokenInSourceFile, [[DainaTokenObserver]->] tokenObservationProvider) {
+	~ dainaTokenWithSourceFilePositionAndTokenObservationProvider *([DainaSourceFilePosition] positionOfTokenInSourceFile, [[DainaTokenObserver]->] tokenObservationProvider) {
 		\::newObject;
 		.positionOfTokenInSourceFile = positionOfTokenInSourceFile;
 		.provideDainaTokenObservationToObserver = tokenObservationProvider
@@ -29,10 +29,10 @@
 [DainaTokens] (
 		DainaToken, 
 		DainaTokenObserver,
-		DainaSourceFilePositionReference
+		DainaSourceFilePosition
 	) 
 {
-	:: UNKNOWN_TOKEN_AT_POSITION *([DainaSourceFilePositionReference] position)->[DainaToken] {} -> (\[DainaToken]:dainaTokenWithSourceFilePositionAndTokenObservationProvider position (*([DainaTokenObserver] observer){
+	:: UNKNOWN_TOKEN_AT_POSITION *([DainaSourceFilePosition] position)->[DainaToken] {} -> (\[DainaToken]:dainaTokenWithSourceFilePositionAndTokenObservationProvider position (*([DainaTokenObserver] observer){
 		\observer:observeUnknownToken}))
 }
 
