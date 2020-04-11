@@ -2,18 +2,34 @@
 [DainaSourceFilePosition : [Object]] (
 		Object,
 		String,
-		Natural,
-		DainaSourceFileLineReference
+		Natural
 	)
-	[DainaSourceFileLineReference] lineReference
+	[String] filePath
+	[Natural] lineNumber
+	[String] lineContent
 	[Natural] linePosition
+	[[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent
+	[->[DainaSourceFilePosition]] nextLinePosition
 {
+
 	~ dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition *([DainaSourceFileLineReference] lineReference, [Natural] linePosition) {
 		\::newObject;
 		.lineReference = lineReference
 		.linePosition = linePosition
 	}
 
+	~ __positionWithFilePathAndLineNumberAndLineContentAndLinePosition *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition) {
+		\::__positionWithFilePathAndLineNumberAndLineContentAndLinePositionAndNextLineFromNextLineContentAndNextLinePosition filePath lineNumber lineContent linePosition nextLineFromNextLineContent nextLinePosition;
+	}	!{
+			[[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent = *([String] nextLineContent) {
+			} -> \[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath 
+
+			[->[DainaSourceFilePosition]] nextLinePosition
+		}
+
+	~ __positionWithFilePathAndLineNumberAndLineContentAndLinePositionAndNextLineFromNextLineContentAndNextLinePosition *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition, [[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent, [->[DainaSourceFilePosition]] nextLinePosition) {
+
+	}
 
 	:: firstPositionInDainaSourceFileWithFilePathAndFirstLineContent *([String] filePath, [String] firstLineContent) {
 		
@@ -23,22 +39,14 @@
 		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
 	}
 
-	~ nextPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
+	++ nextPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
 		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
 	}
 }
 
 
-[DainaSourceFileLineReference : [Object]] (
-		Object,
-		String,
-		Natural
-	) -> (DainaSourceFilePosition)
-{
-	~ dainaSourceFilePathAndLineNumberAndLineContent *([String] filePath, [Natural] lineNumber, [String] lineContent) {
-		\::newObject;
-	}
 
-	:: 
-}
+
+
+
 
