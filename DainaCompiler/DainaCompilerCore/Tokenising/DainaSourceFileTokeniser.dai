@@ -10,7 +10,6 @@
 		Sequences,
 		Variable,
 		DainaStatusReporter,
-		DainaSourceFileLineReference,
 		DainaSourceFilePosition,
 		DainaSourceFileCharacter,
 		DainaTokeniser,
@@ -34,20 +33,28 @@
 				[DainaTokeniser] dainaTokeniser = \[DainaTokeniser]:dainaTokeniserWithDainaStatusReporterAndNamespace .dainaStatusReporter namespace;
 			};
 	}	!{
-			@@[[Sequence<[Byte]>]->[Sequence<[Sequence<[Byte]>]>]] splitByteSequenceIntoSubsequencesOfEachLine = *([Sequence<[Byte]>] sequenceToSplitIntoLines) -> [Sequence<[Sequence<[Byte]>]>] {
-				[Sequence<[Sequence<[Byte]>]>] splittedSubsequencesOfEachLine = \[Sequences<[Byte]>]:sequenceBySplittingSequenceWithShouldSplitOnGivenElement sequenceToSplitIntoLines isByteANewline
-					!{
-						[Byte] newlineByte = \[Byte]:newByte 0b0A;
-						[[Byte]->[Boolean]] isByteANewline = *([Byte]b)->[Boolean]{}->b:sameAsByte newlineByte;
-					};
-			} -> splittedSubsequencesOfEachLine;@@
+			
 
 			[[Sequence<[Byte]>]->[Sequence<[DainaSourceFileCharacter]>]] transformByteSequenceFromDainaSourceIntoCharacterSequence = *([Sequence<[Byte]>] byteSequenceFromDainaSource) -> [Sequence<[DainaSourceFileCharacter]>] {
-				[Sequence<[DainaSourceFileCharacter]>] byteSequenceRepresentingAllCharacters \[Sequences<[Byte][DainaSourceFileCharacter]>]:sequenceByMappingTransformationOverSequence transformNextByteFromSourceIntoCharacter byteSequenceFromDainaSource;
+				[Sequence<[Sequence<[Byte]>]>] byteSequenceRepresentingEachLineInSourceFile = \splitByteSequenceIntoSubsequencesOfEachLine byteSequenceFromDainaSource;
+
+
+
+				[Sequence<[DainaSourceFileCharacter]>] byteSequenceRepresentingAllCharacters = \[Sequences<[Byte][DainaSourceFileCharacter]>]:sequenceByMappingTransformationOverSequence transformNextByteFromSourceIntoCharacter byteSequenceFromDainaSource;
 				[Sequence<[Sequence<[DainaSourceFileCharacter]>]>] byteSequencesRepresentingCharactersForEachLine = \[Sequences<[Sequence<[Byte]>][Sequence<[DainaSourceFileCharacter]>]>]:sequenceByMappingTransformationOverSequence transformNextLineOfSourceFromBytesIntoCharacters byteSequenceRepresentingLines;
 				[Sequence<[DainaSourceFileCharacter]>] byteSequenceRepresentingAllCharacters = \[Sequences<[DainaSourceFileCharacter]>]:sequenceByFlatteningSequenceOfSequences byteSequencesRepresentingCharactersForEachLine;
 			}	!{
-					[Variable<[Natural]>] currentLineNumber = \[Variable<[Natural]>]:as (\[Natural]:naturalFromLiteral 1);
+					[[Sequence<[Byte]>]->[Sequence<[Sequence<[Byte]>]>]] splitByteSequenceIntoSubsequencesOfEachLine = *([Sequence<[Byte]>] sequenceToSplitIntoLines) -> [Sequence<[Sequence<[Byte]>]>] {
+						[Sequence<[Sequence<[Byte]>]>] splittedSubsequencesOfEachLine = \[Sequences<[Byte]>]:sequenceBySplittingSequenceWithShouldSplitOnGivenElement sequenceToSplitIntoLines isByteANewline
+							!{
+								[Byte] newlineByte = \[Byte]:newByte 0b0A;
+								[[Byte]->[Boolean]] isByteANewline = *([Byte]b)->[Boolean]{}->b:sameAsByte newlineByte;
+							};
+					} -> splittedSubsequencesOfEachLine;
+
+					[[Sequence<[DainaSourceFilePosition]>]->[Sequence<[DainaSourceFilePosition]>]]  
+
+					[Variable<[Natural]>] currentSourceFilePosition = \[Variable<[Natural]>]:as (\[Natural]:naturalFromLiteral 1);
 
 					transformNextByteFromSourceIntoCharacter
 						

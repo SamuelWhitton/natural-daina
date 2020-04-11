@@ -9,39 +9,37 @@
 	[String] lineContent
 	[Natural] linePosition
 	[[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent
-	[->[DainaSourceFilePosition]] nextLinePosition
+	[->[DainaSourceFilePosition]] nextLinePositionOnSameLine
 {
-
-	~ dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition *([DainaSourceFileLineReference] lineReference, [Natural] linePosition) {
-		\::newObject;
-		.lineReference = lineReference
-		.linePosition = linePosition
-	}
-
 	~ __positionWithFilePathAndLineNumberAndLineContentAndLinePosition *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition) {
-		\::__positionWithFilePathAndLineNumberAndLineContentAndLinePositionAndNextLineFromNextLineContentAndNextLinePosition filePath lineNumber lineContent linePosition nextLineFromNextLineContent nextLinePosition;
+		\::__positionWithFilePathAndLineNumberAndLineContentAndLinePositionAndNextLineFromNextLineContentAndNextLinePositionOnSameLine filePath lineNumber lineContent linePosition nextLineFromNextLineContent nextLinePositionOnSameLine;
 	}	!{
-			[[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent = *([String] nextLineContent) {
-			} -> \[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath 
+			[[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent = *([String] nextLineContent) -> [DainaSourceFilePosition] {
+			} -> \[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath (\lineNumber:naturalByAdding (\[Natural]:naturalFromLiteral 1)) nextLineContent (\[Natural]:naturalFromLiteral 1);
 
-			[->[DainaSourceFilePosition]] nextLinePosition
+			[->[DainaSourceFilePosition]] nextLinePositionOnSameLine = *() -> [DainaSourceFilePosition] {
+			} -> \[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath lineNumber lineContent (\linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
 		}
 
-	~ __positionWithFilePathAndLineNumberAndLineContentAndLinePositionAndNextLineFromNextLineContentAndNextLinePosition *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition, [[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent, [->[DainaSourceFilePosition]] nextLinePosition) {
-
+	~ __positionWithFilePathAndLineNumberAndLineContentAndLinePositionAndNextLineFromNextLineContentAndNextLinePositionOnSameLine *([String] filePath, [Natural] lineNumber, [String] lineContent, [Natural] linePosition, [[String]->[DainaSourceFilePosition]] nextLineFromNextLineContent, [->[DainaSourceFilePosition]] nextLinePositionOnSameLine) {
+		\::newObject;
+		.filePath = filePath;
+		.lineNumber = lineNumber;
+		.lineContent = lineContent;
+		.linePosition = linePosition;
+		.nextLineFromNextLineContent = nextLineFromNextLineContent;
+		.nextLinePositionOnSameLine = nextLinePositionOnSameLine;
 	}
 
-	:: firstPositionInDainaSourceFileWithFilePathAndFirstLineContent *([String] filePath, [String] firstLineContent) {
-		
-	} -> (\[DainaSourceFilePosition]:dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (\[DainaSourceFileLineReference]:dainaSourceFilePathAndLineNumberAndLineContent filePath (\[Natural]:naturalFromLiteral 1) firstLineContent) (\[Natural]:naturalFromLiteral 1))
+	:: firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent *([String] filePath, [String] firstLineContent) {
+	} -> (\[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath (\[Natural]:naturalFromLiteral 1) firstLineContent (\[Natural]:naturalFromLiteral 1)
 
 	++ nextPositionOnSameLine *()->[DainaSourceFilePosition]{
-		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
-	}
+	} -> \.nextLinePosition
 
 	++ nextPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
 		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
-	}
+	} -> \.nextLineFromNextLineContent nextLineContent
 }
 
 

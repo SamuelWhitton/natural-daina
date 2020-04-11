@@ -26,7 +26,7 @@
 	}
 }
 
-[Sequences<ENUMERATED_OBJECT [Object], A [Object]>] (Boolean, Object, Variable, Sequence, ControlFlow, LambdaAToB)
+[Sequences<ENUMERATED_OBJECT [Object], A [Object], B [Object]>] (Boolean, Object, Variable, Sequence, ControlFlow, LambdaAToB, MutatingSequence, And)
 {
 	:: iterateThroughSequenceWithReceiver *([Sequence<[&ENUMERATED_OBJECT]>] sequence, [[&ENUMERATED_OBJECT]->] receiveElement) {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] variableUniteratedSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as sequence;
@@ -42,6 +42,25 @@
 				}
 			}
 	}	
+
+	:: splitSequenceIntoHeadAndTailWithIsElementEndOfHead *([Sequence<[&ENUMERATED_OBJECT]>] sequence, [[&ENUMERATED_OBJECT]->[Boolean]] isElementEndOfHead) -> [And<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>] {
+		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] variableCurrentTailSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as sequence;
+		[Sequence<[&ENUMERATED_OBJECT]>] headSequence = \[Sequences<[&ENUMERATED_OBJECT]>]:sequenceWithIterator *([[&ENUMERATED_OBJECT]->] provideNextElementInHead) {
+			\[ControlFlow]:repeatUntilStopped putEachElementIntoHeadSequenceUntilEndOfHeadElementReached
+				!{
+					[[->]->] putEachElementIntoHeadSequenceUntilEndOfHeadElementReached = *([->] stopSinceEndOfHeadSequenceWasReached) {
+						[Sequence<[&ENUMERATED_OBJECT]>] currentTailSequence = \variableCurrentTailSequence:get;
+						\currentTailSequence:ifEmptySequence stopSinceEndOfHeadSequenceWasReached;
+						\currentTailSequence:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
+							\provideNextElementInHead firstInSequence;
+							\variableUniteratedSequence:set restOfSequence;
+							[Boolean] reachedLastHeadElement = \isElementEndOfHead firstInSequence;
+							\reachedLastHeadElement:ifTRUE stopSinceEndOfHeadSequenceWasReached;
+						}
+					}
+				}
+			}
+	} -> (\[And<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:asLeftAndRight headSequence (\variableCurrentTailSequence:get))
 
 	:: sequenceByAppendingSequenceToSequence *([Sequence<[&ENUMERATED_OBJECT]>] firstSequence, [Sequence<[&ENUMERATED_OBJECT]>] secondSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceToResturn = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as secondSequence;
@@ -78,6 +97,16 @@
 		}
 	} -> (\sequenceToResturn:get)
 
+	:: maximalSequenceByZippingTwoSequencesTogetherWithCombiningRule *([Sequence<[&ENUMERATED_OBJECT]>] firstSequenceToZip, [Sequence<[&A]>] secondSequenceToZip, [[&ENUMERATED_OBJECT][&A]->[&B]] combiningRule) -> [Sequence<[&B]>] {
+		[Variable<[Sequence<[&A]>]>] sequenceToResturn = \[Variable<[Sequence<[&A]>]>]:as (\[Sequence<[&A]>]:emptySequence);
+		\firstSequenceToZip:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInFirstSequenceToZip, [Sequence<[&ENUMERATED_OBJECT]>] restOfFirstSequenceToZip) {
+			\secondSequenceToZip:ifFirstAndRestOfSequence *([&A] firstInSecondSequenceToZip, [Sequence<[&A]>] restOfSecondSequenceToZip) {
+				\sequenceToResturn:set (\[Sequence<[&B]>]:sequenceWithFirstAndRestOfSequenceProvider (\combiningRule firstInFirstSequenceToZip firstInSecondSequenceToZip) (*()->[Sequence<[&B]>]{[Sequence<[&B]>] res = \[Sequences<[&ENUMERATED_OBJECT][&A][&B]>]:maximalSequenceByZippingTwoSequencesTogetherWithCombiningRule restOfFirstSequenceToZip restOfSecondSequenceToZip combiningRule}->res)); 
+			}
+		}
+	} -> (\sequenceToResturn:get)
+
+@@
 	:: sequenceByFlatteningSequenceOfSequences *([Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceOfSequencesToFlattern) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceToResturn = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as (\[Sequence<[&ENUMERATED_OBJECT]>]:emptySequence);
 		\sequenceOfSequencesToFlattern:ifFirstAndRestOfSequence *([Sequence<[&ENUMERATED_OBJECT]>] firstSequenceInSequence, [Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] restOfSequenceOfSequences) {
@@ -87,6 +116,11 @@
 				};
 		};
 	} -> (\sequenceToResturn:get)
+	@@
+
+	@:: sequenceBySplittingSequenceWithShouldSplitOnGivenElement *([Sequence<[&ENUMERATED_OBJECT]>] sequenceToSplit, [[&ENUMERATED_OBJECT]->[Boolean]] shouldSplitOnGivenElement) -> [Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] {
+
+
 @@
 	:: sequenceBySplittingSequenceWithShouldSplitOnGivenElement *([Sequence<[&ENUMERATED_OBJECT]>] sequenceToSplit, [[&ENUMERATED_OBJECT]->[Boolean]] shouldSplitOnGivenElement) -> [Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] {
 		[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] splittedSequenceOfSequences = \[ControlFlow<[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>]>]:selectWithSelectorOrDefault *([[Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>]->] selectSplittedSequenceOfSequences) {
@@ -109,17 +143,50 @@
 	} -> splittedSequenceOfSequences
 @@
 	:: sequenceWithIterator *([[[&ENUMERATED_OBJECT]->]->] iterateElementsInSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
-		[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>] variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \[Variable<[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]>]:as (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as (*([Sequence<[&ENUMERATED_OBJECT]>]a)->a));
+		[MutatingSequence] sequenceConstructedFromIterator = initialEmptySequence;
+		[Variable<[MutatingSequence]>] variableCurrentTailOfSequenceConstructedFromIterator = \[Variable<[MutatingSequence]>]:as sequenceConstructedFromIterator;
 		\iterateElementsInSequence consumeEachElementToBuildSequence
 			!{
 				[[&ENUMERATED_OBJECT]->] consumeEachElementToBuildSequence = *([&ENUMERATED_OBJECT] nextElementInSequence) {
-					[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>] originalSequencePrependedToGivenTail = \variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:get;
-					\variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:set (\[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:as 
-						(*([Sequence<[&ENUMERATED_OBJECT]>]tailSequence)-> \originalSequencePrependedToGivenTail:do (\[Sequence<[&ENUMERATED_OBJECT]>]:sequenceWithFirstAndRestOfSequenceProvider nextElementInSequence (*->tailSequence))));
+					[MutatingSequence] newTailOfSequenceConstructedFromIterator = \[MutatingSequence]:emptyMutatingSequence;
+					[MutatingSequence] currentTailOfSequenceConstructedFromIterator = \variableCurrentTailOfSequenceConstructedFromIterator:get;
+					\currentTailOfSequenceConstructedFromIterator:setSequenceAsFirstAndRestOfSequenceProvider nextElementInSequence (*->newTailOfSequenceConstructedFromIterator);
+					\variableCurrentTailOfSequenceConstructedFromIterator:set newTailOfSequenceConstructedFromIterator;
 				}
 			};
-		[LambdaAToB<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>] sequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence = \variableSequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:get;
-	} -> (\sequenceCreatedFromIteratingElementsInSequencePrependedToGivenTailSequence:do (\[Sequence<[&ENUMERATED_OBJECT]>]:emptySequence))
+	}	!{
+			[MutatingSequence] initialEmptySequence = \[MutatingSequence]:emptyMutatingSequence;
+		}
+	-> (\sequenceConstructedFromIterator)
+}
+
+
+
+
+
+[MutatingSequence<ENUMERATED_OBJECT [Object]> : [Sequence<[&ENUMERATED_OBJECT]>]] (Object, Boolean, LambdaAToB, Variable) -> (Sequences)
+	[[->][[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->]->] ifEmptySequence_and_ifFirstAndRestOfSequence
+{	
+	~ emptyMutatingSequence *{
+		\::emptySequence;
+		.ifEmptySequence_and_ifFirstAndRestOfSequence = *([->] onEmptySequence, [[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+			\onFirstInSequenceAndRestOfList firstInSequence (\provideRestOfSequence);
+		}
+	}
+
+	++ setSequenceAsFirstAndRestOfSequenceProvider *([&ENUMERATED_OBJECT] firstInSequence, [->[Sequence<[&ENUMERATED_OBJECT]>]] provideRestOfSequence){
+		.ifEmptySequence_and_ifFirstAndRestOfSequence = *([->] onEmptySequence, [[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+			\onFirstInSequenceAndRestOfList firstInSequence (\provideRestOfSequence);
+		}
+	}
+
+	|++ ifEmptySequence *([->] onEmptySequence) {
+		\.ifEmptySequence_and_ifFirstAndRestOfSequence onEmptySequence (*([]_,[]__){})
+	}
+
+	|++ ifFirstAndRestOfSequence *([[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
+		\.ifEmptySequence_and_ifFirstAndRestOfSequence (*{}) onFirstInSequenceAndRestOfList
+	}
 }
 
 
