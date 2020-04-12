@@ -11,4 +11,7 @@
 	
 	++ getLeft *->.leftObject
 	++ getRight *->.rightObject
+
+	++ left *->.leftObject
+	++ right *->.rightObject
 }

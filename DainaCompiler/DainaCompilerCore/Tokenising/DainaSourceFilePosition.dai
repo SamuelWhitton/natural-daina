@@ -37,7 +37,7 @@
 	++ nextPositionOnSameLine *()->[DainaSourceFilePosition]{
 	} -> \.nextLinePosition
 
-	++ nextPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
+	++ firstPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
 		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
 	} -> \.nextLineFromNextLineContent nextLineContent
 }

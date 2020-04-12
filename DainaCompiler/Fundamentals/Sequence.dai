@@ -1,6 +1,6 @@
 
 
-[Sequence<ENUMERATED_OBJECT [Object]> : [Object]] (Object, Boolean, LambdaAToB, Variable)
+[Sequence<ENUMERATED_OBJECT [Object]> : [Object]] (Object, Boolean, LambdaAToB, Variable, Maybe)
 	[[->][[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->]->] ifEmptySequence_and_ifFirstAndRestOfSequence
 {	
 	~ emptySequence *{
@@ -12,8 +12,17 @@
 
 	~ sequenceWithFirstAndRestOfSequenceProvider *([&ENUMERATED_OBJECT] firstInSequence, [->[Sequence<[&ENUMERATED_OBJECT]>]] provideRestOfSequence){
 		\::newObject;
+		[Variable<[Maybe<[Sequence<[&ENUMERATED_OBJECT]>]>]>] currentMaybeProvidedRestOfSequence = \[Variable<[Maybe<[Sequence<[&ENUMERATED_OBJECT]>]>]>]:as ([Maybe<[Sequence<[&ENUMERATED_OBJECT]>]>]:asNothing);
 		.ifEmptySequence_and_ifFirstAndRestOfSequence = *([->] onEmptySequence, [[&ENUMERATED_OBJECT][Sequence<[&ENUMERATED_OBJECT]>]->] onFirstInSequenceAndRestOfList) {
-			\onFirstInSequenceAndRestOfList firstInSequence (\provideRestOfSequence);
+			[Maybe<[Sequence<[&ENUMERATED_OBJECT]>]>] maybeProvidedRestOfSequence = \currentMaybeProvidedRestOfSequence:get;
+			\maybeProvidedRestOfSequence:ifNothing *{
+				[Sequence<[&ENUMERATED_OBJECT]>] restOfSequence = \provideRestOfSequence;
+				\currentMaybeProvidedRestOfSequence:set (\[Maybe<[Sequence<[&ENUMERATED_OBJECT]>]>]:asJust restOfSequence);
+				\onFirstInSequenceAndRestOfList firstInSequence restOfSequence;
+			};
+			\maybeProvidedRestOfSequence:ifJust *([Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
+				\onFirstInSequenceAndRestOfList firstInSequence restOfSequence;
+			}
 		}
 	}
 
@@ -61,7 +70,7 @@
 				}
 			}
 	} -> (\[And<[Sequence<[&ENUMERATED_OBJECT]>][Sequence<[&ENUMERATED_OBJECT]>]>]:asLeftAndRight headSequence (\variableCurrentTailSequence:get))
-
+@@
 	:: sequenceByAppendingSequenceToSequence *([Sequence<[&ENUMERATED_OBJECT]>] firstSequence, [Sequence<[&ENUMERATED_OBJECT]>] secondSequence) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceToResturn = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as secondSequence;
 		\firstSequence:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInSequence, [Sequence<[&ENUMERATED_OBJECT]>] restOfSequence) {
@@ -73,7 +82,7 @@
 				}
 		};
 	} -> (\sequenceToResturn:get)
-
+@@
 	:: foldSequenceWithInitialResultAndOperationToFoldResultIntoSequenceElement *([Sequence<[&ENUMERATED_OBJECT]>] givenSequence, [&A] initialResult, [[&A][&ENUMERATED_OBJECT]->[&A]] operationToFoldResultIntoSequenceElement) -> [&A] {
 		[Variable<[&A]>] currentResult = \[Variable<[&A]>]:as initialResult;
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] currentUnfoldedSequence = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as givenSequence;
@@ -96,7 +105,7 @@
 			\sequenceToResturn:set (\[Sequence<[&A]>]:sequenceWithFirstAndRestOfSequenceProvider (\transformation firstInSequence) (*()->[Sequence<[&A]>]{[Sequence<[&A]>] res = \[Sequences<[&ENUMERATED_OBJECT][&A]>]:sequenceByMappingTransformationOverSequence transformation restOfSequence}->res)); 
 		}
 	} -> (\sequenceToResturn:get)
-
+@@
 	:: maximalSequenceByZippingTwoSequencesTogetherWithCombiningRule *([Sequence<[&ENUMERATED_OBJECT]>] firstSequenceToZip, [Sequence<[&A]>] secondSequenceToZip, [[&ENUMERATED_OBJECT][&A]->[&B]] combiningRule) -> [Sequence<[&B]>] {
 		[Variable<[Sequence<[&A]>]>] sequenceToResturn = \[Variable<[Sequence<[&A]>]>]:as (\[Sequence<[&A]>]:emptySequence);
 		\firstSequenceToZip:ifFirstAndRestOfSequence *([&ENUMERATED_OBJECT] firstInFirstSequenceToZip, [Sequence<[&ENUMERATED_OBJECT]>] restOfFirstSequenceToZip) {
@@ -105,7 +114,7 @@
 			}
 		}
 	} -> (\sequenceToResturn:get)
-
+@@
 @@
 	:: sequenceByFlatteningSequenceOfSequences *([Sequence<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceOfSequencesToFlattern) -> [Sequence<[&ENUMERATED_OBJECT]>] {
 		[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>] sequenceToResturn = \[Variable<[Sequence<[&ENUMERATED_OBJECT]>]>]:as (\[Sequence<[&ENUMERATED_OBJECT]>]:emptySequence);

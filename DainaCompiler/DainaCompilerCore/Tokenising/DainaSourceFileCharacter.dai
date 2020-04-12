@@ -7,7 +7,7 @@
 	)
 	[DainaSourceFilePosition] positionInSourceFile
 {
-	~ newDainaSourceFileCharacterRepresentingASCIICharacterByteInPosition *([Byte] asciiCharacterByte, [DainaSourceFilePosition] characterPosition) {
+	~ characterRepresentingASCIICharacterByteInPosition *([Byte] asciiCharacterByte, [DainaSourceFilePosition] characterPosition) {
 		\::newObject;
 		.positionInSourceFile = characterPosition;
 	}
