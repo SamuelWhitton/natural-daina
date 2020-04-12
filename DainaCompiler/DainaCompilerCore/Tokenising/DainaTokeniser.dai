@@ -11,7 +11,6 @@
 		DainaSourceFileCharacter,
 		DainaStatusReporter,
 		DainaSourceFilePosition,
-		DainaSourceFileLineReference,
 		String,
 		Natural,
 		Sequences,
@@ -31,7 +30,7 @@
 		[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] tokensAndRemainingUntokenisedParticles = \:tokeniseParticlesIntoTokensAndRemainingUntokenisedParticles sourceFileCharacters;
 		[Sequence<[DainaToken]>] sequenceOfTokensRepresentingSourceFileCharacters = (\[Sequences<[Or<[DainaToken][DainaSourceFileCharacter]>][DainaToken]>]:sequenceByMappingTransformationOverSequence transformRemainingUntokenisedCharactersIntoUnknownTokens tokensAndRemainingUntokenisedParticles)
 			!{
-				[DainaSourceFilePosition] _badPositionDueToLanguageLimitation = \[DainaSourceFilePosition]:dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (\[DainaSourceFileLineReference]:dainaSourceFilePathAndLineNumberAndLineContent (\[String]:stringFromLiteral "XXX") (\[Natural]:zero) (\[String]:stringFromLiteral "XXX")) (\[Natural]:zero);
+				[DainaSourceFilePosition] _badPositionDueToLanguageLimitation = \[DainaSourceFilePosition]:firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent (\[String]:stringFromLiteral "XXX") (\[String]:stringFromLiteral "XXX");
 				[[Or<[DainaToken][DainaSourceFileCharacter]>]->[DainaToken]] transformRemainingUntokenisedCharactersIntoUnknownTokens = *([Or<[DainaToken][DainaSourceFileCharacter]>] tokenOrUntokenisedCharacter) -> [DainaToken] {
 					[DainaToken] tokenOrUnknownToken = \[ControlFlow<[DainaToken]>]:selectWithSelectorOrDefault (*([[DainaToken]->]t){\tokenOrUntokenisedCharacter:isLeftOrRight t (*([DainaSourceFileCharacter]c){\t (\[DainaTokens]:UNKNOWN_TOKEN_AT_POSITION (\c:positionInSourceFile))})}) (*->\[DainaTokens]:UNKNOWN_TOKEN_AT_POSITION (_badPositionDueToLanguageLimitation))
 				} -> tokenOrUnknownToken

@@ -13,6 +13,7 @@
 		DainaSourceFilePosition,
 		DainaSourceFileCharacter,
 		DainaTokeniser,
+		ControlFlow,
 		String,
 		Byte,
 		And,
@@ -35,14 +36,10 @@
 			};
 	}	!{
 			[[Sequence<[Byte]>]->[Sequence<[DainaSourceFileCharacter]>]] transformByteSequenceFromDainaSourceIntoCharacterSequence = *([Sequence<[Byte]>] byteSequenceFromDainaSource) -> [Sequence<[DainaSourceFileCharacter]>] {
-				[Variable<[Sequence<[Byte]>]>] currentUnprocessedByteSequenceFromDainaSource = \[Variable<[Sequence<[Byte]>]>]:as byteSequenceFromDainaSource;
-				[Variable<[Sequence<[Byte]>]>] currentByteSequenceFromCurrentLineInDainaSource = \[Variable<[Sequence<[Byte]>]>]:as (\[Sequence<[Byte]>]:emptySequence);
-				[String] contentOfFirstLineInSource = \gotoNextLineInDainaSourceReturningStringContentOfLine;
-				[Variable<[DainaSourceFilePosition]>] currentSourceFilePosition = \[Variable<[DainaSourceFilePosition]>]:as (\[DainaSourceFilePosition]:firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent (\dainaSourceFile:getFilePathOfFile) (contentOfFirstLineInSource));
 				[Sequence<[DainaSourceFileCharacter]>] characterSequence = \[ControlFlow<[Sequence<[DainaSourceFileCharacter]>]>]:constructRecursively constructCharacterSequenceRecursively
 					!{
-						[[->[Sequence<[DainaSourceFileCharacter]>]]->[Sequence<[DainaSourceFileCharacter]>]] constructCharacterSequenceRecursively *([->[Sequence<[DainaSourceFileCharacter]>]] constructRestOfCharacterSequence) -> [Sequence<[DainaSourceFileCharacter]>] {
-						} -> ((\[ControlFlow<[Sequence<[DainaSourceFileCharacter]>]>]:selectWithSelectorOrDefault selectCharacterSequenceIfNonEmpty (\[Sequence<[DainaSourceFileCharacter]>]:emptySequence))
+						[[->[Sequence<[DainaSourceFileCharacter]>]]->[Sequence<[DainaSourceFileCharacter]>]] constructCharacterSequenceRecursively = *([->[Sequence<[DainaSourceFileCharacter]>]] constructRestOfCharacterSequence) -> [Sequence<[DainaSourceFileCharacter]>] {
+						} -> ((\[ControlFlow<[Sequence<[DainaSourceFileCharacter]>]>]:selectWithSelectorOrDefault selectCharacterSequenceIfNonEmpty (*->\[Sequence<[DainaSourceFileCharacter]>]:emptySequence))
 								!{
 									[[[Sequence<[DainaSourceFileCharacter]>]->]->] selectCharacterSequenceIfNonEmpty= *([[Sequence<[DainaSourceFileCharacter]>]->] selectCharacterSequence) {
 										\byteSequenceFromCurrentLineInDainaSource:ifFirstAndRestOfSequence selectCharacterRepresentingNextByteFromCurrentLineAndRestOfSequenceRecursvely;
@@ -53,13 +50,14 @@
 											[[Byte][Sequence<[Byte]>]->] selectCharacterRepresentingNextByteFromCurrentLineAndRestOfSequenceRecursvely = *([Byte] nextByteFromCurrentLine, [Sequence<[Byte]>] restOfBytesInLine) {
 												\currentByteSequenceFromCurrentLineInDainaSource:set restOfBytesInLine;
 												\selectCharacterSequence (\[Sequence<[DainaSourceFileCharacter]>]:sequenceWithFirstAndRestOfSequenceProvider characterRepresentingNextByte constructRestOfCharacterSequence)
-													{
+													!{
 														[DainaSourceFileCharacter] characterRepresentingNextByte = \[DainaSourceFileCharacter]:characterRepresentingASCIICharacterByteInPosition nextByteFromCurrentLine (\movePositionToNextInLineReturningCurrentPosition);
 													}
 											};
 
-											[->] gotoNextLineInDainaSourceFileIfExistsAndSelectSequenceRecursively *{
-												\currentUnprocessedByteSequenceFromDainaSource:ifFirstAndRestOfSequence *([]_,[]__) {
+											[->] gotoNextLineInDainaSourceFileIfExistsAndSelectSequenceRecursively = *{
+												[Sequence<[Byte]>] unprocessedByteSequenceFromDainaSource = \currentUnprocessedByteSequenceFromDainaSource:get;
+												\unprocessedByteSequenceFromDainaSource:ifFirstAndRestOfSequence *([]_,[]__) {
 													\movePositionToNextLine;
 													\selectCharacterSequence (\constructRestOfCharacterSequence);
 												};
@@ -68,11 +66,14 @@
 								})
 					}
 			}	!{
+					[Variable<[Sequence<[Byte]>]>] currentUnprocessedByteSequenceFromDainaSource = \[Variable<[Sequence<[Byte]>]>]:as byteSequenceFromDainaSource;
+					[Variable<[Sequence<[Byte]>]>] currentByteSequenceFromCurrentLineInDainaSource = \[Variable<[Sequence<[Byte]>]>]:as (\[Sequence<[Byte]>]:emptySequence);
+					
 					[Byte] newlineByte = \[Byte]:newByte 0b0A;
 					
-					[[Byte]->[Boolean]] isByteANewline = *([Byte]b)->[Boolean]{}->b:sameAsByte newlineByte;
+					[[Byte]->[Boolean]] isByteANewline = *([Byte]b)->[Boolean]{}->\b:sameAsByte newlineByte;
 					
-					[->[String]] gotoNextLineInDainaSourceReturningStringContentOfLine *{
+					[->[String]] gotoNextLineInDainaSourceReturningStringContentOfLine = *() -> [String] {
 						[And<[Sequence<[Byte]>][Sequence<[Byte]>]>] nextLineAndRestOfBytes = (\nextLineAndRestOfBytesFromByteSequence (\currentUnprocessedByteSequenceFromDainaSource:get))
 						\currentByteSequenceFromCurrentLineInDainaSource:set (\nextLineAndRestOfBytes:left);
 						\currentUnprocessedByteSequenceFromDainaSource:set (\nextLineAndRestOfBytes:right);
@@ -82,13 +83,16 @@
 						}
 					-> \[String]:stringWithASCIIDataRepresentationOfString (\[Data]:dataFromSequenceOfBytes (\nextLineAndRestOfBytes:left));
 
-					[->] movePositionToNextLine *{
+					[String] contentOfFirstLineInSource = \gotoNextLineInDainaSourceReturningStringContentOfLine;
+					[Variable<[DainaSourceFilePosition]>] currentSourceFilePosition = \[Variable<[DainaSourceFilePosition]>]:as (\[DainaSourceFilePosition]:firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent (\dainaSourceFile:getFilePathOfFile) (contentOfFirstLineInSource));
+
+					[->] movePositionToNextLine = *{
 						[DainaSourceFilePosition] previousSourceFilePosition = \currentSourceFilePosition:get;
 						[DainaSourceFilePosition] nextSourceFilePosition = \previousSourceFilePosition:firstPositionOnNextLineWithNextLineContent (\gotoNextLineInDainaSourceReturningStringContentOfLine);
 						\currentSourceFilePosition:set nextSourceFilePosition;
 					};
 
-					[->[DainaSourceFilePosition]] movePositionToNextInLineReturningCurrentPosition *() -> [DainaSourceFilePosition] {
+					[->[DainaSourceFilePosition]] movePositionToNextInLineReturningCurrentPosition = *() -> [DainaSourceFilePosition] {
 						[DainaSourceFilePosition] previousSourceFilePosition = \currentSourceFilePosition:get;
 						[DainaSourceFilePosition] nextSourceFilePosition = \previousSourceFilePosition:nextPositionOnSameLine;
 						\currentSourceFilePosition:set nextSourceFilePosition;

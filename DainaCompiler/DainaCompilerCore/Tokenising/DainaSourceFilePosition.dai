@@ -31,14 +31,13 @@
 		.nextLinePositionOnSameLine = nextLinePositionOnSameLine;
 	}
 
-	:: firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent *([String] filePath, [String] firstLineContent) {
-	} -> (\[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath (\[Natural]:naturalFromLiteral 1) firstLineContent (\[Natural]:naturalFromLiteral 1)
+	:: firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent *([String] filePath, [String] firstLineContent) -> [DainaSourceFilePosition] {
+	} -> (\[DainaSourceFilePosition]:__positionWithFilePathAndLineNumberAndLineContentAndLinePosition filePath (\[Natural]:naturalFromLiteral 1) firstLineContent (\[Natural]:naturalFromLiteral 1))
 
 	++ nextPositionOnSameLine *()->[DainaSourceFilePosition]{
-	} -> \.nextLinePosition
+	} -> \.nextLinePositionOnSameLine
 
 	++ firstPositionOnNextLineWithNextLineContent *([String] nextLineContent)->[DainaSourceFilePosition]{
-		\::____dainaSourceFilePositionReferenceWithLineReferenceAndLinePosition (.lineReference) (\.linePosition:naturalByAdding (\[Natural]:naturalFromLiteral 1));
 	} -> \.nextLineFromNextLineContent nextLineContent
 }
 

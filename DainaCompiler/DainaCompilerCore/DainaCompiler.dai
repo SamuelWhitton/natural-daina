@@ -15,6 +15,7 @@
 		DainaToken,
 		DainaNamespace,
 		DainaSourceFileTokeniser,
+		Sequences,
 		DainaStatusReporter @@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
@@ -42,6 +43,7 @@
 	}	!{
 			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
 				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokensWithinNamespace dainaSourceFile \[DainaNamespace]:testNamespace;
+				\[Sequences<[DainaToken]>]:iterateThroughSequenceWithReceiver tokensSequencedFromDainaSourceFile *([]_){};
 				@[]
 				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:stringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter
