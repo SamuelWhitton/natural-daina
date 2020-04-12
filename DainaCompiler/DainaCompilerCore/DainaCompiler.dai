@@ -16,6 +16,7 @@
 		DainaNamespace,
 		DainaSourceFileTokeniser,
 		Sequences,
+		DEVELOPMENT_DainaLogger,
 		DainaStatusReporter @@, DainaSyntaxTreeToJavaCompiler, DainaSyntaxTreeToCCompiler@@
 	) 
 	[DainaSyntaxTree] syntaxTreeRepresentingParsedProgram
@@ -35,15 +36,19 @@
 	|++ receiveCommandToParseDainaSourceFileIntoSyntaxTreeWithPathAndNamespaceSelection *([String] dainaSourceFilePath, [DainaNamespaceReference] dainaNamespaceSelection){
 		[Maybe<[File]>] maybeDainaSourceFile = \.filingSystemForReadingAndWritingFiles:maybeGetFileFromFilingSystemWithFilePath dainaSourceFilePath;
 		\maybeDainaSourceFile:ifJust *([File]dainaSourceFile){
-				\parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection dainaSourceFile dainaNamespaceSelection;
-			};
+			\parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection dainaSourceFile dainaNamespaceSelection;
+		};
 		\maybeDainaSourceFile:ifNothing *{
 			\reportErrorThatDainaSourceFileCouldNotBeFoundWithPath dainaSourceFilePath;
 		};
 	}	!{
 			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
 				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokensWithinNamespace dainaSourceFile \[DainaNamespace]:testNamespace;
-				\[Sequences<[DainaToken]>]:iterateThroughSequenceWithReceiver tokensSequencedFromDainaSourceFile *([]_){};
+				\[DEVELOPMENT_DainaLogger]:logSequenceOfDainaTokens tokensSequencedFromDainaSourceFile;
+
+				@\[Sequences<[DainaToken]>]:iterateThroughSequenceWithReceiver tokensSequencedFromDainaSourceFile *([DainaToken] dainaToken) {
+				@	
+				@};
 				@[]
 				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:stringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter

@@ -21,8 +21,12 @@
 	++ getPositionOfTokenInOriginalSourceFile *->.positionOfTokenInSourceFile
 }
 
-[DainaTokenObserver] 
+[DainaTokenObserver : [Object]] (Object) 
 {
+	~ impotentDainaTokenObserver *{
+		\::newObject;
+	}
+	++ observeUnknownToken *{}
 	++ observeUnknownToken *{}
 }
 

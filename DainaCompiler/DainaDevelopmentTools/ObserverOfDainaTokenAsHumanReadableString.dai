@@ -1,0 +1,20 @@
+
+[ObserverOfDainaTokenAsHumanReadableString : [DainaTokenObserver]] (
+		DainaTokenObserver,
+		String
+	) 
+	[[String]->] sendTokenStringToReceiver
+{
+	~ observerWithTokenStringReceiver *([[String]->] sendTokenStringToReceiver){
+		\::impotentDainaTokenObserver;
+		.sendTokenStringToReceiver = sendTokenStringToReceiver;
+	}
+	- observeTokenAsHumanReadableString *([String] humanReadableStringRepresentingToken) {
+		\.sendTokenStringToReceiver humanReadableStringRepresentingToken;
+	}
+
+	|++ observeUnknownToken *{
+		\:observeTokenAsHumanReadableString (\[String]:stringFromLiteral "UNKNOWN");
+	}
+}
+

@@ -2,12 +2,16 @@
 
 [DEVELOPMENT_Logger] (String, Data)
 {
-	:: logStringToStandardOutput *([String] stringToLog) {
+	:: logString *([String] stringToLog) {
 		[] dataToLog = (\stringToLog:asciiDataRepresentationOfString);
 		<instant
 		##
 			fwrite(injected_DATA_POINTER_WITH_DATA_OBJECT(Z_local_dataToLog), 1, injected_DATA_SIZE_WITH_DATA_OBJECT(Z_local_dataToLog), stdout);
 
 		##;
+	}
+
+	:: logStringLine *([String] stringToLog) {
+		\[DEVELOPMENT_Logger]:logString (\stringToLog:stringByAppendingString (\[String]:stringFromLiteral "\n"));
 	}
 }

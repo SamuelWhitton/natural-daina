@@ -1,0 +1,9 @@
+
+[DainaIdentifier : [Object]] (
+		Object,
+		Boolean
+	)
+{
+	~ dainaIdentifierUniquelyDefined
+
+}
