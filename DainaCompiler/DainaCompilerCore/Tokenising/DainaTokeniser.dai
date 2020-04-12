@@ -21,9 +21,15 @@
 		\::tokeniserWithSequenceOfTokenisingRulesInDecendingOrderOfGreedyness sequenceOfDainaTokenisingRulesInDecendingOrderOfGreedyness;
 	}	!{
 			[Sequence<[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]>] sequenceOfDainaTokenisingRulesInDecendingOrderOfGreedyness = \[Sequences<[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]>]:sequenceWithIterator
-			*([[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]->] provideNextTokenisingRule) {
-
-			}
+			(*([[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]->] provideNextTokenisingRule) {
+				\provideNextTokenisingRule IGNORE_ALL_WHITESPACE;
+			}	!{
+					[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>] IGNORE_ALL_WHITESPACE = (\[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]:newTokeniserRuleWithTokeniserDecisionFromParticleStream *([ParticleStream<[DainaSourceFileCharacter]>] characterStream) -> [TokeniserDecision<[DainaToken]>] {
+	
+					} -> \[TokeniserDecision<[DainaToken]>]:dontProduceAnyToken);
+				})	!{
+						
+					}
 		}
 
 	++ tokeniseDainaSourceFileCharactersIntoSequenceOfDainaTokens *([Sequence<[DainaSourceFileCharacter]>] sourceFileCharacters) -> [Sequence<[DainaToken]>] {
@@ -38,17 +44,6 @@
 	} -> sequenceOfTokensRepresentingSourceFileCharacters
 }
 
-
-[DainaTokeniserRules] (
-		TokenisingRule,
-		DainaSourceFileCharacter,
-		DainaToken,
-		ParticleStream,
-		TokeniserDecision
-	)
-{
-	:: IGNORE_ALL_WHITESPACE *->\[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]:newTokeniserRuleWithTokeniserDecisionFromParticleStream *([[ParticleStream<[DainaSourceFileCharacter]>]->[TokeniserDecision<[DainaToken]>]] tokeniserDecisionFromParticleStream) {
-}
 
 
 

@@ -1,0 +1,17 @@
+
+[CharacterSet : [Object]] (
+		Object
+	)
+{
+	~ emptyCharacterSet *{
+		\::newObject;
+	}
+
+	++ addCharacterToSetRepresentedWithASCIIByte *([Byte] asciiByteCharacterToAddToSet) {
+
+	}
+
+	++ characterExistsInSetRepresentedWithASCIIByte *([Byte] asciiByteCharacterToAddToSet) {
+
+	}
+}
