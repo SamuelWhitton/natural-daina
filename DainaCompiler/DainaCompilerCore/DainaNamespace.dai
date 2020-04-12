@@ -1,9 +1,13 @@
 
-[DainaNamespace : [Object]] (Object)
+[DainaNamespace : [Object]] (Object, DainaIdentifier, String, Sequence, UniqueIdentifier)
 {
 	~ testNamespace *() {
 		\::newObject;
 	}
+
+	++ dainaIdentifierRepresentedByStringWithinNamespace *([String] givenStringRepresentingDainaIdentifier) {
+		[DainaIdentifier] dainaIdentifier = \[DainaIdentifier]:dainaIdentifierRepresentedByUniqueIdentifiers (\[Sequence<[UniqueIdentifier]>]:emptySequence);
+	} -> dainaIdentifier
 }
 
 

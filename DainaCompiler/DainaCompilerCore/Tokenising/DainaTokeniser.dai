@@ -38,3 +38,22 @@
 	} -> sequenceOfTokensRepresentingSourceFileCharacters
 }
 
+
+[DainaTokeniserRules] (
+		TokenisingRule,
+		DainaSourceFileCharacter,
+		DainaToken,
+		ParticleStream,
+		TokeniserDecision
+	)
+{
+	:: IGNORE_ALL_WHITESPACE *->\[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]:newTokeniserRuleWithTokeniserDecisionFromParticleStream *([[ParticleStream<[DainaSourceFileCharacter]>]->[TokeniserDecision<[DainaToken]>]] tokeniserDecisionFromParticleStream) {
+}
+
+
+
+
+
+
+
+

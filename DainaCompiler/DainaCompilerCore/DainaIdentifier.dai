@@ -1,9 +1,28 @@
 
-[DainaIdentifier : [Object]] (
+[DainaIdentifier : [UniqueIdentifier]] (
 		Object,
-		Boolean
+		Boolean,
+		UniqueIdentifier,
+		Sequence,
+		Boolean,
+		ControlFlow
 	)
+	[Sequence<[UniqueIdentifier]>] uniqueIdentifiersRepresentingDainaIdentifier
 {
-	~ dainaIdentifierUniquelyDefined
+	~ dainaIdentifierRepresentedByUniqueIdentifiers *([Sequence<[UniqueIdentifier]>] givenUniqueIdentifiers) {
+		\::uniqueIdentifier;
+		.uniqueIdentifiersRepresentingDainaIdentifier = givenUniqueIdentifiers;
+	}
 
+	!++ identifierIs *([UniqueIdentifier] givenIdentifier) -> [Boolean] {
+		[Boolean] givenIdentifierMatchesDainaIdentifier = \[Sequences<[UniqueIdentifier][Boolean]>]:foldSequenceWithInitialResultAndOperationToFoldResultIntoSequenceElement (.uniqueIdentifiersRepresentingDainaIdentifier) (\[Boolean]:FALSE) 
+			*([Boolean] givenIdentifierMatchesOneOfTheOtherUniqueIdenitifiersRepresentingDainaIdentifier, [UniqueIdentifier] idenitifierRepresentingDainaIdentifier) {
+		} -> \[Boolean]:logicalOR (\givenIdentifier:identifierIs idenitifierRepresentingDainaIdentifier) givenIdentifierMatchesOneOfTheOtherUniqueIdenitifiersRepresentingDainaIdentifier;
+	} -> givenIdentifierMatchesDainaIdentifier
+
+	++ identifierIsDainaIdentifier *([DainaIdentifier] givenDainaIdentifierIdentifier) -> [Boolean] {
+		[Boolean] givenDainaIdentifierMatchesDainaIdentifier = \[Sequences<[UniqueIdentifier][Boolean]>]:foldSequenceWithInitialResultAndOperationToFoldResultIntoSequenceElement (.uniqueIdentifiersRepresentingDainaIdentifier) (\[Boolean]:FALSE) 
+			*([Boolean] givenDainaIdentifierMatchesOneOfTheOtherUniqueIdenitifiersRepresentingDainaIdentifier, [UniqueIdentifier] idenitifierRepresentingDainaIdentifier) {
+		} -> \[Boolean]:logicalOR (\givenDainaIdentifierIdentifier:identifierIs idenitifierRepresentingDainaIdentifier) givenDainaIdentifierMatchesOneOfTheOtherUniqueIdenitifiersRepresentingDainaIdentifier;
+	} -> givenDainaIdentifierMatchesDainaIdentifier
 }
