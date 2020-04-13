@@ -31,20 +31,44 @@
 				\provideNextTokenisingRule TOKENISE_IDENTIFIERS;
 			}	!{
 					[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>] IGNORE_ALL_WHITESPACE = (\[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]:newTokeniserRuleWithTokeniserDecisionFromParticleStream *([ParticleStream<[DainaSourceFileCharacter]>] characterStream) -> [TokeniserDecision<[DainaToken]>] {
-							\[ControlFlow]:repeatWhile (*->\WHITESPACE_CHARACTERS:maybeCharacterIsInSet (\characterStream:maybePeekAtNext)) *{
-								[] _ = \characterStream:maybeTakeNext;
-							};
+							\takeSuccessiveCharactersFromStreamWhichAreInSetWithCharacterReceiver characterStream WHITESPACE_CHARACTERS *([] _) {};
 						} -> \[TokeniserDecision<[DainaToken]>]:dontProduceAnyToken);
 
 					[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>] TOKENISE_IDENTIFIERS = (\[TokenisingRule<[DainaSourceFileCharacter][DainaToken]>]:newTokeniserRuleWithTokeniserDecisionFromParticleStream *([ParticleStream<[DainaSourceFileCharacter]>] characterStream) -> [TokeniserDecision<[DainaToken]>] {
-							\[ControlFlow]:repeatWhile (*->\WHITESPACE_CHARACTERS:maybeCharacterIsInSet (\characterStream:maybePeekAtNext)) *{
-								[] _ = \characterStream:maybeTakeNext;
-							};
-						} -> \[TokeniserDecision<[DainaToken]>]:dontProduceAnyToken);
-
+							[String] nextIdentifierOrEmpty = \[String]:stringWithASCIIDataRepresentationOfString (\[Data]:dataFromBytesWithByteProvider takeAndProvideEachSuccessiveCharacterInIdentifier);
+							[TokeniserDecision<[DainaToken]>] decisionToProduceIdentifierTokenIfThereWasOne = (\[ControlFlow<[TokeniserDecision<[DainaToken]>]>]:selectWithSelectorOrNothing selectTokeniserDecisionToProduceIdentifierTokenIfThereWasOne (*->\[TokeniserDecision<[DainaToken]>]:dontProduceAnyToken))
+								!{
+									[[[TokeniserDecision<[DainaToken]>]->]->] selectTokeniserDecisionToProduceIdentifierTokenIfThereWasOne = *([[TokeniserDecision<[DainaToken]>]->] selectDecision) {
+										[Boolean] identifierExists = \nextIdentifierOrEmpty:isEqualTo (\[String]:stringFromLiteral "");
+										\identifierExists:ifTRUE *{
+											\selectDecision [TokeniserDecision<[DainaToken]>]:dontProduceAnyToken
+										}
+									}
+								}
+						} -> \[TokeniserDecision<[DainaToken]>]:dontProduceAnyToken)
+							!{
+								[Variable<[Maybe<[DainaSourceFilePosition]>]>] currentMaybePositionOfFirstCharacterInIdentifier = \
+								[[[Byte]->]->] takeAndProvideEachSuccessiveCharacterInIdentifier = *([[Byte]->] provideNextIdentifierCharacter){
+									\takeSuccessiveCharactersFromStreamWhichAreInSetWithCharacterReceiver characterStream IDENTIFIER_CHARACTERS *([DainaSourceFileCharacter] nextCharacterInIdentifier) {
+										\provideNextIdentifierCharacter nextCharacterInIdentifier;
+									}
+								}
+							}
 				})	!{
 						[DainaSourceCharacterSet] WHITESPACE_CHARACTERS = \[DainaSourceCharacterSets]:WHITESPACE_CHARACTERS;
 						[DainaSourceCharacterSet] IDENTIFIER_CHARACTERS = \[DainaSourceCharacterSets]:IDENTIFIER_CHARACTERS;
+						
+						[[ParticleStream<[DainaSourceFileCharacter]>][DainaSourceCharacterSet][[DainaSourceFileCharacter]->]->[DainaSourceFilePosition]] takeSuccessiveCharactersFromStreamWhichAreInSetWithCharacterReceiverAndMaybeReturnFirstCharacterPosition = *([ParticleStream<[DainaSourceFileCharacter]>] stream, [DainaSourceCharacterSet] set, [[DainaSourceFileCharacter]->] receiveCharacter) -> [DainaSourceFilePosition] {
+							[DainaSourceFilePosition]
+							\[ControlFlow<>]
+							\[ControlFlow]:repeatWhile (*->\set:maybeCharacterIsInSet (\stream:maybePeekAtNext)) *{
+								[Maybe<[DainaSourceFileCharacter]>] maybeNextCharacterInStreamWhichIsInSet = \stream:maybeTakeNext;
+								\maybeNextCharacterInStreamWhichIsInSet:ifJust *([DainaSourceFileCharacter] nextCharacterInStreamWhichIsInSet) {
+									\receiveCharacter nextCharacterInStreamWhichIsInSet;
+								}
+							};
+						};
+
 					}
 		}
 
@@ -188,12 +212,12 @@
 	++ characterIsInSet *([DainaSourceFileCharacter] givenCharacter) -> [Boolean] {
 	} -> \:characterExistsInSetRepresentedWithASCIIByte (\givenCharacter:byteRepresentingCharacter)
 
-	++ maybeCharacterIsInSet *([Maybe<[DainaSourceFileCharacter]>] maybeGivenCharacter) -> [Boolean] {
+	@@++ maybeCharacterIsInSet *([Maybe<[DainaSourceFileCharacter]>] maybeGivenCharacter) -> [Boolean] {
 	} -> \[ControlFlow<[Boolean]>]:selectWithSelectorOrDefault (*([[Boolean]->]select){
 			\maybeGivenCharacter:ifJust *([DainaSourceFileCharacter] givenCharacter){
 				\select (\:characterIsInSet givenCharacter)
 			}
-		}) (*->\[Boolean]:FALSE)
+		}) (*->\[Boolean]:FALSE)@@
 }
 
 
