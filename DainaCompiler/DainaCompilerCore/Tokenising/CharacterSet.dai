@@ -1,17 +1,27 @@
 
 [CharacterSet : [Object]] (
-		Object
+		Object,
+		Byte,
+		String,
+		Boolean,
+		Set,
+		Data
 	)
+	[Set<[String]>] charactersInSetRepresentedByStrings
 {
 	~ emptyCharacterSet *{
 		\::newObject;
+		.charactersInSetRepresentedByStrings = \[Set<[String]>]:newEmptySet;
 	}
 
 	++ addCharacterToSetRepresentedWithASCIIByte *([Byte] asciiByteCharacterToAddToSet) {
-
+		\.charactersInSetRepresentedByStrings:addObjectToSet (\:stringRepresentationOfByte asciiByteCharacterToAddToSet);
 	}
 
-	++ characterExistsInSetRepresentedWithASCIIByte *([Byte] asciiByteCharacterToAddToSet) {
+	++ characterExistsInSetRepresentedWithASCIIByte *([Byte] asciiByteCharacter) -> [Boolean] {
+	} -> \.charactersInSetRepresentedByStrings:isObjectInSet (\:stringRepresentationOfByte asciiByteCharacter)
 
-	}
+	- stringRepresentationOfByte *([Byte] givenByte) -> [String] {
+	} -> \[String]:stringWithASCIIDataRepresentationOfString (\[Data]:dataFromBytesWithByteProvider *([[Byte]->]b){\b givenByte})
 }
+

@@ -1,7 +1,9 @@
 
-[UniqueIdentifier] (Boolean) {
+[UniqueIdentifier : [Object]] (Boolean, Object) {
 
-	~ uniqueIdentifier *{}
+	~ uniqueIdentifier *{
+		\::newObject;
+	}
 
 	++ identifierIs *([UniqueIdentifier] givenIdentifier) -> [Boolean] {
 		[Boolean] identifiersAreTheSame = \[Boolean]:false;

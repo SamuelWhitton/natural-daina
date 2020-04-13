@@ -1,10 +1,9 @@
 
  
-[DainaSourceFileCharacter : [SetObject<[DainaSourceFileCharacter]>]] (
+[DainaSourceFileCharacter : [Object]] (
 		Object,
 		Byte,
-		DainaSourceFilePosition,
-		SetObject
+		DainaSourceFilePosition
 	)
 	[DainaSourceFilePosition] positionInSourceFile
 	[Byte] byteRepresentingCharacter

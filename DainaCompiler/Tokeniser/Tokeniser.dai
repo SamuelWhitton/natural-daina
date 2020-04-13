@@ -97,18 +97,21 @@
 					\maybeNextToken:ifJust *([&TOKEN] nextToken) {
 						\selectNextTokenOrUnprocessedParticle (\[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]:asJust (\[Or<[&TOKEN][&PARTICLE]>]:asLeft nextToken));
 					};
-					\maybeNextToken:ifNothing maybeSelectNextUnprocessedParticleIfStreamHasNotBeenAccessed
-						!{
-							[->] maybeSelectNextUnprocessedParticleIfStreamHasNotBeenAccessed = *{
-								\streamWasAccessedByOneOrMoreTokenisingRules:ifFALSE *{
-									[Maybe<[&PARTICLE]>] maybeNextUnprocessedParticle = \.monitoredStreamOfUnprocessedParticles:maybeTakeNextAvaliableParticle;
-									\maybeNextUnprocessedParticle:ifJust *([&PARTICLE] nextUnprocessedParticle) {
-										\selectNextTokenOrUnprocessedParticle (\[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]:asJust (\[Or<[&TOKEN][&PARTICLE]>]:asRight nextUnprocessedParticle));
-									}
-								}
+					\streamWasAccessedByOneOrMoreTokenisingRules:ifTRUE reprocessNextTokenOrSelectNextUnprocessedParticle;
+					\streamWasAccessedByOneOrMoreTokenisingRules:ifFALSE *{
+						\maybeNextToken:ifNothing maybeSelectNextUnprocessedParticle
+					}	
+				}	!{
+						[->] maybeSelectNextUnprocessedParticle = *{
+							[Maybe<[&PARTICLE]>] maybeNextUnprocessedParticle = \.monitoredStreamOfUnprocessedParticles:maybeTakeNext;
+							\maybeNextUnprocessedParticle:ifJust *([&PARTICLE] nextUnprocessedParticle) {
+								\selectNextTokenOrUnprocessedParticle (\[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]:asJust (\[Or<[&TOKEN][&PARTICLE]>]:asRight nextUnprocessedParticle));
 							}
 						};
-				};
+						[->] reprocessNextTokenOrSelectNextUnprocessedParticle = *{
+							\selectNextTokenOrUnprocessedParticle \:maybeProcessNextTokenOrReturnNextUnprocessedParticle;
+						};
+					};
 				[->[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]] defaultToNothing = *->\[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]:asNothing;
 			}
 	}	!{

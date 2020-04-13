@@ -69,7 +69,7 @@
 					[Variable<[Sequence<[Byte]>]>] currentUnprocessedByteSequenceFromDainaSource = \[Variable<[Sequence<[Byte]>]>]:as byteSequenceFromDainaSource;
 					[Variable<[Sequence<[Byte]>]>] currentByteSequenceFromCurrentLineInDainaSource = \[Variable<[Sequence<[Byte]>]>]:as (\[Sequence<[Byte]>]:emptySequence);
 					
-					[Byte] newlineByte = \[Byte]:newByte 0b0A;
+					[Byte] newlineByte = \[Byte]:byteFromLiteral 0b0A;
 					
 					[[Byte]->[Boolean]] isByteANewline = *([Byte]b)->[Boolean]{}->\b:sameAsByte newlineByte;
 					

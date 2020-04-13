@@ -19,6 +19,13 @@ Byte : [Object]
 		.internalByte = constantByteInternal;
 	}
 
+	~ byteFromLiteral *([%BYTE] constantByte) {
+		\::new;
+		[] constantByteInternal = ();
+		<instant ## Z_local_constantByteInternal = Z_local_constantByte; ##;
+		.internalByte = constantByteInternal;
+	}
+
 	++ sameAsByte *([Byte] anotherByte) -> [Boolean] {
 		[Boolean] bytesAreTheSame = \[Boolean]:false;
 		<instant

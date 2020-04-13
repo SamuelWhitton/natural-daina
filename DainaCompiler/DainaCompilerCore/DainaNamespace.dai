@@ -5,7 +5,7 @@
 		\::newObject;
 	}
 
-	++ dainaIdentifierRepresentedByStringWithinNamespace *([String] givenStringRepresentingDainaIdentifier) {
+	++ dainaIdentifierRepresentedByStringWithinNamespace *([String] givenStringRepresentingDainaIdentifier) -> [DainaIdentifier] {
 		[DainaIdentifier] dainaIdentifier = \[DainaIdentifier]:dainaIdentifierRepresentedByUniqueIdentifiers (\[Sequence<[UniqueIdentifier]>]:emptySequence);
 	} -> dainaIdentifier
 }
