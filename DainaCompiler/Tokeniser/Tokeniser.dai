@@ -23,7 +23,7 @@
 		[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] tokensAndRemainingUntokenisedParticles = \[ControlFlow<[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]>]:constructRecursively *([->[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]] constructRestOfTokenOrUnprocessedParticleSequence) -> [Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] {
 			[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>] tokensAndRemainingUntokenisedParticles = \[ControlFlow<[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]>]:selectWithSelectorOrDefault *([[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]->] selectTokensAndRemainingUntokenisedParticles) {
 				[Maybe<[Or<[DainaToken][DainaSourceFileCharacter]>]>] maybeNextTokenOrUnprocessedParticle = \processorForGivenParticleSequence:maybeProcessNextTokenOrReturnNextUnprocessedParticle;
-				\maybeNextTokenOrUnprocessedParticle:ifJust *([Or<[DainaToken][DainaSourceFileCharacter]>] nextTokenOrUnprocessedParticle) {
+				\maybeNextTokenOrUnprocessedParticle:ifJust *([Or<[DainaToken][DainaSourceFileCharacter]>] nextTokenOrUnprocessedParticle) {					
 					\selectTokensAndRemainingUntokenisedParticles (\[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]:sequenceWithFirstAndRestOfSequenceProvider (nextTokenOrUnprocessedParticle) constructRestOfTokenOrUnprocessedParticleSequence);
 				}
 			} (*->\[Sequence<[Or<[DainaToken][DainaSourceFileCharacter]>]>]:emptySequence)
@@ -97,10 +97,13 @@
 					\maybeNextToken:ifJust *([&TOKEN] nextToken) {
 						\selectNextTokenOrUnprocessedParticle (\[Maybe<[Or<[&TOKEN][&PARTICLE]>]>]:asJust (\[Or<[&TOKEN][&PARTICLE]>]:asLeft nextToken));
 					};
-					\streamWasAccessedByOneOrMoreTokenisingRules:ifTRUE reprocessNextTokenOrSelectNextUnprocessedParticle;
-					\streamWasAccessedByOneOrMoreTokenisingRules:ifFALSE *{
-						\maybeNextToken:ifNothing maybeSelectNextUnprocessedParticle
-					}	
+					\maybeNextToken:ifNothing *{
+						\streamWasAccessedByOneOrMoreTokenisingRules:ifTRUE reprocessNextTokenOrSelectNextUnprocessedParticle;
+						\streamWasAccessedByOneOrMoreTokenisingRules:ifFALSE *{
+							\maybeNextToken:ifNothing maybeSelectNextUnprocessedParticle
+						}	
+					}
+					
 				}	!{
 						[->] maybeSelectNextUnprocessedParticle = *{
 							[Maybe<[&PARTICLE]>] maybeNextUnprocessedParticle = \.monitoredStreamOfUnprocessedParticles:maybeTakeNext;

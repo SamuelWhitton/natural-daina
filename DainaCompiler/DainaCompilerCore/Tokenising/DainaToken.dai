@@ -21,22 +21,27 @@
 	++ getPositionOfTokenInOriginalSourceFile *->.positionOfTokenInSourceFile
 }
 
-[DainaTokenObserver : [Object]] (Object) 
+[DainaTokenObserver : [Object]] (Object, DainaIdentifier) 
 {
 	~ impotentDainaTokenObserver *{
 		\::newObject;
 	}
 	++ observeUnknownToken *{}
+	++ observeTokenCorrespondingToDainaIdentifier *([DainaIdentifier] identifier){}
 }
 
 [DainaTokens] (
 		DainaToken, 
 		DainaTokenObserver,
-		DainaSourceFilePosition
+		DainaSourceFilePosition,
+		DainaIdentifier
 	) 
 {
 	:: UNKNOWN_TOKEN_AT_POSITION *([DainaSourceFilePosition] position)->[DainaToken] {} -> (\[DainaToken]:dainaTokenWithSourceFilePositionAndTokenObservationProvider position (*([DainaTokenObserver] observer){
 		\observer:observeUnknownToken}))
+
+	:: IDENTIFIER_TOKEN_AT_POSITION_AS_DAINA_IDENTIFIER *([DainaSourceFilePosition] position, [DainaIdentifier] dainaIdentifier)->[DainaToken] {} -> (\[DainaToken]:dainaTokenWithSourceFilePositionAndTokenObservationProvider position (*([DainaTokenObserver] observer){
+		\observer:observeTokenCorrespondingToDainaIdentifier dainaIdentifier}))
 }
 
 

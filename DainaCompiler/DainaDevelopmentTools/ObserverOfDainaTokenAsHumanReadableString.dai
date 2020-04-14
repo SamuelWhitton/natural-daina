@@ -1,7 +1,8 @@
 
 [ObserverOfDainaTokenAsHumanReadableString : [DainaTokenObserver]] (
 		DainaTokenObserver,
-		String
+		String,
+		DainaIdentifier
 	) 
 	[[String]->] sendTokenStringToReceiver
 {
@@ -15,6 +16,10 @@
 
 	|++ observeUnknownToken *{
 		\:observeTokenAsHumanReadableString (\[String]:stringFromLiteral "UNKNOWN");
+	}
+
+	|++ observeTokenCorrespondingToDainaIdentifier *([DainaIdentifier] identifier){
+		\:observeTokenAsHumanReadableString (\[String]:stringFromLiteral "IDENTIFIER");
 	}
 }
 
