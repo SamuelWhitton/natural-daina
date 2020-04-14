@@ -44,11 +44,11 @@
 	}	!{
 			[[File][DainaNamespaceReference]->] parseDainaSourceFileIntoSyntaxTreeWithNamespaceSelection = *([File] dainaSourceFile, [DainaNamespaceReference] dainaNamespaceSelection) {
 				[Sequence<[DainaToken]>] tokensSequencedFromDainaSourceFile = \.dainaSourceFileTokeniser:tokeniseDainaSourceFileIntoSequenceOfTokensWithinNamespace dainaSourceFile \[DainaNamespace]:testNamespace;
-				\[DEVELOPMENT_DainaLogger]:logSequenceOfDainaTokens tokensSequencedFromDainaSourceFile;
+				@\[DEVELOPMENT_DainaLogger]:logSequenceOfDainaTokens tokensSequencedFromDainaSourceFile;
 
-				@\[Sequences<[DainaToken]>]:iterateThroughSequenceWithReceiver tokensSequencedFromDainaSourceFile *([DainaToken] dainaToken) {
-				@	
-				@};
+				\[Sequences<[DainaToken]>]:iterateThroughSequenceWithReceiver tokensSequencedFromDainaSourceFile *([DainaToken] dainaToken) {	
+				};
+
 				@[]
 				@\:reportStatus (\[InformationStatus]:INFORMATION_WITH_INFORMATION_STRING (\[String]:stringFromLiteral "Test parse"))
 				@\.syntaxTreeRepresentingParsedProgram:parseDainaSourceFileIntoSyntaxTreeWithStatusReporter dainaSourceFile dainaStatusReporter

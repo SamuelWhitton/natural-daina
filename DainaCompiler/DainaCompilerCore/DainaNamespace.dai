@@ -1,11 +1,12 @@
 
-[DainaNamespace : [Object]] (Object, DainaIdentifier, String, Sequence, UniqueIdentifier)
+[DainaNamespace : [Object]] (Object, DainaIdentifier, String, Sequence, UniqueIdentifier,DEVELOPMENT_Logger)
 {
 	~ testNamespace *() {
 		\::newObject;
 	}
 
 	++ dainaIdentifierRepresentedByStringWithinNamespace *([String] givenStringRepresentingDainaIdentifier) -> [DainaIdentifier] {
+		\[DEVELOPMENT_Logger]:logStringLine givenStringRepresentingDainaIdentifier;
 		[DainaIdentifier] dainaIdentifier = \[DainaIdentifier]:dainaIdentifierRepresentedByUniqueIdentifiers (\[Sequence<[UniqueIdentifier]>]:emptySequence);
 	} -> dainaIdentifier
 }

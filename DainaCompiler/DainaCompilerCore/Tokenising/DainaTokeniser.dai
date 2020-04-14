@@ -104,7 +104,7 @@
 				[DainaSourceFilePosition] _badPositionDueToLanguageLimitation = \[DainaSourceFilePosition]:firstCharacterPositionInDainaSourceFileWithFilePathAndFirstLineContent (\[String]:stringFromLiteral "XXX") (\[String]:stringFromLiteral "XXX");
 				[[Or<[DainaToken][DainaSourceFileCharacter]>]->[DainaToken]] transformRemainingUntokenisedCharactersIntoUnknownTokens = *([Or<[DainaToken][DainaSourceFileCharacter]>] tokenOrUntokenisedCharacter) -> [DainaToken] {
 					[DainaToken] tokenOrUnknownToken = \[ControlFlow<[DainaToken]>]:selectWithSelectorOrDefault (*([[DainaToken]->]t){\tokenOrUntokenisedCharacter:isLeftOrRight (*([DainaToken] token) {
-								<instant ##printf("assd\n");##;
+								
 							\t token;
 						})
 						(*([DainaSourceFileCharacter]c){\t (\[DainaTokens]:UNKNOWN_TOKEN_AT_POSITION (\c:positionInSourceFile))})}) (*->\[DainaTokens]:UNKNOWN_TOKEN_AT_POSITION (_badPositionDueToLanguageLimitation))
