@@ -9,10 +9,10 @@
     + [Inheritance](#inheritance)
     + [Methods and Lambdas](#methods-and-lambdas)
     + [Constructor Methods, Instance Methods and Type Methods](#constructor-methods-instance-methods-and-type-methods)
-    + [Generics \(TODO\)]
-    + [Method Visibility \(TODO\)]
-    + [Prologue Statements \(TODO\)]
-    + [Data Segments \(TODO\)]
+    + Generics (TODO)
+    + Method Visibility (TODO)
+    + Prologue Statements (TODO)
+    + Data Segments (TODO)
 
 ## Tutorial
 
