@@ -60,7 +60,7 @@ A class can reference other classes if it includes a dependancy list. A class **
 
 [ClassC] (ClassA, ClassB) {}
 ```
-There is no circular dependancies allowed. So the following is impossible
+No circular dependancies are allowed in Daina. Therefore the following is invalid because **ClassA** depends on **ClassC**, which depends on **ClassB**, which depends on **ClassA**...
 ```
 [ClassA] (ClassC) {}
 
@@ -68,7 +68,7 @@ There is no circular dependancies allowed. So the following is impossible
 
 [ClassC] (ClassB) {}
 ```
-There is also a reverse dependancy list which restricts which classes depend on the given class. In the following example **ClassA** can only be depended apon by **ClassB**
+Daina has a reverse dependancy list which restricts which classes depend on the given class. In the following example **ClassA** can only be depended apon by **ClassB**
 ```
 [ClassA] -> (ClassB) {}
 
@@ -550,7 +550,7 @@ Inheritance can be used to copy all the methods from an existing class into a ne
 ```
 Writing **:[Animal]** after the name of a class means that the class will inherit the methods from **[Animal]**. So **Dog** and **Bird** are both inheriting the instance methods **sleep** and **eat** from **[Animal]**. For example when **\muffles:sleep;** is executed, the **sleep** instance method from **[Animal]** is invoked on **muffles** and when **\chandler:sleep;** is executed, the same instance method is invoked on **chandler**. 
 
-There is a rule that a class must evaluate a constructor method of the inherited parent within its constructor. In other words, the constructor methods **createDog** and **createBird** must invoke a constructor from **[Animal]**. In the following example we complete **createBird** and **createDog** with a new constructor **createAnimal**
+Daina has is a rule that a class must evaluate a constructor method of the inherited parent within its constructor. In other words, the constructor methods **createDog** and **createBird** must invoke a constructor from **[Animal]**. In the following example we complete **createBird** and **createDog** with a new constructor **createAnimal**
 ```
 [] (Dog, Bird) {
     *{
@@ -858,7 +858,7 @@ In summary:
 
 ### Methods and Lambdas
 
-A method is a basic building block of code which can have zero or more input objects, a method body with zero or more executable statements, and optionally an output object. Constructor methods and instance methods are both types of methods. There are a number of ways to express a method, here are a few examples:
+A method is a basic building block of code which can have zero or more input objects, a method body with zero or more executable statements, and optionally an output object. Constructor methods and instance methods are both types of methods. Daina has are a number of ways to express a method, here are a few examples:
 
 1. A method with no inputs or outputs
        *{
@@ -1065,126 +1065,126 @@ In summary:
 
 ### Constructor Methods, Instance Methods and Type Methods
 
-Constructor methods are unique because they cannot explicitly return a value like other methods. A constructors job is to construct and return a new object of the type matching the class they are within. However, a constructor method can have input objects. In the following example, a constructor called **newQContainer** is defined for **[QContainer]** which takes a parameter of type **[Q]** and assigns it as an instance object
+Constructor methods are unique because they cannot explicitly return a value like other methods. A constructors job is to construct and return a new object of the type matching the class they are within. However, a constructor method can have input objects. In the following example, a constructor called **newHatContainer** is defined for **[HatContainer]** which takes a parameter of type **[Hat]** and assigns it as an instance object
 ```
-[QContainer] (Q)
-    [Q] q
+[HatContainer] (Hat)
+    [Hat] hat
 {
-    ~ newQContainer *([Q] qInput) {
-        .q = qInput;
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
     }
 }
 
-[Q] {
-    ~ newQ *{}
+[Hat] {
+    ~ newHat *{}
 }
 ```
-**newQContainer** is invoked similar to other methods with the inputs written after **[QContainer]:newContainer**. A **[QContainer]** object is created called **containerOfQObject**
+**newHatContainer** is invoked similar to other methods with the inputs written after **[HatContainer]:newHatContainer**. A **[HatContainer]** object is created called **hatContainer**
 ```
-[] (Q, QContainer) {
+[] (Hat, HatContainer) {
     *{
-        [Q] someQObject = \[Q]:newQ;
-        [QContainer] containerOfQObject = \[QContainer]:newContainer someQObject;
+        [Hat] someHat = \[Hat]:newHat;
+        [HatContainer] hatContainer = \[HatContainer]:newHatContainer someHat;
     }
 }
 
-[QContainer] (Q)
-    [Q] q
+[HatContainer] (Hat)
+    [Hat] hat
 {
-    ~ newQContainer *([Q] qInput) {
-        .q = qInput;
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
     }
 }
 
-[Q] {
-    ~ newQ *{}
+[Hat] {
+    ~ newHat *{}
 }
 ```
-Instance methods can have inputs and optionally return an object. Instance methods are invoked on an object and can access the instance objects and methods within the object it is invoked on. We add an instance method **getQ** which returns the **q** object from **[QContainer]**, and then we retrive it as **qObjectTakenFromContainer**
+Instance methods can have inputs and optionally return an object. Instance methods are invoked on an object and can access the instance objects and methods within the object it is invoked on. We add an instance method **getHat** which returns the **hat** object from **[HatContainer]**, and then we retrive it as **hatTakenFromContainer**
 ```
-[] (Q, QContainer) {
+[] (Hat, HatContainer) {
     *{
-        [Q] someQObject = \[Q]:newQ;
-        [QContainer] containerOfQObject = \[QContainer]:newContainer someQObject;
-        [Q] qObjectTakenFromContainer = \containerOfQObject:getQ;
+        [Hat] someHat = \[Hat]:newHat;
+        [HatContainer] hatContainer = \[HatContainer]:newHatContainer someHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getHat;
     }
 }
 
-[QContainer] (Q)
-    [Q] q
+[HatContainer] (Hat)
+    [Hat] hat
 {
-    ~ newQContainer *([Q] qInput) {
-        .q = qInput;
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
     }
-    +++ getQ *->[Q]{}->.q
+    +++ getHat *->[Hat]{}->.hat
 }
 
-[Q] {
-    ~ newQ *{}
+[Hat] {
+    ~ newHat *{}
 }
 ```
-Type methods (similar to static or class methods in other object oriented languages) can take inputs and optionally return an object. A type method is not attached to an instance, and is invoked similarly to a constructor method. A type method **createQContainer** is added which creates a **[QContainer]**, similar to the constructor **newQContainer**, and then we invoke this method to create **container2OfQObject**
+Type methods (similar to static or class methods in other object oriented languages) can take inputs and optionally return an object. A type method is not attached to an instance, and is invoked similarly to a constructor method. A type method **createHatContainer** is added which creates a **[HatContainer]**, similar to the constructor **newHatContainer**, and then we invoke this method to create **hatContainer2**
 ```
-[] (Q, QContainer) {
+[] (Hat, HatContainer) {
     *{
-        [Q] someQObject = \[Q]:newQ;
-        [QContainer] containerOfQObject = \[QContainer]:newContainer someQObject;
-        [Q] qObjectTakenFromContainer = \containerOfQObject:getQ;
-        [QContainer] container2OfQObject = \[QContainer]:createQContainer someQObject;
+        [Hat] someHat = \[Hat]:newHat;
+        [HatContainer] hatContainer = \[HatContainer]:newHatContainer someHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getHat;
+        [HatContainer] hatContainer2 = \[HatContainer]:createHatContainer someHat;
     }
 }
 
-[QContainer] (Q)
-    [Q] q
+[HatContainer] (Hat)
+    [Hat] hat
 {
-    :: createQContainer *([Q] qObject) -> [QContainer] {
-        [QContainer] newQContainer = \[QContainer]:newQContainer qObject;
-    } -> newQContainer
+    :: createHatContainer *([Hat] hat) -> [HatContainer] {
+        [HatContainer] newHatContainer = \[HatContainer]:newHatContainer hat;
+    } -> newHatContainer
 
-    ~ newQContainer *([Q] qInput) {
-        .q = qInput;
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
     }
-    +++ getQ *->[Q]{}->.q
+    +++ getHat *->[Hat]{}->.hat
 }
 
-[Q] {
-    ~ newQ *{}
+[Hat] {
+    ~ newHat *{}
 }
 ```
-In the following example, we add type method **getQFromQContainer** which gets the **q** from a **[QContainer]**, then we invoke this method and name the result **qObjectTakenFromContainer2**
+In the following example, we add type method **getHatFromHatContainer** which gets the **hat** from a **[HatContainer]**, then we invoke this method and name the result **hatTakenFromContainer2**
 ```
-[] (Q, QContainer) {
+[] (Hat, HatContainer) {
     *{
-        [Q] someQObject = \[Q]:newQ;
-        [QContainer] containerOfQObject = \[QContainer]:newContainer someQObject;
-        [Q] qObjectTakenFromContainer = \containerOfQObject:getQ;
-        [QContainer] container2OfQObject = \[QContainer]:createQContainer someQObject;
-        [Q] qObjectTakenFromContainer2 = \[QContainer]:getQFromQContainer container2OfQObject;
+        [Hat] someHat = \[Hat]:newHat;
+        [HatContainer] hatContainer = \[HatContainer]:newHatContainer someHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getHat;
+        [HatContainer] hatContainer2 = \[HatContainer]:createHatContainer someHat;
+        [Hat] hatTakenFromContainer2 = \[HatContainer]:getHatFromHatContainer hatContainer2;
     }
 }
 
-[QContainer] (Q)
-    [Q] q
+[HatContainer] (Hat)
+    [Hat] hat
 {
-    :: createQContainer *([Q] qObject) -> [QContainer] {
-        [QContainer] newQContainer = \[QContainer]:newQContainer qObject;
-    } -> newQContainer
+    :: createHatContainer *([Hat] hat) -> [HatContainer] {
+        [HatContainer] newHatContainer = \[HatContainer]:newHatContainer hat;
+    } -> newHatContainer
 
-    :: getQFromQContainer *([QContainer] qContainer) -> [Q] {
-        [Q] qObjectFromQContainer = \qContainer:getQ;
-    } -> qObjectFromQContainer
+    :: getHatFromHatContainer *([HatContainer] hatContainer) -> [Hat] {
+        [Hat] hatFromHatContainer = \hatContainer:getHat;
+    } -> hatFromHatContainer
 
-    ~ newQContainer *([Q] qInput) {
-        .q = qInput;
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
     }
-    +++ getQ *->[Q]{}->.q
+    +++ getHat *->[Hat]{}->.hat
 }
 
-[Q] {
-    ~ newQ *{}
+[Hat] {
+    ~ newHat *{}
 }
 ```
-**someQObject**, **qObjectTakenFromContainer** and **qObjectTakenFromContainer2** are all refering to the same object.
+**someHat**, **hatTakenFromContainer** and **hatTakenFromContainer2** are all refering to the same object.
 
 In summary:
 
@@ -1192,3 +1192,183 @@ In summary:
 + An instance method is invoked on a object. Type methods and constructor methods are not invoked on an object.
 + An instance method can access the instance objects and methods within the object it is invoked on.
 + Instance methods, type methods and constructor methods are invoked by writing **\\**, then the method, and then each of the input objects. The result of a method invocation is the output object.
+
+
+### Generics
+
+Consider the previous example of a **[HatContainer]**
+```
+[] (Hat, HatContainer) {
+    *{
+        [Hat] someHat = \[Hat]:newHat;
+        [HatContainer] hatContainer = \[HatContainer]:newHatContainer someHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getHat;
+    }
+}
+
+[HatContainer] (Hat)
+    [Hat] hat
+{
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
+    }
+    +++ getHat *->[Hat]{}->.hat
+}
+
+[Hat] {
+    ~ newHat *{}
+}
+```
+It is also be useful to contain a **[Shoe]**, and so we create a **[ShoeContainer]** which is very similar to a **[HatContainer]**
+```
+[] (Hat, HatContainer, Shoe, ShoeContainer) {
+    *{
+        [Hat] someHat = \[Hat]:newHat;
+        [HatContainer] hatContainer = \[HatContainer]:newHatContainer someHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getHat;
+
+        [Shoe] someShoe = \[Shoe]:newShoe;
+        [ShoeContainer] shoeContainer = \[ShoeContainer]:newShoeContainer someShoe;
+        [Shoe] shoeTakenFromContainer = \shoeContainer:getShoe;
+    }
+}
+
+[ShoeContainer] (Shoe)
+    [Shoe] shoe
+{
+    ~ newShoeContainer *([Shoe] shoeInput) {
+        .shoe = shoeInput;
+    }
+    +++ getShoe *->[Shoe]{}->.shoe
+}
+
+[HatContainer] (Hat)
+    [Hat] hat
+{
+    ~ newHatContainer *([Hat] hatInput) {
+        .hat = hatInput;
+    }
+    +++ getHat *->[Hat]{}->.hat
+}
+
+[Shoe] {
+    ~ newShoe *{}
+}
+
+[Hat] {
+    ~ newHat *{}
+}
+```
+**[ShoeContainer]** and **[HatContainer]** are almost the same except one contains a **[Shoe]** and the other contains a **[Hat]**. Using generics we can combine **ShoeContainer** and **HatContainer** into a single class. In the following example, we introduce a generic type **[&CONTAINED_OBJECT]** to a new class called **Container** and use this new class to replace **ShoeContainer** and **HatContainer**
+```
+[] (Hat, Shoe, Container) {
+    *{
+        [Hat] someHat = \[Hat]:newHat;
+        [Container<[Hat]>] hatContainer = \[Container<[Hat]>]:newContainer someHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getContainedObject;
+
+        [Shoe] someShoe = \[Shoe]:newShoe;
+        [Container<[Shoe]>] shoeContainer = \[Container<[Shoe]>]:newContainer someShoe;
+        [Shoe] shoeTakenFromContainer = \shoeContainer:getContainedObject;
+    }
+}
+
+[Container<CONTAINED_OBJECT>]
+    [&CONTAINED_OBJECT] containedObject
+{
+    ~ newContainer *([&CONTAINED_OBJECT] objectToBeContained) {
+        .containedObject = objectToBeContained;
+    }
+    +++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
+}
+
+[Shoe] {
+    ~ newShoe *{}
+}
+
+[Hat] {
+    ~ newHat *{}
+}
+```
+Within the **Container** class, **< CONTAINED_OBJECT >** is written after the class name to define the generic type **[&CONTAINED_OBJECT]**. A generic type is always represented with a **&** symbol. Instances of **[HatContainer]** are replaced with **[Container<[Hat]>]** and instances of **[ShoeContainer]** are replaced with **[Container<[Shoe]>]**. **[Container<[Hat]>]** represents the **Container** class where every usage of **[&CONTAINED_OBJECT]** is replaced with **[Hat]**. In other words, **[Container<[Hat]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Hat]**. Similarly, **[Container<[Shoe]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Shoe]**.
+
+Explicitly replacing **[&CONTAINED_OBJECT]** with **[Hat]** in the **Container** class to represent **[Container<[Hat]>]**:
+```
+[Container<CONTAINED_OBJECT>]
+    [Hat] containedObject
+{
+    ~ newContainer *([Hat] objectToBeContained) {
+        .containedObject = objectToBeContained;
+    }
+    +++ getContainedObject *->[Hat]{}->.containedObject
+}
+```
+Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container** class to represent **[Container<[Shoe]>]**:
+```
+[Container<CONTAINED_OBJECT>]
+    [Shoe] containedObject
+{
+    ~ newContainer *([Shoe] objectToBeContained) {
+        .containedObject = objectToBeContained;
+    }
+    +++ getContainedObject *->[Shoe]{}->.containedObject
+}
+```
+**[Container<[Hat]>]** and **[Container<[Shoe]>]** are considered to be incompatible types, in other words it is invalid to assign a **[Container<[Hat]>]** object as a **[Container<[Shoe]>]** object and vise versa. For example, the following assignment of **shoeContainer** and **hatContainer** is invalid:
+```
+[] (Hat, Shoe, Container) {
+    *{
+        [Shoe] someShoe = \[Shoe]:newShoe;
+        [Container<[Shoe]>] shoeContainer = \[Container<[Hat]>]:newContainer someShoe; @ Invalid; a [Container<[Hat]>] is not compatible with a [Container<[Shoe]>]
+        [Hat] someHat = \[Hat]:newHat;
+        [Container<[Hat]>] hatContainer = \[Container<[Shoe]>]:newContainer someHat; @ Invalid; a [Container<[Shoe]>] is not compatible with a [Container<[Hat]>]
+    }
+}
+
+[Container<CONTAINED_OBJECT>]
+    [&CONTAINED_OBJECT] containedObject
+{
+    ~ newContainer *([&CONTAINED_OBJECT] objectToBeContained) {
+        .containedObject = objectToBeContained;
+    }
+    +++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
+}
+
+[Shoe] {
+    ~ newShoe *{}
+}
+
+[Hat] {
+    ~ newHat *{}
+}
+```
+**[Container<[Hat]>]** and **[Container<[Shoe]>]** are incompatible types, but not every **Container** type is incompatible. In the following example, a **[Container<[Hat]>]** **hatContainer** is assigned to a new **[Container<[BowlerHat]>]** and **BowlerHat** inherits from **Hat**
+```
+[] (Hat, BowlerHat, Container) {
+    *{
+        [BowlerHat] someBowlerHat = \[BowlerHat]:newBowlerHat;
+        [Container<[Hat]>] hatContainer = \[Container<[BowlerHat]>]:newContainer someBowlerHat;
+        [Hat] hatTakenFromContainer = \hatContainer:getContainedObject;
+    }
+}
+
+[Container<CONTAINED_OBJECT>]
+    [&CONTAINED_OBJECT] containedObject
+{
+    ~ newContainer *([&CONTAINED_OBJECT] objectToBeContained) {
+        .containedObject = objectToBeContained;
+    }
+    +++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
+}
+
+[BowlerHat] (Hat) {
+    ~ newBowlerHat *{
+        \$~newHat;
+    }
+}
+
+[Hat] {
+    ~ newHat *{}
+}
+```
+In the above example, **someBowlerHat** and **hatTakenFromContainer** represent the same object. In general, types from a generic class are compatible if the instantiated types are compatible. Applying this to **Container**, if **[G]** is a parent type of **[H]** then **[Container<[G]>]** is a parent type of **[Container<[H]>]**.
