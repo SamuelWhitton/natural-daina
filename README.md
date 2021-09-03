@@ -9,7 +9,8 @@
     + [Inheritance](#inheritance)
     + [Methods and Lambdas](#methods-and-lambdas)
     + [Constructor Methods, Instance Methods and Type Methods](#constructor-methods-instance-methods-and-type-methods)
-    + Generics (TODO)
+    + [Class Generics](#class-generics)
+    + Method Generics (TODO)
     + Method Visibility (TODO)
     + Prologue Statements (TODO)
     + Data Segments (TODO)
@@ -99,7 +100,7 @@ Classes are a template used to create objects. Instance is another word used for
 {
 }
 ```
-**[ClassA]** is the type of **aObject**. Types are used to classify objects. A second instance object **bObject** is added with the type **[ClassB]**
+**[ClassA]** is declared to be the type of **aObject**. Types are used to classify objects. A second instance object **bObject** is declared with the type **[ClassB]**
 ```
 [ClassA] {}
 
@@ -860,27 +861,40 @@ In summary:
 
 A method is a basic building block of code which can have zero or more input objects, a method body with zero or more executable statements, and optionally an output object. Constructor methods and instance methods are both types of methods. Daina has are a number of ways to express a method, here are a few examples:
 
-1. A method with no inputs or outputs
-       *{
-           @ method body
-       }
-The method body is always between the **{** **}** brackets.
+1. A method with no inputs or outputs. The method body is always between the **{** **}** brackets:
 
-2. A method with a single input of type **[A]** called **aInput**
-       *([A]aInput){}
+```
+*{
+    @ method body
+}
+```
 
-3. A method with a **[A]** and **[B]** input, which returns the **[B]** input
-       *([A]aInput,[B]bInput)->[B]{
-       } -> bInput
-The **->[B]** denotes that the return object is of type **[B]**. The **-> bInput** denotes that the object called **bInput** is returned by the method.
+2. A method with a single input of type **[A]** called **aInput**:
 
-4. A method taking no arguments, and returns a object called **aOutput** of type **[A]** which is defined by a statement inside the method body
-       *->[A]{
-           [A] aOutput = \[A]:newA;
-       } -> aOutput
+```
+*([A]aInput){}
+```
 
-5. A method returning a **[A]** object defined as the result of an expression after the return **->**
-       *->[A]{} -> \[A]:newA
+3. A method with an **[A]** and **[B]** input, which returns the **[B]** input. The **->[B]** denotes that the return object is of type **[B]**. The **-> bInput** denotes that the object called **bInput** is returned by the method:
+
+```
+*([A]aInput,[B]bInput)->[B]{
+} -> bInput
+```
+
+4. A method taking no arguments, and returns a object called **aOutput** of type **[A]** which is defined by a statement inside the method body:
+
+```
+*->[A]{
+    [A] aOutput = \[A]:newA;
+} -> aOutput
+```
+
+5. A method returning an **[A]** object defined as the result of an expression after the return **->**:
+
+```
+*->[A]{} -> \[A]:newA
+```
 
 A method can be encasulated as a object, this is commonly called a lambda expression in other languages. The following example shows statements assigning the previous example methods as local objects:
 ```
@@ -1194,7 +1208,7 @@ In summary:
 + Instance methods, type methods and constructor methods are invoked by writing **\\**, then the method, and then each of the input objects. The result of a method invocation is the output object.
 
 
-### Generics
+### Class Generics
 
 Consider the previous example of a **[HatContainer]**
 ```
@@ -1219,7 +1233,7 @@ Consider the previous example of a **[HatContainer]**
     ~ newHat *{}
 }
 ```
-It is also be useful to contain a **[Shoe]**, and so we create a **[ShoeContainer]** which is very similar to a **[HatContainer]**
+It is also useful to contain a **[Shoe]**, and so we create a **[ShoeContainer]** which is very similar to a **[HatContainer]**
 ```
 [] (Hat, HatContainer, Shoe, ShoeContainer) {
     *{
@@ -1259,7 +1273,7 @@ It is also be useful to contain a **[Shoe]**, and so we create a **[ShoeContaine
     ~ newHat *{}
 }
 ```
-**[ShoeContainer]** and **[HatContainer]** are almost the same except one contains a **[Shoe]** and the other contains a **[Hat]**. Using generics we can combine **ShoeContainer** and **HatContainer** into a single class. In the following example, we introduce a generic type **[&CONTAINED_OBJECT]** to a new class called **Container** and use this new class to replace **ShoeContainer** and **HatContainer**
+**[ShoeContainer]** and **[HatContainer]** are almost the same except one contains a **[Shoe]** and the other contains a **[Hat]**. Using class generics we can combine **ShoeContainer** and **HatContainer** into a single class. In the following example, we introduce a generic type **[&CONTAINED_OBJECT]** to a new class called **Container** and use this new class to replace **ShoeContainer** and **HatContainer**
 ```
 [] (Hat, Shoe, Container) {
     *{
@@ -1290,7 +1304,7 @@ It is also be useful to contain a **[Shoe]**, and so we create a **[ShoeContaine
     ~ newHat *{}
 }
 ```
-Within the **Container** class, **< CONTAINED_OBJECT >** is written after the class name to define the generic type **[&CONTAINED_OBJECT]**. A generic type is always represented with a **&** symbol. Instances of **[HatContainer]** are replaced with **[Container<[Hat]>]** and instances of **[ShoeContainer]** are replaced with **[Container<[Shoe]>]**. **[Container<[Hat]>]** represents the **Container** class where every usage of **[&CONTAINED_OBJECT]** is replaced with **[Hat]**. In other words, **[Container<[Hat]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Hat]**. Similarly, **[Container<[Shoe]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Shoe]**.
+Within the **Container** class, **< CONTAINED_OBJECT >** is written after the class name to declare the generic type **[&CONTAINED_OBJECT]**. A generic type is always represented with a **&** symbol. Instances of **[HatContainer]** are replaced with **[Container<[Hat]>]** and instances of **[ShoeContainer]** are replaced with **[Container<[Shoe]>]**. **[Container<[Hat]>]** represents the **Container** class where every usage of **[&CONTAINED_OBJECT]** is replaced with **[Hat]**. In other words, **[Container<[Hat]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Hat]**. Similarly, **[Container<[Shoe]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Shoe]**.
 
 Explicitly replacing **[&CONTAINED_OBJECT]** with **[Hat]** in the **Container** class to represent **[Container<[Hat]>]**:
 ```
@@ -1371,4 +1385,248 @@ Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container**
     ~ newHat *{}
 }
 ```
-In the above example, **someBowlerHat** and **hatTakenFromContainer** represent the same object. In general, types from a generic class are compatible if the instantiated types are compatible. Applying this to **Container**, if **[G]** is a parent type of **[H]** then **[Container<[G]>]** is a parent type of **[Container<[H]>]**.
+In the above example, **someBowlerHat** and **hatTakenFromContainer** represent the same object. In general, types with a generic instantiation are compatible if the instantiated types are compatible. Applying this to **Container**, if **[G]** is a parent type of **[H]** then **[Container<[G]>]** is a parent type of **[Container<[H]>]**.
+
+A class can have more then one generic type. We define a **Tuple** object containing two instance objects **first** and **second**, corresponding to the generic types **[&FIRST]** and **[&SECOND]**
+```
+[Tuple<FIRST,SECOND>]
+    [&FIRST] first
+    [&SECOND] second
+{
+    ~ newTuple *([&FIRST] firstInput, [&SECOND] secondInput) {
+        .first = firstInput;
+        .second = secondInput;
+    }
+    +++ getFirst *->[&FIRST]{}->.first
+    +++ getSecond *->[&SECOND]{}->.second
+}
+```
+**< FIRST, SECOND >** is written after the **Tuple** class name to declare the generic types **[&FIRST]** and **[&SECOND]**. Any number of generics can be declared here by writing identifiers in a comma seperated list. When a **Tuple** object is defined, both the generic types must be instantiated. In the following example, an object **bananaAndApple** is defined which contains a **[Banana]** and an **[Apple]**
+```
+[] (Tuple, Banana, Apple) {
+    *{
+        [Banana] banana = \[Banana]:newBanana;
+        [Apple] apple = \[Apple]:newApple;
+        [Tuple<[Banana][Apple]>] bananaAndApple = \[Tuple<[Banana][Apple]>]:newTuple banana apple;
+    }
+}
+
+[Tuple<FIRST,SECOND>]
+    [&FIRST] first
+    [&SECOND] second
+{
+    ~ newTuple *([&FIRST] firstInput, [&SECOND] secondInput) {
+        .first = firstInput;
+        .second = secondInput;
+    }
+    +++ getFirst *->[&FIRST]{}->.first
+    +++ getSecond *->[&SECOND]{}->.second
+}
+
+[Fruit] {
+    ~ newFruit *{}
+}
+
+[Apple] (Fruit) {
+    ~ newApple *{\$~newFruit;}
+}
+
+[Banana] (Fruit) {
+    ~ newBanana *{\$~newFruit;}
+}
+```
+The type of **bananaAndApple** is **[Tuple<[Banana][Apple]>]**; between the **<** **>** is written the list of types instantiating the corresponding generics types. Regarding **[Tuple<[Banana][Apple]>]**, the first type **[Banana]** instantiates the first generic type **[&FIRST]**, the second type **[Apple]** instantiates the second generic type **[&SECOND]**.
+
+In the following example, we change **Tuple** into **Triple** which contains a third instance object corresponding to a third generic type, and define a corresponding object **[Triple<[Banana][Apple][Grape]>]** **bananaAndAppleAndGrape**
+```
+[] (Triple, Banana, Apple, Grape) {
+    *{
+        [Banana] banana = \[Banana]:newBanana;
+        [Apple] apple = \[Apple]:newApple;
+        [Grape] grape = \[Grape]:newGrape;
+        [Triple<[Banana][Apple][Grape]>] bananaAndAppleAndGrape = \[Triple<[Banana][Apple][Grape]>]:newTriple banana apple grape;
+    }
+}
+
+[Triple<FIRST,SECOND,THIRD>]
+    [&FIRST] first
+    [&SECOND] second
+    [&THIRD] third
+{
+    ~ newTriple *([&FIRST] firstInput, [&SECOND] secondInput, [&THIRD] thirdInput) {
+        .first = firstInput;
+        .second = secondInput;
+        .third = thirdInput;
+    }
+    +++ getFirst *->[&FIRST]{}->.first
+    +++ getSecond *->[&SECOND]{}->.second
+    +++ getThird *->[&THIRD]{}->.third
+}
+
+[Fruit] {
+    ~ newFruit *{}
+}
+
+[Apple] (Fruit) {
+    ~ newApple *{\$~newFruit;}
+}
+
+[Banana] (Fruit) {
+    ~ newBanana *{\$~newFruit;}
+}
+
+[Grape] (Fruit) {
+    ~ newGrape *{\$~newFruit;}
+}
+```
+Any type can be used to instantiate a generic, including a type which itself has generics. Embedded generics are demonstrated in the following example; using **Tuple**, an object **[Tuple<[Banana][Tuple<[Apple][Grape]>]>]** **bananaAndAppleAndGrape** is created which contains a **[Banana]** and a **[Tuple<[Apple][Grape]>]**
+```
+[] (Tuple, Banana, Apple, Grape) {
+    *{
+        [Banana] banana = \[Banana]:newBanana;
+        [Apple] apple = \[Apple]:newApple;
+        [Grape] grape = \[Grape]:newGrape;
+        [Tuple<[Apple][Grape]>] appleAndGrape = \[Tuple<[Apple][Grape]>]:newTuple apple grape;
+        [Tuple<[Banana][Tuple<[Apple][Grape]>]>] bananaAndAppleAndGrape = \[Tuple<[Banana][Tuple<[Apple][Grape]>]>]:newTuple banana appleAndGrape;
+    }
+}
+
+[Tuple<FIRST,SECOND>]
+    [&FIRST] first
+    [&SECOND] second
+{
+    ~ newTuple *([&FIRST] firstInput, [&SECOND] secondInput) {
+        .first = firstInput;
+        .second = secondInput;
+    }
+    +++ getFirst *->[&FIRST]{}->.first
+    +++ getSecond *->[&SECOND]{}->.second
+}
+
+[Fruit] {
+    ~ newFruit *{}
+}
+
+[Apple] (Fruit) {
+    ~ newApple *{\$~newFruit;}
+}
+
+[Banana] (Fruit) {
+    ~ newBanana *{\$~newFruit;}
+}
+
+[Grape] (Fruit) {
+    ~ newGrape *{\$~newFruit;}
+}
+```
+In general, types with a generic instantiation are compatible if the instantiated types are compatible, this also applies to types with multiple generic instantiations. Since **[Fruit]** is the parent type of **[Banana]**, **[Apple]** and **[Grape]**, the following are the parent types of **[Tuple<[Banana][Tuple<[Apple][Grape]>]>]**:
++ **[Tuple<[Fruit][Tuple<[Apple][Grape]>]>]**
++ **[Tuple<[Banana][Tuple<[Fruit][Grape]>]>]**
++ **[Tuple<[Banana][Tuple<[Apple][Fruit]>]>]**
++ **[Tuple<[Fruit][Tuple<[Fruit][Grape]>]>]**
++ **[Tuple<[Fruit][Tuple<[Apple][Fruit]>]>]**
++ **[Tuple<[Banana][Tuple<[Fruit][Fruit]>]>]**
++ **[Tuple<[Fruit][Tuple<[Fruit][Fruit]>]>]**
+
+Here are some example valid assignments using the **bananaAndAppleAndGrape** object:
+```
+[] (Tuple, Banana, Apple, Grape) {
+    *{
+        [Banana] banana = \[Banana]:newBanana;
+        [Apple] apple = \[Apple]:newApple;
+        [Grape] grape = \[Grape]:newGrape;
+        [Tuple<[Apple][Grape]>] appleAndGrape = \[Tuple<[Apple][Grape]>]:newTuple apple grape;
+        [Tuple<[Banana][Tuple<[Apple][Grape]>]>] bananaAndAppleAndGrape = \[Tuple<[Banana][Tuple<[Apple][Grape]>]>]:newTuple banana appleAndGrape;
+
+        [Tuple<[Banana][Tuple<[Fruit][Fruit]>]>] bananaAnd2Fruits = bananaAndAppleAndGrape;
+        [Tuple<[Fruit][Tuple<[Apple][Fruit]>]>] 2FruitsAndAnApple = bananaAndAppleAndGrape;
+        [Tuple<[Fruit][Tuple<[Fruit][Fruit]>]>] 3Fruits = 2FruitsAndAnApple;
+    }
+}
+```
+For a type to be a parent, every generic instantiation must be a parent or equivalent. So for example, **[Tuple<[Fruit][Apple]>]** is not a parent or child type of **[Tuple<[Apple][Fruit]>]**, because **[Fruit]** is a parent of **[Apple]** but **[Apple]** is not a parent of **[Fruit]**. Here are some invalid assignments added to the previous example:
+```
+[] (Tuple, Banana, Apple, Grape) {
+    *{
+        [Banana] banana = \[Banana]:newBanana;
+        [Apple] apple = \[Apple]:newApple;
+        [Grape] grape = \[Grape]:newGrape;
+        [Tuple<[Apple][Grape]>] appleAndGrape = \[Tuple<[Apple][Grape]>]:newTuple apple grape;
+        [Tuple<[Banana][Tuple<[Apple][Grape]>]>] bananaAndAppleAndGrape = \[Tuple<[Banana][Tuple<[Apple][Grape]>]>]:newTuple banana appleAndGrape;
+
+        [Tuple<[Banana][Tuple<[Fruit][Fruit]>]>] bananaAnd2Fruits = bananaAndAppleAndGrape;
+        [Tuple<[Fruit][Tuple<[Apple][Fruit]>]>] 2FruitsAndAnApple = bananaAndAppleAndGrape;
+        [Tuple<[Fruit][Tuple<[Fruit][Fruit]>]>] 3Fruits = 2FruitsAndAnApple;
+
+        [Tuple<[Banana][Tuple<[Apple][Fruit]>]>] bananaAndAppleAndFruit = 2FruitsAndAnApple; @ Invalid; a [Fruit] is not a [Banana] (even though we know that the actual object here is a [Banana] on the inside)
+        [Tuple<[Fruit][Tuple<[Fruit][Grape]>]>] 2FruitsAndAGrape = 3Fruits; @ Invalid; a [Fruit] is not a [Grape]
+        [Tuple<[Banana][Tuple<[Fruit][Fruit]>]>] 2FruitsAndABanana = 2FruitsAndAnApple; @ Invalid; an [Apple] is a [Fruit], but a [Fruit] is not a [Banana]
+    }
+}
+```
+Generic types can also be used within the type methods of a class. In the following example, a type method **tripleFromTuple** is added to the **Triple** class and is used to transform **bananaAppleGrapeAsATuple** into **bananaAppleGrapeAsATriple**
+```
+[] (Tuple, Triple, Banana, Apple, Grape) {
+    *{
+        [Banana] banana = \[Banana]:newBanana;
+        [Apple] apple = \[Apple]:newApple;
+        [Grape] grape = \[Grape]:newGrape;
+        [Tuple<[Apple][Grape]>] appleGrape = \[Tuple<[Apple][Grape]>]:newTuple apple grape;
+        [Tuple<[Banana][Tuple<[Apple][Grape]>]>] bananaAppleGrapeAsATuple = \[Tuple<[Banana][Tuple<[Apple][Grape]>]>]:newTuple banana appleGrape;
+        [Triple<[Banana][Apple][Grape]>] bananaAppleGrapeAsATriple = \[Triple<[Banana][Apple][Grape]>]:tripleFromTuple bananaAppleGrapeAsATuple;
+    }
+}
+
+[Triple<FIRST,SECOND,THIRD>] (Tuple)
+    [&FIRST] first
+    [&SECOND] second
+    [&THIRD] third
+{
+    :: tripleFromTuple *([Tuple<[&FIRST][Tuple<[&SECOND][&THIRD]>]>] tuple) -> [Triple<[&FIRST][&SECOND][&THIRD]>] {
+        [&FIRST] first = \tuple:getFirst;
+        [Tuple<[&SECOND][&THIRD]>] secondAndThird = \tuple:getSecond;
+        [&SECOND] second = \secondAndThird:getFirst;
+        [&THIRD] third = \secondAndThird:getSecond;
+        [Triple<[&FIRST][&SECOND][&THIRD]>] triple = \[Triple<[&FIRST][&SECOND][&THIRD]>]:newTriple first second third;
+    } -> triple
+
+    ~ newTriple *([&FIRST] firstInput, [&SECOND] secondInput, [&THIRD] thirdInput) {
+        .first = firstInput;
+        .second = secondInput;
+        .third = thirdInput;
+    }
+    +++ getFirst *->[&FIRST]{}->.first
+    +++ getSecond *->[&SECOND]{}->.second
+    +++ getThird *->[&THIRD]{}->.third
+}
+
+[Tuple<FIRST,SECOND>]
+    [&FIRST] first
+    [&SECOND] second
+{
+    ~ newTuple *([&FIRST] firstInput, [&SECOND] secondInput) {
+        .first = firstInput;
+        .second = secondInput;
+    }
+    +++ getFirst *->[&FIRST]{}->.first
+    +++ getSecond *->[&SECOND]{}->.second
+}
+
+[Fruit] {
+    ~ newFruit *{}
+}
+
+[Apple] (Fruit) {
+    ~ newApple *{\$~newFruit;}
+}
+
+[Banana] (Fruit) {
+    ~ newBanana *{\$~newFruit;}
+}
+
+[Grape] (Fruit) {
+    ~ newGrape *{\$~newFruit;}
+}
+```
+
+
