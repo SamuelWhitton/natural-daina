@@ -504,7 +504,7 @@ To showcase inheritance, first we will start with the following classes of **Bir
     +++ chirp *{}
 }
 ```
-A **[Dog]** has instance methods **sleep**, **eat**, **bark** and a constructor **createDog**. A **[Bird]** has instance methods **sleep**, **eat**, **chirp** and a constructor **createBird**. We add an entry point method which creates a **[Dog]** called **muffles**, a **[Bird]** called **chandler** and calls some of the instance methods
+**[Dog]** has instance methods **sleep**, **eat**, **bark** and a constructor **createDog**. **[Bird]** has instance methods **sleep**, **eat**, **chirp** and a constructor **createBird**. In the entry point method we create a **[Dog]** **muffles**, a **[Bird]** **chandler**, and call some instance methods of **muffles** and **chandler**.
 ```
 [] (Dog, Bird) {
     *{
@@ -533,7 +533,7 @@ A **[Dog]** has instance methods **sleep**, **eat**, **bark** and a constructor 
     +++ chirp *{}
 }
 ```
-Inheritance can be used to copy all the methods from an existing class into a new class. There is overlap between a **[Dog]** and a **[Bird]** since both have methods for **sleep** and **eat**. In the following example, we create the class **Animal** with the instance methods **sleep**, **eat** and use inheritance to copy these methods into **Dog** and **Bird**
+There is overlap between a **[Dog]** and a **[Bird]** as both have methods for **sleep** and **eat**. In the following example, we create the class **Animal** and use inheritance to copy **sleep** and **eat** from **Animal** into **Dog** and **Bird**. In other words, **Dog** and **Bird** inherit the instance methods **sleep** and **eat** from **Animal**.
 ```
 [] (Dog, Bird) {
     *{
@@ -565,7 +565,7 @@ Inheritance can be used to copy all the methods from an existing class into a ne
 ```
 Writing **:[Animal]** after the name of a class means that the class will inherit the methods from **[Animal]**. So **Dog** and **Bird** are both inheriting the instance methods **sleep** and **eat** from **[Animal]**. For example when **\muffles:sleep;** is executed, the **sleep** instance method from **[Animal]** is invoked on **muffles** and when **\chandler:sleep;** is executed, the same instance method is invoked on **chandler**. 
 
-Daina has is a rule that a class must evaluate a constructor method of the inherited parent within its constructor. In other words, the constructor methods **createDog** and **createBird** must invoke a constructor from **[Animal]**. In the following example we complete **createBird** and **createDog** with a new constructor **createAnimal**
+A class must invoke a constructor method from the inherited parent class within its constructor. In other words, the constructor methods **createDog** and **createBird** must invoke a constructor from **[Animal]**. In the following example we correctly implement **createBird** and **createDog** by invoking a constructor **createAnimal** from the **Animal** class.
 ```
 [] (Dog, Bird) {
     *{
@@ -600,9 +600,9 @@ Daina has is a rule that a class must evaluate a constructor method of the inher
     +++ chirp *{}
 }
 ```
-**$~createAnimal** refers to the constructor **createAnimal** within the inherited parent **[Animal]**. When a parent constructor is invoked, the statements within the body of the parent constructor are executed before the new object is returned. For example when **[Bird]:createBird** is invoked, a new **[Bird]** object is defined, then **createAnimal** is invoked on the new **[Bird]**, and then the new **[Bird]** is returned. Similarly, when the statement **[Dog] muffles = \[Dog]:createDog;** is executed in the entry point method, **createAnimal** is invoked on the new **[Dog]** which is afterwards called **muffles**.
+The statement **\\$~createAnimal;** will invoke the **createAnimal** parent constructor on the object being constructed. For example when **[Bird]:createBird** is invoked, a new **[Bird]** object is created, then **createAnimal** is invoked on the new **[Bird]**, and then the new **[Bird]** is returned. Similarly, consider the statement **[Dog] muffles = \[Dog]:createDog;**, a new **[Dog]** is created, then **createAnimal** will be invoked on the new **[Dog]** which is afterwards called **muffles**.
 
-It is possible to override a parent instance method to replace it with a new method. In the following example, an overriding instance method **eat** is added to the class **Bird**
+An inherited instance method can be overriden and replaced with a new method. In the following example, **eat** is overriden in the **Bird** class.
 ```
 [] (Dog, Bird) {
     *{
@@ -641,22 +641,21 @@ It is possible to override a parent instance method to replace it with a new met
     }
 }
 ```
-Now when the statement **\chandler:eat;** is executed in the entry point method, instead of invoking the instance method **eat** from **[Animal]**, this new method is invoked:
+Breaking down the new **eat** method:
 ```
 |+++ eat *{
     \:chirp;
     \$:eat;
 }
 ```
-Looking at each part of this new method:
 
-+ **|** is used to denote an instance method overriding another instance method.
-+ **:chirp** refers to an instance method called **chirp** within the class, in this case the class is **Bird**. An instance method refered to like this is always invoked on the same object as the enclosing method.
-+ **$:eat** refers to an instance method **eat** within the parent class, in this case the class is **Animal**. An instance method refered to like this is always invoked on the same object as the enclosing method.
++ **|** is used to denote overriding an instance method.
++ **:chirp** refers to the instance method called **chirp** within the enclosing class. **\\:chirp;** invokes **chirp** on the same object as the enclosing method. In other languages, sometimes refered to as invoking an instance method **chirp** on self.
++ **$:eat** refers to the instance method called **eat** within the parent class. **\\$:eat;** invokes the **eat** method from **Animal** on the same object as the enclosing method. In other languages, sometimes refered to as invoking an instance method **eat** on super.
 
-When the statement **\chandler:eat;** is executed in the entry point method, first the instance method **chirp** within **[Bird]** is invoked on **chandler**, then the instance method **eat** within **[Animal]** is invoked on **chandler**. Nothing has changed when the statement **\muffles:eat;** is executed in the entry point method.
+When **\chandler:eat;** is executed, instead of invoking the instance method **eat** from **[Animal]**, the **eat** method from **Bird** is invoked. Nothing has changed for the statement **\muffles:eat;**, the same instance method **eat** from **[Animal]** is invoked on **muffles**.
 
-Since **Dog** is inheriting from **[Animal]**, an object of type **[Dog]** is considered to also be an object of type **[Animal]**. And similarly a **[Bird]** is also an object of type **[Animal]**. In this example, the type of **muffles** and **chandler** is changed to **[Animal]**
+Since **Dog** is inheriting from **[Animal]**, an object of type **[Dog]** is considered to also be an object of type **[Animal]**. And similarly a **[Bird]** is also an object of type **[Animal]**. In the following example, the declared type of **muffles** and **chandler** is changed to **[Animal]**
 ```
 [] (Dog, Bird, Animal) {
     *{
@@ -700,7 +699,7 @@ All the same instance methods are called like before, however there is an issue 
 \muffles:bark;
 \chandler:chirp;
 ```
-These statements are no longer valid since **muffles** and **chandler** are now declared to be the type **[Animal]**, and the class **Animal** does not define the instance methods **bark** or **chirp**. To solve this issue, we introduce a new instance method **makeNoise** in **Animal** and then override this method in both **Dog** and **Bird**
+These statements are no longer valid since **muffles** and **chandler** are now declared to be the type **[Animal]**, and the class **Animal** does not define the instance methods **bark** or **chirp**. To solve this issue, we introduce a new instance method **makeNoise** in **Animal** and then override this method in both **Dog** and **Bird**.
 ```
 [] (Dog, Bird, Animal) {
     *{
@@ -746,9 +745,9 @@ These statements are no longer valid since **muffles** and **chandler** are now 
     }
 }
 ```
-When **\\muffles:makeNoise;** is executed, the **bark** instance method is invoked on **muffles** because it invokes the overriden instance method **makeNoise** in **Dog** rather then the **makeNoise** instance method in **Animal**. This is because although **muffles** is declared to be of type **[Animal]**, it is actually a **[Dog]** since it is created with the constructor **[Dog]:createDog** which returns a new **[Dog]** object. Similarly, the **chirp** instance method is invoked on **chandler** when the statement **\\chandler:makeNoise;** is executed.
+**\\muffles:makeNoise;** will invoke **makeNoise** from **[Dog]** thus invoking **bark**, and **\\chandler:makeNoise;** will invoke **makeNoise** from **[Bird]** thus invoking **chirp**. Although **muffles** and **chandler** are declared as the type **[Animal]**, they are also a **[Dog]** and a **[Bird]** and so the overriding methods are called instead, this is commonly called polymorphism.
 
-In the following example, we group the **makeNoise**, **eat** and **sleep** instance methods into a new instance method called **eatSleepRoutine**
+In the following example, the **makeNoise**, **eat** and **sleep** instance methods are replaced by a new instance method called **eatSleepRoutine** which invokes all three methods.
 ```
 [] (Dog, Bird, Animal) {
     *{
@@ -795,15 +794,17 @@ In the following example, we group the **makeNoise**, **eat** and **sleep** inst
     }
 }
 ```
-The statement **\\muffles:eatSleepRoutine;** is equivalent to the three previous statements it has replaced:
+Consider the **eatSleepRoutine** instance method:
 ```
-\muffles:makeNoise;
-\muffles:eat;
-\muffles:sleep;
++++ eatSleepRoutine *{
+    \:makeNoise;
+    \:eat;
+    \:sleep;
+}
 ```
-When **eatSleepRoutine** is invoked on **muffles**, then the statement **\\:makeNoise;** actually invokes the overriden version of **makeNoise** within **Dog**. When **\\chandler:eatSleepRoutine;** is executed, the overriden **eat** and **makeNoise** instance methods in **Bird** are invoked insead of the original methods defined in the **Animal** class. This is different from when **\\$:eat;** is executed within **Bird** since using **$:** instead of **:** ensures that the method inherited from the parent will be invoked instead.
+If any of the instance methods **makeNoise** **eat** **sleep** are overriden, then **\\:makeNoise**, **\\:eat** and **\\:sleep** will invoke the overriden methods. The statement **\muffles:eatSleepRoutine;** will invoke the **makeNoise** method from the **Dog** class and the **eat** **sleep** methods from the **Animal** class. The statement **\chandler:eatSleepRoutine;** will invoke the **makeNoise** **eat** methods from the **Bird** class and the **sleep** method from the **Animal** class.
 
-It is possible to inherit from more then one class. In this example we have taken out the **eat** and **sleep** instance methods from **Animal** and put them into new classes **HungryCreature** and **SleepyCreature** instead
+Daina allows a class to inherit from more then one other class. In the following example, the **eat** and **sleep** instance methods have been taken from **Animal** and put into new classes **HungryCreature** and **SleepyCreature**. The **Animal** clas inherits from both **[HungryCreature]** and **[SleepyCreature]**.
 ```
 [] (Dog, Bird, Animal) {
     *{
@@ -861,19 +862,19 @@ It is possible to inherit from more then one class. In this example we have take
     }
 }
 ```
-In the **createAnimal** constructor method, constructors from both the parents **[HungryCreature]** and **[SleepyCreature]** are invoked. **$~createHungryCreature** refers to the constructor method **createHungryCreature** in the first parent **[HungryCreature]**. **$$~createSleepyCreature** refers to the constructor method **createSleepyCreature** in the second parent **[SleepyCreature]**. Whenever **$** is used to refer to a parent, **$$** is used to refer to the second parent, **$$$** refers to the third parent and so on...
+In the **createAnimal** constructor method, constructors from the parents **[HungryCreature]** and **[SleepyCreature]** are invoked. **$~createHungryCreature** refers to the constructor method **createHungryCreature** in the first parent **[HungryCreature]**. **$$~createSleepyCreature** refers to the constructor method **createSleepyCreature** in the second parent **[SleepyCreature]**. **$** is used to refer to the first parent, **$$** is used to refer to the second parent, **$$$** refers to the third parent and so on...
 
 In summary:
 
 + Inheritance can be used to copy all the methods from an existing class into a new class.
 + A class can inherit from multiple parent classes.
 + Within a constructor method, a constructor from each inherited parent must be invoked.
-+ An object can be represented as its parent types.
++ An object can be represented as any of its parent types.
 + Instance methods copied from a parent can be overriden.
 
 ### Methods and Lambdas
 
-A method is a basic building block of code which can have zero or more input objects, a method body with zero or more executable statements, and optionally an output object. Constructor methods and instance methods are both types of methods. Daina has are a number of ways to express a method, here are a few examples:
+A method is a basic building block of code which can have zero or more input objects, a method body with zero or more executable statements, and optionally an output object. There are a number of ways to express a method in Daina, here are a few examples:
 
 1. A method with no inputs or outputs. The method body is always between the **{** **}** brackets:
 
@@ -883,20 +884,20 @@ A method is a basic building block of code which can have zero or more input obj
 }
 ```
 
-2. A method with a single input of type **[A]** called **aInput**:
+2. A method with a single input object. The input is called **aInput** and is of type **[A]**:
 
 ```
 *([A]aInput){}
 ```
 
-3. A method with an **[A]** and **[B]** input, which returns the **[B]** input. The **->[B]** denotes that the return object is of type **[B]**. The **-> bInput** denotes that the object called **bInput** is returned by the method:
+3. A method with two inputs and an output. The **->[B]** denotes that the output object is of type **[B]**. The **-> bInput** denotes that the object called **bInput** is the output:
 
 ```
 *([A]aInput,[B]bInput)->[B]{
 } -> bInput
 ```
 
-4. A method taking no arguments, and returns a object called **aOutput** of type **[A]** which is defined by a statement inside the method body:
+4. A method with an output but no inputs. The output object called **aOutput** is a local object declared inside the method body:
 
 ```
 *->[A]{
@@ -904,44 +905,52 @@ A method is a basic building block of code which can have zero or more input obj
 } -> aOutput
 ```
 
-5. A method returning an **[A]** object defined as the result of an expression after the return **->**:
+5. A method returning an object which is determined by the result of an expression. The result of **\\[A]:newA** is the output. This method is equivalent to number 4:
 
 ```
 *->[A]{} -> \[A]:newA
 ```
 
-A method can be encasulated as a object, this is commonly called a lambda expression in other languages. The following example shows statements assigning the previous example methods as local objects:
+A method can be encasulated as a object, which is commonly called a lambda in other languages. The following example shows statements assigning the previous example methods as lambda objects:
 ```
 [] (A, B) {
     *{
         [->] method1 = *{
                 @ method body
             };
+
         [[A]->] method2 = *([A]aInput){};
+
         [[A][B]->[B]] method3 = *([A]aInput,[B]bInput)->[B]{
             } -> bInput;
+
         [->[A]] method4 = *->[A]{
                 [A] aOutput = \[A]:newA;
             } -> aOutput;
+
         [->[A]] method5 = *->[A]{} -> \[A]:newA;
     }
 }
 ```
-Each lambda object has a lambda type which is written before the method name in each of the above method assignment statements. A lambda type shows the input object types and the output type. For example, the type **[[A][B][C]->[D]]** is for a lambda object with the inputs **[A]**, **[B]**, **[C]** (in that order) and a **[D]** object output.
+Each of the lambda objects in the above example has a lambda type. A lambda type describes the input types and the output type. For example, the type **[[A][B][C]->[D]]** is the type of a lambda object with the input types **[A]**, **[B]**, **[C]** (in that order) and a **[D]** output type.
 
-Lambda objects can be invoked just like any other method. A lambda object must be invoked with objects correctly matching the input types. When a lambda object is invoked, the statements in the assigned method are evaluated with the given inputs, and then the return object is returned. An invocation for each method in the previous example is shown
+Methods are invoked by writing **\\**, then the method, and then each of the input objects in order. The result of a method invocation is the output object (if there is an output). We add an example invocation for each of the lambda methods from the previous example.
 ```
 [] (A, B) {
     *{
         [->] method1 = *{
                 @ method body
             };
+
         [[A]->] method2 = *([A]aInput){};
+
         [[A][B]->[B]] method3 = *([A]aInput,[B]bInput)->[B]{
             } -> bInput;
+
         [->[A]] method4 = *->[A]{
                 [A] aOutput = \[A]:newA;
             } -> aOutput;
+
         [->[A]] method5 = *->[A]{} -> \[A]:newA;
 
         [A] inputA = \[A]:newA;
@@ -954,14 +963,14 @@ Lambda objects can be invoked just like any other method. A lambda object must b
     }
 }
 ```
-All methods are invoked by writing **\\** first, then the method, and then each of the input objects. The result of a method invocation is the output object, or no result if there is no output.
+When invoking **method3**, the second input is the output, therefore **method3Output** and **inputB** both refer to the same object. Invoking **method4** or **method5** will generate a new **[A]** object, thus **inputA**, **method4Output**, and **method5Output** all refer to different **[A]** objects.
 
-The inputs of a method can be of any type including a lambda object. In other words, the input to a method can be another method. In this example, the lambda object **choose** has an input lambda object called **choice**
+The inputs of a method can be of any type including a lambda object. In other words, the input to a method can be another method. In the following example, the lambda object **chooseTool** has an input lambda object called **choiceOutOfTwoTools**.
 ```
 [] (Tool) {
     *{
-        [[[Tool][Tool]->[Tool]][Tool][Tool]->[Tool]] choose = *([[Tool][Tool]->[Tool]] choice, [Tool] first, [Tool] second) {
-                [Tool] chosenTool = \choice first second;
+        [[[Tool][Tool]->[Tool]][Tool][Tool]->[Tool]] chooseTool = *([[Tool][Tool]->[Tool]] choiceOutOfTwoTools, [Tool] firstTool, [Tool] secondTool) -> [Tool] {
+                [Tool] chosenTool = \choiceOutOfTwoTools firstTool secondTool;
             } -> chosenTool;
     }
 }
@@ -970,19 +979,19 @@ The inputs of a method can be of any type including a lambda object. In other wo
     ~ newTool *{}
 }
 ```
-The intent of the **choose** method is to choose a **[Tool]** out of the inputs **first** and **second** using the lambda method **choice**. In the following example, lambda methods **chooseFirst** and **chooseSecond** are defined to show example usages of **choose**
+The intent of the **chooseTool** method is to choose a **[Tool]** out of the inputs **firstTool** and **secondTool**. The lambda method **choiceOutOfTwoTools** takes two **[Tool]**'s as input and returns one as the output. In the following example, **chooseFirst** and **chooseSecond** are used to pick between a **[Saw]** and a **[Hammer]**.
 ```
 [] (Tool, Hammer, Saw) {
     *{
-        [[[Tool][Tool]->[Tool]][Tool][Tool]->[Tool]] choose = *([[Tool][Tool]->[Tool]] choice, [Tool] first, [Tool] second) {
-                [Tool] chosenTool = \choice first second;
+        [[[Tool][Tool]->[Tool]][Tool][Tool]->[Tool]] chooseTool = *([[Tool][Tool]->[Tool]] choiceOutOfTwoTools, [Tool] firstTool, [Tool] secondTool) -> [Tool] {
+                [Tool] chosenTool = \choiceOutOfTwoTools firstTool secondTool;
             } -> chosenTool;
         [Tool] hammer = \[Hammer]:newHammer;
         [Tool] saw = \[Saw]:newSaw;
-        [[Tool][Tool]->[Tool]] chooseFirst = *([Tool] first, [Tool] second) {} -> first;
-        [[Tool][Tool]->[Tool]] chooseSecond = *([Tool] first, [Tool] second) {} -> second;
-        [Tool] firstTool = \choose chooseFirst hammer saw;
-        [Tool] secondTool = \choose chooseSecond hammer saw;
+        [[Tool][Tool]->[Tool]] chooseFirst = *([Tool] first, [Tool] second) -> [Tool] {} -> first;
+        [[Tool][Tool]->[Tool]] chooseSecond = *([Tool] first, [Tool] second) -> [Tool] {} -> second;
+        [Tool] firstTool = \chooseTool chooseFirst hammer saw;
+        [Tool] secondTool = \chooseTool chooseSecond hammer saw;
     }
 }
 
@@ -998,15 +1007,15 @@ The intent of the **choose** method is to choose a **[Tool]** out of the inputs 
     ~ newSaw *{\$~newTool;}
 }
 ```
-The result is that **firstTool** is the same as the object **hammer**, and **secondTool** is the same as the object **saw**.
+The result; **firstTool** is the object **hammer**, and **secondTool** is the object **saw**.
 
-Inside the body of a lambda method all outside objects can be refered to. In other words, a lambda method is not isolated from the outside world. In this example, the **chooseHammerOrSaw** lambda method refers to the local objects **hammer** and **saw** which were defined outside of the lambda method
+Inside the body of a lambda method all outside objects can be refered to. In other words, a lambda method is not isolated from the outside world. In this example, the **chooseHammerOrSaw** lambda method refers to the local objects **hammer** and **saw** which were defined outside of the lambda method.
 ```
 [] (Tool, Hammer, Saw) {
     *{
         [Hammer] hammer = \[Hammer]:newHammer;
         [Saw] saw = \[Saw]:newSaw;
-        [[[Hammer][Saw]->[Tool]]->[Tool]] chooseHammerOrSaw = *([[Hammer][Saw]->[Tool]] choice) {
+        [[[Hammer][Saw]->[Tool]]->[Tool]] chooseHammerOrSaw = *([[Hammer][Saw]->[Tool]] choice) -> [Tool] {
                 [Tool] chosenTool = \choice hammer saw;
             } -> chosenTool;
     }
@@ -1024,17 +1033,17 @@ Inside the body of a lambda method all outside objects can be refered to. In oth
     ~ newSaw *{\$~newTool;}
 }
 ```
-Lambda methods **chooseHammer** and **chooseSaw** are defined to show example usages of **chooseHammerOrSaw**
+The following example shows usages of **chooseHammerOrSaw**.
 ```
 [] (Tool, Hammer, Saw) {
     *{
         [Hammer] hammer = \[Hammer]:newHammer;
         [Saw] saw = \[Saw]:newSaw;
-        [[[Hammer][Saw]->[Tool]]->[Tool]] chooseHammerOrSaw = *([[Hammer][Saw]->[Tool]] choice) {
+        [[[Hammer][Saw]->[Tool]]->[Tool]] chooseHammerOrSaw = *([[Hammer][Saw]->[Tool]] choice) -> [Tool] {
                 [Tool] chosenTool = \choice hammer saw;
             } -> chosenTool;
-        [[Hammer][Saw]->[Tool]] chooseHammer = *([Hammer] h, [Saw] s) {} -> h;
-        [[Hammer][Saw]->[Tool]] chooseSaw = *([Hammer] h, [Saw] s) {} -> s;
+        [[Hammer][Saw]->[Tool]] chooseHammer = *([Hammer] h, [Saw] s) -> [Tool] {} -> h;
+        [[Hammer][Saw]->[Tool]] chooseSaw = *([Hammer] h, [Saw] s) -> [Tool] {} -> s;
         [Tool] hammerChoice = \chooseHammerOrSaw chooseHammer;
         [Tool] sawChoice = \chooseHammerOrSaw chooseSaw;
     }
@@ -1054,17 +1063,17 @@ Lambda methods **chooseHammer** and **chooseSaw** are defined to show example us
 ```
 The result is that **hammerChoice** is the same as the object **hammer**, and **sawChoice** is the same as the object **saw**.
 
-The names of local objects and inputs are not allowed to conflict with one another. In the previous example, **chooseHammer** and **chooseSaw** both have inputs called **h** and **s**, these do not conflict because inputs are only accessable within the respective methods. However if we took the previous example and replaced the identifiers **h** and **s** with **hammer** and **saw**, this would not be allowed because it conflicts with the previous **hammer** and **saw** which were already defined:
+The names of local objects and inputs are not allowed to conflict with one another. In the previous example, **chooseHammer** and **chooseSaw** both have inputs called **h** and **s** which do not conflict because inputs are only accessable within the respective methods. However if we take the previous example and replace the identifiers **h** and **s** with **hammer** and **saw**, these conflict with the previous **hammer** and **saw** which were declared outside the lambda methods.
 ```
 [] (Tool, Hammer, Saw) {
     *{
         [Hammer] hammer = \[Hammer]:newHammer; @ original definition of hammer
-        [Saw] saw = \[Saw]:newSaw; @ original definition of saw
-        [[[Hammer][Saw]->[Tool]]->[Tool]] chooseHammerOrSaw = *([[Hammer][Saw]->[Tool]] choice) {
+        [Saw] saw = \[Saw]:newSaw;             @ original definition of saw
+        [[[Hammer][Saw]->[Tool]]->[Tool]] chooseHammerOrSaw = *([[Hammer][Saw]->[Tool]] choice) -> [Tool] {
                 [Tool] chosenTool = \choice hammer saw;
             } -> chosenTool;
-        [[Hammer][Saw]->[Tool]] chooseHammer = *([Hammer] hammer, [Saw] saw) {} -> hammer; @ Invalid, hammer and saw are already defined
-        [[Hammer][Saw]->[Tool]] chooseSaw = *([Hammer] hammer, [Saw] saw) {} -> saw; @ Invalid, hammer and saw are already defined
+        [[Hammer][Saw]->[Tool]] chooseHammer = *([Hammer] hammer, [Saw] saw) -> [Tool] {} -> hammer; @ Invalid; hammer and saw are already declared
+        [[Hammer][Saw]->[Tool]] chooseSaw = *([Hammer] hammer, [Saw] saw) -> [Tool] {} -> saw;       @ Invalid; hammer and saw are already declared
         [Tool] hammerChoice = \chooseHammerOrSaw chooseHammer;
         [Tool] sawChoice = \chooseHammerOrSaw chooseSaw;
     }
@@ -1088,12 +1097,14 @@ In summary:
 + A method has zero or more inputs objects, a body with statements, and an optional output object.
 + Methods are invoked by writing **\\**, then the method, and then each of the input objects. The result of a method invocation is the output object.
 + A method can be encapsulated as a lambda object.
-+ A method can refer to objects outside of the method.
++ A method can refer to objects which were previously declared outside of the method.
 
 
 ### Constructor Methods, Instance Methods and Type Methods
 
-Constructor methods are unique because they cannot explicitly return a value like other methods. A constructors job is to construct and return a new object of the type matching the class. However, a constructor method can have input objects. In the following example, a constructor called **newHatContainer** is defined for **[HatContainer]** which takes an input of type **[Hat]** and assigns it as an instance object
+There are three kinds of methods that can be attached to a class; constructor methods, instance methods and type methods.
+
+Constructor methods can have input objects but can't have an explict output object. Instead, a constructor's output object is always a new object of the class. In the following example, a constructor called **newHatContainer** is declared for **[HatContainer]** which takes an input **hatInput** and assigns it as the instance object **hat**.
 ```
 [HatContainer] (Hat)
     [Hat] hat
@@ -1107,7 +1118,7 @@ Constructor methods are unique because they cannot explicitly return a value lik
     ~ newHat *{}
 }
 ```
-**newHatContainer** is invoked similar to other methods with the inputs written after **[HatContainer]:newHatContainer**. A **[HatContainer]** object is created called **hatContainer**
+A new object **hatContainer** is created by invoking the constructor **[HatContainer]:newHatContainer** with the input **someHat**.
 ```
 [] (Hat, HatContainer) {
     *{
@@ -1128,7 +1139,9 @@ Constructor methods are unique because they cannot explicitly return a value lik
     ~ newHat *{}
 }
 ```
-Instance methods can have inputs and optionally return an object. Instance methods are invoked on an object and can access the instance objects and methods within the object it is invoked on. We add an instance method **getHat** which returns the **hat** object from **[HatContainer]**, and then we retrive it as **hatTakenFromContainer**
+The instance object **hat** within **hatContainer** now refers to the same object as **someHat**.
+
+Instance methods can have inputs objects and an output object. Instance methods are invoked on an object of the class and can access the instance objects and methods of the object it is invoked on. We add an instance method **getHat** which returns the **hat** instance object from a **[HatContainer]**. The **hat** object in **hatContainer** is retrived as **hatTakenFromContainer**.
 ```
 [] (Hat, HatContainer) {
     *{
@@ -1151,7 +1164,9 @@ Instance methods can have inputs and optionally return an object. Instance metho
     ~ newHat *{}
 }
 ```
-Type methods (similar to static or class methods in other object oriented languages) can take inputs and optionally return an object. A type method is not attached to an instance, and is invoked similarly to a constructor method. A type method **createHatContainer** is added which creates a **[HatContainer]**, similar to the constructor **newHatContainer**, and then we invoke this method to create **hatContainer2**
+**hatTakenFromContainer** is referring to the same object as **someHat**.
+
+Type methods (similar to static or class methods in other object oriented languages) can have input objects and an output object. A type method is not attached to any object and is instead invoked similar to a constructor. A type method **createHatContainer** is added which creates a **[HatContainer]** and then we invoke this method to create **hatContainer2**.
 ```
 [] (Hat, HatContainer) {
     *{
@@ -1179,7 +1194,9 @@ Type methods (similar to static or class methods in other object oriented langua
     ~ newHat *{}
 }
 ```
-In the following example, we add type method **getHatFromHatContainer** which gets the **hat** from a **[HatContainer]**, then we invoke this method and name the result **hatTakenFromContainer2**
+Constructor and type methods look similar when invoked, but a type method can have any output.
+
+In the following example, we add type method **getHatFromHatContainer** which retrives the **hat** instance object from a **[HatContainer]**. Then we invoke this method and name the output **hatTakenFromContainer2**.
 ```
 [] (Hat, HatContainer) {
     *{
@@ -1216,9 +1233,9 @@ In the following example, we add type method **getHatFromHatContainer** which ge
 
 In summary:
 
-+ Instance methods and type methods have zero or more inputs objects and an optional output object. Constructor methods can have zero or more inputs and always return a new object of the enclosing class.
++ Instance methods and type methods have zero or more inputs objects and an optional output object. Constructor methods have zero or more inputs and always return a new object of the class.
 + An instance method is invoked on a object. Type methods and constructor methods are not invoked on an object.
-+ An instance method can access the instance objects and methods within the object it is invoked on.
++ An instance method can access the instance objects and methods of the object it is invoked on.
 + Instance methods, type methods and constructor methods are invoked by writing **\\**, then the method, and then each of the input objects. The result of a method invocation is the output object.
 
 
@@ -1247,7 +1264,7 @@ Consider the previous example of a **[HatContainer]**
     ~ newHat *{}
 }
 ```
-It is also useful to contain a **[Shoe]**, and so we create a **[ShoeContainer]** which is very similar to a **[HatContainer]**
+In the following example, a **[ShoeContainer]** is defined which is very similar to a **[HatContainer]** but contains a **[Shoe]** instead of a **[Hat]**. A **[ShoeContainer]** called **shoeContainer** is added.
 ```
 [] (Hat, HatContainer, Shoe, ShoeContainer) {
     *{
@@ -1287,7 +1304,7 @@ It is also useful to contain a **[Shoe]**, and so we create a **[ShoeContainer]*
     ~ newHat *{}
 }
 ```
-**[ShoeContainer]** and **[HatContainer]** are almost the same except one contains a **[Shoe]** and the other contains a **[Hat]**. Using class generics we can combine **ShoeContainer** and **HatContainer** into a single class. In the following example, we introduce a generic type **[&CONTAINED_OBJECT]** to a new class called **Container** and use this new class to replace **ShoeContainer** and **HatContainer**
+Using class generics we can combine **ShoeContainer** and **HatContainer** into a single class. In the following example, we introduce a new class **Container** with a class generic type **[&CONTAINED_OBJECT]** and use this new class to replace **ShoeContainer** and **HatContainer**.
 ```
 [] (Hat, Shoe, Container) {
     *{
@@ -1318,9 +1335,9 @@ It is also useful to contain a **[Shoe]**, and so we create a **[ShoeContainer]*
     ~ newHat *{}
 }
 ```
-Within the **Container** class, **< CONTAINED_OBJECT >** is written after the class name to declare the generic type **[&CONTAINED_OBJECT]**. A generic type is always represented with a **&** symbol. **[Container<[Hat]>]** is similar to **[HatContainer]** and represents the **Container** class where every usage of **[&CONTAINED_OBJECT]** is instantiated with **[Hat]**. Similarly, **[Container<[Shoe]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Shoe]**.
+**< CONTAINED_OBJECT >** is written after the class name **Container** to declare the class generic type **[&CONTAINED_OBJECT]**. A class generic type is always represented with an **&** symbol. **[Container<[Hat]>]** is similar to **[HatContainer]** and represents the **Container** class where every usage of **[&CONTAINED_OBJECT]** is instantiated with **[Hat]**. Similarly, **[Container<[Shoe]>]** represents instantiating **[&CONTAINED_OBJECT]** with **[Shoe]**.
 
-Explicitly replacing **[&CONTAINED_OBJECT]** with **[Hat]** in the **Container** class to represent **[Container<[Hat]>]**:
+We manually replace **[&CONTAINED_OBJECT]** with **[Hat]** to give a visual representation of **[Container<[Hat]>]**.
 ```
 [Container < CONTAINED_OBJECT > ]
     [Hat] containedObject
@@ -1331,7 +1348,7 @@ Explicitly replacing **[&CONTAINED_OBJECT]** with **[Hat]** in the **Container**
     +++ getContainedObject *->[Hat]{}->.containedObject
 }
 ```
-Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container** class to represent **[Container<[Shoe]>]**:
+Similarly, we manually replace **[&CONTAINED_OBJECT]** with **[Shoe]** to give a visual representation of **[Container<[Shoe]>]**.
 ```
 [Container < CONTAINED_OBJECT > ]
     [Shoe] containedObject
@@ -1342,14 +1359,14 @@ Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container**
     +++ getContainedObject *->[Shoe]{}->.containedObject
 }
 ```
-**[Container<[Hat]>]** and **[Container<[Shoe]>]** are considered to be incompatible types, in other words it is invalid to assign a **[Container<[Hat]>]** object as a **[Container<[Shoe]>]** object and vise versa. For example, the following assignment of **shoeContainer** and **hatContainer** is invalid:
+**[Container<[Hat]>]** and **[Container<[Shoe]>]** are incompatible types. In other words, it is invalid to assign a **[Container<[Hat]>]** object as a **[Container<[Shoe]>]** object and vise versa. For example, the following assignment of **shoeContainer** and **hatContainer** is invalid.
 ```
 [] (Hat, Shoe, Container) {
     *{
         [Shoe] someShoe = \[Shoe]:newShoe;
-        [Container<[Shoe]>] shoeContainer = \[Container<[Hat]>]:newContainer someShoe; @ Invalid; a [Container<[Hat]>] is not compatible with a [Container<[Shoe]>]
+        [Container<[Shoe]>] shoeContainer = \[Container<[Hat]>]:newContainer someShoe; @ Invalid; a [Container<[Hat]>] is not a [Container<[Shoe]>]
         [Hat] someHat = \[Hat]:newHat;
-        [Container<[Hat]>] hatContainer = \[Container<[Shoe]>]:newContainer someHat; @ Invalid; a [Container<[Shoe]>] is not compatible with a [Container<[Hat]>]
+        [Container<[Hat]>] hatContainer = \[Container<[Shoe]>]:newContainer someHat;   @ Invalid; a [Container<[Shoe]>] is not a [Container<[Hat]>]
     }
 }
 
@@ -1370,7 +1387,7 @@ Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container**
     ~ newHat *{}
 }
 ```
-**[Container<[Hat]>]** and **[Container<[Shoe]>]** are incompatible types, but not every **Container** type is incompatible. In the following example, a **[Container<[Hat]>]** **hatContainer** is assigned to a new **[Container<[BowlerHat]>]** and **BowlerHat** inherits from **Hat**
+Although **[Container<[Hat]>]** and **[Container<[Shoe]>]** are incompatible types, not all **Container** types are incompatible. In the following example, **[Container<[Hat]>]** **hatContainer** is assigned to a **[Container<[BowlerHat]>]** object. **BowlerHat** inherits from **Hat**.
 ```
 [] (Hat, BowlerHat, Container) {
     *{
@@ -1389,7 +1406,7 @@ Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container**
     +++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
 }
 
-[BowlerHat] (Hat) {
+[BowlerHat :[Hat]] (Hat) {
     ~ newBowlerHat *{
         \$~newHat;
     }
@@ -1399,9 +1416,9 @@ Similarly replacing **[&CONTAINED_OBJECT]** with **[Shoe]** in the **Container**
     ~ newHat *{}
 }
 ```
-In the above example, **someBowlerHat** and **hatTakenFromContainer** represent the same object. In general, types with a generic instantiation are compatible if the instantiated types are compatible. Applying this to **Container**, if **[G]** is a parent type of **[H]** then **[Container<[G]>]** is a parent type of **[Container<[H]>]**.
+In the above example, **someBowlerHat** and **hatTakenFromContainer** represent the same object. In general, class types with a generic instantiation are compatible if the instantiated types are compatible. Applying this to **Container**, if **[G]** is a parent type of **[H]** then **[Container<[G]>]** is a parent type of **[Container<[H]>]**.
 
-A class can have more then one generic type. We define a **Tuple** object containing two instance objects **first** and **second**, corresponding to the generic types **[&FIRST]** and **[&SECOND]**
+A class can have more then one generic type. We define a **Tuple** object containing the instance objects **first** and **second**, corresponding to the class generic types **[&FIRST]** and **[&SECOND]**.
 ```
 [Tuple < FIRST, SECOND > ]
     [&FIRST] first
@@ -1415,7 +1432,7 @@ A class can have more then one generic type. We define a **Tuple** object contai
     +++ getSecond *->[&SECOND]{}->.second
 }
 ```
-**< FIRST, SECOND >** is written after the **Tuple** class name to declare the generic types **[&FIRST]** and **[&SECOND]**. Any number of generics can be declared here by writing identifiers in a comma seperated list. When a **Tuple** object is defined, both the generic types must be instantiated. In the following example, an object **bananaAndApple** is defined which contains a **[Banana]** and an **[Apple]**
+**< FIRST, SECOND >** is written after the **Tuple** class name to declare the class generic types **[&FIRST]** and **[&SECOND]**. Any number of class generics types can be declared for a class by writing identifiers in a comma seperated list. In the following example, a **Tuple** object called **bananaAndApple** is declared which contains a **[Banana]** and an **[Apple]**.
 ```
 [] (Tuple, Banana, Apple) {
     *{
@@ -1449,9 +1466,9 @@ A class can have more then one generic type. We define a **Tuple** object contai
     ~ newBanana *{\$~newFruit;}
 }
 ```
-The type of **bananaAndApple** is **[Tuple<[Banana][Apple]>]**; between the **<** **>** is written the list of types instantiating the corresponding generics types. Regarding **[Tuple<[Banana][Apple]>]**, the first type **[Banana]** instantiates the first generic type **[&FIRST]**, the second type **[Apple]** instantiates the second generic type **[&SECOND]**.
+The type of **bananaAndApple** is **[Tuple<[Banana][Apple]>]**; between the **< >** is written the list of types instantiating the corresponding class generics types. Regarding **[Tuple<[Banana][Apple]>]**, the first type **[Banana]** instantiates the first class generic type **[&FIRST]**, the second type **[Apple]** instantiates the second class generic type **[&SECOND]**. When a object with generic types is declared, all the class generic types must be instantiated.
 
-In the following example, we change **Tuple** into **Triple** which contains a third instance object corresponding to a third generic type, and define a corresponding object **[Triple<[Banana][Apple][Grape]>]** **bananaAndAppleAndGrape**
+In the following example, we change **Tuple** into **Triple** which contains a third instance object corresponding to a third class generic type, and define a corresponding object **[Triple<[Banana][Apple][Grape]>]** **bananaAndAppleAndGrape**.
 ```
 [] (Triple, Banana, Apple, Grape) {
     *{
@@ -1493,7 +1510,7 @@ In the following example, we change **Tuple** into **Triple** which contains a t
     ~ newGrape *{\$~newFruit;}
 }
 ```
-Any type can be used to instantiate a generic, including a type which itself has generics. Embedded generics are demonstrated in the following example; using **Tuple**, an object **[Tuple<[Banana][Tuple<[Apple][Grape]>]>]** **bananaAndAppleAndGrape** is created which contains a **[Banana]** and a **[Tuple<[Apple][Grape]>]**
+Any type can be used to instantiate a class generic type, including a type which itself has generic types. Embedded generics are demonstrated in the following example; using **Tuple**, an object **[Tuple<[Banana][Tuple<[Apple][Grape]>]>]** **bananaAndAppleAndGrape** is created which contains a **[Banana]** and a **[Tuple<[Apple][Grape]>]**.
 ```
 [] (Tuple, Banana, Apple, Grape) {
     *{
@@ -1533,9 +1550,9 @@ Any type can be used to instantiate a generic, including a type which itself has
     ~ newGrape *{\$~newFruit;}
 }
 ```
-In general, types with a generic instantiation are compatible if the instantiated types are compatible, this also applies to types with multiple generic instantiations. Since ** [Fruit]** is the parent type of **[Banana]**, **[Apple]** and **[Grape]**, the following are the parent types of **[Tuple<[Banana][Tuple<[Apple][Grape]>]>]**:
+In general, class types with a generic instantiation are compatible if the instantiated types are compatible, this also applies to types with multiple generic instantiations. Since **[Fruit]** is the parent type of **[Banana]**, **[Apple]** and **[Grape]**, the following are the parent types of **[Tuple<[Banana][Tuple<[Apple][Grape]>]>]**:
 
-+ **[Tuple < [Fruit][Tuple<[Apple][Grape]>]>]**
++ **[Tuple<[Fruit][Tuple<[Apple][Grape]>]>]**
 + **[Tuple<[Banana][Tuple<[Fruit][Grape]>]>]**
 + **[Tuple<[Banana][Tuple<[Apple][Fruit]>]>]**
 + **[Tuple<[Fruit][Tuple<[Fruit][Grape]>]>]**
@@ -1543,9 +1560,9 @@ In general, types with a generic instantiation are compatible if the instantiate
 + **[Tuple<[Banana][Tuple<[Fruit][Fruit]>]>]**
 + **[Tuple<[Fruit][Tuple<[Fruit][Fruit]>]>]**
 
-Here are some example valid assignments using the **bananaAndAppleAndGrape** object:
+Following are some example assignments using parent types of the **bananaAndAppleAndGrape** object.
 ```
-[] (Tuple, Banana, Apple, Grape) {
+[] (Tuple, Banana, Apple, Grape, Fruit) {
     *{
         [Banana] banana = \[Banana]:newBanana;
         [Apple] apple = \[Apple]:newApple;
@@ -1559,9 +1576,9 @@ Here are some example valid assignments using the **bananaAndAppleAndGrape** obj
     }
 }
 ```
-For a type to be a parent, every generic instantiation must be a parent or equivalent. So for example, **[Tuple<[Fruit][Apple]>]** is not a parent or child type of **[Tuple<[Apple][Fruit]>]**, because **[Fruit]** is a parent of **[Apple]** but **[Apple]** is not a parent of **[Fruit]**. Here are some invalid assignments added to the previous example:
+For a type to be a parent, every generic instantiation must be a parent or equivalent. So for example, **[Tuple<[Fruit][Apple]>]** is not a parent or child type of **[Tuple<[Apple][Fruit]>]**, because **[Fruit]** is a parent of **[Apple]** but **[Apple]** is not a parent of **[Fruit]**. Following are some invalid assignments added alongside the previous examples.
 ```
-[] (Tuple, Banana, Apple, Grape) {
+[] (Tuple, Banana, Apple, Grape, Fruit) {
     *{
         [Banana] banana = \[Banana]:newBanana;
         [Apple] apple = \[Apple]:newApple;
@@ -1574,12 +1591,12 @@ For a type to be a parent, every generic instantiation must be a parent or equiv
         [Tuple<[Fruit][Tuple<[Fruit][Fruit]>]>] 3Fruits = 2FruitsAndAnApple;
 
         [Tuple<[Banana][Tuple<[Apple][Fruit]>]>] bananaAndAppleAndFruit = 2FruitsAndAnApple; @ Invalid; a [Fruit] is not a [Banana] (even though we know that the actual object here is a [Banana] on the inside)
-        [Tuple<[Fruit][Tuple<[Fruit][Grape]>]>] 2FruitsAndAGrape = 3Fruits; @ Invalid; a [Fruit] is not a [Grape]
-        [Tuple<[Banana][Tuple<[Fruit][Fruit]>]>] 2FruitsAndABanana = 2FruitsAndAnApple; @ Invalid; an [Apple] is a [Fruit], but a [Fruit] is not a [Banana]
+        [Tuple<[Fruit][Tuple<[Fruit][Grape]>]>] 2FruitsAndAGrape = 3Fruits;                  @ Invalid; a [Fruit] is not a [Grape]
+        [Tuple<[Banana][Tuple<[Fruit][Fruit]>]>] 2FruitsAndABanana = 2FruitsAndAnApple;      @ Invalid; an [Apple] is a [Fruit], but a [Fruit] is not a [Banana]
     }
 }
 ```
-Generic types can also be used within the type methods of a class. In the following example, a type method **tripleFromTuple** is added to the **Triple** class and is used to transform **bananaAppleGrapeAsATuple** into **bananaAppleGrapeAsATriple**
+Generic types can also be used within the type methods of a class. The same rules apply to type methods, all generic types must be instantiated. In the following example, a type method **tripleFromTuple** is added to the **Triple** class and is used to transform **bananaAppleGrapeAsATuple** into **bananaAppleGrapeAsATriple**.
 ```
 [] (Tuple, Triple, Banana, Apple, Grape) {
     *{
@@ -1643,7 +1660,7 @@ Generic types can also be used within the type methods of a class. In the follow
     ~ newGrape *{\$~newFruit;}
 }
 ```
-Lamba types can be used to instantiate generics. In the following example **aTupleOfLambdaObjects** is created
+Lamba types can instantiate class generic types. In the following example, **aTupleOfLambdaObjects** is declared.
 ```
 [] (Tuple, Triple, Banana, Apple, Grape) {
     *{
@@ -1652,6 +1669,7 @@ Lamba types can be used to instantiate generics. In the following example **aTup
         [Tuple<[->[Apple]][[Banana]->[Grape]]>] aTupleOfLambdaObjects = \[Tuple<[->[Apple]][[Banana]->[Grape]]>]:newTuple createAnApple getAGrapeFromABanana;
     }
 }
+
 [Tuple < FIRST, SECOND > ]
     [&FIRST] first
     [&SECOND] second
@@ -1683,21 +1701,21 @@ Lamba types can be used to instantiate generics. In the following example **aTup
 
 In summary:
 
-+ Any number of generic types can be declared for a class, and then used anywhere inside the class.
-+ A generic can be instantiated by any type, including another generic type or a lambda type.
++ Any number of class generic types can be declared for a class, and then used anywhere inside the class.
++ A class generic type can be instantiated by any type, including another generic type or a lambda type.
 + All class generic types are instantiated when invoking a constructor, invoking a type method or declaring an object.
-+ If you change one of the instantiations of a generic type to a parent type, the generic type also becomes a parent type. For example, if **[C]** is a parent type of **[B]** then **[Tuple<[A][C]>]** is a parent type of **[Tuple<[A][B]>]**.
++ If one of the generic instantiations of a class type becomes a parent type, the new class type also becomes a parent type. For example, if **[C]** is a parent type of **[B]** then **[Tuple<[A][C]>]** is a parent type of **[Tuple<[A][B]>]**.
 
 
 ### Instance Method Visibility
 
-The visibility of an instance method determines in which context it can be invoked. Some other languages with this concept have keywords such as 'public', 'private' and 'protected' to determine in which parts of the code can a given instance method be accessed. A Daina instance method has three aspects of visibility which can be set independantly:
+The visibility of an instance method determines in which contexts it can be invoked. Some other languages with this concept have keywords such as 'public', 'private' and 'protected' to determine in which parts of the code can a given instance method be accessed. A Daina instance method has three aspects of visibility that can be set independantly:
 
 + Externally (can be either visible or invisible)
 + Type (can be either visible or invisible)
 + Inherited (can be either visible or invisible)
 
-The instance method visibility is indicated with three **+** (meaning visible) or **-** (meaning hidden) for external visibility, type visibility and inherited visibility respectively. Here are eight examples instance methods showing all possible combinations:
+The instance method visibility is indicated with three **+** (meaning visible) or **-** (meaning hidden); for external visibility, type visibility and inherited visibility respectively. Following are eight examples instance methods showing all possible combinations of visibility.
 ```
 [VisibilityExamples] {
     --+ fooA *{} @ fooA is externally invisible, type invisible and inherited visibly
@@ -1711,7 +1729,7 @@ The instance method visibility is indicated with three **+** (meaning visible) o
 }
 ```
 
-When an instance method is marked with **---**, it is considered maximally invisible and can only be accessed by other instance methods or constructors within the same object. This is called internal visibility and is always avaliable by default. **---** is equivalent to 'private' in some other languages. The following example shows a maximally invisible instance method called **cabbage**
+When an instance method is marked with **---**, it is considered minimally visible and can only be accessed by other instance methods or constructors within the same object. An instance method can always be accessed by other instance methods or constructors within the same object. **---** is equivalent to 'private' in some other languages. The following example shows a minimally visible instance method called **cabbage**.
 ```
 [Ni] {
     --- cabbage *{}
@@ -1723,7 +1741,7 @@ When an instance method is marked with **---**, it is considered maximally invis
     }
 }
 ```
-Since **cabbage** is marked as **---**, it can only be accessed within **newNi** or **foo** since these are the only other constructor and instance method of **Ni**. It is not possible to access **cabbage** in child classes. In the following example **Nu** inherits from **Ni** but cannot access **cabbage**
+Since **cabbage** is marked as **---**, it can only be accessed within **newNi** or **foo** since these are the only other constructor and instance method of **Ni**. It is not possible to access a **---** instance method in child classes. In the following example, **Nu** inherits from **Ni** but cannot access **cabbage**.
 ```
 [Ni] {
     --- cabbage *{}
@@ -1740,52 +1758,16 @@ Since **cabbage** is marked as **---**, it can only be accessed within **newNi**
         \$~newNi;
     }
     +++ bar *{
-        \:cabbage; @ Invalid; Ni is the parent, but cabbage is invisible here
+        \:cabbage; @ Invalid; cabbage is invisible here
     }
 }
 ```
-It is not possible to access **cabbage** outside the class **Ni**, but it is also not possible to access **cabbage** on a different **[Ni]** object inside the class **Ni**:
-```
-[] (Ni) {
-    *{
-        [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, cabbage is invisible here
-    }
-}
-
-[Ni] {
-    --- cabbage *{}
-    ~ newNi *{
-        \:cabbage;
-    }
-    +++ foo *{
-        \:cabbage;
-    }
-    +++ bar *{
-        [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, inside the class Ni, but ni's cabbage is invisible here
-    }
-    :: sha *{
-        [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, inside the class Ni, but ni's cabbage is invisible here
-    }
-}
-
-[Nu :[Ni]] (Ni) {
-    ~ newNu *{
-        \$~newNi;
-    }
-    +++ bar *{
-        \:cabbage; @ Invalid; Ni is the parent, but cabbage is invisible here
-    }
-}
-```
-Since **cabbage** cant be accessed inside the child class **Nu**, it is not possible to override **cabbage**:
+It is not possible to access **cabbage** outside the class **Ni**, and it is also not possible to access **cabbage** for a different **[Ni]** object inside the class **Ni**.
 ```
 [] (Ni) {
     *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, cabbage is invisible here
+        \ni:cabbage; @ Invalid; cabbage is invisible here
     }
 }
 
@@ -1799,11 +1781,11 @@ Since **cabbage** cant be accessed inside the child class **Nu**, it is not poss
     }
     +++ bar *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, inside the class Ni, but ni's cabbage is invisible here
+        \ni:cabbage; @ Invalid; inside the class Ni, but ni's cabbage method is invisible here
     }
     :: sha *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, inside the class Ni, but ni's cabbage is invisible here
+        \ni:cabbage; @ Invalid; inside the class Ni, but ni's cabbage method is invisible here
     }
 }
 
@@ -1812,22 +1794,21 @@ Since **cabbage** cant be accessed inside the child class **Nu**, it is not poss
         \$~newNi;
     }
     +++ bar *{
-        \:cabbage; @ Invalid; Ni is the parent, but cabbage is invisible here
+        \:cabbage; @ Invalid; cabbage is invisible here
     }
-    |--- cabbage *{} @ Invalid; Ni is the parent, but cabbage is invisible here and thus cannot be overriden
 }
 ```
-If the visibility of **cabbage** is changed to **-+-** it gains type visibility. The change from **---** is that **cabbage** can now be accessed on any **[Ni]** object inside the **Ni** class:
+Since **cabbage** can't be accessed inside the child class **Nu**, it is not possible to override **cabbage**.
 ```
 [] (Ni) {
     *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Invalid, cabbage is invisible here
+        \ni:cabbage; @ Invalid; cabbage is invisible here
     }
 }
 
 [Ni] {
-    -+- cabbage *{}
+    --- cabbage *{}
     ~ newNi *{
         \:cabbage;
     }
@@ -1836,11 +1817,11 @@ If the visibility of **cabbage** is changed to **-+-** it gains type visibility.
     }
     +++ bar *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Now valid; ni's cabbage can be accessed due to type visibility
+        \ni:cabbage; @ Invalid, inside the class Ni, but ni's cabbage method is invisible here
     }
     :: sha *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Now valid; ni's cabbage can be accessed due to type visibility
+        \ni:cabbage; @ Invalid; inside the class Ni, but ni's cabbage method is invisible here
     }
 }
 
@@ -1849,22 +1830,59 @@ If the visibility of **cabbage** is changed to **-+-** it gains type visibility.
         \$~newNi;
     }
     +++ bar *{
-        \:cabbage; @ Invalid; Ni is the parent, but cabbage is invisible here
+        \:cabbage;   @ Invalid; cabbage is invisible here
     }
-    |-+- cabbage *{} @ Invalid; Ni is the parent, but cabbage is invisible here and thus cannot be overriden
+    |--- cabbage *{} @ Invalid; cabbage is invisible here and thus cannot be overriden
 }
 ```
-If the visibility of **cabbage** is changed to **++-** it gains external visibility. The change from **-+-** is that **cabbage** can now be accessed on any **[Ni]** object inside or outside the **Ni** class:
+If the visibility of **cabbage** is changed to **-+-** it gains type visibility. The change from **---** is that **cabbage** can now be accessed on any **[Ni]** object inside the **Ni** class.
 ```
 [] (Ni) {
     *{
         [Ni] ni = \[Ni]:newNi;
-        \ni:cabbage; @ Now valid; ni's cabbage can be accessed due to external visibility
+        \ni:cabbage; @ Invalid; cabbage is invisible here
     }
 }
 
 [Ni] {
-    ++- cabbage *{}
+    -+- cabbage *{}  @ (+ type visibility) cabbage now has type visibility
+    ~ newNi *{
+        \:cabbage;
+    }
+    +++ foo *{
+        \:cabbage;
+    }
+    +++ bar *{
+        [Ni] ni = \[Ni]:newNi;
+        \ni:cabbage; @ Now valid; ni's cabbage method can be accessed due to type visibility
+    }
+    :: sha *{
+        [Ni] ni = \[Ni]:newNi;
+        \ni:cabbage; @ Now valid; ni's cabbage method can be accessed due to type visibility
+    }
+}
+
+[Nu :[Ni]] (Ni) {
+    ~ newNu *{
+        \$~newNi;
+    }
+    +++ bar *{
+        \:cabbage;   @ Invalid; cabbage is invisible here
+    }
+    |-+- cabbage *{} @ Invalid; cabbage is invisible here and thus cannot be overriden
+}
+```
+If the visibility of **cabbage** is changed to **++-** it gains external visibility. The change from **-+-** is that **cabbage** can now be accessed on any **[Ni]** object outside the **Ni** class.
+```
+[] (Ni) {
+    *{
+        [Ni] ni = \[Ni]:newNi;
+        \ni:cabbage; @ Now valid; ni's cabbage can now be accessed due to external visibility
+    }
+}
+
+[Ni] {
+    ++- cabbage *{}  @ (+ external visibility) cabbage now has external and type visibility
     ~ newNi *{
         \:cabbage;
     }
@@ -1886,12 +1904,12 @@ If the visibility of **cabbage** is changed to **++-** it gains external visibil
         \$~newNi;
     }
     +++ bar *{
-        \:cabbage; @ Invalid; Ni is the parent, but cabbage is invisible here
+        \:cabbage;   @ Invalid; cabbage is invisible here
     }
-    |++- cabbage *{} @ Invalid; Ni is the parent, but cabbage is invisible here and thus cannot be overriden
+    |++- cabbage *{} @ Invalid; cabbage is invisible here and thus cannot be overriden
 }
 ```
-If the visibility of **cabbage** is changed to **+++** it gains inherited visibility. The change from **++-** is that **cabbage** can now be overriden and accessed inside a child, such as a **[Nu]** object:
+If the visibility of **cabbage** is changed to **+++** it gains inherited visibility. The change from **++-** is that **cabbage** can now be overriden and accessed inside a child, such as a **[Nu]** object.
 ```
 [] (Ni) {
     *{
@@ -1901,7 +1919,7 @@ If the visibility of **cabbage** is changed to **+++** it gains inherited visibi
 }
 
 [Ni] {
-    +++ cabbage *{}
+    +++ cabbage *{}  @ (+ inherited visibility) cabbage now has external, type and inherited visibility
     ~ newNi *{
         \:cabbage;
     }
@@ -1923,12 +1941,12 @@ If the visibility of **cabbage** is changed to **+++** it gains inherited visibi
         \$~newNi;
     }
     +++ bar *{
-        \:cabbage; @ Now valid; cabbage is visibile here due to inherited visibility
+        \:cabbage;   @ Now valid; cabbage is now visibile here due to inherited visibility
     }
-    |+++ cabbage *{} @ Now valid; cabbage is visibile here due to inherited visibility
+    |+++ cabbage *{} @ Now valid; cabbage is now visibile here due to inherited visibility and thus can be overriden
 }
 ```
-When overriding an instance method, the visibility can be the same or more visible, but not less visible. In the following example, **cabbage1** and **cabbage2** are correctly overriden, but **cabbage3** and **cabbage4** are invalid because they are overriden without visibilities which the original methods had
+When overriding an instance method, the visibility can be the same or more visible then before, but not less visible. In the following example, **cabbage1** and **cabbage2** are correctly overriden, but **cabbage3** and **cabbage4** are invalid because they are overriden with missing visibilities from the original methods.
 ```
 [Ni] {
     ~ newNi *{}
@@ -1944,32 +1962,39 @@ When overriding an instance method, the visibility can be the same or more visib
     }
     |+++ cabbage1 *{} @ Valid
     |-++ cabbage2 *{} @ Valid
-    |-++ cabbage3 *{} @ Invalid; requires external visibility like cabbage3 from Ni
-    |+-+ cabbage4 *{} @ Invalid; requires type visibility like cabbage4 from Ni
+    |-++ cabbage3 *{} @ Invalid; requires external visibility since cabbage3 from Ni has external visibility
+    |+-+ cabbage4 *{} @ Invalid; requires type visibility since cabbage4 from Ni has type visibility
 }
 ```
 Most combinations of visibilities would not be used very often and dont usually need to be considered. The following are the most used:
 
-+ **---** only allows access within the same instance, it is similar to the private modifer in some other languages
-+ **+++** allows access everywhere, it is similar to the public modifer in some other languages
-+ **--+** allows access within the same instance and child instances which inherit the method, it is similar to the protected modifer in some other languages
++ **---** only allows access within the same instance, it is similar to the private modifer in some other languages.
++ **+++** allows access everywhere, it is similar to the public modifer in some other languages.
++ **--+** allows access within the same instance and child instances which inherit the method, it is similar to the protected modifer in some other languages.
 
 There are some abbreviations avaliable:
 
-+ **-** is the same as **---**
-+ **+** is the same as **--+**
-+ **++** is the same as **+++**
++ **-** is an abbreviation for **---**
++ **+** is an abbreviation for **--+**
++ **++** is an abbreviation for **+++**
 
 
 ### Prologue Statements
 
-A prologue statement allows prior statments to be written afterwards. A prologue statement is designated with an exclaimation mark (**!**). The following example uses **!** to designate the next statement as a prologue statment
+A prologue statement allows prior statments to be written afterwards. A prologue statement is designated with an exclaimation mark (**!**). The following example uses **!** to designate the next statement as a prologue statment.
 ```
 [] (Dog) {
     *{
         \elis:bark
             ! [Dog] elis = \[Dog]:newDog;
     }
+}
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
 }
 ```
 Which is equivalent to:
@@ -1980,8 +2005,15 @@ Which is equivalent to:
         \elis:bark;
     }
 }
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
+}
 ```
-A prologue statement can be a group of statements:
+A prologue statement can be a group of statements.
 ```
 [] (Dog) {
     *{
@@ -1992,6 +2024,13 @@ A prologue statement can be a group of statements:
                 \elis:eat;
             }
     }
+}
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
 }
 ```
 Which is equivalent to:
@@ -2004,8 +2043,15 @@ Which is equivalent to:
         \elis:bark;
     }
 }
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
+}
 ```
-A prologue statement can also be written at the end of a method, even the entry point method:
+A prologue statement can also be written at the end of a method body, which places it just before the statements in the method body.
 ```
 [] (Dog) {
     *{
@@ -2018,6 +2064,13 @@ A prologue statement can also be written at the end of a method, even the entry 
             [Dog] jay = \[Dog]:newDog;
             [Dog] elma = \[Dog]:newDog;
         }
+}
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
 }
 ```
 Which is equivalent to:
@@ -2032,8 +2085,15 @@ Which is equivalent to:
         \elma:bark;
     }
 }
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
+}
 ```
-A prologue statements can be embedded in other prologue statements:
+Prologue statements can be embedded in other prologue statements.
 ```
 [] (Dog) {
     *{
@@ -2044,6 +2104,13 @@ A prologue statements can be embedded in other prologue statements:
                     ! \elis:eat;
             }
     }
+}
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
 }
 ```
 Which is equivalent to:
@@ -2056,22 +2123,36 @@ Which is equivalent to:
         \elis:bark;
     }
 }
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
+}
 ```
-Assignments in prologue statements are only visible to the statement or group of statements which had **!** written after it. The following example is invalid becuase the assignment of **jay** is not visible to the statement **\jay:sleep;**
+Assignments in prologue statements are only visible to the statement or group of statements which had **!** written after it. The following example is invalid becuase the assignment of **jay** is not visible to the statement **\jay:sleep;**.
 ```
 [] (Dog) {
     *{
-        \jay:bark @ Valid; jay is visible here
+        \jay:bark   @ Valid; jay is visible here
             ! [Dog] jay = \[Dog]:newDog;
         \jay:sleep; @ Invalid; jay is not visible here
     }
+}
+
+[Dog] {
+    ~ newDog *{}
+    +++ sleep *{}
+    +++ eat *{}
+    +++ bark *{}
 }
 ```
 
 
 ### Method Generics
 
-Method generics allow the output type of a method to be based on the inputs. The following example method **identity** simply returns the input
+Method generics allow the output type of a method to be based on the inputs. The following example method **identity** simply returns the input as output.
 ```
 [] {
     *{
@@ -2079,7 +2160,7 @@ Method generics allow the output type of a method to be based on the inputs. The
     }
 }
 ```
-The type **['A]** represents a method generic type with the name **A**. **['A]** can represent any type. When **identity** is invoked, the instantiation type of **['A]** is determined and all **['A]**'s are replaced with this type. Here are some examples of invoking **identity**
+The type **['A]** represents a method generic type with the name **A**. **['A]** can represent any type. When **identity** is invoked, the type of **['A]** is determined and all **['A]**'s are replaced with this type. Thus when **identity** is invoked, the output type is determined by the input type. Following are some examples of invoking **identity**.
 ```
 [] (Hammer, Saw, Cat) {
     *{
@@ -2109,7 +2190,7 @@ The type **['A]** represents a method generic type with the name **A**. **['A]**
     ~ newCat *{\$~newCat;}
 }
 ```
-Methods can have multiple method generic types. In the following example, the return type of **chooseFirstOption** is determined by the first input, and the return type of **chooseSecondOption** is determined by the second input
+Methods can have multiple method generic types. In the following example, the return type of **chooseFirstOption** is determined by the first input, and the return type of **chooseSecondOption** is determined by the second input.
 ```
 [] (Hammer, Saw, Cat) {
     *{
@@ -2140,7 +2221,7 @@ Methods can have multiple method generic types. In the following example, the re
     ~ newCat *{\$~newCat;}
 }
 ```
-A method can use the same method generic type multiple times, but the uses of the same method generic type must all have a common parent. In the following example, the return type of **chooseFirstOption** is determined by the common type of both inputs
+A method can use the same method generic type multiple times, but the uses of the same method generic type must all have a common parent. In the following example, the return type of **chooseFirstOption** is determined by the common type of both inputs.
 ```
 [] (Hammer, Saw, Cat) {
     *{
@@ -2148,8 +2229,8 @@ A method can use the same method generic type multiple times, but the uses of th
         [Cat] cat = \[Cat]:newCat;
         [Saw] saw = \[Saw]:newSaw;
         [Hammer] hammer = \[Hammer]:newHammer;
-        [Cat] theSameCat = \chooseFirstOption cat saw; @ Invalid; [Saw] is not a [Cat], ['A] cant be determined
-        [Tool] theSameSaw = \chooseFirstOption saw hammer; @ Valid; [Tool] is a common type between [Saw] and [Hammer], ['A] is [Tool]
+        [Cat] theSameCat = \chooseFirstOption cat saw;          @ Invalid; [Saw] is not a [Cat], ['A] cant be determined
+        [Tool] theSameSaw = \chooseFirstOption saw hammer;      @ Valid; [Tool] is a common type between [Saw] and [Hammer], ['A] is [Tool]
         [Hammer] theSameHammer = \chooseFirstOption hammer saw; @ Invalid; ['A] is [Tool], therefore the return type is [Tool] not [Hammer]
     }
 }
@@ -2170,7 +2251,7 @@ A method can use the same method generic type multiple times, but the uses of th
     ~ newCat *{\$~newCat;}
 }
 ```
-Lambda object inputs can contain method generic types. In the following example, **invokeLambda** invokes a lambda object **inputLambda** and returns the result
+Method generic types can be used in lambda object inputs. In the following example, **invokeLambda** invokes a lambda object **inputLambda** and returns the result.
 ```
 [] (Hammer, Saw, Cat) {
     *{
@@ -2205,7 +2286,7 @@ Lambda object inputs can contain method generic types. In the following example,
     ~ newCat *{\$~newCat;}
 }
 ```
-Consider the tuple class used previously:
+Consider the tuple class used previously.
 ```
 [Tuple < FIRST, SECOND > ]
     [&FIRST] first
@@ -2219,7 +2300,7 @@ Consider the tuple class used previously:
     +++ getSecond *->[&SECOND]{}->.second
 }
 ```
-Method generics can be used for methods inside a class. The instance method **changeFirst** is added, which returns a new **[Tuple]** where just the first object is changed:
+Method generic can be used for methods inside a class. The instance method **changeFirst** is added, which returns a new **[Tuple]** with just the first object changed.
 ```
 [Tuple < FIRST, SECOND > ]
     [&FIRST] first
@@ -2233,10 +2314,10 @@ Method generics can be used for methods inside a class. The instance method **ch
     +++ getSecond *->[&SECOND]{}->.second
 
     +++ changeFirst *(['NEW_FIRST] newFirst) -> [Tuple<['NEW_FIRST][&SECOND]>] {
-    } -> \[Tuple<['NEW_FIRST][&SECOND]>]:newTuple newFirst .second;
+    } -> \[Tuple<['NEW_FIRST][&SECOND]>]:newTuple newFirst .second
 }
 ```
-Example use of **changeFirst**, changing **hammerAndSaw** into **catAndSaw**:
+The following example demostrates the use of **changeFirst**, changing **hammerAndSaw** into **catAndSaw**.
 ```
 [] {
     *{
@@ -2260,7 +2341,7 @@ Example use of **changeFirst**, changing **hammerAndSaw** into **catAndSaw**:
     +++ getSecond *->[&SECOND]{}->.second
 
     +++ changeFirst *(['NEW_FIRST] newFirst) -> [Tuple<['NEW_FIRST][&SECOND]>] {
-    } -> \[Tuple<['NEW_FIRST][&SECOND]>]:newTuple newFirst .second;
+    } -> \[Tuple<['NEW_FIRST][&SECOND]>]:newTuple newFirst .second
 }
 
 [Tool] {
@@ -2279,7 +2360,7 @@ Example use of **changeFirst**, changing **hammerAndSaw** into **catAndSaw**:
     ~ newCat *{\$~newCat;}
 }
 ```
-Adding a similar method called **changeSecond** and changing **catAndSaw** into **catAndHammer**:
+In the following example, we add a similar method called **changeSecond**, and change **catAndSaw** into **catAndHammer**.
 ```
 [] {
     *{
@@ -2304,10 +2385,10 @@ Adding a similar method called **changeSecond** and changing **catAndSaw** into 
     +++ getSecond *->[&SECOND]{}->.second
 
     +++ changeFirst *(['NEW_FIRST] newFirst) -> [Tuple<['NEW_FIRST][&SECOND]>] {
-    } -> \[Tuple<['NEW_FIRST][&SECOND]>]:newTuple newFirst .second;
+    } -> \[Tuple<['NEW_FIRST][&SECOND]>]:newTuple newFirst .second
 
     +++ changeSecond *(['NEW_SECOND] newSecond) -> [Tuple<[&FIRST]['NEW_SECOND]>] {
-    } -> \[Tuple<[&FIRST]['NEW_SECOND]>]:newTuple .first newSecond;
+    } -> \[Tuple<[&FIRST]['NEW_SECOND]>]:newTuple .first newSecond
 }
 
 [Tool] {
@@ -2329,9 +2410,9 @@ Adding a similar method called **changeSecond** and changing **catAndSaw** into 
 
 In summary:
 
-+ A method can have any number of method generics types.
++ A method can have any number of method generic types.
 + Method generic types can be used in the input and output of a method.
-+ When a method is invoked, the method generic types are determined by the type of the inputs.
++ When a method is invoked, the method generic types are determined by the input types.
 + Method generic types can be used to dynamically choose the output type when a method is invoked.
 
 
