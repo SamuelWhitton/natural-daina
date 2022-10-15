@@ -55,7 +55,7 @@
     + [Type Casting](#type-casting)
     + [Scope](#scope)
     + [Variables and Mutability](#variables-and-mutability)
-    + [Visibility of Constructor and Type Methods](#visibility-of-constructor-and-type-methods)
+    + [Visibility and Inheritance of Constructor and Type Methods](#visibility-and-inheritance-of-constructor-and-type-methods)
     + [Void Identifier](#void-identifier)
 
 * [Grammar](#grammar)
@@ -141,6 +141,7 @@ Goals
 - literals explicitly seperated from the language
 - Minimise abiguity .....
 - no invalid inheritances/no invalid disjoijnt types
+- emergent complexity but not definitional  complexity
 
 ```
 
@@ -3574,14 +3575,12 @@ Prologue statements can be attached to any expression within a compound expressi
 
 All the different expressions can be combined in a compound way. Various constructs have different binding strength. The following list shows constructs in order of binding strength from strongest to weakest.
 
-1. **:** binding to the following identifier (as in a type method or an instance method)
-2. **:** binding to the preceeding type or expression (as in a type method or an instance method)
-3. **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs)
-4. **!** binding to the preceeding expression and the following statement (as in a prologue statement for an expression)
-5. **->** binding to the next expression (as in the output of a method)
-6. **\*** binding to the lone statement body of a method ([see flexible method expression](#flexible-method-expression))
+1. **:** binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method)
+2. **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs), **->** binding to the next expression (as in the output of a method) and **\*** binding to the lone statement body of a method which may be preceeded by a parameter list ([see flexible method expression](#flexible-method-expression))
+3. **!** binding to the preceeding expression and the following statement (as in a prologue statement for an expression)
 
-.....
+**\\**, **->** and **\*** have the same binding strength. A construct will bind stronger then a preceeding construct at the same binding level indicated by the above list. In other words, an **!** will bind stronger then all other **!** which preceeded it.
+
 Following are a series of 8 compound expressions.
 ```
 *->[->[A]]{}->*->[A]{}->a
@@ -3590,24 +3589,20 @@ Following are a series of 8 compound expressions.
 \.a:b.c:d\e.f.g:h
 \\\a
 \\*->[->]{}->*{}
-
 \*->[A]{}->a![A]a=\b:c
 a![A]a=\b![B]b=\c
 ```
 Following are 8 equivalent expressions with bracketing to show how the binding is determined.
 ```
-*->[->[A]]{}->(*->[A]{}->(a))
-*->[A]->(\(b:c) (d:e) (f) (:g))
-\a b (\c d)
-\((.a):b) ((.c):d) (\(e) (.f) ((.g):h))
-\(\(\a))
-\(\(*->[->]{}->(*{})))
-
-
-\*->[A]{}->a![A]a=\(b:c)
-a![A]a=\b![B]b=\c
+(*->[->[A]]{}->(*->[A]{}->a))
+(*->[A]{}->(\ (b :c) (d :e) (f) (:g)))
+(\(a) (b) (\c d))
+(\(.a:b)(.c:d)(\(e)(.f)(.g:h)))
+(\(\(\a)))
+(\(\(*->[->]{}->(*{}))))
+(\(*->[A]{}->a))![A]a=(\(b:c))
+a!{[A]a=(\(b))!{[B]b=(\(c))}}
 ```
-
 
 ## Constructors
 
@@ -4461,7 +4456,7 @@ If we add a fully visible method to **C** then we also must override the method 
 
 ## Flexible Method Expression
 
-If a method expression has an output it can be written without the output type and method body, in which case the output type of the method is the type of the output expression. **method1** and **method2** are rewritten as **method1Re** and **method2Re** without the output type and method body:
+A method expression can be written without the output type and method body, in which case the output type of the method is infered by the type of the output expression ([see type inference of method outputs](#type-inference-of-method-outputs)). **method1** and **method2** are rewritten as **method1Re** and **method2Re** without the output type and method body:
 ```
 [] (A, B) {
     *{
@@ -4485,6 +4480,7 @@ If a method expression has an output it can be written without the output type a
     ~ newB *{}
 }
 ```
+
 A method body can be written as a single statement instead of a group of statements surrounded by curly brackets **{}**. **method3**, **method4** and **method5** are rewritten as **method3Re**, **method4Re** and **method5Re** with a single statement for a method body:
 ```
 [] (A, B) {
@@ -4508,19 +4504,21 @@ A method body can be written as a single statement instead of a group of stateme
     ++ foo *{}
 }
 ```
+
+
 Consider the following example where instance and type methods are captured in lambda objects:
 ```
 [] (A) {
     *{
-        [->[A]] newALambda = *->[A] {} -> \[A]:newA;
-        [->[A]] createALambda = *->[A] {} -> \[A]:createA;
+        [->[A]] newALambda = *->[A] {} -> \[A]:newA;        @ type method (constructor) [A]:newA captured
+        [->[A]] createALambda = *->[A] {} -> \[A]:createA;  @ type method [A]:createA captured
         [A] a1 = \newALambda;
         [A] a2 = \createALambda;
-        [->] a1DoThingLambda = *{\a1:doThing;};
-        [->] a2DoThingLambda = *{\a2:doThing;};
+        [->] a1DoThingLambda = *{\a1:doThing;};             @ instance method a1:doThing captured
+        [->] a2DoThingLambda = *{\a2:doThing;};             @ instance method a2:doThing captured
         \a1DoThingLambda;
         \a2DoThingLambda;
-        [[A]->] useALambda = *([A] a) {\[A]:useA a;};
+        [[A]->] useALambda = *([A] a) {\[A]:useA a;};       @ type method [A]:useA captured
         \useALambda a1;
     }
 }
@@ -4532,7 +4530,7 @@ Consider the following example where instance and type methods are captured in l
     :: useA *([A] a){}
 }
 ```
-Invoking **newALambda**, **createALambda**, **a1DoThingLambda**, **a2DoThingLambda** and **useALambda** is the same as invoking **[A]:newA**, **[A]:createA**, **a1:doThing**, **a2:doThing** and **[A]:useA**. Instance and type methods can be captured as lambda objects by refering to them directly in an expression. In the following example, the same instance and type methods are captured as lambda objects directly.
+In the above example, invoking **newALambda**, **createALambda**, **a1DoThingLambda**, **a2DoThingLambda** and **useALambda** is the same as invoking **[A]:newA**, **[A]:createA**, **a1:doThing**, **a2:doThing** and **[A]:useA** respectively. Instance and type methods can be captured as lambda objects by refering to them directly in an expression. The previous example is rewritten so that the instance and type methods are captured as lambda objects directly:
 ```
 [] (A) {
     *{
@@ -4577,7 +4575,7 @@ Self and parent methods can similarly be referred to as lambda objects. In the f
     ++ doThing *{}
 }
 ```
-A self or parent method which is captured in a lambda object will always be invoked on the same object in which it was captured. In the following example, when **a:foo** is invoked this will result in the **:doThing** and **$doThing** methods being invoked within a new **[A]** object called **anotherA**, but the **:doThing** and **$doThing** methods will be invoked for the object **a** and not for the object **anotherA** because they were captured as lambda objects within the object **a**.
+A self or parent method which is captured in a lambda object will always be invoked on the same object in which it was captured. In the following example, when **a:foo** is invoked this will result in the **:doThing** and **$doThing** methods being invoked on the object **a**, **:doThing** and **$doThing** will not be invoked on the object **anotherA**.
 ```
 [] (A) {
     *{
@@ -4650,35 +4648,7 @@ An overloaded method can be chosen explicitly by [type casting](#type-casting) t
 ```
 
 
-
-[COMPUND EXPRESSION CAN BE USED]
-
-
-```
-[] (A) {
-    *{
-       \[A]:bar; 
-    }
-}
-
-[A] {
-    :: bar *{
-        [A] a = \[A]:newA;
-        \a:doThing;
-    }
-
-    :: createA *->[A] {} -> \[A]:newA
-
-    ++ doThing *{
-        \:doSomethingElse;
-    }
-
-    ~ newA *{}
-    - doSomethingElse *{}
-}
-```
-
-compound expression is evaluated when the method is invoked
+Class methods and the entry point method can be defined with an expression (this can be a [compound expression](#compound-expressions-and-statements)). Considered the following example where the method **bar**, **createA**, **doThing** and the entry point method have been defined using expressions which evautate to lambda objects:
 ```
 [] (A) {
     [A]:bar
@@ -4694,44 +4664,227 @@ compound expression is evaluated when the method is invoked
 }
 ```
 
+- Entry point method is defined as **[A]:bar**
+- Type method **bar** is defined as **(\\[A]:newA):doThing**
+- Type method **createA** is defined as **[A]:newA**
+- Instance method **doThing** is defined as **:doSomethingElse**
 
-no constructor method attaching must be explicit
+When a class or entry point method is defined with an expression, the type of the method is determined by the type of the expression. 
+
+- Entry point method has the type of **[A]:bar** which is **[->]**
+- Type method **bar** has the type of **(\\[A]:newA):doThing** which is **[->]**
+- Type method **createA** has the type of **[A]:newA** which is **[->[A]]**
+- Instance method **doThing** has the type of **:doSomethingElse** which is **[->]**
+
+When a class or entry point method is invoked, the expression is evaluated first before the resulting method is invoked. The previous example is rewritten to show how the expressions are evaulated:
+```
+[] (A) {
+    *{
+        [->] entryPoint = [A]:bar;
+        \entryPoint; 
+    }
+}
+
+[A] {
+    :: bar *{
+        [->] bar = (\[A]:newA):doThing;
+        \bar;
+    }
+
+    :: createA *->[A] {
+        [->[A]] createA = [A]:newA;
+    } -> \createA;
+
+    ++ doThing *{
+        [->] doThing = :doSomethingElse;
+        \doThing;
+    }
+
+    ~ newA *{}
+    - doSomethingElse *{}
+}
+```
+Contructors methods must be defined in the usual way, using an expresion to define a constructor is not allowed:
 ```
 [A] {
-    ~ newA [A]:constructA @ Invalid
+    ~ newA [A]:constructA   @ Invalid
+    ~ newB *{}              @ Valid
     :: constructA *{}
 }
 ```
 
 
+## Inheriting from Types with Generics
 
-
-
-- [method-expression](#method-expression) syntax description: [\*](#asterisk) **(** **parameter-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **(** **method-body** **)?** **)?** [->](#arrow) **output-expression** **)** **)**
-    + **parameter-list** syntax description: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
-    + **method-body** syntax description: [statement](#statement)
-    + **output-type** syntax description: [type](#type)
-    + **output-expression** syntax description: [expression](#expression)
-
-
-=Flexible Method Expression
-flexibal method bodies (1 statement, must not evaluate to an object), class method definitions, entry point definitions
-Lambda methods (reffering to instance type and constructors and how they become lambdas)
-self references and parent references in lambdas or as lambdas (when refering to them as lambdas)
-can leave off the method body and return type [Type Inference of Method Outputs]
-= using type cast to select overloaded method [Overloading Class Methods]
-
-
-
+A class can inherit from a type with class generics. Each generic of the inherited class must be instantiated by a type. In the following example, **AContainer** inherits from **[Container<[A]>]**.
 ```
-[] (A, B) {
-    *{
-        [->] method1 = *{};
-        [[A]->] method2 = *([A]aInput){};
-        [[A][B]->[B]] method3 = *([A]aInput,[B]bInput)->[B] {} -> bInput;
-        [->[A]] method4 = *->[A]{[A] aOutput = \[A]:newA;} -> aOutput;
-        [->[A]] method5 = *->[A]{} -> \[A]:newA;
+[AContainer : [Container<[A]>]] (A, Container) 
+{
+    ~ containerOfA *([A] a) {
+        \$~containerOf a;
     }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+**[Container<[A]>]** is a parent type of **[AContainer]**. All the instances of the generic type in the parent class are replaced with the instantiated type. In this case the instantiated type is **[A]**, so **AContainer** inherits the method **getObject** from **[Container<[A]>]** which returns an object of the type **[A]**. Some example statements are added:
+```
+[] (AContainer, A, Container) {
+    *{
+        [A] a = \[A]:newA;
+        [AContainer] aContainer = \[AContainer]:containerOfA a;
+        [Container<[A]>] containerA = aContainer;
+        [A] aFromAContainer = \aContainer:getObject;
+        [A] aFromContainer = \containerA:getObject;
+    }
+}
+
+[AContainer : [Container<[A]>]] (A, Container) 
+{    
+    ~ containerOfA *([A] a) {
+        \$~containerOf a;
+    }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+In the above example, **a** is the same object as **aFromContainer** and **aFromAContainer**.
+
+Methods from a parent type with class generics can be overriden. **getObject** is overriden in **AContainer** to return a new **[A]** object:
+```
+[] (AContainer, A, Container) {
+    *{
+        [A] a = \[A]:newA;
+        [AContainer] aContainer = \[AContainer]:containerOfA a;
+        [Container<[A]>] containerA = aContainer;
+        [A] aFromAContainer = \aContainer:getObject;
+        [A] aFromContainer = \containerA:getObject;
+    }
+}
+
+[AContainer : [Container<[A]>]] (A, Container) {
+    
+    ~ containerOfA *([A] a) {
+        \$~containerOf a;
+    }
+
+    |++ getObject *->[A] {} -> \[A]:newA
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+In the above example, **aFromContainer**, **aFromAContainer** and **a** are all different objects.
+
+Anonymous classes can also inherit from classes with class generics. The previous example is rewritten with a anonymous class defining the object **containerA**, and as from before; **aFromContainer** and **a** are different objects:
+```
+[] (AContainer, A, Container) {
+    *{
+        [A] a = \[A]:newA;
+        [Container<[A]>] containerA = [:[Container<[A]>]] {
+                \$~containerOf a;
+                |++ getObject *->[A] {} -> \[A]:newA
+            };
+        [A] aFromContainer = \containerA:getObject;
+    }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+An inherited generic type can be instantiated using class generics from the inheriting class. In the following example, **ContainerPlus** inherits from **[Container<[&N]>]**, where **[&N]** is a class generic type of **ContainerPlus**.
+```
+[ContainerPlus<N> : [Container<[&N]>]] (Container) {
+
+    ~ containerPlusOf *([&N] object) {
+        \$~containerOf object;
+    }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+```
+Parent types can be found by substituting the instantiated types into the parent type. In other words, **[Container<[A]>]** is a parent type of **[ContainerPlus<[A]>]** by substituting **[A]** as **[&N]** where the inherited parent type is **[Container<[&N]>]**, similarly for substituting **[B]** as **[&N]**:
+```
+[] (ContainerPlus, A, B, Container) {
+    *{
+        [A] a = \[A]:newA;
+        [B] b = \[B]:newB;
+        [ContainerPlus<[A]>] containerPlusOfA = \[ContainerPlus<[A]>]:containerPlusOf a;
+        [ContainerPlus<[B]>] containerPlusOfB = \[ContainerPlus<[B]>]:containerPlusOf b;
+        [Container<[A]>] containerOfA = containerPlusOfA; @ [Container<[A]>] is a parent type of [ContainerPlus<[A]>]
+        [Container<[B]>] containerOfB = containerPlusOfB; @ [Container<[B]>] is a parent type of [ContainerPlus<[B]>]
+    }
+}
+
+[ContainerPlus<N> : [Container<[&N]>]] (Container) {
+
+    ~ containerPlusOf *([&N] object) {
+        \$~containerOf object;
+    }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
 }
 
 [A] {
@@ -4742,19 +4895,116 @@ can leave off the method body and return type [Type Inference of Method Outputs]
     ~ newB *{}
 }
 ```
+Class generic types can be instantiated with any type, this is also true when inheriting. In the following example, **ContainerPlus** inherits from **[Container<[[[&M]/[C]]->[&N]]>]** (**[[&M]/[C]]** is a [disjoint type](#disjoint-types) of **[&M]** and **[C]**) where **[&M]** and **[&N]** are class generics of **ContainerPlus**.
+```
+[] (ContainerPlus, A, B, Container) {
+    *{
+        [[[A]/[C]]->[B]] acToB = *([[A]/[C]] ac)->[B] {} -> \[B]newB;
+        [ContainerPlus<[A][B]>] containerPlusAB = \[ContainerPlus<[A][B]>]:containerPlusOf acToB;
+        [Container<[[[A]/[C]]->[B]]>] containerOfACToB = containerPlusAB;
+    }
+}
 
-## Inheriting from Types with Generics
-=Inheriting from Types with Generics
-=different + = increasing/decreasing/unchanging generics
-overriding
-parent generic type (exists as topic)
-overriding with parent generic type
-= Using Self as a Generic Instantiation
-= disjoint types instantiating the generics
+[ContainerPlus<M,N> : [Container<[[[&M]/[C]]->[&N]]>]] (Container) {
 
+    ~ containerPlusOf *([[[&M]/[C]]->[&N]] object) {
+        \$~containerOf object;
+    }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ newA *{}
+}
+
+[B] {
+    ~ newB *{}
+}
+
+[C] {
+    ~ newC *{}
+}
+```
+**[Container<[[[A]/[C]]->[B]]>]** is a parent type of **[ContainerPlus<[A][B]>]**, which is determined by substituting **[A]** as **[&M]** and **[B]** as **[&N]** into **[Container<[[[&M]/[C]]->[&N]]>]**.
+
+A class can use itself in a generic instantiation of its parent type. In the following example, **RecursiveReceiver** inherits from **[Container<[&M]>]**, **[Receiver<[&M]>]** and **[Receiver<[RecursiveReceiver<[&M]>]>]**, where **[&M]** is a class generic type of **RecursiveReceiver**.
+```
+[] (RecursiveReceiver, A, Receiver) {
+    *{
+        [A] a1 = \[A:newA;
+        [A] a2 = \[A:newA;
+        [RecursiveReceiver<[A]>] recursiveReceiverOfA1 = \[RecursiveReceiver<[A]>]:recursiveReceiverOf a1;
+        [RecursiveReceiver<[A]>] recursiveReceiverOfA2 = \[RecursiveReceiver<[A]>]:recursiveReceiverOf a2;
+        \recursiveReceiverOfA2:receive a1;                      @ recursiveReceiverOfA2 receives a1
+        \recursiveReceiverOfA1:receive recursiveReceiverOfA2;   @ recursiveReceiverOfA1 receives a2
+        [Container<[A]>] containerOfA1 = recursiveReceiverOfA1;
+        [Container<[A]>] containerOfA2 = recursiveReceiverOfA2;
+        [Receiver<[A]>] receiverOfA1 = recursiveReceiverOfA1;
+        [Receiver<[A]>] receiverOfA2 = recursiveReceiverOfA2;
+        [Receiver<[RecursiveReceiver<[A]>]>] receiverOfRecursiveReceiverOfA1 = recursiveReceiverOfA1;
+        [Receiver<[RecursiveReceiver<[A]>]>] receiverOfRecursiveReceiverOfA2 = recursiveReceiverOfA2;
+    }
+}
+
+[RecursiveReceiver<M> :[Container<[&M]>] :[Receiver<[&M]>] :[Receiver<[RecursiveReceiver<[&M]>]>]] (Receiver, Container) 
+{
+    ~ recursiveReceiverOf *([&M] object) {
+        \$~containerOf object;
+        \$$~init;
+        \$$$~init;
+    }
+
+    |++ receive *([RecursiveReceiver<[&M]>] receiver) {
+        [&M] object = \receiver:getObject;
+        \:receive object;
+    }
+}
+
+[Receiver<E>]
+{
+    ~ init *{}
+    ++ receive *([&E] object) {}
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+In the above example, the method **receive** is overloaded in **RecursiveReceiver** as both **[[RecursiveReceiver<[&M]>]->\]** and **[[&M]->]** ([see overloading class methods](#overloading-class-methods)).
 
 
 ## The Lexical Splitter
+
+The lexical splitter rearranges the characters so that the **[future characters]** are stitched to the **[past character]**, and the **[middle characters]** which start a new token come after the **[future characters]** until the next token is reached, i.e. into the following configuration: **[past character][future characters before next token][space][middle characters][future characters from next token]**. After this rearrangement, the syntax branches back to the parent syntax node. Consider the following example:
+```
+abc`def`hij klm
+```
+This would be equivalent to the following sequence of characters:
+```
+abchij def klm
+```
+[See more examples of the lexical splitter](#the-lexical-splitter).
+
+
 
 ## Literals?
 
@@ -4766,12 +5016,14 @@ overriding with parent generic type
 = when overriding causes overloading vs overriding with parent lambda type, when overriding merges in the child class
 = implicit overloading when inheriting
 = implicit overloading and splitting when using disjointed types
+= lambda generics (conflict if there is any conflict possible, i.e. they are greedy)
+= class generics (must not be indeterminate , i.e. all possible instantiations must overload or split/merge)
 
 
 ## Parent and Child Lambda Types
 =Parent and Child lambda Types
 including overriding with child lambda types
-=method generic to other method generic or concrete type <-> including with disjoint types
+= method generic to other method generic or concrete type <-> including with disjoint types
 = inputs relating to rising/falling class generics
 = instantiating generics and then child->parent
 = disjoint types with lambda types
@@ -4788,6 +5040,7 @@ usuing
 ```
 || for overriding unimplemented method insead of |
 ```
+= unimplemented parent with class generics
 
 
 ### Assigning Instance Methods in Constructors
@@ -4802,15 +5055,88 @@ usuing
 =constructors conflicting with type methods and vice versa
 =Resolving Conflicts of Multiple Inheritance
 disjoint types as output object, one function to join multiple
-=parent types must always be disjoint
-=Parent Generic Types
 =partial class implementation
 = inheriting from the same class multiple times "Duplicate Inheritance"
+= inheriting from parents with generics, same parent
+= lambda generics (conflict if there is any conflict possible, i.e. they are greedy) (can be used to override and resolve conflicts etc)
+
+
+
+
+
+= [Overloading Class Methods] happens with class generics
+= class generics (must not be indeterminate , i.e. all possible instantiations must overload or split/merge)
+= with class generics
+= when one method could become the parent of another (indeterminate if they are the always disjoint, then not allowed)
+= if there exists types which could conflict for the method (outputs), then overriding [Overloading Class Methods] causes splitting (not alloed without overrriding)
+
+
+conflicting [Overloading Class Methods]
+```
+[ReceiverPlus<M, N> :[Receiver<[&M]>] :[Receiver<[&N]>]] (Receiver) 
+{
+    ~ init *{
+        \$~init;
+        \$$~init;
+    }
+}
+
+[Receiver<E>]
+{
+    ~ init *{}
+    ++ receive *([&E] object) {}
+}
+```
+ conflicting but resolvable [Overloading Class Methods]
+```
+[] (RecursiveReceiver, A, Receiver) {
+    *{
+        [A] a = \[A:newA;
+        [RecursiveReceiver<[A]>] recursiveReceiverOfA = \[ContainerComposite<[A][B]>]:ContainerCompositeOf acToB;
+        [Container<[[[A]/[C]]->[B]]>] containerOfACToB = containerCompositeAB;
+    }
+}
+
+[ReceiverPlus<M, N> :[Receiver<[&M]>] :[Receiver<[A]>]] (Receiver) 
+{
+    ~ init *{
+        \$~init;
+        \$$~init;
+    }
+}
+
+[Receiver<E>]
+{
+    ~ init *{}
+    ++ receive *([&E] object) {}
+}
+
+[A] {
+    ~ newA *{}
+}
+
+[B] {
+    ~ newA *{}
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Rising and Falling Generics
-
-
-
+= can always change generic between equivalent type (e.g. [e] and [[e]/[e]])
+= different to lambda generics
+= disjoint types, lambdas instantiating the generics
+=inheriting then instantiating generics with composite types such as [Disjoint Types](#disjoint-types), lambdas, disjoint types instantiating the parents generics with multiple types...
 
 ```
 [] (Cloud, Animal, Bird, Elephant) {
@@ -4896,6 +5222,7 @@ falling generic
 
 ## Type Casting
 
+= can cast down not up, visa versa???
 = using type cast to select overloaded method [Overloading Class Methods]
 = composite expressions, using to expose external visible but not inherited...
 
@@ -4913,13 +5240,14 @@ prologue statment
 lack of these in lanugaue level
 
 
-## Visibility of Constructor and Type Methods
+## Visibility and Inheritance of Constructor and Type Methods
 = default constructor visibility (+++) and type method visibility (++-)
 =constructors cannot access private type methods
 =constructors conflicting with type methods and vice versa "Resolving Conflicts of Multiple Inheritance"
 = overriding type methods
 = cant override constructor except with type method (kind of)
 =inherited constructor does not cause the type method of the constructor to be inherited
+= constructor never inherited
 =visibility of type methods cant either be decreased either
 = generic doesnt matter for class visibility
 
@@ -5184,7 +5512,7 @@ Starting from the root, there are three tokens which can appear anywhere in the 
 ### Lexical Splitter
 - [lexical-splitter](#lexical-splitter) syntax description: **[past character]**[\`](#backtick)**[middle characters]**[\`](#backtick)**[future characters]**
 
-The lexical splitter rearranges the characters so that the **[future characters]** are stiched to the **[past character]**, and the **[middle characters]** which start a new token come after the **[future characters]** until the next token is reached, i.e. into the following configuration: **[past character][future characters before next token][space][middle characters][future characters from next token]**. After this rearrangement, the syntax branches back to the parent syntax node. Consider the following example:
+The lexical splitter rearranges the characters so that the **[future characters]** are stitched to the **[past character]**, and the **[middle characters]** which start a new token come after the **[future characters]** until the next token is reached, i.e. into the following configuration: **[past character][future characters before next token][space][middle characters][future characters from next token]**. After this rearrangement, the syntax branches back to the parent syntax node. Consider the following example:
 ```
 abc`def`hij klm
 ```
