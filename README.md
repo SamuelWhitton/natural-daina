@@ -1,4 +1,4 @@
-# Daina (Draft 2.0)
+# Daina (draft 2.0)
 
 
 # Index
