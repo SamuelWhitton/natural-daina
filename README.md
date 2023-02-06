@@ -1,4 +1,4 @@
-# Daina
+# Daina (Draft 2.0)
 
 
 # Index
@@ -127,8 +127,6 @@
 
 # Introduction to Daina
 
-Foundationally objects, methods and classes
-
 Goals
 - Object oriented language with objects, inheritence and polymorphism
 - Language with:
@@ -143,6 +141,7 @@ Goals
 - no invalid inheritances/no invalid disjoijnt types
 - emergent complexity but not definitional  complexity
 
+TODO:
 ```
 
 class
