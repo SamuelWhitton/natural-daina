@@ -1,4 +1,4 @@
-# Daina (draft 2.0)
+# Daina
 
 
 # Index
@@ -37,19 +37,21 @@
     + [Inheriting from Types with Generics](#inheriting-from-types-with-generics)
     + [Lexical Splitter](#the-lexical-splitter)
     + [Literals](#literals)
-    + [Overloading Class Methods](#overloading-class-methods)
+    + [Object Proxy](#object-proxy)
+    + [Overloading and Underloading](#overloading-and-underloading)
+        - [Overloading Class Methods](#overloading-class-methods)
+        - [Underloading Class Methods](#underloading-class-methods)
     + [Parent and Child Lambda Types](#parent-and-child-lambda-types)
     + [Partial Class Implementations](#partial-class-implementations)
         - [Unimplemented Class Methods](#unimplemented-class-methods)
         - [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
-        - [Partial Constructor](#partial-constructor)
-    + [Resolving Conflicts of Multiple Inheritance](#resolving-conflicts-of-multiple-inheritance)
     + [Rising and Falling Generics](#rising-and-falling-generics)
     + [Root Type](#root-type)
     + [Self Reference](#self-reference)
     + [Type Inference](#type-inference)
         - [Type Inference of Method Outputs](#type-inference-of-method-outputs)
         - [Type Inference of Assignments](#type-inference-of-assignments)
+        - [Type Inference of Class Generics](#type-inference-of-class-generics)
         - [Parent Context Type](#parent-context-type)
         - [Self Context Type](#self-context-type)
     + [Type Casting](#type-casting)
@@ -127,6 +129,8 @@
 
 # Introduction to Daina
 
+Foundationally objects, methods and classes
+
 Goals
 - Object oriented language with objects, inheritence and polymorphism
 - Language with:
@@ -140,8 +144,11 @@ Goals
 - Minimise abiguity .....
 - no invalid inheritances/no invalid disjoijnt types
 - emergent complexity but not definitional  complexity
+- no fail syntax always solutions, i.e. no fail multi inheritance
+- allow 'transformations of' abstractions as much as possible i.e. prevent as few as possble
+- can known entrie language (small set of things) means less mistakes and unknowns
+- have no or few exceptions for constructs^
 
-TODO:
 ```
 
 class
@@ -274,7 +281,21 @@ Classes are a template used to create objects. Instance is another word used for
 {
 }
 ```
-**[ClassA]** is declared to be the type of **aObject**. Types are used to classify objects. A second instance object **bObject** of type **[ClassB]** is added. Instance objects are always written before the body of the class.
+A class can only reference other classes it depends on, **ClassC** can make references to both **ClassA** and **ClassB**. But this does not mean that **ClassA** and **ClassB** can make references to **ClassC**. For example, adding the following **cObject** to **ClassB** is invalid:
+```
+[ClassA] {}
+
+[ClassB] 
+    [ClassC] cObject @ Invalid; ClassB does not depend on ClassC
+{
+}
+
+[ClassC] (ClassA, ClassB)
+    [ClassA] aObject
+{
+}
+```
+The type of **aObject** is declared to be **[ClassA]**. Types are used to classify objects. A second instance object **bObject** of type **[ClassB]** is added. Instance objects are always written before the body of the class.
 ```
 [ClassA] {}
 
@@ -1119,6 +1140,32 @@ Consider the new **createAnimal** constructor of the **Animal** class:
 ```
 In the **createAnimal** constructor, constructors from the parents **[HungryCreature]** and **[SleepyCreature]** are invoked. **$~createHungryCreature** refers to the constructor **createHungryCreature** in the first parent **[HungryCreature]**. **$$~createSleepyCreature** refers to the constructor **createSleepyCreature** in the second parent **[SleepyCreature]**. **$** is used to refer to the first parent, **$$** is used to refer to the second parent, **$$$** would refer to the third parent and so on...
 
+
+Inputs and outputs will be described later, but it is important to note here; output and input types must match when overriding a method. The following example shows valid and invalid overrides for a **sleep** method with an output and an **eat** method with inputs: 
+```
+[Animal] (Food, Time) {
+    +++ sleep *() -> [Time] {} -> \[Time]:tenMinutes
+    +++ eat *([Food] food, [Time] timeToEat) {}
+}
+
+[Dog :[Animal]] (Animal, Food, Time) {
+    |+++ sleep *() -> [Time] {} -> \$sleep              @ Valid override
+    |+++ eat *([Food] food, [Time] foodEatingTime) {}   @ Valid override
+}
+
+[Bird :[Animal]] (Animal, Food, Time) {
+    |+++ sleep *{}                                      @ Invalid override; [Time] output is required
+    |+++ eat *([Time] foodEatingTime, [Food] food) {}   @ Invalid override; [Food],[Time] inputs are required but [Time],[Food] were provided
+}
+
+[Food] {}
+
+[Time] {
+    ~ tenMinutes *{}
+}
+```
+
+
 In summary:
 
 + Inheritance can be used to copy all the methods from an existing class into a new class.
@@ -1126,6 +1173,7 @@ In summary:
 + Within a constructor, a constructor from each inherited parent must be invoked.
 + An object can be represented as any of its parent types.
 + Instance methods copied from a parent can be overriden.
++ Output and input types must match when overriding a method.
 
 ## Methods and Lambdas
 
@@ -1195,6 +1243,8 @@ There are many type of methods which can be expressed in Daina, here are just a 
 ```
 *->[A]{} -> \[A]:newA
 ```
+It is important to note; the output expression is always evaluated when the method expression is invoked, it is never evaluated when the method is defined. In other words, the output is expression is bound to the method.
+
 
 A method can be encasulated as a object, which is commonly called a lambda in other languages. The following example shows statements assigning the previous example methods as lambda objects:
 ```
@@ -1407,7 +1457,7 @@ In summary:
 
 ## Constructors, Instance Methods and Type Methods
 
-There are three kinds of methods that can be attached to a class; constructors, instance methods and type methods.
+There are three kinds of methods that can be attached to a class; constructors, instance methods and type methods. As a collective, these kind of methods are called class methods.
 
 Constructors can have input objects but can't have an explict output object. Instead, a constructor's output object is always a new object of the class. In the following example, a constructor called **newHatContainer** is declared for **[HatContainer]** which takes an input **hatInput** and assigns it as the instance object **hat**.
 ```
@@ -1610,6 +1660,7 @@ In the following example, we add type method **getHatFromHatContainer** which re
 }
 ```
 **someHat**, **hatTakenFromContainer** and **hatTakenFromContainer2** are all refering to the same object.
+
 
 In summary:
 
@@ -1905,6 +1956,37 @@ If an inherited method lacks inherited visibility, then it cannot be accessed in
     }
 }
 ```
+In the following example, the **[Nu]** objects are reassigned as **[Ni]** objects on which the **cabbage** instance method can be invoked because it has external and class visibility.
+```
+[] (Nu) {
+    *{
+        [Nu] nu = \[Nu]:newNu;
+        \nu:cabbage; @ Invalid; nu's cabbage is invisible here outside the Nu class (requires external and inherited visibility)
+        [Ni] ni = nu;
+        \ni:cabbage; @ Valid; ni's cabbage is visible here (due to external visibility)
+    }
+}
+
+[Ni] {
+    ++- cabbage *{}  @ cabbage has external and class visibility
+    ~ newNi *{}
+}
+
+[Nu :[Ni]] (Ni) {
+    ~ newNu *{
+        \$~newNi;
+    }
+    :: nar *{
+        [Nu] nu = \[Nu]:newNu;
+        \nu:cabbage; @ Invalid; nu's cabbage is invisible here inside the Nu class (requires class and inherited visibility)
+        [Ni] ni = nu;
+        \ni:cabbage; @ Valid; ni's cabbage is visible here (due to class visibility)
+    }
+}
+```
+
+
+
 If an inherited method has class and inherited visibility but not external visibility, then it can be accessed inside the class but not outside the class. In the following example, the class **Nu** inherits instance method **cabbage** which has both class and inherited visibility and so it can be invoked on a **[Nu]** object inside the **Nu** class but not outside the **Nu** class.
 ```
 [] (Nu) {
@@ -1975,13 +2057,13 @@ When overriding an instance method, the visibility can be the same or more visib
     |+-+ cabbage4 *{} @ Invalid; requires class visibility since cabbage4 from Ni has class visibility
 }
 ```
-A method with visibility **---** cannot be overriden, however it will not conflict with methods in a child class. In the following example, **cabbage1**, **cabbage2** **cabbage3** and **cabbage4** are implemented again in **Nu** but do not conflict with the original methods.
+A method without inherited visibility cannot be overriden, however it will not conflict with methods in a child class. In the following example, **cabbage1**, **cabbage2** **cabbage3** and **cabbage4** are implemented again in **Nu** but do not conflict with the original methods.
 ```
 [Ni] {
     ~ newNi *{}
-    --- cabbage1 *{}
-    --- cabbage2 *{}
-    --- cabbage3 *{}
+    ++- cabbage1 *{}
+    +-- cabbage2 *{}
+    -+- cabbage3 *{}
     --- cabbage4 *{}
 }
 
@@ -2010,6 +2092,7 @@ There are some abbreviations avaliable:
 
 
 ## Class Generics
+
 
 Consider the previous example of a **[HatContainer]**.
 ```
@@ -2232,11 +2315,11 @@ A class can have more then one generic type. We define a **Tuple** object contai
     ~ newFruit *{}
 }
 
-[Apple] (Fruit) {
+[Apple :[Fruit]] (Fruit) {
     ~ newApple *{\$~newFruit;}
 }
 
-[Banana] (Fruit) {
+[Banana :[Fruit]] (Fruit) {
     ~ newBanana *{\$~newFruit;}
 }
 ```
@@ -2272,15 +2355,15 @@ In the following example, we change **Tuple** into **Triple** which contains a t
     ~ newFruit *{}
 }
 
-[Apple] (Fruit) {
+[Apple :[Fruit]] (Fruit) {
     ~ newApple *{\$~newFruit;}
 }
 
-[Banana] (Fruit) {
+[Banana :[Fruit]] (Fruit) {
     ~ newBanana *{\$~newFruit;}
 }
 
-[Grape] (Fruit) {
+[Grape :[Fruit]] (Fruit) {
     ~ newGrape *{\$~newFruit;}
 }
 ```
@@ -2312,15 +2395,15 @@ Any type can be used to instantiate a class generic type, including a type which
     ~ newFruit *{}
 }
 
-[Apple] (Fruit) {
+[Apple :[Fruit]] (Fruit) {
     ~ newApple *{\$~newFruit;}
 }
 
-[Banana] (Fruit) {
+[Banana :[Fruit]] (Fruit) {
     ~ newBanana *{\$~newFruit;}
 }
 
-[Grape] (Fruit) {
+[Grape :[Fruit]] (Fruit) {
     ~ newGrape *{\$~newFruit;}
 }
 ```
@@ -2428,15 +2511,15 @@ Generic types can also be used within the type methods of a class. The same rule
     ~ newFruit *{}
 }
 
-[Apple] (Fruit) {
+[Apple :[Fruit]] (Fruit) {
     ~ newApple *{\$~newFruit;}
 }
 
-[Banana] (Fruit) {
+[Banana :[Fruit]] (Fruit) {
     ~ newBanana *{\$~newFruit;}
 }
 
-[Grape] (Fruit) {
+[Grape :[Fruit]] (Fruit) {
     ~ newGrape *{\$~newFruit;}
 }
 ```
@@ -2466,18 +2549,419 @@ Lamba types can instantiate class generic types. In the following example, **aTu
     ~ newFruit *{}
 }
 
-[Apple] (Fruit) {
+[Apple :[Fruit]] (Fruit) {
     ~ newApple *{\$~newFruit;}
 }
 
-[Banana] (Fruit) {
+[Banana :[Fruit]] (Fruit) {
     ~ newBanana *{\$~newFruit;}
 }
 
-[Grape] (Fruit) {
+[Grape :[Fruit]] (Fruit) {
     ~ newGrape *{\$~newFruit;}
 }
 ```
+
+
+
+
+
+
+
+asdf
+generic instanciation on inheritance, and also using own generic in and as instantiation
+can use own generic types in the generic instanciation, and   it can include self type?
+
+
+```
+[] (Transformation, Wrapped, UnwrapPresent, Present) {
+    *{
+        [Present] originalPresent = \[Present]:new;
+        [Wrapped<[Present]>] wrappedPresent = \[Wrapped<[Present]>]:wrap originalPresent;
+        [Transformation<[Wrapped<[Present]>][Present]>]] unwrapPresent = \[UnwrapPresent]:new;
+        [Present] unwrappedPresent = \unwrapPresent wrappedPresent;
+    }
+}
+
+[UnwrapPresent :[Transformation<[Wrapped<[Present]>][Present]>]] (Transformation, Wrapped, Present) {
+
+    ~ new *{
+        \$~as *([Wrapped<[Present]>] wrappedPresent) -> [Present] {
+            [Present] present = \wrappedPresent:getInnerObject;
+        } -> present;
+    } 
+}
+
+[Transformation<A,B>] 
+    [[&A]->[&B]] transform
+{
+    ~ as *([[&A]->[&B]] transform) {
+        .transform = transform;
+    }
+
+    ++ transform *([&A] a) -> [&B] {} -> \.transform a
+}
+
+[Wrapped< E >] 
+    [&E] innerObject
+{
+    ~ wrap *([&E] object) {
+        .innerObject = object;
+    }
+
+    getInnerObject *->[&E] {} -> innerObject
+}
+
+[Present] {
+    ~ new *{}
+}
+```
+
+
+```
+[] (Transformation, Wrapped, Unwrap, Present, Apple) {
+    *{
+        [Present] originalPresent = \[Present]:new;
+        [Wrapped<[Present]>] wrappedPresent = \[Wrapped<[Present]>]:wrap originalPresent;
+        [Transformation<[Wrapped<[Present]>][Present]>]] unwrapPresent = \[Unwrap<[Present]>]:new;
+        [Present] unwrappedPresent = \unwrapPresent wrappedPresent;
+
+        [Apple] originalApple = \[Apple]:new;
+        [Wrapped<[Apple]>] wrappedApple = \[Wrapped<[Apple]>]:wrap originalApple;
+        [Transformation<[Wrapped<[Apple]>][Apple]>]] unwrapApple = \[Unwrap<[Apple]>]:new;
+        [Apple] unwrappedApple = \unwrapApple wrappedApple;
+    }
+}
+
+[Unwrap< E > :[Transformation<[Wrapped<[&E]>][&E]>]] (Transformation, Wrapped) {
+
+    ~ new *{
+        \$~as *([Wrapped<[&E]>] wrappedObject) -> [&E] {
+            [&E] innerObject = \wrappedPresent:getInnerObject;
+        } -> innerObject;
+    } 
+}
+
+[Transformation<A,B>] 
+    [[&A]->[&B]] transform
+{
+    ~ as *([[&A]->[&B]] transform) {
+        .transform = transform;
+    }
+
+    ++ transform *([&A] a) -> [&B] {} -> \.transform a
+}
+
+[Wrapped< E >] 
+    [&E] innerObject
+{
+    ~ wrap *([&E] object) {
+        .innerObject = object;
+    }
+
+    getInnerObject *->[&E] {} -> innerObject
+}
+
+[Present] {
+    ~ new *{}
+}
+
+[Apple] {
+    ~ new *{}
+}
+```
+
+```
+[FunctionComposition< D, E, F > :[Transformation<[[&E]->[&F]][[&D]->[&F]]>]] (Transformation) {
+
+    ~ as *([[&D]->[&E]] function) {
+        \$~as *([[&E]->[&F]] composingFunction) -> [[&D]->[&F]] {
+            [[&D]->[&F]] finalFunction = *([&D] d) -> [&F] {
+                [&E] e = \function d;
+                [&F] f = \composingFunction e;
+            } -> f;
+        } -> finalFunction;
+    } 
+}
+
+[Transformation<A,B>] 
+    [[&A]->[&B]] transform
+{
+    ~ as *([[&A]->[&B]] transform) {
+        .transform = transform;
+    }
+
+    ++ transform *([&A] a) -> [&B] {} -> \.transform a
+}
+```
+
+```
+[] (Boolean, Comparable, ComparisonResult) {
+    *{
+        [Boolean] true = \[Boolean]:true;
+        [Boolean] false = \[Boolean]:false;
+        
+
+
+    }
+}
+
+[Boolean :[Comparable<[Boolean]>]] (Comparable, ComparisonResult) 
+    [['A]['A]->['A]] ifTrueIfFalse
+{
+    ~ true *{
+        .ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifTrue;
+        \$~new;
+    }
+
+    ~ false *{
+        .ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifFalse;
+        \$~new;
+    }
+
+    ++ ifTrueIfFalse *(['A] ifTrue, ['A] ifFalse) -> ['A] {
+    } -> \.ifTrueIfFalse ifTrue ifFalse
+
+
+    |++ compareTo *([Boolean] otherBoolean) -> [ComparisonResult] {
+    } -> (\otherBoolean:ifTrueIfFalse (\:ifTrueIfFalse eq notEq) (\:ifTrueIfFalse notEq eq))
+        !{
+            [ComparisonResult] eq = \[ComparisonResult]:equal;
+            [ComparisonResult] notEq = \[ComparisonResult]:notEqual;
+        }
+}
+
+
+[Comparable<A>] (ComparisonResult) {
+    ~ new *{}
+    ++ compareTo *([&A] a) -> [ComparisonResult] {} -> \[ComparisonResult]:unknown
+}
+
+[ComparisonResult] {
+    ~ equal *{}
+    ~ notEqual *{}
+    ~ unknown *{}
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```
+[Translate]
+
+
+[] {
+    *{
+        [Transformation<[Integer][String]>] toString =...
+        [Transformation<[Integer][String]>] toStringWithFlair =...
+        [Transformation<[Decimal][Integer]>] round =...
+        [Decimal] decimal =...
+        [Integer] roundNumber = \round:transform decimal;
+        [String] string = \toString:transform roundNumber;
+
+        [FunctionComposition<[Decimal][Integer][String]>] composeOnRoundingFunction = \[FunctionComposition<[Decimal][Integer][String]>]:as (round:transform);
+
+
+        [[Decimal]->[String]] decimalToRoundedString = \composeOnRoundingFunction:transform (toString:transform);
+        [[Decimal]->[String]] decimalToRoundedStringWithFlair = \composeOnRoundingFunction:transform (toStringWithFlair:transform);
+ 
+        [String] string2 = \decimalToRoundedString decimal;
+        [String] stringWithFlair = \decimalToRoundedStringWithFlair decimal;
+    }
+}
+
+
+[FunctionComposition< D, E, F > :[Transformation<[[&E]->[&F]][[&D]->[&F]]>]] (Transformation) {
+
+    ~ as *([[&D]->[&E]] function) {
+        \$~as *([[&E]->[&F]] composingFunction) -> [[&D]->[&F]] {
+            [[&D]->[&F]] finalFunction = *([&D] d) -> [&F] {
+                [&E] e = \function d;
+                [&F] f = \composingFunction e;
+            } -> f;
+        } -> finalFunction;
+    } 
+}
+
+[FunctionComposition< D, E, F > :[Transformation<[[&E]->[&F]][[&D]->[&F]]>]] (Transformation) {
+
+    ~ as *([[&D]->[&E]] function) {
+        \$~as *([[&E]->[&F]] composingFunction) -> [[&D]->[&F]] {
+            [[&D]->[&F]] finalFunction = *([&D] d) -> [&F] {
+                [&E] e = \function d;
+                [&F] f = \composingFunction e;
+            } -> f;
+        } -> finalFunction;
+    } 
+}
+
+[Transformation<A,B>] 
+    [[&A]->[&B]] transform
+{
+    ~ as *([[&A]->[&B]] transform) {
+        .transform = transform;
+    }
+
+    ++ transform *([&A] a) -> [&B] {} -> \.transform a
+}
+
+
+
+[Array<E>] {
+
+    :: return *([E] e) -> [Array<[&E]>] {}
+
+    ++ bind *([[&E]->[Array<['A]>]] p) -> [Array<['A]>] {
+
+    }
+}
+
+[Maybe<E>] {
+
+    :: return *([E] e) -> [Maybe<[&E]>] {}
+
+    ++ bind *([[&E]->[Maybe<['A]>]] p) -> [Maybe<['A]>] {
+
+    }
+
+    ++ map *([[&E]->['A]] p) -> [Maybe<['A]>] {
+
+    }
+}
+
+
+[Monad< E, E_CONTAINER >] {
+
+}
+
+
+[] (Boolean, ComparisonResult, Comparable) {
+    *{
+        [Comparable<[Boolean]>] b1 = \[Boolean]:true;
+        [Comparable<[Boolean]>] b2 = \[Boolean]:false;
+        [?] res = \b1:compareTo b2;
+
+        [Maybe<[Integer]>] mx = ...
+        [Maybe<[Integer]>] my = ...
+
+        \mx:do *([Integer] x) -> (\my:do *([Integer] y) -> String(x+y))
+        \mx:bind *([Integer] x) -> (\my:bind *([Integer] y) -> \[Maybe<[Integer]>]:return String(x+y))
+
+
+        [Maybe<[Maybe<[Maybe<[Integer]>]>]>] mmmi = ...
+        \mmmi:bind *([Maybe<[Maybe<[Integer]>]>] mmi) -> \mmi:bind *([Maybe<[Integer]>] mi) -> \mi:bind [Maybe<[Integer]>]:return
+
+
+
+        
+
+        [Array<[Integer]>] intArray = ...
+        \intArray:bind (*([Integer] i) -> \[Array<[Integer]>]:return i
+        \intArray:bind (*([Integer] i) -> (\intArray:bind (*([Integer] i) -> \[Array<[Integer]>]:return i)
+
+    }
+}
+
+
+[Boolean : [Comparable<[Boolean]>]] (Comparable, ComparisonResult) {
+
+    ~ true *{
+        :ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifTrue;
+        \$~new;
+    }
+
+    ~ false *{
+        :ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifFalse;
+        \$~new;
+    }
+
+    -+- ifTrueIfFalse [['A]['A]->['A]]
+
+    |++ compareTo *([Boolean] otherBoolean) -> [ComparisonResult] {
+    } -> (\otherBoolean:ifTrueIfFalse (\:ifTrueIfFalse eq notEq) (\:ifTrueIfFalse notEq eq))
+        !{
+            [ComparisonResult] eq = \[ComparisonResult]:equal;
+            [ComparisonResult] notEq = \[ComparisonResult]:notEqual;
+        }
+}
+
+[Boolean :[Comparable<[Boolean]>]] (Comparable, ComparisonResult) 
+    [['A]['A]->['A]] ifTrueIfFalse
+{
+    ~ true *{
+        .ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifTrue;
+        \$~new;
+    }
+
+    ~ false *{
+        .ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifFalse;
+        \$~new;
+    }
+
+    ++ ifTrueIfFalse *(['A] ifTrue, ['A] ifFalse) -> ['A] {
+    } -> \.ifTrueIfFalse ifTrue ifFalse
+
+
+    |++ compareTo *([Boolean] otherBoolean) -> [ComparisonResult] {
+    } -> (\otherBoolean:ifTrueIfFalse (\:ifTrueIfFalse eq notEq) (\:ifTrueIfFalse notEq eq))
+        !{
+            [ComparisonResult] eq = \[ComparisonResult]:equal;
+            [ComparisonResult] notEq = \[ComparisonResult]:notEqual;
+        }
+}
+
+[Comparable<A>] (ComparisonResult) {
+    ~ new *{}
+    ++ compareTo *([&A] a) -> [ComparisonResult] {} -> \[ComparisonResult]:unknown
+}
+
+[ComparisonResult] {
+    ~ equal *{}
+    ~ notEqual *{}
+    ~ unknown *{}
+}
+
+
+[] (A, Integer, Maybe, Variable) {
+    *{ 
+        [A] a = \[A]:init;
+        \(\a:mainNum):set \[Maybe<[Integer]>]:as \[Integer]:as ##57##;
+    }
+}
+
+
+[A] (Integer, Maybe, Variable) {
+
+    ~ init *{
+        :mainNum = *->x ! [?] x = \[Variable<[Maybe<[Integer]>]>]]:as noInteger;
+        :secondNum = *->x ! [?] x = \[Variable<[Maybe<[Integer]>]>]]:as noInteger;
+    }   !{
+            [?] noInteger = \[Maybe<[Integer]>]:nothing;
+        }
+
+    ++ mainNum [->[Variable<[Maybe<[Integer]>]>]]
+    ++ secondNum [->[Variable<[Maybe<[Integer]>]>]]
+}
+
+
+```
+
+
+
+
+
+
+
+
 
 In summary:
 
@@ -2730,6 +3214,39 @@ Methods can have multiple method generic types. In the following example, the ou
     ~ newCat *{\$~newCat;}
 }
 ```
+
+The names of method generics are interchangable, in other words, what matters is which method generics types are the same and which are different within a method or lambda type. In the following example, for the type of **chooseFirstOption** **['A]**, **['B]** becomes **['C]**, **['D]** and for the type of **chooseSecondOption** **['A]** is swapped with **['B]**. Nothing functionally has changed from the previous example.
+```
+[] (Hammer, Saw, Cat) {
+    *{
+        [['C]['D]->['C]] chooseFirstOption = *(['A] first, ['B] second)->['A] {} -> first;
+        [['B]['A]->['A]] chooseSecondOption = *(['A] first, ['B] second)->['B] {} -> second;
+        [Cat] cat = \[Cat]:newCat;
+        [Saw] saw = \[Saw]:newSaw;
+        [Hammer] hammer = \[Hammer]:newHammer;
+        [Cat] theSameCat = \chooseFirstOption cat saw;
+        [Saw] theSameSaw = \chooseSecondOption cat saw;
+        [Hammer] theSameHammer = \chooseFirstOption hammer cat;
+    }
+}
+
+[Tool] {
+    ~ newTool *{}
+}
+
+[Hammer] (Tool) {
+    ~ newHammer *{\$~newTool;}
+}
+
+[Saw] (Tool) {
+    ~ newSaw *{\$~newTool;}
+}
+
+[Cat] {
+    ~ newCat *{\$~newCat;}
+}
+```
+
 A method can use the same method generic type multiple times, in which case, the method generic type is determined by the closest common parent. In the following example, the output type of **chooseFirstOption** is determined by the common type of both inputs.
 ```
 [] (Hammer, Saw, Cat) {
@@ -2923,7 +3440,7 @@ In summary:
 + Method generic types can be used in the input and output of a method.
 + When a method is invoked, the method generic types are determined by the input types.
 + Method generic types can be used to dynamically choose the output type when a method is invoked.
-
++ The names of method generics are interchangable.
 
 ---
 
@@ -3295,7 +3812,7 @@ Round brackets **()** can also be used to control the evalutation for a compound
     ~ new *{}
 }
 ```
-The type method **bar** is overloaded ([see overloading class methods](#overloading-class-methods)) so when the brackets surround **(\\[Foo]:bar)** the first **bar** is invoked because no inputs are given when invoking **bar**, and when brackets surround **(\\[Foo]:bar inputA)** the second **bar** is invoked because the input **inputA** is given when invoking **bar**. When no brackets are used to determine the order of evaluation then the order of evaluation always favours grouping expressions as large as possible from the last invocation (i.e. **\\a b c \\d e \\f g** will be evalutated the same as **(\\a b c (\\d e (\\f g)))** and **\\a b c (\\d e) \\f g** with be evalutated like **(\\a b c (\\d e) (\\f g))**). The brackets are removed from the previous example which causes the second **bar** to be invoked:
+The type method **bar** is overloaded ([see overloading class methods](#overloading-and-underloading-class-methods)) so when the brackets surround **(\\[Foo]:bar)** the first **bar** is invoked because no inputs are given when invoking **bar**, and when brackets surround **(\\[Foo]:bar inputA)** the second **bar** is invoked because the input **inputA** is given when invoking **bar**. When no brackets are used to determine the order of evaluation then the order of evaluation always favours grouping expressions as large as possible from the last invocation (i.e. **\\a b c \\d e \\f g** will be evalutated the same as **(\\a b c (\\d e (\\f g)))** and **\\a b c (\\d e) \\f g** with be evalutated like **(\\a b c (\\d e) (\\f g))**). The brackets are removed from the previous example which causes the second **bar** to be invoked:
 ```
 [] (A, B, Foo) {
     *{
@@ -3551,7 +4068,7 @@ Object methods can be refered to in a compound expression. In the following exam
 
 [B] () {
     ~ new *{}
-    +-- getAnotherB * -> [B] {} -> (\[B]:new)
+    + getAnotherB * -> [B] {} -> (\[B]:new)
 }
 ```
 Prologue statements can be attached to any expression within a compound expression:
@@ -3571,14 +4088,32 @@ Prologue statements can be attached to any expression within a compound expressi
     ~ new *{}
 }
 ```
+An [object proxy](#object-proxy) can be used inside a compund expression, and can form an object proxy of an object resulting from an expression:
+```
+[] (B) {
+    *{
+        [[[B]/[->[B]]]/[->[[B]/[->[B]]]]] bProxyProxy = *- (*- \[B]:new);
+    }
+}
 
-All the different expressions can be combined in a compound way. Various constructs have different binding strength. The following list shows constructs in order of binding strength from strongest to weakest.
+[B] () {
+    ~ new *{}
+}
+```
 
-1. **:** binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method)
-2. **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs), **->** binding to the next expression (as in the output of a method) and **\*** binding to the lone statement body of a method which may be preceeded by a parameter list ([see flexible method expression](#flexible-method-expression))
-3. **!** binding to the preceeding expression and the following statement (as in a prologue statement for an expression)
+All the different expressions can be combined in a compound way. Various constructs have different binding strength. The following list shows constructs in order of binding strength from weakest to strongest.
 
-**\\**, **->** and **\*** have the same binding strength. A construct will bind stronger then a preceeding construct at the same binding level indicated by the above list. In other words, an **!** will bind stronger then all other **!** which preceeded it.
+
+1. **!** binding to the preceeding expression and the following statement (as in a prologue statement for an expression)
+2. **=** binding to the left hand side and the next expression, **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs), **->** binding to the next expression (as in the output of a method), **\*-** binding to the next expression (as in the object of which to form an object proxy) and **\*** binding to the lone statement body of a method which may be preceeded by a method input list ([see flexible method expression](#flexible-method-expression))
+3. **:** binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method)
+cast
+4. A type (such as **[Foo]**) binding to an object name in an assignment or to an expression as in [type casting](#type-casting).
+5. All other symbols; such as **.**, **$**, **$$**, **:~**, **~** and **$$~**
+
+**=**, **\\**, **->**, **\*** and **\*-** ([object proxy](#object-proxy)) have the same binding strength. 
+
+A construct will bind stronger then a preceeding construct at the same binding level indicated by the above list. In other words, an **!** will bind stronger then all other **!** which preceeded it, and a **->** will bind stronger then all other **\\** which preceeded it.
 
 Following are a series of 8 compound expressions.
 ```
@@ -3600,7 +4135,7 @@ Following are 8 equivalent expressions with bracketing to show how the binding i
 (\(\(\a)))
 (\(\(*->[->]{}->(*{}))))
 (\(*->[A]{}->a))![A]a=(\(b:c))
-a!{[A]a=(\(b))!{[B]b=(\(c))}}
+a!{{[A]a=\(b)}!{[B]b=(\(c))}}
 ```
 
 ## Constructors
@@ -4187,7 +4722,7 @@ A disjoint type can instantiate a class generic:
     ~ newContainer *([&CONTAINED_OBJECT] objectToBeContained) {
         .containedObject = objectToBeContained;
     }
-    +++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
+    ++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
 }
 
 [Q :[A] :[B] :[C]] (A, B, C) {
@@ -4226,7 +4761,7 @@ Disjoint types can be composed with class generics:
     ~ newContainer *([[&CONTAINED_OBJECT_PART1]/[&CONTAINED_OBJECT_PART2]] objectToBeContained) {
         .containedObject = objectToBeContained;
     }
-    +++ getContainedObject *->[[&CONTAINED_OBJECT_PART1]/[&CONTAINED_OBJECT_PART2]]{}->.containedObject
+    ++ getContainedObject *->[[&CONTAINED_OBJECT_PART1]/[&CONTAINED_OBJECT_PART2]]{}->.containedObject
 }
 
 [Q :[A] :[B] :[C]] (A, B, C) {
@@ -4389,16 +4924,93 @@ Matching an object to multiple method generics is possible if the other method g
     ~ newC *{}
 }
 ```
-There are no restrictions on which types can be used in a disjoint type. This applies even it would be impossible for an object matching the type to exist. In the following example, a method **impossibleToInvoke** is created but can never be invoked because it is impossible to create an object of type **[[->]/[A]]**.
+
+An object with a disjoint type cannot access methods without inherited visibility, unless it is [type cast](#type-casting) or assigned to a non-disjoint type:
 ```
-[] (A) {
+[] (Q, A) {
     *{
-        [[[->]/[A]]->] impossibleToInvoke = *([[->]/[A]] impossibleInput) {};
+        [[A]/[Q]] aq = \[Q]:newQ;
+        \aq:nonInheritedMethodA;      @ Invalid; nonInheritedMethodA does not have inherited visibility
+        \aq:nonInheritedMethodQ;      @ Invalid; nonInheritedMethodQ does not have inherited visibility
+        \aq:inheritedMethodA;         @ Valid; inheritedMethodA has inherited visibility
+        \aq:inheritedMethodQ;         @ Valid; inheritedMethodQ has inherited visibility
+        [A] a = aq;
+        [Q] q = aq;
+        \a:nonInheritedMethodA;       @ Valid; nonInheritedMethodA invoked on object with declared type [A]
+        \q:nonInheritedMethodQ;       @ Valid; nonInheritedMethodQ invoked on object with declared type [Q]
+        \[A](aq):nonInheritedMethodA; @ Valid; nonInheritedMethodQ invoked on object cast to type [A]
+        \[Q](aq):nonInheritedMethodQ; @ Valid; nonInheritedMethodQ invoked on object cast to type [Q]
+    }
+}
+
+[Q :[A] (A) {
+    ~ newQ *{
+        \$~newA;
+    }
+    ++- nonInheritedMethodQ *{}
+    +++ inheritedMethodQ *{}
+}
+
+[A] {
+    ~ newA *{}
+    ++- nonInheritedMethodA *{}
+    +++ inheritedMethodA *{}
+}
+```
+
+An object with a disjoint type cannot be invoked as a lambda method, unless it is [type cast](#type-casting) or assigned to a non-disjoint type:
+```
+[] {
+    *{
+        [[->]/[->]] lambdaDisjoint = *{};
+        [->] lambdaNonDisjoint = lambdaDisjoint;
+        \lambdaDisjoint;    @ Invalid; a disjoint type cannot be invoked as a lambda method
+        \lambdaNonDisjoint; @ Valid; assigned as a non disjoint type
+        \[->](lambdaDisjoint); @ Valid; cast to a non disjoint type
+    }
+}
+```
+
+Type and constructor methods cannot be invoked from a disjoint type:
+```
+[] (Q, A, B) {
+    *{
+        \[[A]/[Q]]:typeMethodA;          @ Invalid; typeMethodA is a type method and cannot be invoked from a disjoint type
+        \[[A]/[Q]]:typeMethodQ;          @ Invalid; typeMethodQ is a type method and cannot be invoked from a disjoint type
+        \[A]:typeMethodA;                @ Valid
+        \[Q]:typeMethodQ;                @ Valid
+        [[A]/[Q]] aq1 = \[[A]/[Q]]:newQ; @ Invalid; newQ is a constructor and cannot be invoked from a disjoint type
+        [[A]/[Q]] aq2 = \[Q]:newQ;       @ Valid
+    }
+}
+
+[Q :[A] (A) {
+    ~ newQ *{
+        \$~newA;
+    }
+    :: typeMethodQ *{}
+}
+
+[A] {
+    ~ newA *{}
+    :: typeMethodA *{}
+}
+```
+
+There are no restrictions on which types can be used in a disjoint type. This applies even it would be impossible for an object matching the type to exist. In the following example, a method **impossibleToInvoke** is created but can never be invoked because it is impossible to create an object of type **[[->[B]]/[A]]**.
+```
+[] (B) {
+    *{
+        [[[->[B]]/[A]]->] impossibleToInvoke = *([[->[B]]/[A]] impossibleInput) {};
     }
 }
 
 [A] {
     ~ newA *{}
+}
+
+[B] {
+    ~ newB *{}
 }
 ```
 
@@ -4409,7 +5021,7 @@ Inheriting from the same class multiple times is allowed. In the following examp
 [A :[B] :[B] :[B]] (B) {}
 [B] {}
 ```
-**A** does not inherit any class methods from **B**, if it did, each method would clash with itself three times over as each method from **B** is inherited three times. [See resolving conflicts of multiple inheritance.](#resolving-conflicts-of-multiple-inheritance)
+**A** does not inherit any class methods from **B**, if it did, each method would clash with itself three times over as each method from **B** is inherited three times. For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)
 
 A class cannot inherit from itself, thus the following is invalid:
 ```
@@ -4424,7 +5036,7 @@ A class can inherit multiple times from a class which has class generics. ([See 
 [C] {}
 [D] {}
 ```
-In the above example no class methods were added and so there are no method conflicts, but it would be normal to expect conflicts to arise when inheriting from a class generic class multiple times. [See resolving conflicts of multiple inheritance.](#resolving-conflicts-of-multiple-inheritance)
+In the above example no class methods were added and so there are no method conflicts, but it would be normal to expect conflicts to arise when inheriting from a class generic class multiple times. For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)
 
 A class can inherit from classes which have common parent types. In the following example, **A** inherits from **[B]** and **[C]** which both have a common parent **[D]**. 
 ```
@@ -4440,7 +5052,7 @@ A class which inherts from the same type multiple times does not pass on two inh
 [B :[C] :[C]] (C) {}
 [C] {}
 ```
-If we add a fully visible method to **C** then we also must override the method in **B** to resolve the duplicate method conflict, but we dont need to override the same method in **A** because the duplicate was already resolved by **B** ([see resolving conflicts of multiple inheritance](#resolving-conflicts-of-multiple-inheritance)):
+If we add a fully visible method to **C** then we also must override the method in **B** to resolve the duplicate method conflict, but we dont need to override the same method in **A** because the duplicate was already resolved by **B** (For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)):
 ```
 [A :[B]] (B) {
     @ no duplicate method conflicts
@@ -4607,7 +5219,7 @@ A self or parent method which is captured in a lambda object will always be invo
     ++ doThing *{}
 }
 ```
-If an overloaded class method is refered to directly, then the choice of method is ambiguous and thus it is invalid ([see overloading class methods](#overloading-class-methods)):
+If an overloaded class method is refered to directly, then the choice of method is ambiguous and thus it is invalid ([see overloading class methods](#overloading-and-underloading-class-methods)):
 ```
 [] (C, D) {
     *{
@@ -4645,7 +5257,6 @@ An overloaded method can be chosen explicitly by [type casting](#type-casting) t
     ~ newD *{}
 }
 ```
-
 
 Class methods and the entry point method can be defined with an expression (this can be a [compound expression](#compound-expressions-and-statements)). Considered the following example where the method **bar**, **createA**, **doThing** and the entry point method have been defined using expressions which evautate to lambda objects:
 ```
@@ -4717,7 +5328,7 @@ Contructors methods must be defined in the usual way, using an expresion to defi
 
 A class can inherit from a type with class generics. Each generic of the inherited class must be instantiated by a type. In the following example, **AContainer** inherits from **[Container<[A]>]**.
 ```
-[AContainer : [Container<[A]>]] (A, Container) 
+[AContainer :[Container<[A]>]] (A, Container) 
 {
     ~ containerOfA *([A] a) {
         \$~containerOf a;
@@ -4750,7 +5361,7 @@ A class can inherit from a type with class generics. Each generic of the inherit
     }
 }
 
-[AContainer : [Container<[A]>]] (A, Container) 
+[AContainer :[Container<[A]>]] (A, Container) 
 {    
     ~ containerOfA *([A] a) {
         \$~containerOf a;
@@ -4785,7 +5396,7 @@ Methods from a parent type with class generics can be overriden. **getObject** i
     }
 }
 
-[AContainer : [Container<[A]>]] (A, Container) {
+[AContainer :[Container<[A]>]] (A, Container) {
     
     ~ containerOfA *([A] a) {
         \$~containerOf a;
@@ -4839,7 +5450,7 @@ Anonymous classes can also inherit from classes with class generics. The previou
 ```
 An inherited generic type can be instantiated using class generics from the inheriting class. In the following example, **ContainerPlus** inherits from **[Container<[&N]>]**, where **[&N]** is a class generic type of **ContainerPlus**.
 ```
-[ContainerPlus<N> : [Container<[&N]>]] (Container) {
+[ContainerPlus<N> :[Container<[&N]>]] (Container) {
 
     ~ containerPlusOf *([&N] object) {
         \$~containerOf object;
@@ -4869,7 +5480,7 @@ Parent types can be found by substituting the instantiated types into the parent
     }
 }
 
-[ContainerPlus<N> : [Container<[&N]>]] (Container) {
+[ContainerPlus<N> :[Container<[&N]>]] (Container) {
 
     ~ containerPlusOf *([&N] object) {
         \$~containerOf object;
@@ -4904,7 +5515,7 @@ Class generic types can be instantiated with any type, this is also true when in
     }
 }
 
-[ContainerPlus<M,N> : [Container<[[[&M]/[C]]->[&N]]>]] (Container) {
+[ContainerPlus<M,N> :[Container<[[[&M]/[C]]->[&N]]>]] (Container) {
 
     ~ containerPlusOf *([[[&M]/[C]]->[&N]] object) {
         \$~containerOf object;
@@ -4988,49 +5599,1138 @@ A class can use itself in a generic instantiation of its parent type. In the fol
     ~ newA *{}
 }
 ```
-In the above example, the method **receive** is overloaded in **RecursiveReceiver** as both **[[RecursiveReceiver<[&M]>]->\]** and **[[&M]->]** ([see overloading class methods](#overloading-class-methods)).
+In the above example, the method **receive** is overloaded in **RecursiveReceiver** as both **[[RecursiveReceiver<[&M]>]->\]** and **[[&M]->]** ([see overloading class methods](#overloading-and-underloading-class-methods)).
 
 
 ## The Lexical Splitter
 
-The lexical splitter rearranges the characters so that the **[future characters]** are stitched to the **[past character]**, and the **[middle characters]** which start a new token come after the **[future characters]** until the next token is reached, i.e. into the following configuration: **[past character][future characters before next token][space][middle characters][future characters from next token]**. After this rearrangement, the syntax branches back to the parent syntax node. Consider the following example:
+**\`** is the lexical splitter. The lexical splitter is used in pairs, the first usage must come after an identifier and the second comes before an identifier. The second identifier is 'stitched' to the end of the first identifier. Take the following example:
 ```
-abc`def`hij klm
+[] (Line, Point) {
+    [Point] a = \[Point]:randomPoint;
+    [Point] b = \[Point]:randomPoint;
+    [Line] lineAB = \[Line]:newLineFromPointToPoint a b;
+}
+
+[Line] (Point) 
+    [Point] p1
+    [Point] p2
+{
+    ~ newLineFromPointToPoint *([Point] p1, [Point] p2) {
+        .p1 = p1;
+        .p2 = p2;
+    }
+}
+
+[Point] {
+    ~ randomPoint *{}
+}
 ```
-This would be equivalent to the following sequence of characters:
+Using the lexical splitter, the previous example is rewritten so that the identifier **newLineFromPointToPoint** is spliced between method inputs:
 ```
-abchij def klm
+[] (Line, Point) {
+    [Point] a = \[Point]:randomPoint;
+    [Point] b = \[Point]:randomPoint;
+    [Line] lineAB = \[Line]:newLine``FromPoint` a `ToPoint b;
+}
+
+[Line] (Point) 
+    [Point] p1
+    [Point] p2
+{
+    ~ newLine` *(`FromPoint` [Point] p1, `ToPoint [Point] p2) {
+        .p1 = p1;
+        .p2 = p2;
+    }
+}
+
+[Point] {
+    ~ randomPoint *{}
+}
 ```
-[See more examples of the lexical splitter](#the-lexical-splitter).
+The lexical splitter is whitespace agnostic, so this code can be reformatted so that the identifier appears over multiple lines:
+```
+[] (Line, Point) {
+    [Point] a = \[Point]:randomPoint;
+    [Point] b = \[Point]:randomPoint;
+    [Line] lineAB = \[Line]:newLine`
+                            `FromPoint` a 
+                            `ToPoint b;
+}
+
+[Line] (Point) 
+    [Point] p1
+    [Point] p2
+{
+    ~ newLine` *(   `FromPoint` [Point] p1, 
+                    `ToPoint [Point] p2
+                ) {
+        .p1 = p1;
+        .p2 = p2;
+    }
+}
+
+[Point] {
+    ~ randomPoint *{}
+}
+```
+The use of the lexical splitter is simply a syntactical sugar. In other words, the use of the lexical splitter does not influence the code outside of the single instance of reformatting. It can be used differently for the same identifier in different places, as in the following example where the invocation of **[Line]:newLineFromPointToPoint** is reverted back to its normal form:
+```
+[] (Line, Point) {
+    [Point] a = \[Point]:randomPoint;
+    [Point] b = \[Point]:randomPoint;
+    [Line] lineAB = \[Line]:newLineFromPointToPoint a b;
+}
+
+[Line] (Point) 
+    [Point] p1
+    [Point] p2
+{
+    ~ newLine` *(`FromPoint` [Point] p1, `ToPoint [Point] p2) {
+        .p1 = p1;
+        .p2 = p2;
+    }
+}
+
+[Point] {
+    ~ randomPoint *{}
+}
+```
+Likewise, the inverse is possible:
+```
+[] (Line, Point) {
+    [Point] a = \[Point]:randomPoint;
+    [Point] b = \[Point]:randomPoint;
+    [Line] lineAB = \[Line]:newLine``FromPoint` a `ToPoint b;
+}
+
+[Line] (Point) 
+    [Point] p1
+    [Point] p2
+{
+    ~ newLineFromPointToPoint *([Point] p1, [Point] p2) {
+        .p1 = p1;
+        .p2 = p2;
+    }
+}
+
+[Point] {
+    ~ randomPoint *{}
+}
+```
+The following is an example of splitting the identifier in two different ways:
+```
+[] (Line, Point) {
+    [Point] a = \[Point]:randomPoint;
+    [Point] b = \[Point]:randomPoint;
+    [Line] lineAB = \[Line]:newLineFromPoint` a `ToPoint b;
+}
+
+[Line] (Point) 
+    [Point] p1
+    [Point] p2
+{
+    ~ newLine` *([Point] `FromPoint` p1, [Point] `ToPoint p2) {
+        .p1 = p1;
+        .p2 = p2;
+    }
+}
+
+[Point] {
+    ~ randomPoint *{}
+}
+```
+
+## Literals
+
+Literals are not explicitly defined in the language itself. Instead, using the mechanism of [data segments](#data-segments), a given compiler can implement literals by encapulating them inside a [class](#classes-types-objects-and-dependancies). See [data segments](#data-segments) for examples.
 
 
+## Object Proxy
 
-## Literals?
+An object proxy is both a parent of the original object and also a lambda which returns the original object. Given an object of type **[A]**, a proxy of this object will have the [disjoint type](#disjoint-types) of **[[A]/[->[A]]]**. A proxy of an object is declared by writing **\*-** followed by the original object. In the following example, **aProxy** is a proxy object of **a**.
+```
+[] (A) {
+    *{
+        [A] a = \[A]:newA;
+        [[A]/[->[A]]] aProxy = *- a;
+    }
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+Since **aProxy** is a [disjoint type](#disjoint-types) it cannot be invoked as a lambda, but it is possible to invoke it when [type cast](#type-casting) or assigned as an object of type **[->[A]]**:
+```
+[] (A) {
+    *{
+        [A] a = \[A]:newA;
+        [[A]/[->[A]]] aProxy = *- a;
+        [->[A]] getA = aProxy;
+        [A] a2 = \getA;                 @ Valid; invoked as an object with type [->[A]]
+        [A] aCast = \[->[A]](aProxy);   @ Valid; invoked when type cast to type [->[A]]
+        [A] aBad = \aProxy;             @ Invalid; disjoint type can't be invoked as a lambda
+        
+    }
+}
+
+[A] {
+    ~ newA *{}
+}
+```
+**a2** refers to the same object as **a**. In the following example **a3** refers to an object for which every invocation on **a3** is redirected to **a** thus **a3** is a proxy to **a**.
+```
+[] (A) {
+    *{
+        [A] a = \[A]:newA;
+        [[A]/[->[A]]] aProxy = *- a;
+        [->[A]] getA = aProxy;
+        [A] a2 = \getA;
+        [A] a3 = aProxy;
+    }
+}
+
+[A] {
+    ~ newA *{} 
+}
+```
+Invoking the method **foo** on **aProxy** is valid since **foo** has inherited visibility ([see disjoint types](#disjoint-types)). Invoking the method **foo** on **a**, **a2**, **a3** or **aProxy** are all equivalent:
+```
+[] (A) {
+    *{
+        [A] a = \[A]:newA;
+        [[A]/[->[A]]] aProxy = *- a;
+        [->[A]] getA = aProxy;
+        [A] a2 = \getA;
+        [A] a3 = aProxy;
+        \a:foo;
+        \a2:foo;
+        \a3:foo;
+        \aProxy:foo; @Valid; foo has inherited visibility
+    }
+}
+
+[A] {
+    ~ newA *{}
+    ++ foo *{}
+}
+```
+Invoking the method **foo** on **aProxy** is invalid if **foo** doesnt have inherited visibility ([see disjoint types](#disjoint-types)):
+```
+[] (A) {
+    *{
+        [A] a = \[A]:newA;
+        [[A]/[->[A]]] aProxy = *- a;
+        [->[A]] getA = aProxy;
+        [A] a2 = \getA;
+        [A] a3 = aProxy;
+        \a:foo;
+        \a2:foo;
+        \a3:foo;
+        \aProxy:foo; @Invalid; foo does not have inherited visibility
+    }
+}
+
+[A] {
+    ~ newA *{}
+    ++- foo *{}
+}
+```
+An object proxy can be created for any object:
+```
+[] {
+    *{
+        [->] q = *{};
+        [[->]/[->[->]]] qProxy = *- q;
+    }
+}
+```
 
 
-## Overloading Class Methods
-= instance methods, type methods and constructors can all be overloaded
-= using type cast to select overloaded method when refering to it  flexibly
-= overloading constructor method overloads the type method also etc
-= when overriding causes overloading vs overriding with parent lambda type, when overriding merges in the child class
-= implicit overloading when inheriting
-= implicit overloading and splitting when using disjointed types
-= lambda generics (conflict if there is any conflict possible, i.e. they are greedy)
-= class generics (must not be indeterminate , i.e. all possible instantiations must overload or split/merge)
+## Overloading and Underloading
+
+### Overloading Class Methods
+
+It is possible to have multiple class methods with the same name, in which case the method invocation is distinguished by the input types used when invoking. This is called overloading a class method. In the following example, the method **add** is overloaded five times:
+```
+[] (Meal, Food, Drink) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        \meal:add;                               @ invoking add method #1
+        \meal:add food;                          @ invoking add method #2
+        \meal:add drink;                         @ invoking add method #3
+        \meal:add drink drink;                   @ invoking add method #4
+        \meal:add drink food;                    @ invoking add method #5
+    }
+}
+
+[Meal] (Food, Drink) {
+    ~ new *{}
+    ++ add *() {}                               @ defining add method #1
+    ++ add *([Food] food) {}                    @ defining add method #2
+    ++ add *([Drink] drink) {}                  @ defining add method #3
+    ++ add *([Drink] drink, [Drink] drink2) {}  @ defining add method #4
+    ++ add *([Drink] drink, [Food] food) {}     @ defining add method #5
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+```   
+Overloaded methods are not required to have the same output types. Some outputs are added to the overloaded **add** methods:
+```
+[] (Meal, Food, Drink, Consumable) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        \meal:add;                  
+        \meal:add food;                         
+        \meal:add drink;                     
+        [Drink] drinkOutput = \meal:add drink drink; 
+        [Consumable] consumableOutput = \meal:add drink food;                
+    }
+}
+
+[Meal] (Food, Drink) {
+    ~ new *{}
+    ++ add *() {}         
+    ++ add *([Food] food) {}    
+    ++ add *([Drink] drink) {}
+    ++ add *([Drink] drink, [Drink] drink2) -> [Drink] {} -> drink2
+    ++ add *([Drink] drink, [Food] food) -> [Consumable] {} -> food
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+An overloading method must have possible input types which dont match another method of the same name. The second input of **drink2** is redefined to the type **[Consumable]**, this is invalid since now all invocations of an existing **add** method match the newly redefined definition of **add** because every **[Food]** is a **[Consumable]**:
+```
+[] (Meal, Food, Drink, Consumable) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        \meal:add;                  
+        \meal:add food;                         
+        \meal:add drink;                     
+        [Drink] drinkOutput = \meal:add drink drink;          @ This invocation matches two definitions of add
+        [Consumable] consumableOutput = \meal:add drink food; @ This invocation matches two definitions of add           
+    }
+}
+
+[Meal] (Food, Drink) {
+    ~ new *{}
+    ++ add *() {}         
+    ++ add *([Food] food) {}   
+    ++ add *([Drink] drink) {}
+    ++ add *([Drink] drink, [Consumable] drink2) -> [Drink] {} -> drink2 @ all invocations of the below add method match with this add method
+    ++ add *([Drink] drink, [Food] food) -> [Consumable] {} -> food      @ Invalid; all invocations of this method match with the above add method
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+Overloading methods can have some ambiguous input types which match multiple overloading methods, just that these inputs must be [cast](#type-casting) to remove abiguity when the method is invoked. In the following example, **foodAndDrink1** and **foodAndDrink2** cannot be an input to the **add** method without [casting](#type-casting) due to matching both **[Drink]** and **[Food]** ([see disjoint types](#disjoint-types) for **foodAndDrink2**).
+```
+[] (Meal, Food, Drink, Consumable, FoodAndDrink) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [FoodAndDrink] foodAndDrink1 = \[FoodAndDrink]:new;
+        [[Food]/[Drink]] foodAndDrink2 = \[FoodAndDrink]:new;               
+        \meal:add foodAndDrink1;           @ Invalid; ambiguous invocation could refer to either add method                     
+        \meal:add foodAndDrink2;           @ Invalid; ambiguous invocation could refer to either add method
+        \meal:add [Food](foodAndDrink1);   @ Valid; invocation refers to first add method ++ add *([Food] food) {} 
+        \meal:add [Drink](foodAndDrink2);  @ Valid; invocation refers to second add method ++ add *([Drink] drink) {}
+    }
+}
+
+[Meal] (Food, Drink) {
+    ~ new *{}     
+    ++ add *([Food] food) {}    
+    ++ add *([Drink] drink) {}
+}
+
+[FoodAndDrink :[Food] :[Drink]] (Food, Drink) {
+    ~ new *{
+        \$~new;
+        \$$~new;
+    } 
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+```
+When inheriting from multiple classes, overloading can occur between methods defined in seperate classes. The original example is rewritten such that two of the **add** methods are inherited from **[MealBeta]** and the other two from **[MealAlpha]**, the same overloads apply across these four methods:
+```
+[] (Meal, Food, Drink) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        \meal:add;                  
+        \meal:add food;                         
+        \meal:add drink;                     
+        \meal:add drink drink; 
+        \meal:add drink food;                
+    }
+}
+
+[Meal :[MealAlpha] :[MealBeta]] (Food, Drink, MealAlpha, MealBeta) {
+    ~ new *{
+        \$~new;
+        \$$~new;
+    }
+    ++ add *() {}
+}
+
+[MealBeta] (Food, Drink) {
+    ~ new *{}       
+    ++ add *([Food] food) {} 
+    ++ add *([Drink] drink) {}
+}
+
+[MealAlpha] (Food, Drink) {
+    ~ new *{}
+    ++ add *([Drink] drink, [Drink] drink2) {}
+    ++ add *([Drink] drink, [Food] food) {}
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+Method visibilities are not affected by overloading. In the following example, **add** is overloaded with three methods but only two of the overloads are visible outside **Meal**:
+```
+[] (Meal, Food, Drink) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        \meal:add food drink;  @ Valid                  
+        \meal:add drink drink; @ Valid  
+        \meal:add drink food;  @ Invalid; not visible here             
+    }
+}
+
+[Meal] (Food, Drink) {
+    ~ new *{
+        \$~new;
+        \$$~new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        \:add food drink;     @ Valid                  
+        \:add drink drink;    @ Valid  
+        \:add drink food;     @ Valid
+    }
+    ++ add *([Food] food, [Drink] drink) {}
+    ++ add *([Drink] drink, [Drink] drink2) {}
+    + add *([Drink] drink, [Food] food) {}  
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+Inherited methods only contribute to overloading if they have inherited visibility. In the following example, **add** inside **[MealAlpha]** is defined with a definition which would conflict inside **[Meal]**, but it does not clash because it lacks inherited visibility:
+```
+[] (Meal, Food, Drink) {
+    *{
+        [Meal] meal = \[Meal]:new;
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;                
+        \meal:add food;                         
+        \meal:add drink;            
+    }
+}
+
+[Meal :[MealAlpha] :[MealBeta]] (Food, Drink, MealAlpha, MealBeta) {
+    ~ new *{
+        \$~new;
+        \$$~new;
+    }
+    ++ add *([Food] food) {}
+}
+
+[MealBeta] (Food, Drink) {
+    ~ new *{}          
+    ++ add *([Drink] drink) {}
+}
+
+[MealAlpha] (Food, Drink, Consumable) {
+    ~ new *{}
+    -+- add *([Consumable] consumable) {} @ Valid; does not clash because it does not have external or inherited visibility
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+Both class methods and constructor methods can be overloaded. Constructor and class methods can overload each other, such as in the following example where the invocation of **[Meal]:with** is overloaded with both contructor and class methods:
+```
+[] (Meal, Food, Drink) {
+    *{
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        [Meal] mealFood = \[Meal]:with food;  
+        [Meal] mealDrink = \[Meal]:with drink;  
+        [Meal] mealFoodAndDrink = \[Meal]:with food drink;
+        \mealFoodAndDrink:add food drink;                     
+    }
+}
+
+[Meal :[MealAlpha] :[MealBeta]] (Food, Drink, MealAlpha, MealBeta) {
+    ~ with *([Food] food) {
+        \$~with food;
+        \$$~new;
+    }
+    ~ with *([Drink drink]) {
+        \$~with drink;
+        \$$~new;
+    }
+    ++ add *([Drink] drink, [Food] food) {
+        \$$add food;
+        \$$add drink;
+    }
+    :: with *([Food] food, [Drink] drink) -> [Meal] {
+        [Meal] meal = \[Meal]:with drink;
+        \meal:add food;
+    } -> meal
+}
+
+[MealBeta] (Food, Drink) {
+    ~ new *{}          
+    ++ add *([Drink] drink) {}
+    ++ add *([Food] food) {}
+}
+
+[MealAlpha] (Food, Drink, Consumable) {
+    ~ with *([Food] food) {}
+    ~ with *([Drink drink]) {}
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+The same conflict rules apply between constructor and type methods which are overloaded. A class method **[Meal]:with** is added which clashes with an existing constructor definition:
+```
+[] (Meal, Food, Drink) {
+    *{
+        [Food] food = \[Food]:new;
+        [Drink] drink = \[Drink]:new;
+        [Meal] mealFood = \[Meal]:with food;  
+        [Meal] mealDrink = \[Meal]:with drink; @ Invalid; could refer to either constructor or class method
+        [Meal] mealFoodAndDrink = \[Meal]:with food drink;
+        \mealFoodAndDrink:add food drink;                     
+    }
+}
+
+[Meal :[MealAlpha] :[MealBeta]] (Food, Drink, MealAlpha, MealBeta) {
+    ~ with *([Food] food) {
+        \$~with food;
+        \$$~new;
+    }
+    ~ with *([Drink drink]) {
+        \$~with drink;
+        \$$~new;
+    }
+    ++ add *([Drink] drink, [Food] food) {
+        \$$add food;
+        \$$add drink;
+    }
+    :: with *([Food] food, [Drink] drink) -> [Meal] {
+        [Meal] meal = \[Meal]:with drink;
+        \meal:add food;
+    } -> meal
+
+    @@ start of clashing class method @@
+    :: with *([Drink] drink) -> [Meal] {
+        [Meal] meal = \[Meal]:with drink;
+    } -> meal
+    @@ end of clashing class method @@
+}
+
+[MealBeta] (Food, Drink) {
+    ~ new *{}          
+    ++ add *([Drink] drink) {}
+    ++ add *([Food] food) {}
+}
+
+[MealAlpha] (Food, Drink, Consumable) {
+    ~ with *([Food] food) {}
+    ~ with *([Drink drink]) {}
+}
+
+[Drink :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    } 
+}
+
+[Food :[Consumable]] (Consumable) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Consumable] {
+    ~ new *{}
+}
+``` 
+Methods with class and lambda generics can be overloaded. Conflicts are determined by treating each generic type as a unique object such that **[&TYPE]** **[&TYPE2]** and **['TYPE]** do not conflict with one another even though generics could be instantiated with conflicting types:
+```
+[Foo <TYPE, TYPE2>] {
+    ++ bar *([&TYPE] object) {}  @ Invalid; conflicts with next bar definition 
+    ++ bar *([&TYPE] object) {}  @ Invalid; conflicts with previous bar definition
+    ++ bar *([&TYPE2] object) {} @ Valid; does not conflict
+
+    ++ bar *(['TYPE] object) {} @ Invalid; conflicts with next bar definition 
+    ++ bar *(['TYPE] object) {} @ Invalid; conflicts with previous bar definition
+
+    ++ bar *([&TYPE] object1, [&TYPE] object2) {} @ Valid; does not conflict 
+    ++ bar *(['TYPE] object1, ['TYPE] object2) {} @ Valid; does not conflict
+}
+```
+The following example of **LogicChecker** shows some valid invocations of overloaded methods with class and lambda generics.
+```
+[] (YES, NO, LogicChecker) {
+    *{
+        [YES] yes = \[YES]:yep;
+        [NO] no = \[NO]:nope;
+        [LogicChecker<[YES][NO]>] check = \[LogicChecker<[YES],[NO]>]:new;
+        [YES] result1 = \check:OR yes no;    @ Invokes second OR method
+        [YES] result2 = \check:OR no yes;    @ Invokes third OR method
+        [NO] result3 = \check:AND no yes;    @ Invokes second AND method
+        [NO] result4 = \check:AND yes no;    @ Invokes third AND method
+        [YES] result5 = \check:AND yes yes;  @ Invokes first AND method
+        [NO] result6 = \check:AND no no;     @ Invokes first AND method
+    }
+}
+
+[YES] { ~ yep *{} }
+[NO] { ~ nope *{} }
+
+[LogicChecker <TRUE, FALSE>] {
+    ~ new *{}
+
+    ++ OR *([&TRUE] true, [&TRUE] true2) -> [&TRUE] {} -> true 
+    ++ OR *([&TRUE] true, [&FALSE] false) -> [&TRUE] {} -> true 
+    ++ OR *([&FALSE] false, [&TRUE] true) -> [&TRUE] {} -> true 
+    ++ OR *([&FALSE] false, [&FALSE] false2) -> [&FALSE] {} -> false 
+
+    ++ AND *(['ANY] any, ['ANY] any2) -> ['ANY] {} -> any 
+    ++ AND *([&FALSE] false, [&TRUE] true) -> [&FALSE] {} -> false 
+    ++ AND *([&TRUE] true, [&FALSE] false) -> [&FALSE] {} -> false 
+}
+```
+The following example shows **LogicChecker** instanciated with **[YES]** for both class generics and some resulting conflicts.
+```
+[] (YES, NO, LogicChecker) {
+    *{
+        [YES] yes = \[YES]:yep;
+        [NO] no = \[NO]:nope;
+        [LogicChecker<[YES][YES]>] check = \[LogicChecker<[YES],[NO]>]:new;
+        [YES] result1 = \check:OR yes yes;  @ Invalid; invocation is invalid matching all four OR methods
+        [YES] result2 = \check:AND yes yes; @ Invalid; invocation is ambiguous matching all three AND methods
+        [NO] result3 = \check:AND no no;    @ Valid; invokes the first AND method
+    }
+}
+
+[YES] { ~ yep *{} }
+[NO] { ~ nope *{} }
+
+[LogicChecker <TRUE, FALSE>] {
+    ~ new *{}
+
+    ++ OR *([&TRUE] true, [&TRUE] true2) -> [&TRUE] {} -> true 
+    ++ OR *([&TRUE] true, [&FALSE] false) -> [&TRUE] {} -> true 
+    ++ OR *([&FALSE] false, [&TRUE] true) -> [&TRUE] {} -> true 
+    ++ OR *([&FALSE] false, [&FALSE] false2) -> [&FALSE] {} -> false 
+
+    ++ AND *(['ANY] any, ['ANY] any2) -> ['ANY] {} -> any 
+    ++ AND *([&FALSE] false, [&TRUE] true) -> [&FALSE] {} -> false 
+    ++ AND *([&TRUE] true, [&FALSE] false) -> [&FALSE] {} -> false 
+}
+```
+
+
+### Underloading Class Methods
+
+An overriding method can have inputs which are parent types of the original inputs, and the output can be a child type of the original output. When some inputs and/or the output of an overriding method is different to the original types, this is called underloading. The **[BetterCandyCrusher]** overrides the **process** method with a parent input and child output:
+```
+[BetterCandyCrusher :[UnreliableCandyCrusher]] (WrappedCandy, Candy, UnreliableCandyCrusher, CrushedCandy) {
+    ~ new *{}
+
+    |++ process *([Candy] candy) -> [CrushedCandy] {
+        [CrushedCandy] crushedCandy = \[CrushedCandy]:crushed candy;
+    } -> crushedCandy
+}
+
+[UnreliableCandyCrusher] (WrappedCandy, Candy) {
+    ++ process *([WrappedCandy] wrappedCandy) -> [Candy] {} -> wrappedCandy
+}
+
+[CrushedCandy :[Candy]] (Candy) {
+    ~ crushed *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[WrappedCandy :[Candy]] (Candy) {
+    ~ wraped *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[Candy] {
+    ~ new *{}
+}
+```
+
+Underloading allows for one method to override multiple methods from parent classes. The **[BetterCandyCrusher]** overrides both **process** methods from **[UnreliableCandyCrusher]** with a parent input and child output:
+```
+[BetterCandyCrusher :[UnreliableCandyCrusher]] (WrappedCandy, Candy, UnreliableCandyCrusher, CrushedCandy) {
+    |++ process *([Candy] candy) -> [CrushedCandy] {
+        [CrushedCandy] crushedCandy = \[CrushedCandy]:crushed candy;
+    } -> crushedCandy
+}
+
+[UnreliableCandyCrusher] (WrappedCandy, Candy, CrushedCandy) {
+    ++ process *([WrappedCandy] wrappedCandy) -> [Candy] {} -> wrappedCandy
+    ++ process *([CrushedCandy] crushedCandy) -> [CrushedCandy] {} -> crushedCandy
+}
+
+[CrushedCandy :[Candy]] (Candy) {
+    ~ crushed *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[WrappedCandy :[Candy]] (Candy) {
+    ~ wraped *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[Candy] {
+    ~ new *{}
+}
+```
+
+Underloading can be used to resolve conflicts when there are multiple inherited methods with the same name but with different input or output types. **[CandyCrusherWrapper]** overrides both **process** methods from **[CandyCrusher]** and **[CandyWrapper]** with a single method, the output of the overriding **process** is a [disjoint type](#disjoint-types) of the outputs from the parent **process** methods:
+```
+[CandyCrusherWrapper :[CandyCrusher] :[CandyWrapper]] (WrappedCandy, Candy, CandyCrusher, CandyWrapper, CrushedCandy, WrappedAndCrushedCandy) {
+    |++ process *([Candy] candy) -> [[WrappedCandy]/[CrushedCandy]] {
+        [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrapedAndCrushed candy;
+    } -> crushedAndWrappedCandy
+}
+
+[CandyCrusher] (Candy, CrushedCandy) {
+    ++ process *([Candy] candy) -> [CrushedCandy] {
+        [CrushedCandy] crushedCandy = \[CrushedCandy]:crushed candy;
+    } -> crushedCandy
+}
+
+[CandyWrapper] (Candy, WrappedCandy) {
+    ++ process *([Candy] candy) -> [WrappedCandy] {
+        [WrappedCandy] wrappedCandy = \[WrappedCandy]:wraped candy;
+    } -> wrappedCandy
+}
+
+[WrappedAndCrushedCandy :[WrappedCandy] :[CrushedCandy]] (Candy, CrushedCandy, WrappedCandy) {
+    ~ wrapedAndCrushed *([Candy] candy) {
+        \$~>wrappedCandy;
+        \$$~>crushedCandy;
+    }
+}
+
+[CrushedCandy :[Candy]] (Candy) {
+    ~ crushed *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[WrappedCandy :[Candy]] (Candy) {
+    ~ wraped *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[Candy] {
+    ~ new *{}
+}
+```
+
+Underloading can also be used with type methods. The following is like the prior example except using type methods instead of instance methods ([see inheritance of type methods](#visibility-and-inheritance-of-constructor-and-type-methods)):
+```
+[CandyCrusherWrapper :[CandyCrusher] :[CandyWrapper]] (WrappedCandy, Candy, CandyCrusher, CandyWrapper, CrushedCandy, WrappedAndCrushedCandy) {
+    |::++ process *([Candy] candy) -> [[WrappedCandy]/[CrushedCandy]] {
+        [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrapedAndCrushed candy;
+    } -> crushedAndWrappedCandy
+}
+
+[CandyCrusher] (Candy, CrushedCandy) {
+    ::++ process *([Candy] candy) -> [CrushedCandy] {
+        [CrushedCandy] crushedCandy = \[CrushedCandy]:crushed candy;
+    } -> crushedCandy
+}
+
+[CandyWrapper] (Candy, WrappedCandy) {
+    ::++ process *([Candy] candy) -> [WrappedCandy] {
+        [WrappedCandy] wrappedCandy = \[WrappedCandy]:wraped candy;
+    } -> wrappedCandy
+}
+
+[WrappedAndCrushedCandy :[WrappedCandy] :[CrushedCandy]] (Candy, CrushedCandy, WrappedCandy) {
+    ~ wrapedAndCrushed *([Candy] candy) {
+        \$~>wrappedCandy;
+        \$$~>crushedCandy;
+    }
+}
+
+[CrushedCandy :[Candy]] (Candy) {
+    ~ crushed *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[WrappedCandy :[Candy]] (Candy) {
+    ~ wraped *([Candy] candy) {
+        \$~new;
+    }
+}
+
+[Candy] {
+    ~ new *{}
+}
+```
 
 
 ## Parent and Child Lambda Types
-=Parent and Child lambda Types
-including overriding with child lambda types
-= method generic to other method generic or concrete type <-> including with disjoint types
-= inputs relating to rising/falling class generics
-= instantiating generics and then child->parent
-= disjoint types with lambda types
+
+There are several ways that a lambda can have a parent type. Just like any other type, a lambda can be referred or cast ([see type casting](#type-casting)) to any of its parent types. 
+
+One such parent of a lambda type is created when any of the input types become child types and/or the output becomes a parent type:
+```
+
+[] (Beetle, Bug, Insect) {
+    *{
+        [[Insect][Bug][Beetle]->[Bug]] lambdaA = *([Insect] insect, [Bug] bug, [Beetle] beetle) -> [Bug] {} -> bug;
+
+        [[Insect][Bug][Beetle]->[Insect]] lambdaB = lambdaA;
+        [[Insect][Beetle][Beetle]->[Bug]] lambdaC = lambdaA;
+        [[Bug][Beetle][Beetle]->[Insect]] lambdaD = lambdaA;
+    }
+}
+
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
+}
+```
+
+Remove the output or adding parameters to a lambda type with no parameters also results in a parent type:
+```
+
+[] (Beetle, Bug, Insect) {
+    *{
+        [->[Bug]] lambdaA = *() -> [Bug] {} -> \[Bug]:new;
+
+        [[Insect]->[Bug]]    lambdaB = lambdaA;
+        [->]                 lambdaC = lambdaA;
+        [[Insect][Beetle]->] lambdaD = lambdaA;
+        [[Insect][Insect]->] lambdaE = lambdaB; @ Invalid; lambdaB already has input parameters, adding another [Insect] parameter does not make this a parent type
+    }
+}
+
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
+}
+```
+
+Refering to a lambda with input parameters which originally had no input parameters, results in input paramters which are ignored when invoked. Likewise a removed output results in an ignored output parameter when invoked. These new lambda types are parent types of the original. The previous **lambdaB**, **lambdaC** and **lambdaD** are rewritten with equivalent lambda expressions to show this logic:
+```
+
+[] (Beetle, Bug, Insect) {
+    *{
+        [->[Bug]] lambdaA = *() -> [Bug] {} -> \[Bug]:new;
+
+        [[Insect]->[Bug]]    lambdaB = *([Insect] ignoredInput) -> [Bug] {} -> \lambdaA;
+        [->]                 lambdaC = *() { [Bug] ignoredOutput = \lambdaA; };
+        [[Insect][Beetle]->] lambdaD = *([Insect] ignoredInput1, [Beetle] ignoredInput2) { [Bug] ignoredOutput = \lambdaA; };
+    }
+}
+
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
+}
+``` 
+
+Replacing all instances of a method generic with the same concrete type results in a parent of the original:
+```
+
+[] (Beetle, Bug, Insect) {
+    *{
+        [['A]['B]->['A]] lambdaA = *(['A] a, ['B] b) -> ['A] {} -> a;
+        
+        [[Bug]['B]->[Bug]]           lambdaB = lambdaA;
+        [['C][Bug]->['C]]            lambdaC = lambdaA;
+        [[Insect][Beetle]->[Insect]] lambdaD = lambdaA;
+        [[Beetle][Insect]->[Beetle]] lambdaE = lambdaA;
+    }
+}
+
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
+}
+```
+
+Replacing all instances of a method generic can also be done using lambda types, disjoint types and class types with generics:
+```
+
+[] (Beetle, Bug, Insect, Container) {
+    *{
+        [[[['A]/['B]]->['A]][Container<['B]>]->['B]] lambdaA = *([[['A]/['B]]->['A]] aBToA, [Container<['B]>] bContainer) -> ['B] {} -> \bContainer:get;
+        
+        [[[['A]/[Bug]]->['A]][Container<[Bug]>]->[Bug]]         lambdaB = lambdaA;
+        [[[[Bug]/[Bug]]->[Bug]][Container<[Bug]>]->[Bug]]       lambdaC = lambdaA;
+        [[[[Insect]/['B]]->[Insect]][Container<['B]>]->['B]]    lambdaD = lambdaA;
+        [[[[Beetle]/[Bug]]->[Beetle]][Container<[Bug]>]->[Bug]] lambdaE = lambdaA;
+    }
+}
+
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ of *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+```
+
+Using class generic types is also valid:
+```
+
+[Foo<Beetle,Bug,Insect>] (Container) {
+    :: bar *{
+        [[[['A]/['B]]->['A]][Container<['B]>]->['B]] lambdaA = *([[['A]/['B]]->['A]] aBToA, [Container<['B]>] bContainer) -> ['B] {} -> \bContainer:get;
+        
+        [[[['A]/[&Bug]]->['A]][Container<[&Bug]>]->[&Bug]]           lambdaB = lambdaA;
+        [[[[&Bug]/[&Bug]]->[&Bug]][Container<[&Bug]>]->[&Bug]]       lambdaC = lambdaA;
+        [[[[&Insect]/['B]]->[&Insect]][Container<['B]>]->['B]]       lambdaD = lambdaA;
+        [[[[&Beetle]/[&Bug]]->[&Beetle]][Container<[&Bug]>]->[&Bug]] lambdaE = lambdaA;
+    }
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ of *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+```
 
 
 ## Partial Class Implementations
 
+can use ||++ eat without type
+
 ### Unimplemented Class Methods
+
+constructor can be only be inheritance visibilty when unimplemented (not public or class)
+generic instanciation on inheritance, and also using own generic as instantiation
+```
+[Transformation<A,B>] {
+
+    ++ aToB [[&A]->[&B]]
+}
+
+```
+when unimplemented method are inherited; can all be overriden to make implemented and then constructors are good again | vs ||
+can be partially implemented and then class is still unimplemented
+unimplemented methods can be override, overloaded and underloaded the same as other methods
+implemented methods can be overriden with unimplemented methods
+
+
+
+
+
 
 only instance methods can be unimplemented
 overriding implemented with unimplemented method 
@@ -5040,89 +6740,62 @@ usuing
 || for overriding unimplemented method insead of |
 ```
 = unimplemented parent with class generics
+= implementing some but not all, and still constructor
+=pointer constructors
+=conflicts with override methods and partial constructors??
+
+
 
 
 ### Assigning Instance Methods in Constructors
-= can only assign to self instance methods, so must override parent method with another unimplemented first before assigning in constructor (adds visibility)
+= can only assign to self instance methods, so must override parent method with another unimplemented first before assigning in constructor??? (adds visibility)
 = constructor defines the amount of comppleteness of the implementation
-
-### Partial Constructor
-= implementing some but not all
-
-## Resolving Conflicts of Multiple Inheritance
-= private methods dont conflict (except with constructor etc)
-=constructors conflicting with type methods and vice versa
-=Resolving Conflicts of Multiple Inheritance
-disjoint types as output object, one function to join multiple
-=partial class implementation
-= inheriting from the same class multiple times "Duplicate Inheritance"
-= inheriting from parents with generics, same parent
-= lambda generics (conflict if there is any conflict possible, i.e. they are greedy) (can be used to override and resolve conflicts etc)
+= how does [Anonymous Class Objects](#anonymous-class-objects) fit into this in terms of [Assigning Instance Methods in Constructors], since we already can have partial constructor and override it
+= relates to different constructor partialities
 
 
 
-
-
-= [Overloading Class Methods] happens with class generics
-= class generics (must not be indeterminate , i.e. all possible instantiations must overload or split/merge)
-= with class generics
-= when one method could become the parent of another (indeterminate if they are the always disjoint, then not allowed)
-= if there exists types which could conflict for the method (outputs), then overriding [Overloading Class Methods] causes splitting (not alloed without overrriding)
-
-
-conflicting [Overloading Class Methods]
 ```
-[ReceiverPlus<M, N> :[Receiver<[&M]>] :[Receiver<[&N]>]] (Receiver) 
-{
-    ~ init *{
-        \$~init;
-        \$$~init;
-    }
-}
+[] {
 
-[Receiver<E>]
-{
-    ~ init *{}
-    ++ receive *([&E] object) {}
-}
-```
- conflicting but resolvable [Overloading Class Methods]
-```
-[] (RecursiveReceiver, A, Receiver) {
     *{
-        [A] a = \[A:newA;
-        [RecursiveReceiver<[A]>] recursiveReceiverOfA = \[ContainerComposite<[A][B]>]:ContainerCompositeOf acToB;
-        [Container<[[[A]/[C]]->[B]]>] containerOfACToB = containerCompositeAB;
+        [?] varWidth = \[Maybe<[Integer]>]:nothing;
+        [?] varHeight = \[Maybe<[Integer]>]:nothing;
+        \display:getParameters [:[DisplayParameters]] {
+            :width = varWidth;
+            :height = varHeight;
+            \$new;
+            ||++ height [->[Maybe<[Integer]>]]
+            ||++ width [->[Maybe<[Integer]>]]
+        };
     }
 }
 
-[ReceiverPlus<M, N> :[Receiver<[&M]>] :[Receiver<[A]>]] (Receiver) 
-{
-    ~ init *{
-        \$~init;
-        \$$~init;
+[] {
+
+    *{
+        [?] varWidth = \[Maybe<[Integer]>]:nothing;
+        [?] varHeight = \[Maybe<[Integer]>]:nothing;
+        \display:getParameters [:[DisplayParameters]] {
+            ||++ height *->varHeight
+            ||++ width *->varWidth
+        };
     }
 }
 
-[Receiver<E>]
-{
-    ~ init *{}
-    ++ receive *([&E] object) {}
+[] {
+
+    *{
+        [?] varWidth = \[Maybe<[Integer]>]:nothing;
+        [?] varHeight = \[Maybe<[Integer]>]:nothing;
+        \display:getParameters [:[DisplayParameters]] {
+            ||++ height x ! {[?] x = *->varHeight;}
+            ||++ width x ! {[?] x = *->varWidth;}
+        };
+    }
 }
 
-[A] {
-    ~ newA *{}
-}
-
-[B] {
-    ~ newA *{}
-}
 ```
-
-
-
-
-
 
 
 
@@ -5133,8 +6806,12 @@ conflicting [Overloading Class Methods]
 
 ## Rising and Falling Generics
 = can always change generic between equivalent type (e.g. [e] and [[e]/[e]])
+= can inheritance of non rising or falling generic allow adding rising/falling generic?
 = different to lambda generics
 = disjoint types, lambdas instantiating the generics
+= lambda parent and child types when rising and falling generics are involved
+= inheriting from parents with generics
+= unimplemented/partial implementation of class methods
 =inheriting then instantiating generics with composite types such as [Disjoint Types](#disjoint-types), lambdas, disjoint types instantiating the parents generics with multiple types...
 
 ```
@@ -5176,7 +6853,7 @@ conflicting [Overloading Class Methods]
     ~ newContainer *([&CONTAINED_OBJECT] objectToBeContained) {
         .containedObject = objectToBeContained;
     }
-    +++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
+    ++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
 }
 
 [BowlerHat :[Hat]] (Hat) {
@@ -5202,6 +6879,73 @@ falling generic
 
 ## Root Type
 
+= [->] is the same as [->[]]
+= [] output to a function cant be assigned (same as no output), even if you casted a method to [->[]]
+= methods with no output vs [] output are equivalent
+
+
+->[] indistinguishable from ->
+```
+
+[] (Beetle, Bug, Insect) {
+    *{
+        [->[Bug]]              lambdaA = *() -> [Bug] {} -> \[Bug]:new;
+        [->]                   lambdaB = lambdaA;
+        [[Insect][Beetle]->]   lambdaC = lambdaA;
+        [->[]]                 lambdaD = lambdaB;
+        [[Insect][Beetle]->[]] lambdaE = lambdaC;
+        [->]                   lambdaF = lambdaD;
+        [[Insect][Beetle]->]   lambdaG = lambdaE;
+    }
+}
+
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
+}
+```
+
+
+when invoking ->[] same as ->, creating lambda, output must be ignored
+```
+
+[] (Foo) {
+    *{
+        [->]   lambdaA = *{};
+        [->[]] lambdaB = *() -> [] {
+            [] foo
+        } -> ;
+
+        [] foo = \lambdaB;  @ invalid, cant get output from [->[]]
+        [[Insect][Beetle]->]   lambdaC = lambdaA;
+        [->[]]                 lambdaD = lambdaB;
+        [[Insect][Beetle]->[]] lambdaE = lambdaC;
+        [->]                   lambdaF = lambdaD;
+        [[Insect][Beetle]->]   lambdaG = lambdaE;
+    }
+}
+
+
+[Foo] {
+    ~ new *{}
+}
+```
+
+
+
+
 
 ## Self Reference
 
@@ -5209,21 +6953,35 @@ falling generic
 ## Type Inference
 
 ### Type Inference of Method Outputs
+* ->
+* ([A]a)-> a
+also using ->[?] {} ->
 
 ### Type Inference of Assignments
 =all types circumstances with ? in different parts of type (partial inference)
 = disjoint types^
+
+### Type Inference of Class Generics
+- ([Container<[?]>]:containing) =T= ([['E]->[Container<['E]>]]), can embed generic inferrence inside, i.e.[Container<[Container<[?]>]>]:containing is ([[Container<['E]>]->[Container<[Container<['E]>]>]])
+
 
 ### Parent Context Type
 
 ### Self Context Type
 
 
+
+
 ## Type Casting
 
+= accessing non inherited visible methods which are in fact externaly or class visible
 = can cast down not up, visa versa???
-= using type cast to select overloaded method [Overloading Class Methods]
+= inferred type casting in general
+= using type cast to select overloaded method which must not be ambiguous [Overloading Class Methods] + inferred type casting for overloaded, , must match only one of the overloaded methods i.e. cant cast to a smaller set of overloaded methods 
 = composite expressions, using to expose external visible but not inherited...
+= using type cast to select overloaded method when refering to it  flexibly, inferred casting [type casting](#type-casting), cast from overload must not be ambiguous
+= has very strong binding
+= flexible method expression, setting class method with object, casting it to change class method type
 
 ## Scope
 
@@ -5232,6 +6990,7 @@ Anonymous Class Object///
 lambdas
 statement group
 prologue statment
+can scope hide variables? probably already somewhere
 ```
 
 
@@ -5240,22 +6999,27 @@ lack of these in lanugaue level
 
 
 ## Visibility and Inheritance of Constructor and Type Methods
+=for constructor the first - or + conflicts with other constructors, and the second and third conflicts with other constructors and also type methods
 = default constructor visibility (+++) and type method visibility (++-)
+= overriding
 =constructors cannot access private type methods
-=constructors conflicting with type methods and vice versa "Resolving Conflicts of Multiple Inheritance"
+=constructors conflicting with type methods (whwen class or public visiibility for constructor) and vice versa +For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)
 = overriding type methods
 = cant override constructor except with type method (kind of)
 =inherited constructor does not cause the type method of the constructor to be inherited
 = constructor never inherited
-=visibility of type methods cant either be decreased either
+=visibility of type methods cant either be decreased either can constructor
 = generic doesnt matter for class visibility
+= constructor cannot override inherited type method, you must create type method for that
 
 
 
 
 ## Void Identifier
 
-
+```
+_
+```
 
 ---
 
@@ -5434,6 +7198,12 @@ Token: **|**
 
 Syntax usages: [class-method](#class-method)
 
+### Asterisk Dash
+
+Token: **\*-**
+
+Syntax usages: [expression](#expression)
+
 ### Question Mark
 
 Token: **?**
@@ -5590,7 +7360,7 @@ An object declaration is used in various contexts to declare the presence of an 
 - [class-method](#class-method) syntax description: **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
     + **class-method-classification** syntax description: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
 
-Inclusion of [|](#pipe) declares that this class method is overriding a existing class method from a parent [class](#class) ([see inheritance](#inheritance)). Inclusion of [||](#double-pipe) declares that this class method is overriding an unimplemented class method from a parent [class](#class) ([see unimplemented class methods](#unimplemented-class-methods)). The **class-method-classification** determines if a class method is a construtor, instance method or type method. [::](#double-colon) indicates a type method, [~](#tilde) indicates a constructor, and the lack of either represents an instance method. The [method-visibility-indicator](#method-visibility-indicators) determines the visibility of the method. [See instance method visibility.](#instance-method-visibility) [See constructor and type method visibility.](#visibility-of-constructor-and-type-methods) The [identifier](#identifier) is the name of this class method. 
+Inclusion of [|](#pipe) declares that this class method is overriding a existing class method from a parent [class](#class) ([see inheritance](#inheritance)). Inclusion of [||](#double-pipe) declares that this class method is overriding an unimplemented class method from a parent [class](#class) ([see unimplemented class methods](#unimplemented-class-methods)). The **class-method-classification** determines if a class method is a construtor, instance method or type method. [::](#double-colon) indicates a type method, [~](#tilde) indicates a constructor, and the lack of either represents an instance method. The [method-visibility-indicator](#method-visibility-indicators) determines the visibility of the method. [See instance method visibility.](#instance-method-visibility) [See constructor and type method visibility.](#visibility-and-inheritance-of-constructor-and-type-methods) The [identifier](#identifier) is the name of this class method.
 
 If the class method has an [expression](#expression), the [expression](#expression) must represent a [method](#methods-and-lambdas). [See constructors, instance methods and type methods.](#constructors-instance-methods-and-type-methods) Constructors have special rules for the method; [See statement order in constructors.](#statement-ordering-in-constructors)
 
@@ -5602,8 +7372,9 @@ If the class method has a [type](#type) instead; the class method is said to be 
 A compiler injection has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the compiler injection at it's own discretion. [See compiler injections.](#compiler-injections)
 
 ### Expression
-- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-body](#statement-body) **|** **object-method** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-body](#statement-body) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
     + **object-method** syntax description: [expression](#expression) [:](#colon) [identifier](#identifier)
+    + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
     + **grouped-expression** syntax description: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
         - **type-cast** syntax description: [type](#type)
     + **type-method** syntax description: [type](#type) [:](#colon) [identifier](#identifier)
@@ -5617,10 +7388,11 @@ Any expression can have an attached [prologue-statement](#prologue-statement). [
 Some expressions will evalutate to an object. The following are all the types of expressions which can evaluate to an object:
 - [data-segment](#data-segment): Evaluates to a [data-segment](#data-segment) object. [See data segments.](#data-segments)
 - **object-method**: The **object-method**'s [expression](#expression) is evalutated first. Then this evalutates to the method named by the [identifier](#identifier), from the object which resulted from the **object-method**'s [expression](#expression). The rules for [instance method visibility](#instance-method-visibility) must be followed.
+- **proxy-object**: The **proxy-object**'s [expression](#expression) is evalutated first. Then this evalutates to a [proxy](#object-proxy) for the object which resulted from the **proxy-object**'s [expression](#expression).
 - [method-expression](#method-expression): Evalutates to the method expressed here. [See methods.](#methods-and-lambdas)
 - **grouped-expression**: The **grouped-expression**'s [expression](#expression) is evalutated first. Then this evalutates to the result of the **grouped-expression**'s [expression](#expression). The result is upcast to the **type-cast**'s [type](#type) if one is present. The **grouped-expression** must always evalutate to an object. If the result is upcast, then the **grouped-expression** cannot be a be a [data-segment](#data-segment).
 - [method-invocation](#method-invocation): Evaluates to the output object after the method is invoked. If the method has no output object then this expression does not evaluate to an object. [See methods.](#methods-and-lambdas)
-- **type-method**: Evalutates to the type method named by the **type-method**'s [identifier](#identifier) for the class identified by the **type-method**'s [type](#type). This type method can refer to a constructor. [See constructors and type methods.](#constructors-instance-methods-and-type-methods) The rules for [constructor and type method visibility](#visibility-of-constructor-and-type-methods) must be followed. The **type-method**'s [type](#type) can have class generic instantiations. [See class generics.](#class-generics)
+- **type-method**: Evalutates to the type method named by the **type-method**'s [identifier](#identifier) for the class identified by the **type-method**'s [type](#type). This type method can refer to a constructor. [See constructors and type methods.](#constructors-instance-methods-and-type-methods) The rules for [constructor and type method visibility](#visibility-and-inheritance-of-constructor-and-type-methods) must be followed. The **type-method**'s [type](#type) can have class generic instantiations. [See class generics.](#class-generics)
 - **object-identifier**: Evaluates to the local object or input object which is named with the **object-identifier**'s [identifier](#identifier). The local object or input object must be accessible in the current [scope](#scope). The local or input object cannot be a [data-segment](#data-segment).
 - [internal-instance-method](#internal-instance-method): Evalutates to the instance method named by the [internal-instance-method](#internal-instance-method)'s [identifier](#identifier), from the enclosing class or parent class identified by the [internal-instance-method](#internal-instance-method)'s [internal-context-identifier](#internal-context-identifier). [See classes.](#classes-types-objects-and-dependancies) [See inheritance.](#inheritance)
 - [internal-instance-object](#internal-instance-object): Evalutates to the instance object named by the [internal-instance-object](#internal-instance-object)'s [identifier](#identifier). [See classes.](#classes-types-objects-and-dependancies)
@@ -5649,8 +7421,8 @@ In an assignment statement the [expression](#expression) is evalutated first and
 The [statement](#statement)s are executed one after another in order from the first to the last.
 
 ### Method Expression
-- [method-expression](#method-expression) syntax description: [\*](#asterisk) **(** **parameter-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **(** **method-body** **)?** **)?** [->](#arrow) **output-expression** **)** **)**
-    + **parameter-list** syntax description: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
+- [method-expression](#method-expression) syntax description: [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
+    + **input-list** syntax description: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
     + **method-body** syntax description: [statement](#statement)
     + **output-type** syntax description: [type](#type)
     + **output-expression** syntax description: [expression](#expression)
@@ -5724,8 +7496,9 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
         + **class-method-classification**: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
     - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
-    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-body](#statement-body) **|** **object-method** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-body](#statement-body) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
         + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
+        + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
         + **grouped-expression**: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
             - **type-cast**: [type](#type)
         + **type-method**: [type](#type) [:](#colon) [identifier](#identifier)
@@ -5736,8 +7509,8 @@ A statement is an [expression](#expression) which does not evalutate to an objec
         + **data-component**: **[any characters not containing the data-segment-anchor]**
     - [assignment-statement](#assignment-statement): **(** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** [object-declaration](#object-declaration) **)** [=](#equals-sign) [expression](#expression)
     - [statement-body](#statement-body): [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
-    - [method-expression](#method-expression): [\*](#asterisk) **(** **parameter-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **(** **method-body** **)?** **)?** [->](#arrow) **output-expression** **)** **)**
-        + **parameter-list**: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
+    - [method-expression](#method-expression): [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
+        + **input-list**: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
         + **method-body**: [statement](#statement)
         + **output-type**: [type](#type)
         + **output-expression**: [expression](#expression)
