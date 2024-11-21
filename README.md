@@ -69,7 +69,8 @@
         - [Identifier](#identifier)
         - [Parent Identifier](#parent-identifier)
     + [Simple Tokens](#simple-tokens)
-        [Ampersand](#ampersand), [Apostrophe](#apostrophe)
+
+    [Ampersand](#ampersand), [Apostrophe](#apostrophe)
         - [Arrow](#arrow)
         - [Arrow Brackets](#arrow-brackets)
         - [Asterisk](#asterisk)
