@@ -6674,9 +6674,11 @@ We can argue that the type of input1 **[["B]["C]->[["B]/["C]]]** is a parent of 
 asdf
 
 
+
+
 +incomplete methods (mix of complete and incomplete)
 +override in child class (constructor can be only be inheritance visibilty when unimplemented (not public or class)) | vs ||
-+can override partially and override unimplemented to unimplemented, or override implemented to unimplemented, result is also unimplemented  | vs ||
++can override partially and override unimplemented to unimplemented, or override implemented to unimplemented, result is also unimplemented, and adding new unimplemented  | vs ||
 +conflicts between different unimplemented methods/implemented methods (Duplicate-Inheritance) (example of overloading underloading [see overloading and underloading.](#overloading-and-underloading))
 +example using class generics 
 +pointer constructor example
@@ -6684,23 +6686,110 @@ asdf
 
 
 
-Instance methods can be left unimplemented. When an instance method is unimplemented, this is called a partial implementation of a class. In the following example, **foreground** and **background** are left unimplemented.
+Instance methods can be left unimplemented, when an instance methods are unimplemented this is called a partial implementation of the class. To leave an instance method unimplemented the type of the instance method is written after the method name. In the following example, **foreground** and **background** are left unimplemented in the class **ColourScheme**.
 ```
 [ColourScheme] (Colour) {
+    ~ --+ implement *{}
     ++ foreground [->[Colour]]
     ++ background [->[Colour]]
-    ++ title *-> [Colour] {} -> \:foreground;
-    ++ body *-> [Colour] {} -> \:foreground;
+    ++ title *-> [Colour] {} -> \:foreground
+    ++ body *-> [Colour] {} -> \:foreground
+}
+
+[Colour] {
+    ~ black *{}
+    ~ white *{}
+    ~ red *{}
+    ~ blue *{}
+    ~ green *{}
+}
+```
+Both **foreground** and **background** instance methods are of the type **[->[Colour]]**. The constructor of **ColourScheme**; **init** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)), the visibility rules for constructors for partial implementations is discussed in [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors). 
+
+Unimplemented methods can be overriden and implemented in a child class. When overriding an unimplemented method, **||** is used instead of **|**. The class **BlackAndWhite** inherits from **[ColourScheme]**, overriding **foreground** and **background**:
+```
+[BlackAndWhite :[ColourScheme]] (Colour, ColourScheme) {
+    ~ new *{
+        \$~implement;
+    }
+    ||++ foreground *-> [Colour] {} -> \[Colour]:black
+    ||++ background *-> [Colour] {} -> \[Colour]:white
+}
+
+[ColourScheme] (Colour) {
+    ~ --+ implement *{}
+    ++ foreground [->[Colour]]
+    ++ background [->[Colour]]
+    ++ title *-> [Colour] {} -> \:foreground
+    ++ body *-> [Colour] {} -> \:foreground
+}
+
+[Colour] {
+    ~ black *{}
+    ~ white *{}
+    ~ red *{}
+    ~ blue *{}
+    ~ green *{}
 }
 ```
 
+[Pointer Constructors](#pointer-constructors)[Duplicate Inheritance](#duplicate-inheritance) ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)).   [Parent and Child Lambda Types](#parent-and-child-lambda-types).   [Underloading Class Methods](#underloading-class-methods)
 
+foreground not touched, background overriden to unimpl, titel unimpl, foregroundSecondary added, body overriden+underloaded
+```
+[GradientScheme :[ColourScheme]] (Colour, ColourScheme, GradientColour) {
+    
+    ~ --+ implement *{
+        \$~implement;
+    }
+
+    ||++ background [->[GradientColour]]
+
+    ++ foregroundSecondary [->[Colour]]
+
+    |++ title [->[GradientColour]]
+
+    |++ body *-> [GradientColour] {
+        [GradientColour] body = (\[GradientColour]:gradientOf foreground foregroundSecondary)   
+            !{
+                [Colour] foreground = \:foreground;
+                [Colour] foregroundSecondary = \:foregroundSecondary;
+            };
+    } -> body
+}
+
+[ColourScheme] (Colour) {
+    ~ --+ implement *{}
+    ++ foreground [->[Colour]]
+    ++ background [->[Colour]]
+    ++ title *-> [Colour] {} -> \:foreground
+    ++ body *-> [Colour] {} -> \:foreground
+}
+
+[GradientColour :[Colour] :[Colour]] (Colour) 
+{
+    ~ gradientOf *([Colour] first, [Colour] second) {
+        \$~>first;
+        \$$~>second;
+    }
+}
+
+[Colour] {
+    ~ black *{}
+    ~ white *{}
+    ~ red *{}
+    ~ blue *{}
+    ~ green *{}
+}
+```
 
 
 
 ### Assigning Instance Methods in Constructors
 
 
+private constructors partial
+partial constructors visibility rules
 =conflicts with override methods and partial constructors??
 partial constructor is a name it is called
 
@@ -6906,6 +6995,8 @@ when invoking ->[] same as ->, creating lambda, output must be ignored
 
 
 ## Self Reference
+
+= visibility
 
 
 ## Type Inference
