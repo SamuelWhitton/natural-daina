@@ -87,7 +87,7 @@
         - [Internal Context Identifier](#internal-context-identifier)
         - [Data Segment](#data-segment)
         - [Assignment Statement](#assignment-statement)
-        - [Statement Body](#statement-body)
+        - [Statement Group](#statement-group)
         - [Method Expression](#method-expression)
         - [Method Invocation](#method-invocation)
         - [Internal Instance Method](#internal-instance-method)
@@ -122,6 +122,12 @@ Goals
 - allow 'transformations of' abstractions as much as possible i.e. prevent as few as possble
 - can known entrie language (small set of things) means less mistakes and unknowns
 - have no or few exceptions for constructs^
+- have flexibility without invalid meemory scenarios
+- no undefined states
+- low information requirement
+- conssitent throughout
+- static typing gaurentees
+- no hidning names/obejcts/types no ambiguioty
 
 ```
 
@@ -3983,7 +3989,7 @@ All the different expressions can be combined in a compound way. Various constru
 
 
 1. **!** binding to the preceeding expression and the following statement (as in a prologue statement for an expression)
-2. **=** binding to the left hand side and the next expression, **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs), **->** binding to the next expression (as in the output of a method), **\*-** binding to the next expression (as in the object of which to form an object proxy) and **\*** binding to the lone statement body of a method which may be preceeded by a method input list ([see flexible method expression](#flexible-method-expression))
+2. **=** binding to the left hand side and the next expression, **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs), **->** binding to the next expression (as in the output of a method), **\*-** binding to the next expression (as in the object of which to form an object proxy) and **\*** binding to the lone statement or statement group of a method which may be preceeded by a method input list ([see flexible method expression](#flexible-method-expression))
 3. **:** binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method)
 cast
 4. A type (such as **[Foo]**) binding to an object name in an assignment or to an expression as in [type casting](#type-casting).
@@ -5005,9 +5011,22 @@ If we add a fully visible method to **C** then we also must override the method 
     |++ method *{} @ override required to resolve duplicate method conflict
 }
 [C] {
-    |++ method *{}
+    ++ method *{}
 }
 ```
+The same rules apply to [unimplemented instance methods](#unimplemented-instance-methods); conflicts can be resolved by overriding:
+```
+[A :[B]] (B) {
+    @ no duplicate method conflicts
+}
+[B :[C] :[C]] (C) {
+    ||++ method [->] @ override required to resolve duplicate method conflict
+}
+[C] {
+    ++ method [->]
+}
+```
+Conflicts can be resolved by overriding using unimplemented or implemented instance methods.
 
 ## Flexible Method Expression
 
@@ -6815,17 +6834,17 @@ Class generics, method generics and overloading ([See Overloading Class Methods]
 ### Assigning Instance Methods in Constructors
 
 
-+pointer constructor example [Pointer Constructors](#pointer-constructors)
-private constructors partial
-partial constructors visibility rules
-=conflicts with override methods and partial constructors??
-partial constructor is a name it is called
++ assign unimplemented instance methods in a constructor 
++ constructor cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
++ when inherited you must first override with unimplemented before assigning in constructor
++ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
++ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
++ can be done inside [Anonymous Class Objects](#anonymous-class-objects), all methods must be implemented:
 
-constructor can be only be inheritance visibilty when unimplemented (not public or class), differes per constructor
-= can only assign to self instance methods, so must override parent method with another unimplemented first before assigning in constructor??? (adds visibility)
-= constructor defines the amount of comppleteness of the implementation
-= how does [Anonymous Class Objects](#anonymous-class-objects) fit into this in terms of [Assigning Instance Methods in Constructors], since we already can have partial constructor and override it
-= relates to different constructor partialities
+
+asdf
+
+
 
 [Anonymous Class Objects](#anonymous-class-objects) cannot be partial constrcutor, all methods must be implemented:
 ```
@@ -7028,6 +7047,7 @@ when invoking ->[] same as ->, creating lambda, output must be ignored
 
 
 ## Type Inference
+= disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
 
 
 ### Type Inference of Method Outputs
@@ -7073,9 +7093,10 @@ Partial Class Implementations - can use ||++ eat without type takes the original
 ## Scope
 
 ```
+aboslutely no conflicts or hiding types or objects (no ambiguity)
 Anonymous Class Object///
 lambdas
-statement group
+statement group [Compound Expressions and Statements](#compound-expressions-and-statements)
 prologue statment
 can scope hide variables? no it cant.... not allowed, 
 method generics hiding other method generics etc, method generic same name inside method body is actually same type, not its own generic
@@ -7104,7 +7125,7 @@ lack of these in lanugaue level
 =visibility of type methods cant either be decreased either can constructor
 = generic doesnt matter for class visibility
 = constructor cannot override inherited type method, you must create type method for that
-
+= [Duplicate Inheritance](#duplicate-inheritance) and resolving of duplicate methods
 
 
 
@@ -7575,7 +7596,7 @@ Syntax usages: [method-expression](#method-expression), [dependancy-structure](#
 
 Tokens: **}**, **{**
 
-Syntax usages: [class](#class), [entry-point-class](#entry-point-class), [statement-body](#statement-body), [anonymous-class-object](#anonymous-class-object)
+Syntax usages: [class](#class), [entry-point-class](#entry-point-class), [statement-group](#statement-group), [anonymous-class-object](#anonymous-class-object)
 
 ### Double Apostrophe
 
@@ -7659,7 +7680,7 @@ Syntax usages: [dependancy-structure](#dependancy-structure), [expression](#expr
 
 Token: **;**
 
-Syntax usages: [statement-body](#statement-body)
+Syntax usages: [statement-group](#statement-group)
 
 ### Square Brackets
 
@@ -7811,7 +7832,7 @@ If the class method has a [type](#type) instead; the class method is said to be 
 A compiler injection has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the compiler injection at it's own discretion. [See compiler injections.](#compiler-injections)
 
 ### Expression
-- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-body](#statement-body) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
     + **object-method** syntax description: [expression](#expression) [:](#colon) [identifier](#identifier)
     + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
     + **grouped-expression** syntax description: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
@@ -7854,8 +7875,8 @@ Both [data-segment-anchor](#data-segment-anchor)'s surrounding the **data-compon
 
 In an assignment statement the [expression](#expression) is evalutated first and the resulting object is assigned to the [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object) or [object-declaration](#object-declaration). The [expression](#expression) must result in an object, but cannot be a be a [data-segment](#data-segment). The [type](#type) of the [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object) or [object-declaration](#object-declaration) must match the [expression](#expression). Assigning an [internal-instance-method](#internal-instance-method) or [internal-instance-object](#internal-instance-object) can only happen in a constructor. [See statement order in constructors.](#statement-ordering-in-constructors)
 
-### Statement Body
-- [statement-body](#statement-body) syntax description: [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
+### Statement Group
+- [statement-group](#statement-group) syntax description: [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
 
 The [statement](#statement)s are executed one after another in order from the first to the last.
 
@@ -7935,7 +7956,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
         + **class-method-classification**: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
     - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
-    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-body](#statement-body) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
         + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
         + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
         + **grouped-expression**: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
@@ -7947,7 +7968,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [data-segment](#data-segment): [data-segment-anchor](#data-segment-anchor)**[data-component]**[data-segment-anchor](#data-segment-anchor).
         + **data-component**: **[any characters not containing the data-segment-anchor]**
     - [assignment-statement](#assignment-statement): **(** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** [object-declaration](#object-declaration) **)** [=](#equals-sign) [expression](#expression)
-    - [statement-body](#statement-body): [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
+    - [statement-group](#statement-group): [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
     - [method-expression](#method-expression): [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
         + **input-list**: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
         + **method-body**: [statement](#statement)
