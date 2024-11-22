@@ -6640,25 +6640,6 @@ We can argue that the type of input1 **[["B]["C]->[["B]/["C]]]** is a parent of 
 
 ### Unimplemented Instance Methods
 
-
-
-
-
-asdf
-
-
-
-
-+incomplete methods (mix of complete and incomplete)
-+override in child class (constructor can be only be inheritance visibilty when unimplemented (not public or class)) | vs ||
-+can override partially and override unimplemented to unimplemented, or override implemented to unimplemented, result is also unimplemented, and adding new unimplemented  | vs ||
-+conflicts between different unimplemented methods/implemented methods (Duplicate-Inheritance) (example of overloading underloading [see overloading and underloading.](#overloading-and-underloading))
-+example using class generics 
-+pointer constructor example
-
-
-
-
 Instance methods can be left unimplemented, when an instance methods are unimplemented this is called a partial implementation of the class. To leave an instance method unimplemented the type of the instance method is written after the method name. In the following example, **foreground** and **background** are left unimplemented in the class **ColourScheme**.
 ```
 [ColourScheme] (Colour) {
@@ -6677,7 +6658,7 @@ Instance methods can be left unimplemented, when an instance methods are unimple
     ~ green *{}
 }
 ```
-Both **foreground** and **background** instance methods are of the type **[->[Colour]]**. The constructor of **ColourScheme**; **init** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)), the visibility rules for constructors for partial implementations is discussed in [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors). 
+Both **foreground** and **background** instance methods are of the type **[->[Colour]]**. The constructor of **ColourScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)), the visibility rules for constructors for partial implementations is discussed in [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors). 
 
 Unimplemented methods can be overriden and implemented in a child class. When overriding an unimplemented method, **||** is used instead of **|**. The class **BlackAndWhite** inherits from **[ColourScheme]**, overriding **foreground** and **background**:
 ```
@@ -6705,10 +6686,7 @@ Unimplemented methods can be overriden and implemented in a child class. When ov
     ~ green *{}
 }
 ```
-
-[Pointer Constructors](#pointer-constructors)[Duplicate Inheritance](#duplicate-inheritance) ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)).   [Parent and Child Lambda Types](#parent-and-child-lambda-types).   [Underloading Class Methods](#underloading-class-methods)
-
-foreground not touched, background overriden to unimpl, titel unimpl, foregroundSecondary added, body overriden+underloaded
+We can override both unimplemented and implemented methods with an unimplemented method. An overriding unimplemented method can underload the original instance methods ([See Underloading Class Methods](#underloading-class-methods)). In the following example **GradientScheme** inherits from **[ColourScheme]** where; **foreground** is left unimplemented, **background** is underloaded but unimplemented, the originally implemented **title** is now underloaded but unimplemented, the unimplemented method **foregroundSecondary** is added and **body** is now implemented plus underloaded.
 ```
 [GradientScheme :[ColourScheme]] (Colour, ColourScheme, GradientColour) {
     
@@ -6755,12 +6733,85 @@ foreground not touched, background overriden to unimpl, titel unimpl, foreground
     ~ green *{}
 }
 ```
+Just like before in **ColourScheme**, the constructor of **GradientScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)). The class **GradientColour** uses both [Pointer Constructors](#pointer-constructors) and [Duplicate Inheritance](#duplicate-inheritance).
 
+Class generics, method generics and overloading ([See Overloading Class Methods](#overloading-class-methods)) can all be used with unimplemented methods:
+```
+[Packer<E, M> :[Converter<[Container<[&E]>][&M]>]] (Converter, Container) {
+    
+    ~ new *{
+        \$~implement;
+    }
+
+    ||++ convert *([Container<[&E]>] container) -> [&M] {} -> \container:getObject
+
+    ||++ convert *([&E] object) -> [Container<[&E]>] {} -> \[Container<[&E]>]:containerOf object
+
+    ||++ join *([Converter<[&E]['C]>] otherConverter) -> [Converter<[Container<[&E]>]['C]>] {
+    } -> 
+}
+
+
+[LambdaConversions<E, M> :[Converter<[&E][&M]>] (Converter) 
+    [[&E]->[&M]] conversionForwards
+    [[&M]->[&E]] conversionBackwards
+{    
+    ~ using *([[&E]->[&M]] conversionForwards, [[&M]->[&E]] conversionBackwards) {
+        .conversionForwards = conversionForwards;
+        .conversionBackwards = conversionBackwards;
+        \$~implement;
+    }
+
+    ||++ convert *([&E] e) -> [&M] {} -> \conversionForwards e
+
+    ||++ convert *([&M] m) -> [&E] {} -> \conversionBackwards m
+
+    ||++ join *([Converter<[&M]['C]>] otherConverter) -> [Converter<[&E]['C]>] {
+        
+        [[&E]->['C]] joinedForwards = *([&E] e) -> ['C] {
+            [&M] intermediate = \:convert e;
+            ['C] result = \otherConverter:convert intermediate;
+        } -> result
+
+        [['C]->[&E]] joinedBackwards = *(['C] c) -> [&E] {
+            [&M] intermediate = \otherConverter:convert c;
+            [&E] result = \:convert intermediate;
+        } -> result
+
+    } -> (\[LambdaConversions<[&E]['C]>]:using joinedForwards joinedBackwards)
+}
+
+[DoNothing< Q > :[Converter<[Container<[&E]>][&]>]] {
+    ~ new *{
+        \$~implement;
+    }
+    ||++ convert *([&Q] q) -> [&Q] {} -> q
+    ||++ join *([Converter<[&Q]['C]>] x) -> [Converter<[&Q]['C]>] {} -> x
+}
+
+[Converter< A, B >] {
+    ~ --+ implement *{}
+    ++ convert [[&A]->[&B]]
+    ++ convert [[&B]->[&A]]
+    ++ join [[Converter<[&B]['C]>]->[Converter<[&A]['C]>]]
+}
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ containerOf *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ getObject *->[&E] {} -> .containedObject
+}
+```
 
 
 ### Assigning Instance Methods in Constructors
 
 
++pointer constructor example [Pointer Constructors](#pointer-constructors)
 private constructors partial
 partial constructors visibility rules
 =conflicts with override methods and partial constructors??
