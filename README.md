@@ -6737,22 +6737,30 @@ Just like before in **ColourScheme**, the constructor of **GradientScheme**; **i
 
 Class generics, method generics and overloading ([See Overloading Class Methods](#overloading-class-methods)) can all be used with unimplemented methods:
 ```
-[Packer<E, M> :[Converter<[Container<[&E]>][&M]>]] (Converter, Container) {
-    
-    ~ new *{
-        \$~implement;
+[] (Packer, Container, Converter) {
+    *{
+        [Converter<[Container<[A]>][A]>] aPacker = \[Packer<[A]>]:new;
+        [A] a = \[A]:createA;
+        [Container<[A]>] aContainer = \aPacker:convert a;
+        [A] aAgain = \aPacker:convert aContainer;
     }
-
-    ||++ convert *([Container<[&E]>] container) -> [&M] {} -> \container:getObject
-
-    ||++ convert *([&E] object) -> [Container<[&E]>] {} -> \[Container<[&E]>]:containerOf object
-
-    ||++ join *([Converter<[&E]['C]>] otherConverter) -> [Converter<[Container<[&E]>]['C]>] {
-    } -> 
 }
 
+[Packer<P> :[LambdaConverter<[Container<[&P]>][&P]>]] (Converter, Container) {
+    
+    ~ new *{
 
-[LambdaConversions<E, M> :[Converter<[&E][&M]>] (Converter) 
+        [[Container<[&P]>]->[&P]] unpack = *([Container<[&P]>] container) -> [&P] {
+        } -> \container:getObject;
+
+        [[&P]->[Container<[&P]>]] pack = *([&P] p) -> [Container<[&P]>] {
+        } -> \[Container<[&P]>]:containerOf p;
+
+        \$~using unpack pack;
+    }
+}
+
+[LambdaConverter<E, M> :[Converter<[&E][&M]>] (Converter) 
     [[&E]->[&M]] conversionForwards
     [[&M]->[&E]] conversionBackwards
 {    
@@ -6781,14 +6789,6 @@ Class generics, method generics and overloading ([See Overloading Class Methods]
     } -> (\[LambdaConversions<[&E]['C]>]:using joinedForwards joinedBackwards)
 }
 
-[DoNothing< Q > :[Converter<[Container<[&E]>][&]>]] {
-    ~ new *{
-        \$~implement;
-    }
-    ||++ convert *([&Q] q) -> [&Q] {} -> q
-    ||++ join *([Converter<[&Q]['C]>] x) -> [Converter<[&Q]['C]>] {} -> x
-}
-
 [Converter< A, B >] {
     ~ --+ implement *{}
     ++ convert [[&A]->[&B]]
@@ -6804,6 +6804,10 @@ Class generics, method generics and overloading ([See Overloading Class Methods]
     }
 
     ++ getObject *->[&E] {} -> .containedObject
+}
+
+[A] {
+    ~ createA *{}
 }
 ```
 
