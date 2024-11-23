@@ -128,6 +128,7 @@ Goals
 - conssitent throughout
 - static typing gaurentees
 - no hidning names/obejcts/types no ambiguioty
+- needs powerful generics and pointer constructor and other things for flexibility, + disjoint types
 
 ```
 
@@ -6754,14 +6755,16 @@ We can override both unimplemented and implemented methods with an unimplemented
 ```
 Just like before in **ColourScheme**, the constructor of **GradientScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)). The class **GradientColour** uses both [Pointer Constructors](#pointer-constructors) and [Duplicate Inheritance](#duplicate-inheritance).
 
-Class generics, method generics and overloading ([See Overloading Class Methods](#overloading-class-methods)) can all be used with unimplemented methods:
+Class generics, method generics underloading and overloading ([See Overloading and Underloading.](#overloading-and-underloading)) can all be used with unimplemented methods:
 ```
-[] (Packer, Container, Converter) {
+[] (Packer, Container, Converter, DoNothing) {
     *{
         [Converter<[Container<[A]>][A]>] aPacker = \[Packer<[A]>]:new;
+        [Converter<[A][A]>] doNothing = \[DoNothing<[A]>]:new;
+        [Converter<[Container<[A]>][A]>] aPacker2 = \aPacker:join doNothing;
         [A] a = \[A]:createA;
-        [Container<[A]>] aContainer = \aPacker:convert a;
-        [A] aAgain = \aPacker:convert aContainer;
+        [Container<[A]>] aContainer = \aPacker2:convert a;
+        [A] aAgain = \aPacker2:convert aContainer;
     }
 }
 
@@ -6806,6 +6809,17 @@ Class generics, method generics and overloading ([See Overloading Class Methods]
         } -> result
 
     } -> (\[LambdaConversions<[&E]['C]>]:using joinedForwards joinedBackwards)
+}
+
+[DoNothing< N > :[Converter<[&N][&N]>]] (Converter) {
+
+    ~ new *{
+        \$~implement;
+    }
+
+    ||++ convert *([&N] n) -> [&N] {} -> n
+    
+    ||++ join *([Converter<[&N]['C]>] c) -> [Converter<[&N]['C]>] {} -> c
 }
 
 [Converter< A, B >] {
