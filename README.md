@@ -129,6 +129,7 @@ Goals
 - static typing gaurentees
 - no hidning names/obejcts/types no ambiguioty
 - needs powerful generics and pointer constructor and other things for flexibility, + disjoint types
+- identifiers can be numbers at front
 
 ```
 
@@ -4345,7 +4346,7 @@ There are 5 different categories of statements inside a constructor:
 
 1. Instance assignment: assigning instance objects and instance methods. [See assigning instance methods in constructors.](#assigning-instance-methods-in-constructors)
 2. Constructor invocation: invoking parent and [self constructors](#invoking-self-constructors) ([includes parent and self pointer constructors](#pointer-constructors)). 
-3. Self referential: statements which include references to instance methods, instance objects or [direct self reference](#self-reference).
+3. Self referential: statements which include references to instance methods, parent methods, instance objects or [direct self reference](#self-reference).
 4. Mixed statements: statements which fit more then one of the above categories (1-3).
 5. Other: all other statements which do not fit the above categories (1-4).
 
@@ -6848,15 +6849,227 @@ Class generics, method generics underloading and overloading ([See Overloading a
 ### Assigning Instance Methods in Constructors
 
 
-+ assign unimplemented instance methods in a constructor 
-+ constructor cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
-+ when inherited you must first override with unimplemented before assigning in constructor
-+ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
+|+ assign unimplemented instance methods in a constructor 
+|+ constructor can be different levels of partial and cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
+|+ when inherited you must first override with unimplemented before assigning in constructor
+|+ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
 + pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
 + can be done inside [Anonymous Class Objects](#anonymous-class-objects), all methods must be implemented:
 
 
 asdf
+
++ assign unimplemented instance methods in a constructor that are defined in the class
+```
+[] (Integer, DisplayParameters) {
+    *{
+        [DisplayParameters] defaultDisplay = \[DisplayParameters]:default;
+        [DisplayParameters] squareDisplay = (\[DisplayParameters]:square 480) 
+            !{
+                [Integer] 480 = \[Integer]:480;
+            };
+    }
+}
+
+[DisplayParameters] (Integer) {
+
+    ~ default *{
+        :width = *->[Integer] {} -> \[Integer]:1080;
+        :height = *->[Integer] {} -> \[Integer]:720;
+    }
+
+    ~ square *([Integer] size) {
+        :width = *->[Integer] {} -> size;
+        :height = *->[Integer] {} -> size;
+    }
+
+    ++ width [->[Integer]]
+    ++ height [->[Integer]]
+}
+
+[Integer] {
+    ~ 320 *{}
+    ~ 480 *{}
+    ~ 720 *{}
+    ~ 1080 *{}
+    ~ 1440 *{}
+    ~ 2160 *{}
+}
+```
+
++ when inherited you must first override with unimplemented before assigning in constructor
+you can assign in constructor if overriden aswell
+SquareDisplay
+```
+[] (Integer, DisplayParameters, SquareDisplay) {
+    *{
+        [DisplayParameters] defaultDisplay = \[DisplayParameters]:default;
+        [DisplayParameters] squareDisplay = (\[SquareDisplay]:withSize 480) 
+            !{
+                [Integer] 480 = \[Integer]:480;
+            };
+    }
+}
+
+[SquareDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
+
+    ~ withSize *([Integer] size) {
+        :width = *->[Integer] {} -> size;
+        :height = *->[Integer] {} -> size;
+        \$~default;
+    }
+
+    ||++ width [->[Integer]]
+    ||++ height [->[Integer]]
+}
+
+[DisplayParameters] (Integer) {
+
+    ~ default *{
+        :width = *->[Integer] {} -> \[Integer]:1080;
+        :height = *->[Integer] {} -> \[Integer]:720;
+    }
+
+    ++ width [->[Integer]]
+    ++ height [->[Integer]]
+}
+
+[Integer] {
+    ~ 320 *{}
+    ~ 480 *{}
+    ~ 720 *{}
+    ~ 1080 *{}
+    ~ 1440 *{}
+    ~ 2160 *{}
+}
+```
+implement was inherited visibly but external adn class invisible bcause
+external or class visible means all methods must be implemented, inherited visible means all private instance methods must be implememented
+
+different constructors can have different levels of impleemetnetion
+implement vs default, basedOnSize vs withSize and usingDefaultSize
+d
+
+based on different visibility of unimplemented method?
++ constructor can be different levels of partial and cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
++ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
+```
+[] (Integer, DisplayParameters, SquareDisplay) {
+    *{
+        [DisplayParameters] defaultDisplay = \[DisplayParameters]:default;
+        [DisplayParameters] squareDisplay = (\[SquareDisplay]:withSize 480) 
+            !{
+                [Integer] 480 = \[Integer]:480;
+            };
+        [DisplayParameters] defaultSquareDisplay = \[SquareDisplay]:usingDefaultSize;
+    }
+}
+
+[SquareDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
+
+    ~ withSize *([Integer] size) {
+        :size = *->[Integer] {} -> size;
+        \:~basedOnSize;
+    }
+
+    ~ usingDefaultSize *{
+        :size = *->[Integer] {} -> \[Integer]:1080;
+        \:~basedOnSize;
+    }
+
+    ~ --- basedOnSize *{
+        \$~implement;
+    }
+
+    ||++ width *->[Integer] {} -> \:size;
+    - size [->[Integer]]
+}
+
+[DisplayParameters] (Integer) {
+
+    ~ --+ implement
+
+    ~ default *{
+        :width = *->[Integer] {} -> \[Integer]:1080;
+        :height = *->[Integer] {} -> \[Integer]:720;
+    }
+
+    ++ width [->[Integer]]
+    ++ height [->[Integer]]
+}
+
+[Integer] {
+    ~ 320 *{}
+    ~ 480 *{}
+    ~ 720 *{}
+    ~ 1080 *{}
+    ~ 1440 *{}
+    ~ 2160 *{}
+}
+```
+
+
+
++ cant refer to parent that is unimplemented method \$sd etc?
+
+
+```
+```
+
+
+
+
+asdf
+
+
+
+
+```
+[] (Integer, DisplayParameters, SquareDisplay) {
+    *{
+        [DisplayParameters] defaultDisplay = \[DisplayParameters]:default;
+        [DisplayParameters] squareDisplay = (\[SquareDisplay]:withSize 480) 
+            !{
+                [Integer] 480 = \[Integer]:480;
+            };
+    }
+}
+
+[WideDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
+
+    ~ withHeight *([Integer] size) {
+        :width = *->[Integer] {} -> size;
+        :height = *->[Integer] {} -> size;
+        \$~implement;
+    }
+
+    ||++ width [->[Integer]]
+    ||++ height [->[Integer]]
+}
+
+[DisplayParameters] (Integer) {
+
+    ~ --+ implement
+
+    ~ default *{
+        :width = *->[Integer] {} -> \[Integer]:1080;
+        :height = *->[Integer] {} -> \[Integer]:720;
+    }
+
+    ++ width [->[Integer]]
+    ++ height [->[Integer]]
+}
+
+[Integer] {
+    ~ 320 *{}
+    ~ 480 *{}
+    ~ 720 *{}
+    ~ 1080 *{}
+    ~ 1440 *{}
+    ~ 2160 *{}
+}
+```
+
 
 
 
