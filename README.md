@@ -30,6 +30,7 @@
         - [Invoking Self Constructors](#invoking-self-constructors)
         - [Pointer Constructors](#pointer-constructors)
         - [Statement Ordering in Constructors](#statement-ordering-in-constructors)
+        - [Implicit Construction](#implicit-construction)
     + [Data Segments](#data-segments)
     + [Disjoint Types](#disjoint-types)
     + [Duplicate Inheritance](#duplicate-inheritance)
@@ -130,6 +131,7 @@ Goals
 - no hidning names/obejcts/types no ambiguioty
 - needs powerful generics and pointer constructor and other things for flexibility, + disjoint types
 - identifiers can be numbers at front
+- direct patterns as possible
 
 ```
 
@@ -1572,7 +1574,7 @@ The **hat** object in **hatContainer** is retrieved and assigned to the identifi
 ```
 **hatTakenFromContainer** is now referring to the same object as **someHat**.
 
-Type methods (similar to static or class methods in other object oriented languages) can have input objects and an output object. A type method is not attached to any object and is instead invoked similar to a constructor. A type method **createHatContainer** is added which creates and returns a new **[HatContainer]** object by invoking the original constructor.
+Type methods (similar to static methods in other object oriented languages) can have input objects and an output object. A type method is not attached to any object and is instead invoked similar to a constructor. A type method **createHatContainer** is added which creates and returns a new **[HatContainer]** object by invoking the original constructor.
 ```
 [] (Hat, HatContainer) {
     *{
@@ -3466,7 +3468,7 @@ The construction part of the body acts like the internals of a constructor and i
     \:sleep;
 }
 ```
-The class methods in the body of an anonymous class object must be overriding a method from a parent class. New instance methods can be defined, but they must have the minimum visibility (**---**). Type methods and constructors are not allowed. The anonymous class object cannot be a partial implementation itself, but it can inherit from a partial constructor and override unimplemented class methods ([see partial class implementations](#partial-class-implementations)) like in the following example:
+The class methods in the body of an anonymous class object must be overriding a method from a parent class. New instance methods can be defined, but they must have the minimum visibility (**---**). Type methods and constructors are not allowed. The anonymous class object cannot be a partial implementation itself, but it can inherit from a partial constructor and override all unimplemented instance methods ([see partial class implementations](#partial-class-implementations)) like in the following example:
 ```
 [] (Animal) {
     *{
@@ -3502,7 +3504,7 @@ The class methods in the body of an anonymous class object must be overriding a 
     ~ createAnimal *{}
     ++ makeNoise [->]
     ++ eat [->]
-    ++ sleep [->]
+    ++ sleep *{}
 }
 ```
 An anonymous class object can inherit from multiple parents the same as regular class. The resulting type of the anonymous class object is a disjoint type composed of each of the parent types ([see disjoint types](#disjoint-types)). In the following example, an anonymous class object called **abc** inherits from **[A]**, **[B]** and **[C]**.
@@ -3532,6 +3534,32 @@ An anonymous class object can inherit from multiple parents the same as regular 
 
 [C] {
     ~ createC *{}
+    ++ doCThing [->]
+}
+```
+An anonymous class object can inherit from parents with [implicit construction](#implicit-construction). The same example from before but with classes **A** and **C** having [implicit construction](#implicit-construction):
+```
+[] (A, B, C) {
+    *{
+        [[A]/[B]/[C]] abc = [:[A]:[B]:[C]] {
+                \$$~createB;
+                ||++ doAThing *{}
+                ||++ doBThing *{}
+                ||++ doCThing *{}
+            };
+    }
+}
+
+[A] {
+    ++ doAThing [->]
+}
+
+[B] {
+    ~ createB *{}
+    ++ doBThing [->]
+}
+
+[C] {
     ++ doCThing [->]
 }
 ```
@@ -4448,6 +4476,24 @@ Constructor invocations and instance assignments can only appear in the most bas
     ~ newBar *{}
 }
 ```
+
+### Implicit Construction
+
+asdf
+
+if there is no constructor, then it is an implicit construction
+cannot be implicit construction if one of the parent does not have implicit construction (must add constructor)
+mix of implicit and non implicit parents, 
+
+
+
+
+
+```
+
+
+```
+
 
 ## Data Segments
 
@@ -5569,7 +5615,7 @@ In the above example, the method **receive** is overloaded in **RecursiveReceive
 
 ## The Lexical Splitter
 
-**\`** is the lexical splitter. The lexical splitter is used in pairs, the second usage must come just before a token ([see grammar](#grammar)). The token is 'stitched' to the end of the first lexical splitter. Take the following example:
+**\`** is the lexical splitter. The lexical splitter is used in pairs, the second usage must come just before a token ([see grammar](#grammar)). The token is 'stitched' to the end of the first lexical splitter. When there are multiple uses of the lexical splitter, later splitters are stiched before earlier ones. Take the following example:
 ```
 [] (Line, Point) {
     [Point] a = \[Point]:randomPoint;
@@ -6143,7 +6189,7 @@ Inherited methods only contribute to overloading if they have inherited visibili
     ~ new *{}
 }
 ``` 
-Both class methods and constructor methods can be overloaded. Constructor and class methods can overload each other, such as in the following example where the invocation of **[Meal]:with** is overloaded with both contructor and class methods:
+Both type methods and constructor methods can be overloaded. Constructor and type methods can overload each other, such as in the following example where the invocation of **[Meal]:with** is overloaded with both contructor and type methods:
 ```
 [] (Meal, Food, Drink) {
     *{
@@ -6853,8 +6899,8 @@ Class generics, method generics underloading and overloading ([See Overloading a
 |+ constructor can be different levels of partial and cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
 |+ when inherited you must first override with unimplemented before assigning in constructor
 |+ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
-+ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
-+ can be done inside [Anonymous Class Objects](#anonymous-class-objects), all methods must be implemented:
+|+ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
+|+ can be done inside [Anonymous Class Objects](#anonymous-class-objects), all methods must be implemented:
 
 
 asdf
@@ -7010,18 +7056,23 @@ based on different visibility of unimplemented method?
 
 
 
-+ cant refer to parent that is unimplemented method \$sd etc?
++ cant refer to parent that is unimplemented method \$sd etc? no
 
 
 ```
+
+[We] {
+
+    ~ --- private *{}
+
+}
 ```
 
-
-
++ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
+```
+```
 
 asdf
-
-
 
 
 ```
@@ -7130,7 +7181,7 @@ asdf
 = disjoint types, lambdas instantiating the generics
 = lambda parent and child types when rising and falling generics are involved
 = inheriting from parents with generics
-= unimplemented/partial implementation of class methods
+= unimplemented/partial implementation of instance methods
 =inheriting then instantiating generics with composite types such as [Disjoint Types](#disjoint-types), lambdas, disjoint types instantiating the parents generics with multiple types...
 
 ```
@@ -7264,12 +7315,18 @@ when invoking ->[] same as ->, creating lambda, output must be ignored
 }
 ```
 
-
+when using method generics and output is lost due to ['E] being []...
+```
+[Boolean] {
+    ++ ` *(`isTrue` [->['E]] true, `OrFalse [->['E]] false) -> ['E] {} -> ...
+}
+```
 
 
 
 ## Self Reference
-
+^
+inside anonymous class objects
 = visibility
 
 
@@ -7290,7 +7347,7 @@ also using ->[?] {} ->
 - ([Container<[?]>]:containing) =T= ([['E]->[Container<['E]>]]), can embed generic inferrence inside, i.e.[Container<[Container<[?]>]>]:containing is ([[Container<['E]>]->[Container<[Container<['E]>]>]])
 
 
-### Type Inference of Unimplemented Class Methods
+### Type Inference of Unimplemented Instance Methods
 Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
 
 ### Parent Context Type
@@ -7612,8 +7669,153 @@ extra???
 
 
 
+```
+[] {
+    *{
+
+        [Booealk]
 
 
+        [?] ` = *(`add` [Integer] i, `ToTree [Tree] t) -> [Tree] {
+            [?] resultingTree = \[Variable<[Tree]>]:as t;
+            \t:observe [:[TreeObserver<[Tree][Integer]>]] {
+                    |++ empty *{
+                        \resultingTree:set (\[Tree<[Integer]>]:branch i empty empty) !{
+                                [?] empty = \[Tree<[Integer]>]:empty;
+                            };
+                    }
+                    |++ branch *([Integer] element, [Tree] left, [Tree] right) {
+                        \(\i:greaterThan element):isTrueOrFalse *{
+                            \addToTree
+                        } *{};
+                    }
+                };
+        } -> \resultingTree:get;
+
+        \
+         `*(`add` `
+        [?] indexes = \[Tree<[Integer]>]:empty;
+
+    }
+}
+
+
+[Boolean] {
+    ++ ` *(`isTrue` [->['E]] true, `OrFalse [->['E]] false) -> ['E] {} -> ...
+}
+
+[Tree<E>] (TreeObserver) 
+    [[TreeObserver<[Tree][&E]>]->] observeTree 
+{
+    ~ empty *{
+        .observeTree = *([[TreeObserver<[Tree][&E]>]->] o) {\o:empty;};
+    }
+    ~ branch *([&E] element, [&TREE] left, [&TREE] right) {
+        .observeTree = *([[TreeObserver<[Tree][&E]>]->] o) {\o:branch element left right;};
+    }
+    
+    ++ isEmpty *-> [Boolean] {
+        [?] isEmpty = \[Variable<[Boolean]>]:as \[Boolean]:false;
+        \observe [:[TreeObserver<[Tree][&E]>]] {
+                |++ empty *{
+                    \isEmpty:set \[Boolean]:true;
+                }
+            };
+    } -> \isEmpty:get;
+
+    ++ observe *([TreeObserver<[Tree][&E]>] o) {\.observeTree o;}
+}
+
+[TreeObserver<TREE, E>] {
+    ++ empty *{}
+    ++ branch *([&E] element, [&TREE] left, [&TREE] right) {}
+}
+
+
+
+```
+
+
+```
+[Process] {
+    ++ do [->]
+}
+
+
+
+
+[] {
+    *{
+        \([:[Process]]{
+                ||++ do *{
+                    \:recursive;
+                }
+                - recursive *{
+                    \:recursive;
+                }
+            }):do;
+
+
+
+        [?] m = \[Variable<[Maybe<[->]>]>]:nothing;
+        [->] recursive = *{
+            \(\m:get):ifJust *([->] rec) {\rec;};
+        };
+        \m:set \[Maybe<[->]>]:just recursive;
+    }
+}
+```
+
+
+
+```
+[] {
+    *{
+        @ 5 to 3 7 branch
+        [Tree<[Integer]>] tree = \[Tree<[Integer]>]:as \[Branch<[Tree<[Integer]>][Integer]>]:new (\[Integer]:5) (
+                \[Branch<[Tree<[Integer]>][Integer]>]:new (\[Integer]:3) (\[EmptyTree]:new) (\[EmptyTree]:new)
+            ) (
+                \[Branch<[Tree<[Integer]>][Integer]>]:new (\[Integer]:7) (\[EmptyTree]:new) (\[EmptyTree]:new)
+            );
+        \tree:observe *([->]_,[Branch<[Tree<[Integer]>][Integer]>] b) {
+            [] _ = \b:node;
+        };
+    }
+}
+
+
+[Tree<E>] {
+    
+    ~ as *([Branch<[:?][&E]>] e) {
+        :observe = *([]_, [[Branch<[:?][&E]>]->['O]] o) -> \o e;
+    }
+
+    ~ as *([EmptyTree] e) {
+        :observe = *([[EmptyTree]->['O]] o, []_) -> \o e;
+    }
+
+    ++ observe [[[EmptyTree]->['O]][[Branch<[:?][&E]>]->['O]]->['O]]
+}
+
+[Branch<TREE, E>] {
+    ~ new *([&E] node, [&TREE] left, [&TREE] right) {
+        :node = *->node;
+        :left = *->left;
+        :right = *->right;
+    }
+    ++ node [->[&E]]
+    ++ left [->[&TREE]]
+    ++ right [->[&TREE]]
+}
+
+[EmptyTree] (Tree) {
+    ~ new *{}
+}
+
+
+
+
+```
 
 ```
 [Implies<A, B>] { ~ var *{} }
