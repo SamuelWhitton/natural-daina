@@ -7326,8 +7326,9 @@ when using method generics and output is lost due to ['E] being []...
 
 ## Self Reference
 ^
-inside anonymous class objects
+inside anonymous class objects it doesnt refer to the anonymous class???
 = visibility
+**\*^** lambda self reference????no
 
 
 ## Type Inference
@@ -7762,6 +7763,24 @@ extra???
             \(\m:get):ifJust *([->] rec) {\rec;};
         };
         \m:set \[Maybe<[->]>]:just recursive;
+
+
+        [->] reco = *{
+            \*^;
+        };
+
+        [[[Maybe<['E]>]->['E]]->['E]] recBuilder = *([[Maybe<["E]>]->["E]] me) -> ["E] {
+            [?] varMaybe = [Variable<[Maybe<["E]>]>]:as \[Maybe<["E]>]:nothing;
+            [?] maybe = [:[Maybe<["E]>]] {
+                |++ ifNothing (\varMaybe:get):ifNothing
+                |++ ifJust (\varMaybe:get):ifJust
+            };
+        }
+
+        \\recBuilder *([Maybe<[->]>] rec) -> *{\rec:ifJust *([->] reco) {\reco;};}
+
+
+        @[[['E]->['E]]->[Maybe<['E]>]] recursionBuilder = 
     }
 }
 ```
@@ -7810,6 +7829,50 @@ extra???
 
 [EmptyTree] (Tree) {
     ~ new *{}
+}
+
+
+
+
+[] {
+    *{
+        [Tree<[Elephant]>] tree =.....
+        
+        [?] numberOfElephants = *([Tree<[Elephant]>] tree) {
+            [?] recursiveNumberOfElephants = *^; ??
+            [Integer] numberOfElephants = \tree:observe (*->\[Integer]:zero) (
+                    *([Elephant] node, [Tree<[Elephant]>] left, [Tree<[Elephant]>] right) -> \(\recursiveNumberOfElephants left):plus (\recursiveNumberOfElephants right)
+                );
+        } -> numberOfElephants;
+
+    }
+}
+
+[El] {
+    :: numberOfElephants *([Tree<[Elephant]>] tree) {
+        [Integer] numberOfElephants = \tree:observe (*->\[Integer]:zero) (
+                *([Elephant] node, [Tree<[Elephant]>] left, [Tree<[Elephant]>] right) -> \(\[:?]:numberOfElephants left):plus (\[:?]:numberOfElephants right)
+            );
+    } -> numberOfElephants;
+
+
+    :: numberOfElephants *([Tree<[Elephant]>] tree) {
+        [?] recursiveNumberOfElephants = *^;
+        [Integer] numberOfElephants = \tree:observe (*->\[Integer]:zero) (
+                *([Elephant] node, [Tree<[Elephant]>] left, [Tree<[Elephant]>] right) -> \(\recursiveNumberOfElephants left):plus (\recursiveNumberOfElephants right)
+            );
+    } -> numberOfElephants;
+}
+
+
+[Tree<E>] {
+    ~ branch *([&E] node, [:?] left, [:?] right) {
+        :observe = *([->] _, [[&E][:?][:?]->['Q]] o) -> \o node left right;
+    }
+    ~ empty *{
+        :observe = *([->['Q]] o, [->] _) -> \o;
+    }
+    ++ emptyOrBranch [[->['Q]][[&E][:?][:?]->['Q]]]
 }
 
 
