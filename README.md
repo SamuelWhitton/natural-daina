@@ -4479,19 +4479,75 @@ Constructor invocations and instance assignments can only appear in the most bas
 
 ### Implicit Construction
 
-asdf
-
-if there is no constructor, then it is an implicit construction
-cannot be implicit construction if one of the parent does not have implicit construction (must add constructor)
-mix of implicit and non implicit parents, 
-
-
-
-
-
+If a class and none of its parents has a constructor, then we say it has implicit construction. If a class has implicit construction, then when it is inherited no constructor is called for that class. In the following example, *ABC* inherits from the implicitly constructed **[AB]** and so the constructor **new** does not need to invoke any constructor from the class **AB**.
 ```
+[] (ABC) {
+    *{
+        [ABC] abc = \[ABC]:new;
+    }
+}
 
+[ABC :[AB]] (AB) {
+    ~ new *{}
+    ++ methodC *{}   
+}
 
+[AB :[A] :[B]] (A, B) {
+    ||++ methodB *{}
+    ||++ unimplementedMethodA [->]
+    ||:: ++ inheritedTypeMethodB *{}
+}
+
+[A] {
+    ++ methodA *{}
+    ++ unimplementedMethodA [->]
+    :: ++ inheritedTypeMethodA *{}
+}
+
+[B] {
+    ++ methodB *{}
+    ++ unimplementedMethodB [->]
+    :: ++ inheritedTypeMethodB *{}
+}
+```
+The class **AB** overrides **methodB**, **inheritedTypeMethodB** and **unimplementedMethodA** from **[B]** and **[A]** ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)).
+
+If a constructor is introduced to the class **B** then **B** is no longer implicitly constructed. This has a trickle down affect to **AB** where we now need to invoke the parent constructor for **[B]**, and since **AB** is no longer implicitly constructed we now need to invoke the parent constructor of **[AB]** in the class **ABC**:
+```
+[] (ABC) {
+    *{
+        [ABC] abc = \[ABC]:new;
+    }
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{          @ needed to add constructor due to AB's constructor
+        \$~new;      
+    }
+    ++ methodC *{}   
+}
+
+[AB :[A] :[B]] (A, B) {
+    ~ new *{          @ needed to add constructor due to B's constructor
+        \$$~new;      
+    }                          
+    ||++ methodB *{}
+    ||++ unimplementedMethodA [->]
+    ||:: ++ inheritedTypeMethodB *{}
+}
+
+[A] {
+    ++ methodA *{}
+    ++ unimplementedMethodA [->]
+    :: ++ inheritedTypeMethodA *{}
+}
+
+[B] {
+    ~ new *{}         @ added constructor for B
+    ++ methodB *{}
+    ++ unimplementedMethodB [->]
+    :: ++ inheritedTypeMethodB *{}
+}
 ```
 
 
