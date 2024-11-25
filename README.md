@@ -54,6 +54,7 @@
         - [Type Inference of Assignments](#type-inference-of-assignments)
         - [Type Inference of Class Generics](#type-inference-of-class-generics)
         - [Type Inference of Unimplemented Class Methods](#type-inference-of-unimplemented-class-methods)
+        - [Method Context Type](#method-context-type)
         - [Parent Context Type](#parent-context-type)
         - [Self Context Type](#self-context-type)
     + [Type Casting](#type-casting)
@@ -132,6 +133,10 @@ Goals
 - needs powerful generics and pointer constructor and other things for flexibility, + disjoint types
 - identifiers can be numbers at front
 - direct patterns as possible
+- no scope confustion
+- no keywrod bloat
+- visualisation of code without colouring
+- launguage/localisation independant
 
 ```
 
@@ -5391,6 +5396,8 @@ Contructors methods must be defined in the usual way, using an expresion to defi
 ```
 
 
+asdf must be a clear method not disjoint or class geenric thaat isnt method same as unimplemented
+
 ## Inheriting from Types with Generics
 
 A class can inherit from a type with class generics. Each generic of the inherited class must be instantiated by a type. In the following example, **AContainer** inherits from **[Container<[A]>]**.
@@ -7380,11 +7387,13 @@ when using method generics and output is lost due to ['E] being []...
 
 
 
+
 ## Self Reference
-^
-inside anonymous class objects it doesnt refer to the anonymous class???
+inside anonymous class objects it does refer to the anonymous class
+^ inside anonymous class objects it does refer to the anonymous class (see self reference)
 = visibility
-**\*^** lambda self reference????no
+**\*^** lambda self reference (add this to gramma section asdf)
+in main? []{\*{}}
 
 
 ## Type Inference
@@ -7407,16 +7416,20 @@ also using ->[?] {} ->
 ### Type Inference of Unimplemented Instance Methods
 Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
 
+### Method Context Type
+```
+[* ?] (add to gramma section asdf)
+```
 ### Parent Context Type
 
 [$?]
-[$$$$ ?]
+[$$$$ ?] in anonymous class object
 
 
 ### Self Context Type
 
 [:?]
-[: ?]
+[: ?] in anonymous class object
 
 
 ## Type Casting
@@ -7434,6 +7447,8 @@ Partial Class Implementations - can use ||++ eat without type takes the original
 ## Scope
 
 ```
+^ inside anonymous class objects it does refer to the anonymous class (see self reference)
+: and $ refer to anaymous class inside analymous class and not the outside class (put inside anaymous class section)
 aboslutely no conflicts or hiding types or objects (no ambiguity)
 Anonymous Class Object///
 lambdas
@@ -7798,6 +7813,29 @@ extra???
     ++ do [->]
 }
 
+[RecursiveBuild<A>] 
+    .recursive = 
+{
+
+    ~ build
+    ++ get [->[&A]]
+    ++ recursive [->]
+}
+
+
+
+[Flow] (RecursiveFlow) { 
+    :: recursive *([['A][['A]->['B]]->['B]] abRecurse) -> [['A]->['B]] {
+        [?] buildtRec = [:[RecursiveBuild<[['A]->['B]]>]] {
+            ||++ get *->(
+                    *(['A] a) -> ['B] {
+                        
+                    } -> (\abRecurse a (\:get))
+                )
+        };
+    } -> \buildtRec:get
+}
+
 
 
 
@@ -7929,6 +7967,44 @@ extra???
         :observe = *([->['Q]] o, [->] _) -> \o;
     }
     ++ emptyOrBranch [[->['Q]][[&E][:?][:?]->['Q]]]
+}
+
+
+
+
+```
+
+```
+MALIBU .mal
+DAINA .dai
+
+compile export import <path> [ ] { } ( ) ! , ->
+
+
++ [.../assdf/assdf/assdf/*.dai]
+
++ Standard(Int -> Integer, Double -> StdDouble)
++ StandardOther(Int -> StdIntOther)
+
++ Thingu
+
+
+
++ [ ] <path> ID ( ) -> , ! { }
+
+!Standard 
+{
+    + [.../assdf.dai]
+
+    - (Integer -> Int, Double)
+
+}
+
+
+!Expr 
+{
+    + Standard(StdInt -> Int, )
+    + Standard
 }
 
 
