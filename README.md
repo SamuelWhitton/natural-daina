@@ -71,7 +71,7 @@
         - [Identifier](#identifier)
         - [Parent Identifier](#parent-identifier)
     + [Simple Tokens](#simple-tokens)
-        - [Ampersand](#ampersand), [Apostrophe](#apostrophe), [Arrow](#arrow), [Arrow Brackets](#arrow-brackets), [Asterisk](#asterisk), [Backslash](#backslash), [Backtick](#backtick), [Caret](#caret), [Colon](#colon), [Comma](#comma), [Curly Brackets](#curly-brackets), [Double Colon](#double-colon), [Double Pipe](#double-pipe), [Double Strudel](#double-strudel), [Equals Sign](#equals-sign), [Exclamation Mark](#exclamation-mark), [Forward Slash](#forward-slash), [Full Stop](#full-stop), [Method Visibility Indicators](#method-visibility-indicators), [Percent Sign](#percent-sign), [Pipe](#pipe), [Question Mark](#question-mark), [Round Brackets](#round-brackets), [Semicolon](#semicolon), [Square Brackets](#square-brackets), [Strudel](#strudel), [Tilde](#tilde), [Triple Less Than](#triple-less-than)
+        - [Ampersand](#ampersand), [Apostrophe](#apostrophe), [Arrow](#arrow), [Arrow Brackets](#arrow-brackets), [Asterisk](#asterisk), [Asterisk Caret](#asterisk-caret), [Asterisk Dash](#asterisk-dash), [Backslash](#backslash), [Backtick](#backtick), [Caret](#caret), [Colon](#colon), [Comma](#comma), [Curly Brackets](#curly-brackets), [Double Apostrophe](#double-apostrophe), [Double Colon](#double-colon), [Double Pipe](#double-pipe), [Double Strudel](#double-strudel), [Equals Sign](#equals-sign), [Exclamation Mark](#exclamation-mark), [Forward Slash](#forward-slash), [Full Stop](#full-stop), [Method Visibility Indicators](#method-visibility-indicators), [Percent Sign](#percent-sign), [Pipe](#pipe), [Question Mark](#question-mark), [Round Brackets](#round-brackets), [Semicolon](#semicolon), [Square Brackets](#square-brackets), [Strudel](#strudel), [Tilde](#tilde), [Triple Less Than](#triple-less-than)
     + [Syntax](#syntax)
         - [Root](#root)
         - [Lexical Splitter](#lexical-splitter)
@@ -4918,8 +4918,8 @@ Matching an object to multiple unknown method generics in a disjoint type is not
     *{
         [[A]/[B]/[C]] abc = \[Q]:newQ;
         [[['X]/['Y]]->['Y]] foo = *([["X]/["Y]] xy)->["Y] {} -> xy;
-        [[A]/[C]] ac = \foo abc;  @ Invalid; abc is being matched to the input type [['X]/['Y]] which has more then one unknown generic type
-        [C] c = \foo abc;         @ Invalid; abc is being matched to the input type [['X]/['Y]] which has more then one unknown generic type
+        [[A]/[C]] ac = \foo abc;  @ Invalid; abc is being matched to a input type [['X]/['Y]] which has more then one unknown generic type
+        [C] c = \foo abc;         @ Invalid; abc is being matched to a input type [['X]/['Y]] which has more then one unknown generic type
     }
 }
 
@@ -5395,8 +5395,36 @@ Contructors methods must be defined in the usual way, using an expresion to defi
 }
 ```
 
+An object with a [disjoint type](#disjoint-types) cannot be used as a compound method definition, unless it is [type cast](#type-casting) or assigned to a non-disjoint type:
+```
+[A] 
+    [[->]/[->[->]]] foo
+{
+    ~ newA *([[->]/[->[->]]] foo) {
+        .foo = foo;
+    }
 
-asdf must be a clear method not disjoint or class geenric thaat isnt method same as unimplemented
+    ++ bar (.foo)         @ Invalid; disjoint type cannot be used as a compound method definition
+    ++ bar2 [->](.foo)    @ Valid; disjoint type is type cast to a method
+}
+```
+
+An object of a class generic type cannot be used as a compound method definition, even though it might result in a method when the generic is instantiated:
+```
+[A< G >] 
+    [&G] foo
+    [[&G]->[&G]] foo2
+{
+    ~ newA *([&G] foo, [[&G]->[&G]] foo2) {
+        .foo = foo;
+        .foo2 = foo2;
+    }
+
+    ++ bar (.foo)      @ Invalid; .foo is not nessisarily a method
+    ++ bar2 (.foo2)    @ Valid; .foo2 is certainly a method
+}
+```
+
 
 ## Inheriting from Types with Generics
 
@@ -6788,7 +6816,7 @@ Instance methods can be left unimplemented, when an instance methods are unimple
     ~ green *{}
 }
 ```
-Both **foreground** and **background** instance methods are of the type **[->[Colour]]**. The constructor of **ColourScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)), the visibility rules for constructors for partial implementations is discussed in [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors). 
+Both **foreground** and **background** instance methods are of the type **[->[Colour]]**. The constructor of **ColourScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)), the visibility rules for constructors for partial implementations is discussed in [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors). Any method type can be used for an unimplemented method so long as it could be the type of an implemented method.
 
 Unimplemented methods can be overriden and implemented in a child class. When overriding an unimplemented method, **||** is used instead of **|**. The class **BlackAndWhite** inherits from **[ColourScheme]**, overriding **foreground** and **background**:
 ```
@@ -7392,7 +7420,7 @@ when using method generics and output is lost due to ['E] being []...
 inside anonymous class objects it does refer to the anonymous class
 ^ inside anonymous class objects it does refer to the anonymous class (see self reference)
 = visibility
-**\*^** lambda self reference (add this to gramma section asdf)
+**\*^** lambda self reference
 in main? []{\*{}}
 
 
@@ -7418,7 +7446,7 @@ Partial Class Implementations - can use ||++ eat without type takes the original
 
 ### Method Context Type
 ```
-[* ?] (add to gramma section asdf)
+[* ?]
 ```
 ### Parent Context Type
 
@@ -8150,6 +8178,7 @@ Syntax usages: [type](#type), [internal-context-identifier](#internal-context-id
 
 ## Simple Tokens
 
+
 ### Ampersand
 
 Token: **&**
@@ -8179,6 +8208,12 @@ Syntax usages: [generic-declaration-list](#generic-declaration-list), [type](#ty
 Token: **\***
 
 Syntax usages: [method-expression](#method-expression)
+
+### Asterisk Caret
+
+Token: **\*^**
+
+Syntax usages: [expression](#expression)
 
 ### Asterisk Dash
 
@@ -8412,7 +8447,7 @@ Each **generic-declaration** [identifier](#identifier) must be unique (no two ge
     + **class-generic-type-structure** syntax description: [&](#ampersand) [identifier](#identifier)
     + **method-generic-type-structure** syntax description: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
     + **data-segment-type-structure** syntax description: [%](#percent-sign) [identifier](#identifier)
-    + **inferred-type-structure** syntax description: **(** [internal-context-identifier](#internal-context-identifier) **)?** [?](#question-mark)
+    + **inferred-type-structure** syntax description: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
 
 A type is a classification of an object. Each type structure forms a type which classifies a different set of objects. Following are links to explainations for each type structure:
 
@@ -8456,7 +8491,7 @@ If the class method has a [type](#type) instead; the class method is said to be 
 A compiler injection has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the compiler injection at it's own discretion. [See compiler injections.](#compiler-injections)
 
 ### Expression
-- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
     + **object-method** syntax description: [expression](#expression) [:](#colon) [identifier](#identifier)
     + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
     + **grouped-expression** syntax description: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
@@ -8464,6 +8499,7 @@ A compiler injection has no explicit interpretation at the Daina language level 
     + **type-method** syntax description: [type](#type) [:](#colon) [identifier](#identifier)
     + **object-identifier** syntax description: [identifier](#identifier)
     + **self-reference** syntax description: [^](#caret)
+    + **method-self-reference** syntax description: [\*^](#asterisk-caret)
 
 A **grouped-expression** represents the same expression from its syntax description. The **type-cast** in a **grouped-expression** forces an upcast of the type of the original expression. [See type casting.](#type-casting)
 
@@ -8481,6 +8517,7 @@ Some expressions will evalutate to an object. The following are all the types of
 - [internal-instance-method](#internal-instance-method): Evalutates to the instance method named by the [internal-instance-method](#internal-instance-method)'s [identifier](#identifier), from the enclosing class or parent class identified by the [internal-instance-method](#internal-instance-method)'s [internal-context-identifier](#internal-context-identifier). [See classes.](#classes-types-objects-and-dependancies) [See inheritance.](#inheritance)
 - [internal-instance-object](#internal-instance-object): Evalutates to the instance object named by the [internal-instance-object](#internal-instance-object)'s [identifier](#identifier). [See classes.](#classes-types-objects-and-dependancies)
 - **self-reference**: Evalutates to the instance of the enclosing class. [See self reference.](#self-reference)
+- **method-self-reference**: Evalutates to the instance of the enclosing method. [See self reference.](#self-reference)
 - [anonymous-class-object](#anonymous-class-object): Evaluates to the new class object. [See anonymous class objects.](#anonymous-class-objects)
 
 ### Internal Context Identifier
@@ -8572,7 +8609,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
         + **class-generic-type-structure**: [&](#ampersand) [identifier](#identifier)
         + **method-generic-type-structure**: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
         + **data-segment-type-structure**: [%](#percent-sign) [identifier](#identifier)
-        + **inferred-type-structure**: **(** [internal-context-identifier](#internal-context-identifier) **)?** [?](#question-mark)
+        + **inferred-type-structure**: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
     - [dependancy-structure](#dependancy-structure): **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
         + **reverse-dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
         + **dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
@@ -8580,7 +8617,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
         + **class-method-classification**: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
     - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
-    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
         + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
         + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
         + **grouped-expression**: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
@@ -8588,6 +8625,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
         + **type-method**: [type](#type) [:](#colon) [identifier](#identifier)
         + **object-identifier**: [identifier](#identifier)
         + **self-reference**: [^](#caret)
+        + **method-self-reference**: [\*^](#asterisk-caret)
     - [internal-context-identifier](#internal-context-identifier): [:](#colon) **|** [parent-identifier](#parent-identifier)
     - [data-segment](#data-segment): [data-segment-anchor](#data-segment-anchor)**[data-component]**[data-segment-anchor](#data-segment-anchor).
         + **data-component**: **[any characters not containing the data-segment-anchor]**
