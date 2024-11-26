@@ -7147,7 +7147,7 @@ based on different visibility of unimplemented method?
 
 
 
-+ cant refer to parent that is unimplemented method \$sd etc? no
++ refer to parent that is unimplemented method \$sd it will trcikel down to the next implementation, or catch on the constructor implementation is exists, i.e. be carefull if using \$$$ for parent method that is overriden with || rather then |
 
 
 ```
@@ -8126,7 +8126,18 @@ compile export import <path> [ ] { } ( ) ! , ->
 
 ```
 
+```
 
+[] (System, String, Command, Natural) {
+    *{
+        \(\(\[Command]:inputArgs):atIndex (\[Natural]:3)):exists *([String] 3rdArg) {
+            \(\[System]:stdout):send 3rdArg;
+        };
+    }
+}
+
+
+```
 
 
 
