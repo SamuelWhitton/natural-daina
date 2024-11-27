@@ -137,6 +137,7 @@ Goals
 - no keywrod bloat
 - visualisation of code without colouring
 - launguage/localisation independant
+- complexity in system and interactions rather then the syntax
 
 ```
 
@@ -4124,7 +4125,7 @@ A constructor can invoke another constructor from the same class, this is called
     ~ new *{}
 }
 ```
-The instance object **containedObject** is not assigned in the **containerOfObjectWithin** constructor because it is already assigned when the self constructor **containerOf** is invoked. The same applies to invoking parent constructors. In the following example, the **Container** class inherits from **Foo** and the parent constructor of **Foo** is invoked in **containerOf** but not in **containerOfObjectWithin**.
+The instance object **containedObject** is not assigned in the **containerOfObjectWithin** constructor because it is already assigned when the self constructor **containerOf** is invoked. A constructor that invokes a self constructor does not assign instance objects and doesnt invoke parent constructors. In the following example, the **Container** class inherits from **Foo** and the parent constructor of **Foo** is invoked in **containerOf** but not in **containerOfObjectWithin**.
 ```
 [] (Container, A) {
     *{
@@ -4554,6 +4555,7 @@ If a constructor is introduced to the class **B** then **B** is no longer implic
     :: ++ inheritedTypeMethodB *{}
 }
 ```
+If a class can't be implicitly constructed, then it must define at least one constructor.
 
 
 ## Data Segments
@@ -5080,7 +5082,7 @@ Inheriting from the same class multiple times is allowed. In the following examp
 [A :[B] :[B] :[B]] (B) {}
 [B] {}
 ```
-**A** does not inherit any class methods from **B**, if it did, each method would clash with itself three times over as each method from **B** is inherited three times. For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)
+**A** does not inherit any class methods from **B**, if it did, each method would clash with itself three times over as each method from **B** is inherited three times. For resolving these issues, [see overloading and underloading](#overloading-and-underloading)
 
 A class cannot inherit from itself, thus the following is invalid:
 ```
@@ -5095,7 +5097,7 @@ A class can inherit multiple times from a class which has class generics. ([See 
 [C] {}
 [D] {}
 ```
-In the above example no class methods were added and so there are no method conflicts, but it would be normal to expect conflicts to arise when inheriting from a class generic class multiple times. For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)
+In the above example no class methods were added and so there are no method conflicts, but it would be normal to expect conflicts to arise when inheriting from a class generic class multiple times. For resolving these issues, [see overloading and underloading](#overloading-and-underloading)
 
 A class can inherit from classes which have common parent types. In the following example, **A** inherits from **[B]** and **[C]** which both have a common parent **[D]**. 
 ```
@@ -5111,7 +5113,7 @@ A class which inherts from the same type multiple times does not pass on two inh
 [B :[C] :[C]] (C) {}
 [C] {}
 ```
-If we add a fully visible method to **C** then we also must override the method in **B** to resolve the duplicate method conflict, but we dont need to override the same method in **A** because the duplicate was already resolved by **B** (For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)):
+If we add a fully visible method to **C** then we also must override the method in **B** to resolve the duplicate method conflict, but we dont need to override the same method in **A** because the duplicate was already resolved by **B** (For resolving these issues, [see overloading and underloading](#overloading-and-underloading)):
 ```
 [A :[B]] (B) {
     @ no duplicate method conflicts
@@ -6891,9 +6893,9 @@ We can override both unimplemented and implemented methods with an unimplemented
     ~ green *{}
 }
 ```
-Just like before in **ColourScheme**, the constructor of **GradientScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)). The class **GradientColour** uses both [Pointer Constructors](#pointer-constructors) and [Duplicate Inheritance](#duplicate-inheritance).
+Just like before in **ColourScheme**, the constructor of **GradientScheme**; **implement** only has inherited visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)). The class **GradientColour** uses both [pointer constructors](#pointer-constructors) and [duplicate inheritance](#duplicate-inheritance).
 
-Class generics, method generics underloading and overloading ([See Overloading and Underloading.](#overloading-and-underloading)) can all be used with unimplemented methods:
+Class generics, method generics underloading and overloading ([see overloading and underloading](#overloading-and-underloading)) can all be used with unimplemented methods:
 ```
 [] (Packer, Container, Converter, DoNothing) {
     *{
@@ -7145,27 +7147,7 @@ based on different visibility of unimplemented method?
 }
 ```
 
-
-
-+ refer to parent that is unimplemented method \$sd it will trcikel down to the next implementation, or catch on the constructor implementation is exists, i.e. be carefull if using \$$$ for parent method that is overriden with || rather then |
-
-
-```
-
-[We] {
-
-    ~ --- private *{}
-
-}
-```
-
-+ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
-```
-```
-
-asdf
-
-
+cannot invoke self constructor that will assign a method already assigned
 ```
 [] (Integer, DisplayParameters, SquareDisplay) {
     *{
@@ -7174,19 +7156,28 @@ asdf
             !{
                 [Integer] 480 = \[Integer]:480;
             };
+        [DisplayParameters] defaultSquareDisplay = \[SquareDisplay]:usingDefaultSize;
     }
 }
 
-[WideDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
+[SquareDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
 
-    ~ withHeight *([Integer] size) {
-        :width = *->[Integer] {} -> size;
-        :height = *->[Integer] {} -> size;
+    ~ withSize *([Integer] size) {
+        :size = *->[Integer] {} -> size;
+        \:~usingDefaultSize;                @ Invalid; usingDefaultSize assigns :size, but :size was already assigned 
+    }
+
+    ~ usingDefaultSize *{
+        :size = *->[Integer] {} -> \[Integer]:1080;
+        \:~basedOnSize;
+    }
+
+    ~ --- basedOnSize *{
         \$~implement;
     }
 
-    ||++ width [->[Integer]]
-    ||++ height [->[Integer]]
+    ||++ width *->[Integer] {} -> \:size;
+    - size [->[Integer]]
 }
 
 [DisplayParameters] (Integer) {
@@ -7214,52 +7205,104 @@ asdf
 
 
 
++ refer to parent that is unimplemented method \$sd it will trcikel down to the next implementation, or catch on the constructor implementation is exists, i.e. be carefull if using \$$$ for parent method that is overriden with || rather then |
 
-[Anonymous Class Objects](#anonymous-class-objects) cannot be partial constrcutor, all methods must be implemented:
-```
-[] {
 
-    *{
-        [?] varWidth = \[Maybe<[Integer]>]:nothing;
-        [?] varHeight = \[Maybe<[Integer]>]:nothing;
-        \display:getParameters [:[DisplayParameters]] {
-            :width = varWidth;
-            :height = varHeight;
-            \$new;
-            ||++ height [->[Maybe<[Integer]>]]
-            ||++ width [->[Maybe<[Integer]>]]
-        };
-    }
-}
-
-[] {
-
-    *{
-        [?] varWidth = \[Maybe<[Integer]>]:nothing;
-        [?] varHeight = \[Maybe<[Integer]>]:nothing;
-        \display:getParameters [:[DisplayParameters]] {
-            ||++ height *->varHeight
-            ||++ width *->varWidth
-        };
-    }
-}
-
-[] {
-
-    *{
-        [?] varWidth = \[Maybe<[Integer]>]:nothing;
-        [?] varHeight = \[Maybe<[Integer]>]:nothing;
-        \display:getParameters [:[DisplayParameters]] {
-            ||++ height x ! {[?] x = *->varHeight;}
-            ||++ width x ! {[?] x = *->varWidth;}
-        };
-    }
-}
+swapDefaultB will recurse becuase 
 
 ```
+[] (Integer, DisplayParameters, SwappedDisplay) {
+    *{
+        [DisplayParameters] swappedDefaultDisplayA = \[SwappedDisplay]:swapDefaultA;  @ finishes execution with no issue
+        [DisplayParameters] swappedDefaultDisplayB = \[SwappedDisplay]:swapDefaultB;  @ infinite loop, will never finish execution
+    }
+}
 
+[SwappedDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
 
+    ~ swapDefaultA *{
+        \$~default;
+    }
 
+    ~ swapDefaultB *{
+        \$~implement;
+    }
+
+    ||++ width *->[Integer] {} -> \$height;
+    ||++ height *->[Integer] {} -> \$width;
+}
+
+[DisplayParameters] (Integer) {
+
+    ~ --+ implement
+
+    ~ default *{
+        :width = *->[Integer] {} -> \[Integer]:1080;
+        :height = *->[Integer] {} -> \[Integer]:720;
+    }
+
+    ++ width [->[Integer]]
+    ++ height [->[Integer]]
+}
+
+[Integer] {
+    ~ 320 *{}
+    ~ 480 *{}
+    ~ 720 *{}
+    ~ 1080 *{}
+    ~ 1440 *{}
+    ~ 2160 *{}
+}
+```
+
++ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
+using pointer consturctor for swapDefaultB, now all parent is implemented and \$width works
+
+```
+[] (Integer, DisplayParameters, SwappedDisplay) {
+    *{
+        [DisplayParameters] swappedDefaultDisplayA = \[SwappedDisplay]:swapDefaultA;  @ finishes execution with no issue
+        [DisplayParameters] swappedDefaultDisplayB = \[SwappedDisplay]:swapDefaultB;  @ now it finishes execution with no issue
+    }
+}
+
+[SwappedDisplay :[DisplayParameters]] (DisplayParameters, Integer) {
+
+    ~ swapDefaultA *{
+        \$~default;
+    }
+
+    ~ swapDefaultB *{
+        [DisplayParameters] defaultParameters = [DisplayParameters]:default;
+        \$~> defaultParameters;
+    }
+
+    ||++ width *->[Integer] {} -> \$height;
+    ||++ height *->[Integer] {} -> \$width;
+}
+
+[DisplayParameters] (Integer) {
+
+    ~ --+ implement
+
+    ~ default *{
+        :width = *->[Integer] {} -> \[Integer]:1080;
+        :height = *->[Integer] {} -> \[Integer]:720;
+    }
+
+    ++ width [->[Integer]]
+    ++ height [->[Integer]]
+}
+
+[Integer] {
+    ~ 320 *{}
+    ~ 480 *{}
+    ~ 720 *{}
+    ~ 1080 *{}
+    ~ 1440 *{}
+    ~ 2160 *{}
+}
+```
 
 
 
@@ -7501,7 +7544,7 @@ lack of these in lanugaue level
 = default constructor visibility (+++) and type method visibility (++-)
 = overriding
 =constructors cannot access private type methods
-=constructors conflicting with type methods (whwen class or public visiibility for constructor) and vice versa +For resolving these issues, [see overloading and underloading.](#overloading-and-underloading)
+=constructors conflicting with type methods (whwen class or public visiibility for constructor) and vice versa +For resolving these issues, [see overloading and underloading](#overloading-and-underloading)
 = overriding type methods
 = cant override constructor except with type method (kind of)
 =inherited constructor does not cause the type method of the constructor to be inherited
@@ -8139,7 +8182,17 @@ compile export import <path> [ ] { } ( ) ! , ->
 
 ```
 
+```
+[] {
+    *{
+        [Homogenised<[Integer]>] val = \[Homogenised<[Integer]>]:as \[Integer]:34;
+        [Homogenised<[]>] v = val;
+        [Maybe<[Integer]>] asd = \[Homogenised<[Integer]>]:reform v;
 
+        [Anything]
+    }
+}
+```
 
 # Grammar
 
