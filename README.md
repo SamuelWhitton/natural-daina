@@ -161,6 +161,11 @@ minimal constructions and varience while holding a minimal fucntionality, puttin
 very strict typing so that there is no null or invalid objects, and all object types are correct garenteed, no downcasting, whilst retaining enough flexibility in types so that various structures and logics can be implemented
 using symbols rather then words to minimise footprint of lanuage and accentuate the defined types, objects methods etc.
 Daina is not useful for low level programming such as microcontrollers, memory menagement etc systems programming, or 
+
+
+
+
+d lang to compile
 ```
 
 ---
@@ -6998,7 +7003,7 @@ Class generics, method generics underloading and overloading ([see overloading a
 
 asdf
 
-+ assign unimplemented instance methods in a constructor that are defined in the class
+Unimplimented instance methods can be assigned within a constructor. Each unimplemented method can only be assigned one time within each constructor. In the following example, constructors **default** and **square** both assign **:width** and **:height**, such that **defaultDisplay** is 1080x720 and **squareDisplay** is 480x480.
 ```
 [] (Integer, DisplayParameters) {
     *{
