@@ -6992,17 +6992,6 @@ Class generics, method generics underloading and overloading ([see overloading a
 
 ### Assigning Instance Methods in Constructors
 
-
-|+ assign unimplemented instance methods in a constructor 
-|+ constructor can be different levels of partial and cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
-|+ when inherited you must first override with unimplemented before assigning in constructor
-|+ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
-|+ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
-|+ can be done inside [Anonymous Class Objects](#anonymous-class-objects), all methods must be implemented:
-
-
-asdf
-
 Unimplimented instance methods can be assigned within a constructor. Each unimplemented method can only be assigned one time within each constructor. In the following example, constructors **default** and **square** both assign **:width** and **:height**, such that **defaultDisplay** is 1080x720 and **squareDisplay** is 480x480.
 ```
 [] (Integer, DisplayParameters) {
@@ -7040,10 +7029,7 @@ Unimplimented instance methods can be assigned within a constructor. Each unimpl
     ~ 2160 *{}
 }
 ```
-
-+ when inherited you must first override with unimplemented before assigning in constructor
-you can assign in constructor if overriden aswell
-SquareDisplay
+Unimplemented methods which are overriding can also be assigned in constructors. **withSize** assigns the overriding **:width** and **:height**:
 ```
 [] (Integer, DisplayParameters, SquareDisplay) {
     *{
@@ -7087,16 +7073,7 @@ SquareDisplay
     ~ 2160 *{}
 }
 ```
-implement was inherited visibly but external adn class invisible bcause
-external or class visible means all methods must be implemented, inherited visible means all private instance methods must be implememented
-
-different constructors can have different levels of impleemetnetion
-implement vs default, basedOnSize vs withSize and usingDefaultSize
-d
-
-based on different visibility of unimplemented method?
-+ constructor can be different levels of partial and cannot be external or class visible unless all unimplemented methods are implemented, including onces that are inherited but not overriden ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods))
-+ when calling constructor it will inherit the implemented/unimplemented methods of that specific constructor, including self constructors, can be ext or class vis if fully constructed
+A class can have constructors with different unimplemented/implemented methods by choosing which unimplemented methods to assign:
 ```
 [] (Integer, DisplayParameters, SquareDisplay) {
     *{
@@ -7151,8 +7128,9 @@ based on different visibility of unimplemented method?
     ~ 2160 *{}
 }
 ```
+A constructor with inherited visibility cannot have unimplemented methods without inherited visibility, and a constructor with external or class visibility cannot have unimplemented methods with external or class visibility ([See Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)). Thus **basedOnSize** cannot have any inherited/external/class visibility and **implement** cannot have external or class visibility.
 
-cannot invoke self constructor that will assign a method already assigned
+A self constructor cannot be invoked if it will assign an already assigned method. **withSize** now invokes **:~usingDefaultSize** after assigning **:size** which is invalid since **:size** is also assigned in **usingDefaultSize**:
 ```
 [] (Integer, DisplayParameters, SquareDisplay) {
     *{
@@ -7169,7 +7147,7 @@ cannot invoke self constructor that will assign a method already assigned
 
     ~ withSize *([Integer] size) {
         :size = *->[Integer] {} -> size;
-        \:~usingDefaultSize;                @ Invalid; usingDefaultSize assigns :size, but :size was already assigned 
+        \:~usingDefaultSize;                @ Invalid; usingDefaultSize assigns :size, but :size was already assigned in this constructor
     }
 
     ~ usingDefaultSize *{
@@ -7208,18 +7186,14 @@ cannot invoke self constructor that will assign a method already assigned
 }
 ```
 
-
-
-+ refer to parent that is unimplemented method \$sd it will trcikel down to the next implementation, or catch on the constructor implementation is exists, i.e. be carefull if using \$$$ for parent method that is overriden with || rather then |
-
-
-swapDefaultB will recurse becuase 
-
+Refering to parent methods that were originally unimplemented will refer to the next avaliable implementation from a child class. In the following example, **\swappedDefaultDisplayB:width** creates an infinite execution loop becuase inside **swappedDefaultDisplayB**, **$height** and **$width** refers to its own **:height** and **:width** methods respectively. This is not the case for **swappedDefaultDisplayA:width** becuase the constructor **swapDefaultA** invokes **$~default**, thus inside **swappedDefaultDisplayA**, **$height** and **$width** refers to the *:*width** and **:height** methods assigned in the **default** constructor.
 ```
 [] (Integer, DisplayParameters, SwappedDisplay) {
     *{
-        [DisplayParameters] swappedDefaultDisplayA = \[SwappedDisplay]:swapDefaultA;  @ finishes execution with no issue
-        [DisplayParameters] swappedDefaultDisplayB = \[SwappedDisplay]:swapDefaultB;  @ infinite loop, will never finish execution
+        [DisplayParameters] swappedDefaultDisplayA = \[SwappedDisplay]:swapDefaultA;  
+        [DisplayParameters] swappedDefaultDisplayB = \[SwappedDisplay]:swapDefaultB;  
+        [Integer] widthA = \swappedDefaultDisplayA:width; @ finishes execution with no issue
+        [Integer] widthB = \swappedDefaultDisplayB:width; @ infinite loop, will never finish execution
     }
 }
 
@@ -7259,15 +7233,14 @@ swapDefaultB will recurse becuase
     ~ 2160 *{}
 }
 ```
-
-+ pointer constructor inherits all methods as implemented always (obv since inheriting from existing implemented object)
-using pointer consturctor for swapDefaultB, now all parent is implemented and \$width works
-
+A [pointer constructor](#pointer-constructors) always implements all methods since it is inheriting from an existing object. Using a [pointer constructor](#pointer-constructors) for **swapDefaultB**, now **\swappedDefaultDisplayB:width** no longer has an infinite execution loop:
 ```
 [] (Integer, DisplayParameters, SwappedDisplay) {
     *{
-        [DisplayParameters] swappedDefaultDisplayA = \[SwappedDisplay]:swapDefaultA;  @ finishes execution with no issue
-        [DisplayParameters] swappedDefaultDisplayB = \[SwappedDisplay]:swapDefaultB;  @ now it finishes execution with no issue
+        [DisplayParameters] swappedDefaultDisplayA = \[SwappedDisplay]:swapDefaultA;
+        [DisplayParameters] swappedDefaultDisplayB = \[SwappedDisplay]:swapDefaultB;
+        [Integer] widthA = \swappedDefaultDisplayA:width; @ finishes execution with no issue
+        [Integer] widthB = \swappedDefaultDisplayB:width; @ now it finishes execution with no issue
     }
 }
 
@@ -7308,9 +7281,6 @@ using pointer consturctor for swapDefaultB, now all parent is implemented and \$
     ~ 2160 *{}
 }
 ```
-
-
-
 
 
 ## Rising and Falling Generics
