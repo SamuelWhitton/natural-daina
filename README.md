@@ -7285,9 +7285,7 @@ A [pointer constructor](#pointer-constructors) always implements all methods sin
 
 ## Rising and Falling Generics
 
-A class generic can be either rising, falling, both rising and falling, or neither. If a class generic is fallingif
-
-
+A class generic can be either rising, falling, both rising and falling, or neither. If a class generic is falling; replacing a class generic instantiation with a parent type, results in a parent type. If a class generic is rising; replacing a class generic instantiation with a child type, results in a parent type. In the following example, **[Foo<[A]>]** and **[Foo<[ABC]>]** are both parent types of **[Foo<[AB]>]**.
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7316,8 +7314,9 @@ A class generic can be either rising, falling, both rising and falling, or neith
     ~ new *{}
 }
 ```
+In the previous example, **[&E]** is both rising and falling because **Foo** has no instance methods and does not inherit from any parent. Class generics are always rising and falling for a class that has no instance methods or parents.
 
-[[&E]->] bar1
+An instance method with external and/or class visibility can block a generic from rising or falling. An instance method **bar1** is added to **Foo** causing **[&E]** to no longer be falling:
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7348,10 +7347,9 @@ A class generic can be either rising, falling, both rising and falling, or neith
     ~ new *{}
 }
 ```
+**bar1** blocks **[&E]** from falling because instantiating **[&E]** with a parent type does not result in a parent type for **bar1**. For example when **[&E]** goes from **[AB]** to **[A]**, the type of **bar1** goes from **[[AB]->]** to **[[A]->]**, and **[[A]->]** is not a parent type of **[[AB]->]**.
 
-
-[->[&E]] bar2
-but not affected by the inputs of constructor
+An instance method **bar2** is added to **Foo** causing **[&E]** to not be rising:
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7387,8 +7385,9 @@ but not affected by the inputs of constructor
     ~ new *{}
 }
 ```
+**bar2** blocks **[&E]** from rising because instantiating **[&E]** with a child type does not result in a parent type for **bar2**. For example when **[&E]** goes from **[AB]** to **[ABC]**, the type of **bar2** goes from **[->[AB]]** to **[->[ABC]]**, and **[->[ABC]]** is not a parent type of **[->[AB]]**. It should be noted here that the rising and falling of generics are not affected by the inputs of a constructor.
 
-frozen generic, also unimplemented methods ([see partial class implementations](#partial-class-implementations))
+Unimplemented methods can also block the rising or falling of a generic ([see partial class implementations](#partial-class-implementations)). Adding both **bar1** and **bar2** as unimplemented methods causes the generic **[&E]** to be frozen (not rising or falling):
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7424,8 +7423,43 @@ frozen generic, also unimplemented methods ([see partial class implementations](
     ~ new *{}
 }
 ```
+The rising and falling of a generic is not affected by methods that are not external or class visible. Changing **bar1** to only inherited visible and **bar2** to have no visibility, now the instance methods do not affect the rising or falling of **[&E]**:
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [AB] ab = \[AB]:new;
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new ab;
+        [Foo<[A]>] fooA = fooAB;                @ Valid; Foo's [&E] generic is falling
+        [Foo<[ABC]>] fooABC = fooAB;            @ Valid; Foo's [&E] generic is rising
+    }
+}
 
-not affected by type methods
+[Foo< E >] {
+    ~ new *([&E] e) {
+        :bar1 = *([&E] e) {};
+        :bar2 = *->[&E] {} -> e;
+    }
+    --+ bar1 [[&E]->]
+    --- bar2 [->[&E]]
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+The rising and falling of a generic is not affected by type methods. Adding the type method **bar3** to **Foo** does not affect the rising or falling of **[&E]**:
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7461,9 +7495,7 @@ not affected by type methods
     ~ new *{}
 }
 ```
-
-
-gin: [[[AB]->]->]
+Rising and falling can be blocked by external/class visible instance methods in a parent. **Foo** now inherits from **[Ham<[[&E]->]>]** and **Ham**'s instance method **gin** blocks the rising of **[&E]**:
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7481,7 +7513,7 @@ gin: [[[AB]->]->]
 
 [Ham< M >] {
     ~ new *{}
-    ++ gin *([&M] m) {}
+    -+- gin *([&M] m) {}
 }
 
 [ABC :[AB]] (AB) {
@@ -7500,10 +7532,9 @@ gin: [[[AB]->]->]
     ~ new *{}
 }
 ```
+When **[&E]** as **[AB]** is replaced with **[ABC]** the type of **gin** goes from **[[[AB]->]->]** to **[[[ABC]->]->]**, and **[[[ABC]->]->]** is not a parent type of **[[[AB]->]->]**.
 
-
-
-multi generics
+The rising and falling of generics occurs independantly. A new class generic **[&F]** is added to **Foo**, this **[&F]** does not participate in any instance methods and thus it is both rising and falling:
 ```
 [] (A, AB, ABC, Foo) {
     *{
@@ -7522,7 +7553,7 @@ multi generics
 
 [Ham< M >] {
     ~ new *{}
-    ++ gin *([&M] m) {}
+    -+- gin *([&M] m) {}
 }
 
 [ABC :[AB]] (AB) {
@@ -7541,83 +7572,6 @@ multi generics
     ~ new *{}
 }
 ```
-
-
-
-asdf
-
-method with external/class visibility
-inherited types
-muliple generics
-
-= unimplemented/partial implementation of instance methods
-
-
-
-=inheriting then instantiating generics with composite types such as [Disjoint Types](#disjoint-types), lambdas, disjoint types instantiating the parents generics with multiple types...
-
-```
-[] (Cloud, Animal, Bird, Elephant) {
-    *{
-        [Cloud<[Bird]>] birdShapedCloud = \[Cloud<[Bird]>]:newCloud;
-        [Cloud<[Elephant]>] elephantShapedCloud = \[Cloud<[Elephant]>]:newCloud;
-        [Cloud<[Animal]>] animalShapedCloud1 = birdShapedCloud;
-        [Cloud<[Animal]>] animalShapedCloud2 = elephantShapedCloud;
-    }
-}
-
-[Cloud < SHAPE > ]
-{
-    ~ newCloud *() {}
-}
-
-[Elephant :[Animal]] {}
-
-[Bird :[Animal]] {}
-
-[Animal] {}
-
-```
-
-
-```
-[] (Hat, BowlerHat, Container) {
-    *{
-        [BowlerHat] someBowlerHat = \[BowlerHat]:newBowlerHat;
-        [Container<[Hat]>] hatContainer = \[Container<[BowlerHat]>]:newContainer someBowlerHat; @ hatContainer is assigned to a [Container<[BowlerHat]>] object
-        [Hat] hatTakenFromContainer = \hatContainer:getContainedObject;
-    }
-}
-
-[Container < CONTAINED_OBJECT > ]
-    [&CONTAINED_OBJECT] containedObject
-{
-    ~ newContainer *([&CONTAINED_OBJECT] objectToBeContained) {
-        .containedObject = objectToBeContained;
-    }
-    ++ getContainedObject *->[&CONTAINED_OBJECT]{}->.containedObject
-}
-
-[BowlerHat :[Hat]] (Hat) {
-    ~ newBowlerHat *{
-        \$~newHat;
-    }
-}
-
-[Hat] {
-    ~ newHat *{}
-}
-```
-
-
-```
-    rising generic +
-frozen generic =
-falling generic 
-```
-
-
-
 
 ## Root Type
 
