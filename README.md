@@ -7284,13 +7284,276 @@ A [pointer constructor](#pointer-constructors) always implements all methods sin
 
 
 ## Rising and Falling Generics
-= can always change generic between equivalent type (e.g. [e] and [[e]/[e]])
-= can inheritance of non rising or falling generic allow adding rising/falling generic?
-= different to method generics
-= disjoint types, lambdas instantiating the generics
-= lambda parent and child types when rising and falling generics are involved
-= inheriting from parents with generics
+
+A class generic can be either rising, falling, both rising and falling, or neither. If a class generic is fallingif
+
+
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new;
+        [Foo<[A]>] fooA = fooAB;                @ Valid; Foo's [&E] generic is falling
+        [Foo<[ABC]>] fooABC = fooAB;            @ Valid; Foo's [&E] generic is rising
+    }
+}
+
+[Foo< E >] {
+    ~ new *{}
+}
+
+[ABC~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+[[&E]->] bar1
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new;
+        [Foo<[A]>] fooA = fooAB;                @ Invalid; Foo's [&E] generic is not falling (blocked by bar1)
+        [Foo<[ABC]>] fooABC = fooAB;            @ Valid; Foo's [&E] generic is rising
+    }
+}
+
+[Foo< E >] {
+    ~ new *{}
+    +-- bar1 *([&E] e) {}
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+
+[->[&E]] bar2
+but not affected by the inputs of constructor
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [AB] ab = \[AB]:new;
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new ab;
+        [Foo<[A]>] fooA = fooAB;                @ Valid; Foo's [&E] generic is falling
+        [Foo<[ABC]>] fooABC = fooAB;            @ Invalid; Foo's [&E] generic is not rising (blocked by bar2)
+    }
+}
+
+[Foo< E >] 
+    [&E] e
+{
+    ~ new *([&E] e) {
+        .e = e;
+    }
+    -++ bar2 *->[&E] {} -> .e
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+frozen generic, also unimplemented methods ([see partial class implementations](#partial-class-implementations))
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [AB] ab = \[AB]:new;
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new ab;
+        [Foo<[A]>] fooA = fooAB;                @ Invalid; Foo's [&E] generic is not falling (blocked by bar1)
+        [Foo<[ABC]>] fooABC = fooAB;            @ Invalid; Foo's [&E] generic is not rising (blocked by bar2)
+    }
+}
+
+[Foo< E >] {
+    ~ new *([&E] e) {
+        :bar1 = *([&E] e) {};
+        :bar2 = *->[&E] {} -> e;
+    }
+    +-- bar1 [[&E]->]
+    -++ bar2 [->[&E]]
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+not affected by type methods
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [AB] ab = \[AB]:new;
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new ab;
+        [Foo<[A]>] fooA = fooAB;                @ Valid; Foo's [&E] generic is falling
+        [Foo<[ABC]>] fooABC = fooAB;            @ Valid; Foo's [&E] generic is rising
+    }
+}
+
+[Foo< E >] 
+    [&E] e
+{
+    ~ new *([&E] e) {
+        .e = e;
+    }
+    :: bar3 *([&E] e) {} -> e
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+
+gin: [[[AB]->]->]
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [Foo<[AB]>] fooAB = \[Foo<[AB]>]:new;
+        [Foo<[A]>] fooA = fooAB;                @ Valid; Foo's [&E] generic is falling
+        [Foo<[ABC]>] fooABC = fooAB;            @ Invalid; Foo's [&E] generic is not rising (blocked by gin)
+    }
+}
+
+[Foo< E > :[Ham<[[&E]->]>]] (Ham) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Ham< M >] {
+    ~ new *{}
+    ++ gin *([&M] m) {}
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+
+
+multi generics
+```
+[] (A, AB, ABC, Foo) {
+    *{
+        [Foo<[AB][AB]>] fooAB_AB = \[Foo<[AB][AB]>]:new;
+        [Foo<[A][A]>] fooA_A = fooAB_AB;                 @ Valid; Foo's [&E] generic is falling, [&F] generic is falling
+        [Foo<[A][ABC]>] fooA_ABC = fooAB_AB;             @ Valid; Foo's [&E] generic is falling, [&F] generic is rising
+        [Foo<[ABC][AB]>] fooABC_AB = fooAB_AB;           @ Invalid; Foo's [&E] generic is not rising (blocked by gin)
+    }
+}
+
+[Foo< E, F > :[Ham<[[&E]->]>]] (Ham) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Ham< M >] {
+    ~ new *{}
+    ++ gin *([&M] m) {}
+}
+
+[ABC :[AB]] (AB) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[AB :[A]] (A) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[A] {
+    ~ new *{}
+}
+```
+
+
+
+asdf
+
+method with external/class visibility
+inherited types
+muliple generics
+
 = unimplemented/partial implementation of instance methods
+
+
+
 =inheriting then instantiating generics with composite types such as [Disjoint Types](#disjoint-types), lambdas, disjoint types instantiating the parents generics with multiple types...
 
 ```
