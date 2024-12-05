@@ -7668,6 +7668,21 @@ in main? []{\*{}}
 * ([A]a)-> a
 also using ->[?] {} ->
 
+```
+
+
+[Addition< E >] {
+
+    -++ add_Implementation [[Addition<[&E]>][Addition<[&E]>]->[Addition<[&E]>]]
+
+    :: add *([Addition<[[&E]/['V]]>] v1, [Addition<[[&E]/['V]]>] v2) -> [[&E]/['V]] {} -> (\v1:add_Implementation v1 v2)
+    :: add *([Addition<[[&E]/['V]]>] v1, [Addition<[[&E]/['V]]>] v2) -> (\v1:add_Implementation v1 v2) ???????? doesnt work yet malformeds
+
+    :: asasas *(['M]m) -> m
+}
+
+```
+
 ### Type Inference of Assignments
 =all types circumstances with ? in different parts of type (partial inference)
 = disjoint types^
@@ -8384,6 +8399,18 @@ compile export import <path> [ ] { } ( ) ! , ->
         [Anything]
     }
 }
+```
+
+```
+
+
+[Addition< E >] {
+
+    -++ add_Implementation [[Addition<[&E]>][Addition<[&E]>]->[Addition<[&E]>]]
+
+    ::+++ add *([Addition<[[&E]/['V]]>] v1, [Addition<[[&E]/['V]]>] v2) -> [[&E]/['V]] {} -> (\v1:add_Implementation v1 v2)
+}
+
 ```
 
 # Grammar
