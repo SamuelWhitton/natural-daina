@@ -7575,25 +7575,14 @@ The rising and falling of generics occurs independantly. A new class generic **[
 
 ## Root Type
 
-= method generics without input generic causes it to be root type, or if the inputs are disjoint then it becomes root type
-
-= [->] is the same as [->[]]
-= [] output to a function cant be assigned (same as no output), even if you casted a method to [->[]]
-= methods with no output vs [] output are equivalent
-
-
-->[] indistinguishable from ->
+The root type written as **[]**, is a parent to every other type:
 ```
-
 [] (Beetle, Bug, Insect) {
     *{
-        [->[Bug]]              lambdaA = *() -> [Bug] {} -> \[Bug]:new;
-        [->]                   lambdaB = lambdaA;
-        [[Insect][Beetle]->]   lambdaC = lambdaA;
-        [->[]]                 lambdaD = lambdaB;
-        [[Insect][Beetle]->[]] lambdaE = lambdaC;
-        [->]                   lambdaF = lambdaD;
-        [[Insect][Beetle]->]   lambdaG = lambdaE;
+        [] lambda = *() -> [Bug] {} -> \[Bug]:new;
+        [] bug = \[Bug]:new;
+        [] insect = \[Insect]:new;
+        [] beetle = \[Beetle]:new;
     }
 }
 
@@ -7614,40 +7603,65 @@ The rising and falling of generics occurs independantly. A new class generic **[
     ~ new *{}
 }
 ```
-
-
-when invoking ->[] same as ->, creating lambda, output must be ignored
+Method types with **[]** output are equivalent to method types with no output. In other words **[[Bug][Beetle]->[]]** is the same as **[[Bug][Beetle]->]** including that **[[Bug][Beetle]->[]]** must be invoked without an output assignment:
 ```
-
-[] (Foo) {
+[] (Beetle, Bug) {
     *{
-        [->]   lambdaA = *{};
-        [->[]] lambdaB = *() -> [] {
-            [] foo
-        } -> ;
-
-        [] foo = \lambdaB;  @ invalid, cant get output from [->[]]
-        [[Insect][Beetle]->]   lambdaC = lambdaA;
-        [->[]]                 lambdaD = lambdaB;
-        [[Insect][Beetle]->[]] lambdaE = lambdaC;
-        [->]                   lambdaF = lambdaD;
-        [[Insect][Beetle]->]   lambdaG = lambdaE;
+        [[Bug][Beetle]->[]] rootOutputA = *([Bug] b, [Beetle] b2) -> [] {} -> b;
+        [[Bug][Beetle]->] noOutputA = rootOutputA;
+        [[Bug][Beetle]->[]] rootOutputB = noOutputA;
+        [Bug] bug = \[Bug]:new;
+        [Beetle] beetle = \[Beetle]:new;
+        \rootOutputA bug beetle;   @ Invoked without assignment
+        \noOutputA bug beetle;     @ Invoked without assignment
     }
 }
 
 
-[Foo] {
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
     ~ new *{}
 }
 ```
-
-when using method generics and output is lost due to ['E] being []...
+A generic can be instantiated with **[]** when the input lambda has no output. For example, when a **[->]** lambda is the input of a method with the type **[[->['E]]->['E]]**, the method generic **['E]** is instantiated with **[]**:
 ```
-[Boolean] {
-    ++ ` *(`isTrue` [->['E]] true, `OrFalse [->['E]] false) -> ['E] {} -> ...
+[] (Beetle, Bug) {
+    *{
+        [[->['E]]->['E]] invoke = *([->['E]] lambda) -> ['E] {} -> \lambda;
+        [->[Beetle]] newBeetle = *-> [Beetle] -> \[Beetle]:new;
+        [->] doNothing = *{};
+        [Beetle] beetle = \invoke newBeetle;   @ Outputs a [Beetle]; newBeetle instantiates ['E] with [Beetle]
+        \invoke doNothing;                     @ Has no output; doNothing instantiates ['E] with []
+    }
+}
+
+[Beetle :[Bug]] (Bug) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Bug :[Insect]] (Insect) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[Insect] {
+    ~ new *{}
 }
 ```
-
 
 
 
