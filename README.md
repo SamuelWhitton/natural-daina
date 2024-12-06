@@ -50,6 +50,7 @@
     + [Root Type](#root-type)
     + [Self Reference](#self-reference)
     + [Type Inference](#type-inference)
+        - [Partial Type](#partial-type)
         - [Type Inference of Method Outputs](#type-inference-of-method-outputs)
         - [Type Inference of Assignments](#type-inference-of-assignments)
         - [Type Inference of Class Generics](#type-inference-of-class-generics)
@@ -7770,6 +7771,12 @@ The entry point method can also be refered to with a lambda self reference:
 ```
 
 ## Type Inference
+
+### Partial Type
+
+**[?]** is a partial type that
+
+[?] [Ting<[?]>]
 = disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
 
 
@@ -7793,16 +7800,35 @@ also using ->[?] {} ->
 
 ```
 
+inifinte loop????
+```
+
+
+[T] {
+
+    +++ ep * -> :ep
+}
+
+```
+
+
 ### Type Inference of Assignments
 =all types circumstances with ? in different parts of type (partial inference)
 = disjoint types^
+= disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
+
 
 ### Type Inference of Class Generics
 - ([Container<[?]>]:containing) =T= ([['E]->[Container<['E]>]]), can embed generic inferrence inside, i.e.[Container<[Container<[?]>]>]:containing is ([[Container<['E]>]->[Container<[Container<['E]>]>]])
+= disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
+
+= might need cast to disabiguate when only method generic is in output 
 
 
 ### Type Inference of Unimplemented Instance Methods
 Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
+
+must using [?], THing<[?]>
 
 ### Method Context Type
 ```
