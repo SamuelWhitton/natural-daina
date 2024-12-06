@@ -997,7 +997,7 @@ These statements are no longer valid since **muffles** and **chandler** are now 
     @@ overriden makeNoise instance method ends here @@
 }
 ```
-**\\muffles:makeNoise;** will invoke **makeNoise** from **[Dog]** thus invoking **bark**, and **\\chandler:makeNoise;** will invoke **makeNoise** from **[Bird]** thus invoking **chirp**. Although **muffles** and **chandler** are declared as the type **[Animal]**, they are also a **[Dog]** and a **[Bird]** and so the overriding methods are called instead, this is commonly called polymorphism.
+**\\muffles:makeNoise;** will invoke **makeNoise** from **[Dog]** thus invoking **bark**, and **\\chandler:makeNoise;** will invoke **makeNoise** from **[Bird]** thus invoking **chirp**. Although **muffles** and **chandler** are declared as the type **[Animal]**, they are also a **[Dog]** and a **[Bird]** and so the overriding methods are called instead. This is a mechanism where overriding methods replace those inherited from a parent class, this is commonly called polymorphism.
 
 In the following example, the **makeNoise**, **eat** and **sleep** instance methods are replaced by a new instance method called **eatSleepRoutine** which invokes **makeNoise**, **eat** and **sleep**.
 ```
@@ -7664,14 +7664,110 @@ A generic can be instantiated with **[]** when the input lambda has no output. F
 ```
 
 
-
 ## Self Reference
-inside anonymous class objects it does refer to the anonymous class
-^ inside anonymous class objects it does refer to the anonymous class (see self reference)
-= visibility
-**\*^** lambda self reference
-in main? []{\*{}}
 
+**^** is the self reference, it refers to the current instance of the innermost class. 
+
+In the following example, **pig** and **pig2** refer to the same **[Pig]** object.
+```
+[] {
+    *{
+        [Pig] pig = \[Pig]:new;
+        [Pig] pig2 = \pig:getSelf;
+    }
+}
+
+[Pig] {
+    ~ new *{}
+    +++ getSelf * -> [Pig] {} -> ^
+}
+```
+There is no current instance inside of a type method, thus the following **getPig** type method is invalid:
+```
+[] {
+    *{
+        [Pig] pig = \[Pig]:new;
+        [Pig] pig2 = \pig:getSelf;
+    }
+}
+
+[Pig] {
+    ~ new *{}
+    +++ getSelf * -> [Pig] {} -> ^
+    :: getPig * -> [Pig] {} -> ^    @ Invalid; ^ does not refer to any self instance here   
+}
+```
+Inside an [anonymous class object](#anonymous-class-objects), **^** refers to the current instance of the innermost [anonymous class object](#anonymous-class-objects). In the following example, **pig3** refers to the same object as **pig4** and **aNewPig1** **aNewPig1** refers to the same object as **aNewPig2**:
+```
+[] {
+    *{
+        [Pig] pig3 = \[Pig]:newPig;
+        [Pig] pig4 = \pig:getSelf;
+    }
+}
+
+[Pig] {
+    ~ new *{}
+    +++ getSelf * -> [Pig] {} -> ^
+    :: newPig * -> [Pig] {
+        [Pig] aNewPig1 = [:[Pig]] {
+                |+++ getSelf * -> [Pig] {
+                    [Pig] aNewPig2 = ^;  @ Here ^ refers to the anonymous class object named aNewPig1
+                } -> aNewPig2
+            };
+    } -> aNewPig1  
+}
+```
+**^** is considered an external object, thus you cannot invoke methods without class or external visibility:
+```
+[Ostritch] {
+    +++ publicMethod *{
+        \:privateMethod;   @ Valid; :privateMethod is visible here
+        \^:privateMethod;  @ Invalid; privateMethod does not have class or external visibility
+    }
+    --- privateMethod *{}
+}
+```
+
+**\*^** is the lambda self reference, it refers to the lamdba object of the innermost method. 
+
+In the following example, **bee1** refers to the same lambda as **bee2** and **bar1** refers to the same lambda as **bar2** (for explaination of **:bar**; [see flexible method expression](#flexible-method-expression)):
+```
+[] {
+    *{
+        [->] bee1 = *{
+            [->] bee2 = *^;
+        };
+    }
+}
+
+[Elephant] {
+    ~ new *{}
+    +++ bar * -> [Elephant] {
+        [->[Elephant]] bar1 = *^;
+        [->[Elephant]] bar2 = :bar;
+    } -> \[Elephant]:new
+}
+```
+Invoking the lambda self reference inside itself can create an infinite execution loop:
+```
+[] {
+    *{
+        [->] inifiteLoop = *{
+            \*^;
+        };
+        \inifiteLoop; @ This invocation creates an infinite execution loop
+    }
+}
+```
+The entry point method can also be refered to with a lambda self reference:
+```
+[] {
+    *{
+        [->] entryPoint = *^;
+    }
+}
+```
 
 ## Type Inference
 = disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
@@ -7739,8 +7835,9 @@ Partial Class Implementations - can use ||++ eat without type takes the original
 ## Scope
 
 ```
+*^ method self, method type [*?]
 ^ inside anonymous class objects it does refer to the anonymous class (see self reference)
-: and $ refer to anaymous class inside analymous class and not the outside class (put inside anaymous class section)
+: and $ refer to anaymous class inside analymous class and not the outside class (put inside anaymous class section), methods/constructors and types [:?][$$?]
 aboslutely no conflicts or hiding types or objects (no ambiguity)
 Anonymous Class Object///
 lambdas
