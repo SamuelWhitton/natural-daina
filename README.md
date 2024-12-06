@@ -7774,10 +7774,17 @@ The entry point method can also be refered to with a lambda self reference:
 
 ### Partial Type
 
-**[?]** is a partial type that
+A partial type represents multiple different possible types. 
 
-[?] [Ting<[?]>]
-= disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
+**[?]** is a partial type that represents every other possible type. For example, **[?]** could represent **[Foo]**, **[['E]->['E]]**, **[Transform<[A][B]>]** or even **[[G]/[H]]** ([see disjoint types](#disjoint-types)). 
+
+**[?]** can be used as a component of any type, thus resulting in a more restricted partial type. For example **[Transform<[?][?]>]** is a subtype that could represent **[Transform<[A][B]>]**, **[Transform<[A][->]>]** or even **[Transform<[Transform<[->[Foo]][->]>][->['M]]>]**.
+
+Partial types are used in the following sections:
+    - [Type Inference of Method Outputs](#type-inference-of-method-outputs)
+    - [Type Inference of Assignments](#type-inference-of-assignments)
+    - [Type Inference of Class Generics](#type-inference-of-class-generics)
+    - [Type Inference of Unimplemented Class Methods](#type-inference-of-unimplemented-class-methods)
 
 
 ### Type Inference of Method Outputs
