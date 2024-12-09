@@ -43,6 +43,7 @@
         - [Overloading Class Methods](#overloading-class-methods)
         - [Underloading Class Methods](#underloading-class-methods)
     + [Parent and Child Lambda Types](#parent-and-child-lambda-types)
+    + [Parent Dependancies](#parent-dependancies)
     + [Partial Class Implementations](#partial-class-implementations)
         - [Unimplemented Instance Methods](#unimplemented-instance-methods)
         - [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
@@ -55,6 +56,7 @@
         - [Type Inference of Assignments](#type-inference-of-assignments)
         - [Type Inference of Class Generics](#type-inference-of-class-generics)
         - [Type Inference of Unimplemented Class Methods](#type-inference-of-unimplemented-class-methods)
+        - [Type Inference of Type Casting](#type-inference-of-type-casting)
         - [Method Context Type](#method-context-type)
         - [Parent Context Type](#parent-context-type)
         - [Self Context Type](#self-context-type)
@@ -6802,6 +6804,12 @@ As preivously mentioned, a parent of a lambda type is created when any of the in
 We can argue that the type of input1 **[["B]["C]->[["B]/["C]]]** is a parent of **[['A]["C]->[['A]/["C]]]** (the type of the first input of lambda2), since we replace every **['A]** with a concrete type **["B]**. It is also evident that **["C]** is a parent of **[["B]/["C]]** (the type of the output of lambda2) by the rules of [disjoint types](#disjoint-types). Therefore **[[[''A]['C]->[[''A]/['C]]]['B]['C]->['C]]** is a parent of **[[['B]['C]->[['B]/['C]]]['B]['C]->[['B]/['C]]]**.
 
 
+## Parent Dependancies
+
+asdf
+=using parent dependancies without repering to parent
+
+
 ## Partial Class Implementations
 
 ### Unimplemented Instance Methods
@@ -7785,13 +7793,17 @@ Partial types are used in the following sections:
 * [Type Inference of Assignments](#type-inference-of-assignments)
 * [Type Inference of Class Generics](#type-inference-of-class-generics)
 * [Type Inference of Unimplemented Class Methods](#type-inference-of-unimplemented-class-methods)
+* [Type Inference of Type Casting](#type-inference-of-type-casting)
+
+
+asdf still requires dependancy
 
 
 ### Type Inference of Method Outputs
 * ->
 * ([A]a)-> a
 also using ->[?] {} ->
-
+every other possibility is a parent of this one4, otherwise abiguous
 ```
 
 
@@ -7837,6 +7849,14 @@ Partial Class Implementations - can use ||++ eat without type takes the original
 
 must using [?], THing<[?]>
 
+### Type Inference of Type Casting
+
+= inferred type casting in general
+[type casting](#type-casting)
+
+no ambiguous allowed, most child one
+
+
 ### Method Context Type
 ```
 [* ?]
@@ -7858,12 +7878,12 @@ must using [?], THing<[?]>
 = genercal use with wrong type will attempt to cast implicitly
 = accessing non inherited visible methods which are in fact externaly or class visible
 = can cast down not up, visa versa???
-= inferred type casting in general
 = using type cast to select overloaded method which must not be ambiguous [Overloading Class Methods] + inferred type casting for overloaded, , must match only one of the overloaded methods i.e. cant cast to a smaller set of overloaded methods 
 = composite expressions, using to expose external visible but not inherited...
 = using type cast to select overloaded method when refering to it  flexibly, inferred casting [type casting](#type-casting), cast from overload must not be ambiguous
 = has very strong binding
 = flexible method expression, setting class method with object, casting it to change class method type
+= cast and then type inference
 
 ## Scope
 
