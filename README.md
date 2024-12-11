@@ -23,6 +23,7 @@
 * [Specialised Topics](#specialised-topics)
 
     + [Anonymous Class Objects](#anonymous-class-objects)
+    + [Anonymous Dependancies](#anonymous-dependancies)
     + [Compiler Injections](#compiler-injections)
     + [Compound Expressions and Statements](#compound-expressions-and-statements)
     + [Constructors](#constructors)
@@ -43,7 +44,6 @@
         - [Overloading Class Methods](#overloading-class-methods)
         - [Underloading Class Methods](#underloading-class-methods)
     + [Parent and Child Lambda Types](#parent-and-child-lambda-types)
-    + [Parent Dependancies](#parent-dependancies)
     + [Partial Class Implementations](#partial-class-implementations)
         - [Unimplemented Instance Methods](#unimplemented-instance-methods)
         - [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
@@ -3612,6 +3612,14 @@ An anonymous class object can refer to external local objects inside the anonymo
 In the above example, **\\(\\aProvider:provide):doAThing;** will invoke the local lambda method **foo**.
 
 
+## Anonymous Dependancies
+
+asdf
+=using parent dependancies, or direct from method, without repering to parent
+can use [Type Inference](#type-inference)???
+what can really be done here??
+
+
 ## Compiler Injections
 
 A compiler injection is a statement which allows the injection of arbitrary data to the compiler. A compiler injection can be written as a statement inside a class method or inside the body of a class. A compiler injection is interpreted at an individual compilers discression. A compiler can choose to disallow a compiler injection statement based on any criteria.
@@ -6803,11 +6811,6 @@ As preivously mentioned, a parent of a lambda type is created when any of the in
 ```
 We can argue that the type of input1 **[["B]["C]->[["B]/["C]]]** is a parent of **[['A]["C]->[['A]/["C]]]** (the type of the first input of lambda2), since we replace every **['A]** with a concrete type **["B]**. It is also evident that **["C]** is a parent of **[["B]/["C]]** (the type of the output of lambda2) by the rules of [disjoint types](#disjoint-types). Therefore **[[[''A]['C]->[[''A]/['C]]]['B]['C]->['C]]** is a parent of **[[['B]['C]->[['B]/['C]]]['B]['C]->[['B]/['C]]]**.
 
-
-## Parent Dependancies
-
-asdf
-=using parent dependancies without repering to parent
 
 
 ## Partial Class Implementations
