@@ -3619,6 +3619,11 @@ asdf
 can use [Type Inference](#type-inference)???
 what can really be done here??
 
+which
+output of a method can be parent or child of non dependancy type
+input of a method can be a parent 
+
+
 
 ## Compiler Injections
 
@@ -7800,6 +7805,7 @@ Partial types are used in the following sections:
 
 
 asdf still requires dependancy
+dependancies change the inferred types
 
 
 ### Type Inference of Method Outputs
