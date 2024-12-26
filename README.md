@@ -23,7 +23,6 @@
 * [Specialised Topics](#specialised-topics)
 
     + [Anonymous Class Objects](#anonymous-class-objects)
-    + [Anonymous Dependancies](#anonymous-dependancies)
     + [Compiler Injections](#compiler-injections)
     + [Compound Expressions and Statements](#compound-expressions-and-statements)
     + [Constructors](#constructors)
@@ -33,6 +32,7 @@
         - [Statement Ordering in Constructors](#statement-ordering-in-constructors)
         - [Implicit Construction](#implicit-construction)
     + [Data Segments](#data-segments)
+    + [Dependancy Rules](#dependancy-rules)
     + [Disjoint Types](#disjoint-types)
     + [Duplicate Inheritance](#duplicate-inheritance)
     + [Flexible Method Expression](#flexible-method-expression)
@@ -3612,24 +3612,6 @@ An anonymous class object can refer to external local objects inside the anonymo
 In the above example, **\\(\\aProvider:provide):doAThing;** will invoke the local lambda method **foo**.
 
 
-## Anonymous Dependancies
-
-
-
-asdf
-=using parent dependancies, or direct from method, without repering to parent
-can use [Type Inference](#type-inference)???
-
-
-//1input can be child of non dependancy
-//2output can be child of non dependancy
-
-1can send input for non dependancy with child
-2output that is non dependancy will be auto-cast to next parent which is dependancy
-
-3Possible types only include classes for which the current class has a dependancy. For example, **[?]** can only represent **[Transform<[A][B]>]** inside of the class **Foo** if **Foo** depends on **Transform**. [Type Inference](#type-inference)
-
-
 ## Compiler Injections
 
 A compiler injection is a statement which allows the injection of arbitrary data to the compiler. A compiler injection can be written as a statement inside a class method or inside the body of a class. A compiler injection is interpreted at an individual compilers discression. A compiler can choose to disallow a compiler injection statement based on any criteria.
@@ -4667,6 +4649,22 @@ A compiler can choose to use [disjoint types](#disjoint-types) to express that a
 A compiler can choose to only allow a chosen subset of data segment types and to restrict which data segments can be matched to each data segment type. Therefore, the previous examples are not actually gaurenteed to show valid data segments and types for any specific compiler.
 
 Data segments cannot be manipulated or interacted with directly. Rather, data segments are intended as a tool to allow a compiler to implement the injection of arbitrary data into an object or class.
+
+
+## Dependancy Rules
+
+
+
+asdf
+=using parent dependancies, or direct from method, without repering to parent
+can use [Type Inference](#type-inference)???
+
+
+//1input can be child of non dependancy
+//2output can be child of non dependancy
+
+1can send input for non dependancy with child although cant explicitly use the non depandancy type, show fail and success
+2output that is non dependancy will be auto-cast to next parent which is dependancy,show failed to input, success and  assign to parent  eclicit
 
 
 ## Disjoint Types
