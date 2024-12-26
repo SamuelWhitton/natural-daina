@@ -3614,15 +3614,20 @@ In the above example, **\\(\\aProvider:provide):doAThing;** will invoke the loca
 
 ## Anonymous Dependancies
 
+
+
 asdf
 =using parent dependancies, or direct from method, without repering to parent
 can use [Type Inference](#type-inference)???
-what can really be done here??
 
-which
-output of a method can be parent or child of non dependancy type
-input of a method can be a parent 
 
+//1input can be child of non dependancy
+//2output can be child of non dependancy
+
+1can send input for non dependancy with child
+2output that is non dependancy will be auto-cast to next parent which is dependancy
+
+3Possible types only include classes for which the current class has a dependancy. For example, **[?]** can only represent **[Transform<[A][B]>]** inside of the class **Foo** if **Foo** depends on **Transform**. [Type Inference](#type-inference)
 
 
 ## Compiler Injections
@@ -4897,7 +4902,7 @@ Disjoint types can be composed with method generics:
     ~ newC *{}
 }
 ```
-A method generic inside a disjoint type is determined to be the most basic type required to match the method signature. In the above example, when **foo** was invoked; **['Y]** was determined to be **[[B]/[C]]** which is the most basic type required to match the input **abc** of type **[[A]/[B]/[C]]**. In the following example, **['Y]** matches both **[[B]/[C]]** and **[B]**, therefore this invocation of **foo** has a return type of **[B]** since it is the common parent type:
+A method generic inside a disjoint type is instantiated as the most basic type required to match the method signature. In the above example, when **foo** was invoked; **['Y]** was instantiated to **[[B]/[C]]** which is the most basic type required to match the input **abc** of type **[[A]/[B]/[C]]**. In the following example, **['Y]** matches both **[[B]/[C]]** and **[B]**, therefore this invocation of **foo** has a return type of **[B]** since it is the common parent type:
 ```
 [] (Q, U, A, B, C) {
     *{
@@ -6527,7 +6532,7 @@ An overriding method can have inputs which are parent types of the original inpu
 }
 
 [WrappedCandy :[Candy]] (Candy) {
-    ~ wraped *([Candy] candy) {
+    ~ wrapped *([Candy] candy) {
         \$~new;
     }
 }
@@ -6557,7 +6562,7 @@ Underloading allows for one method to override multiple methods from parent clas
 }
 
 [WrappedCandy :[Candy]] (Candy) {
-    ~ wraped *([Candy] candy) {
+    ~ wrapped *([Candy] candy) {
         \$~new;
     }
 }
@@ -6571,7 +6576,7 @@ Underloading can be used to resolve conflicts when there are multiple inherited 
 ```
 [CandyCrusherWrapper :[CandyCrusher] :[CandyWrapper]] (WrappedCandy, Candy, CandyCrusher, CandyWrapper, CrushedCandy, WrappedAndCrushedCandy) {
     |++ process *([Candy] candy) -> [[WrappedCandy]/[CrushedCandy]] {
-        [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrapedAndCrushed candy;
+        [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrappedAndCrushed candy;
     } -> crushedAndWrappedCandy
 }
 
@@ -6583,12 +6588,12 @@ Underloading can be used to resolve conflicts when there are multiple inherited 
 
 [CandyWrapper] (Candy, WrappedCandy) {
     ++ process *([Candy] candy) -> [WrappedCandy] {
-        [WrappedCandy] wrappedCandy = \[WrappedCandy]:wraped candy;
+        [WrappedCandy] wrappedCandy = \[WrappedCandy]:wrapped candy;
     } -> wrappedCandy
 }
 
 [WrappedAndCrushedCandy :[WrappedCandy] :[CrushedCandy]] (Candy, CrushedCandy, WrappedCandy) {
-    ~ wrapedAndCrushed *([Candy] candy) {
+    ~ wrappedAndCrushed *([Candy] candy) {
         \$~>wrappedCandy;
         \$$~>crushedCandy;
     }
@@ -6601,7 +6606,7 @@ Underloading can be used to resolve conflicts when there are multiple inherited 
 }
 
 [WrappedCandy :[Candy]] (Candy) {
-    ~ wraped *([Candy] candy) {
+    ~ wrapped *([Candy] candy) {
         \$~new;
     }
 }
@@ -6615,7 +6620,7 @@ Underloading can also be used with type methods. The following is like the prior
 ```
 [CandyCrusherWrapper :[CandyCrusher] :[CandyWrapper]] (WrappedCandy, Candy, CandyCrusher, CandyWrapper, CrushedCandy, WrappedAndCrushedCandy) {
     |::++ process *([Candy] candy) -> [[WrappedCandy]/[CrushedCandy]] {
-        [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrapedAndCrushed candy;
+        [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrappedAndCrushed candy;
     } -> crushedAndWrappedCandy
 }
 
@@ -6627,12 +6632,12 @@ Underloading can also be used with type methods. The following is like the prior
 
 [CandyWrapper] (Candy, WrappedCandy) {
     ::++ process *([Candy] candy) -> [WrappedCandy] {
-        [WrappedCandy] wrappedCandy = \[WrappedCandy]:wraped candy;
+        [WrappedCandy] wrappedCandy = \[WrappedCandy]:wrapped candy;
     } -> wrappedCandy
 }
 
 [WrappedAndCrushedCandy :[WrappedCandy] :[CrushedCandy]] (Candy, CrushedCandy, WrappedCandy) {
-    ~ wrapedAndCrushed *([Candy] candy) {
+    ~ wrappedAndCrushed *([Candy] candy) {
         \$~>wrappedCandy;
         \$$~>crushedCandy;
     }
@@ -6645,7 +6650,7 @@ Underloading can also be used with type methods. The following is like the prior
 }
 
 [WrappedCandy :[Candy]] (Candy) {
-    ~ wraped *([Candy] candy) {
+    ~ wrapped *([Candy] candy) {
         \$~new;
     }
 }
@@ -6814,7 +6819,7 @@ As preivously mentioned, a parent of a lambda type is created when any of the in
 }
 
 ```
-We can argue that the type of input1 **[["B]["C]->[["B]/["C]]]** is a parent of **[['A]["C]->[['A]/["C]]]** (the type of the first input of lambda2), since we replace every **['A]** with a concrete type **["B]**. It is also evident that **["C]** is a parent of **[["B]/["C]]** (the type of the output of lambda2) by the rules of [disjoint types](#disjoint-types). Therefore **[[[''A]['C]->[[''A]/['C]]]['B]['C]->['C]]** is a parent of **[[['B]['C]->[['B]/['C]]]['B]['C]->[['B]/['C]]]**.
+We can argue that the type of **input1** **[["B]["C]->[["B]/["C]]]** is a parent of **[['A]["C]->[['A]/["C]]]** (the type of the first input of **lambda2**), since we replace every **['A]** with a concrete type **["B]**. It is also evident that **["C]** is a parent of **[["B]/["C]]** (the type of the output of **lambda2**) by the rules of [disjoint types](#disjoint-types). Therefore **[[[''A]['C]->[[''A]/['C]]]['B]['C]->['C]]** is a parent of **[[['B]['C]->[['B]/['C]]]['B]['C]->[['B]/['C]]]**.
 
 
 
@@ -7792,9 +7797,11 @@ The entry point method can also be refered to with a lambda self reference:
 
 A partial type represents multiple different possible types. 
 
-**[?]** is a partial type that represents every other possible type. For example, **[?]** could represent **[Foo]**, **[['E]->['E]]**, **[Transform<[A][B]>]** or even **[[G]/[H]]** ([see disjoint types](#disjoint-types)). 
+**[?]** is a partial type that represents every other possible type. For example, **[?]** could represent **[Foo]**, **[['E]->['E]]**, **[Transform<[A][B]>]** or even **[[G]/[H]]** ([see disjoint types](#disjoint-types)).
 
 **[?]** can be used as a component of any type, thus resulting in a more restricted partial type. For example **[Transform<[?][?]>]** is a subtype that could represent **[Transform<[A][B]>]**, **[Transform<[A][->]>]** or even **[Transform<[Transform<[->[Foo]][->]>][->['M]]>]**.
+
+Possible types only include classes for which the current class has a dependancy. For example, **[?]** can only represent **[Transform<[A][B]>]** inside of the class **Foo** if **Foo** depends on **Transform**.
 
 Partial types are used in the following sections:
 * [Type Inference of Method Outputs](#type-inference-of-method-outputs)
@@ -7803,10 +7810,7 @@ Partial types are used in the following sections:
 * [Type Inference of Unimplemented Class Methods](#type-inference-of-unimplemented-class-methods)
 * [Type Inference of Type Casting](#type-inference-of-type-casting)
 
-
-asdf still requires dependancy
-dependancies change the inferred types
-
+asdf
 
 ### Type Inference of Method Outputs
 * ->
