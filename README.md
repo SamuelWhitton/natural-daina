@@ -43,7 +43,7 @@
     + [Overloading and Underloading](#overloading-and-underloading)
         - [Overloading Class Methods](#overloading-class-methods)
         - [Underloading Class Methods](#underloading-class-methods)
-    + [Parent and Child Lambda Types](#parent-and-child-lambda-types)
+    + [Parent and Child Method Types](#parent-and-child-method-types)
     + [Partial Class Implementations](#partial-class-implementations)
         - [Unimplemented Instance Methods](#unimplemented-instance-methods)
         - [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
@@ -1296,7 +1296,7 @@ A method can be encasulated as a object, which is commonly called a lambda in ot
     }
 }
 ```
-Each of the lambda objects in the above example has a lambda type. A lambda type describes the input types and the output type. For example, the type **[[A][B][C]->[D]]** is the type of a lambda object with the input types **[A]**, **[B]**, **[C]** (in that order) and a **[D]** output type.
+Each of the lambda objects in the above example has a method type. A method type describes the input types and the output type. For example, the type **[[A][B][C]->[D]]** is the type of a lambda object with the input types **[A]**, **[B]**, **[C]** (in that order) and a **[D]** output type.
 
 Methods are invoked by writing **\\**, then the method, and then each of the input objects in order. The result of a method invocation is the output object (if there is an output). We add an example invocation for each of the lambda methods from the previous example.
 ```
@@ -2766,7 +2766,7 @@ Complex compound types can be used in the generic instantiation of the inherited
 In summary:
 
 + Any number of class generic types can be declared for a class, and then used anywhere inside the class.
-+ A class generic type can be instantiated by any type, including another generic type or a lambda type.
++ A class generic type can be instantiated by any type, including another generic type or a method type.
 + All class generic types are instantiated when invoking a constructor, invoking a type method or declaring a type.
 + Class types with a generic instantiation are compatible if the instantiated types are compatible. Using the afromentioned **Tuple** as an example, if **[C]** is a parent type of **[B]** then **[Tuple<[A][C]>]** is a parent type of **[Tuple<[A][B]>]**.
 + A class with generics can be inherited, each of the generic types must be instantiated.
@@ -3079,7 +3079,7 @@ A method can use the same method generic type multiple times, in which case, the
 ```
 
 
-Method generic types can be used in compound types such as class generic instantiations and lambda types. In the following example, **invokeLambda** invokes a lambda object **inputLambda** and returns the result.
+Method generic types can be used in compound types such as class generic instantiations and method types. In the following example, **invokeLambda** invokes a lambda object **inputLambda** and returns the result.
 ```
 [] (Hammer, Saw, Cat) {
     *{
@@ -3249,9 +3249,9 @@ A lambda object with method generics can be used as the input to another method.
 }
 
 ``` 
-A lambda type **[['A]->['A]]** in the input is represented as **[[''A]->[''A]]** in the enclosing method type, thus we get **[['E][[''A]->[''A]]->['E]]** as the type of **apply**. The general rule is; method generics in the input are represented by method generics with one more **'** in the enclosing type.
+A method type **[['A]->['A]]** in the input is represented as **[[''A]->[''A]]** in the enclosing method type, thus we get **[['E][[''A]->[''A]]->['E]]** as the type of **apply**. The general rule is; method generics in the input are represented by method generics with one more **'** in the enclosing type.
 
-In the following example, **inputLambda** of type **[['E][[''A]->[''A]]->['E]]** is written as **[[''E][['''A]->['''A]]->[''E]]** in the enclosing lambda type for **apply2**.
+In the following example, **inputLambda** of type **[['E][[''A]->[''A]]->['E]]** is written as **[[''E][['''A]->['''A]]->[''E]]** in the enclosing method type for **apply2**.
 ```
 [] {
     *{
@@ -4653,19 +4653,102 @@ Data segments cannot be manipulated or interacted with directly. Rather, data se
 
 ## Dependancy Rules
 
+To refer to a class, the class must be added as a dependancy. The following example is not valid becuase **A** is not a dependancy of the entry point class.
+```
+[] (Foo, B) {
+    *{
+        [A] a = \[Foo]:getA; @ Invalid; A is not a dependancy
+    }
+}
 
+[Foo] (A, B) {
+    :: getA *-> [A] -> \[A]:new
+    :: sendA *([A] a) {}
+    :: sendB *([B] b) {}
+}
 
-asdf
-=using parent dependancies, or direct from method, without repering to parent
-can use [Type Inference](#type-inference)???
+[A :[B]] (B) {
+    ~ new *{
+        \$~new;
+    }
+}
 
+[B] {
+    ~ new *{}
+}
+```
+If the type of a method from another class has contains references to non-dependancies, it will be automatically [type cast](#type-casting) to the closest [parent method type](#parent-and-child-method-types). If the declared type of **a** is changed to **[B]**, then the example is valid because **[Foo]:getA** gets treated as **[->[B]]** which is the closest parent type:
+```
+[] (Foo, B) {
+    *{
+        [B] a = \[Foo]:getA; @ Valid; B is a dependancy and [Foo]:getA is treated as [->[B]]
+    }
+}
 
-//1input can be child of non dependancy
-//2output can be child of non dependancy
+[Foo] (A, B) {
+    :: getA *-> [A] -> \[A]:new
+    :: sendA *([A] a) {}
+    :: sendB *([B] b) {}
+}
 
-1can send input for non dependancy with child although cant explicitly use the non depandancy type, show fail and success
-2output that is non dependancy will be auto-cast to next parent which is dependancy,show failed to input, success and  assign to parent  eclicit
+[A :[B]] (B) {
+    ~ new *{
+        \$~new;
+    }
+}
 
+[B] {
+    ~ new *{}
+}
+```
+In the following example, **[Foo]:sendA** is invoked with a parameter from **\\[Foo]:getA** directly ([see compound expressions](#compound-expressions-and-statements)). This is invalid because there are no known parent types for **[[A]->]** which don't refer to **A**.
+```
+[] (Foo, B) {
+    *{
+        \[Foo]:sendA (\[Foo]:getA); @ Invalid; [Foo]:sendA needs to take [A] as a parameter, but A is not a dependancy
+    }
+}
+
+[Foo] (A, B) {
+    :: getA *-> [A] -> \[A]:new
+    :: sendA *([A] a) {}
+    :: sendB *([B] b) {}
+}
+
+[A :[B]] (B) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[B] {
+    ~ new *{}
+}
+```
+In the following example, **[Foo]:sendB** is invoked with a parameter from **\\[Foo]:getA** directly, and we now have **A** as a depandancy rather then **B**. This is valid because **[Foo]:sendB** has a type of **[[B]->]**, which has a parent type **[[A]->]**.
+```
+[] (Foo, A) {
+    *{
+        \[Foo]:sendB (\[Foo]:getA); @ Valid; \[Foo]:getA results in an [A] and [Foo]:sendB can take an [A] as a parameter
+    }
+}
+
+[Foo] (A, B) {
+    :: getA *-> [A] -> \[A]:new
+    :: sendA *([A] a) {}
+    :: sendB *([B] b) {}
+}
+
+[A :[B]] (B) {
+    ~ new *{
+        \$~new;
+    }
+}
+
+[B] {
+    ~ new *{}
+}
+```
 
 ## Disjoint Types
 
@@ -5336,7 +5419,7 @@ If an overloaded class method is refered to directly, then the choice of method 
     ~ newD *{}
 }
 ```
-An overloaded method can be chosen explicitly by [type casting](#type-casting) the overloaded method to the lambda type which matches one of the overloaded methods, solving the issue from the previous example:
+An overloaded method can be chosen explicitly by [type casting](#type-casting) the overloaded method to the method type which matches one of the overloaded methods, solving the issue from the previous example:
 ```
 [] (C, D) {
     *{
@@ -6659,11 +6742,11 @@ Underloading can also be used with type methods. The following is like the prior
 ```
 
 
-## Parent and Child Lambda Types
+## Parent and Child Method Types
 
-There are several ways that a lambda can have a parent type. Just like any other type, a lambda can be referred or cast ([see type casting](#type-casting)) to any of its parent types. 
+There are several ways that a method can have a parent type. Just like any other type, a method type can be referred or cast ([see type casting](#type-casting)) to any of its parent types. 
 
-One such parent of a lambda type is created when any of the input types become child types and/or the output becomes a parent type:
+One such parent of a method type is created when any of the input types become child types and/or the output becomes a parent type:
 ```
 
 [] (Beetle, Bug, Insect) {
@@ -6694,7 +6777,7 @@ One such parent of a lambda type is created when any of the input types become c
 }
 ```
 
-Remove the output or adding parameters to a lambda type with no parameters also results in a parent type:
+Remove the output or adding parameters to a method type with no parameters also results in a parent type:
 ```
 
 [] (Beetle, Bug, Insect) {
@@ -6726,7 +6809,7 @@ Remove the output or adding parameters to a lambda type with no parameters also 
 }
 ```
 
-Refering to a lambda with input parameters which originally had no input parameters, results in input paramters which are ignored when invoked. Likewise a removed output results in an ignored output parameter when invoked. These new lambda types are parent types of the original. The previous **lambdaB**, **lambdaC** and **lambdaD** are rewritten with equivalent lambda expressions to show this logic:
+Refering to a method with input parameters which originally had no input parameters, results in input paramters which are ignored when invoked. Likewise a removed output results in an ignored output parameter when invoked. These new method types are parent types of the original. The previous **lambdaB**, **lambdaC** and **lambdaD** are rewritten with equivalent method expressions to show this logic:
 ```
 
 [] (Beetle, Bug, Insect) {
@@ -6805,7 +6888,7 @@ Bound method generics are also considered concrete types, so we can also replace
 }
 ```
 
-As preivously mentioned, a parent of a lambda type is created when any of the input types become child types and/or the output becomes a parent type. This rule is also applied to the inputs and outputs of a lambda with method generic inputs and outputs. Consider the following example:
+As preivously mentioned, a parent of a method type is created when any of the input types become child types and/or the output becomes a parent type. This rule is also applied to the inputs and outputs of a method with method generic inputs and outputs. Consider the following example:
 ```
 [] () {
     *{
@@ -8897,10 +8980,10 @@ The [expression](#expression) inside the class is the [entry point of a program]
 Each **generic-declaration** [identifier](#identifier) must be unique (no two generics in a generic declaration list can have the same [identifier](#identifier)). [See class generics.](#class-generics) [See rising and falling generics.](#rising-and-falling-generics)
 
 ### Type
-- [type](#type) syntax description: [\[](#square-brackets) **(** **class-type-structure** **|** **lambda-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
+- [type](#type) syntax description: [\[](#square-brackets) **(** **class-type-structure** **|** **method-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
     + **class-segment-type-structure** syntax description: [identifier](#identifier) **(** **class-generic-instantiation** **)?**
         - **class-generic-instantiation** syntax description: [<](#arrow-brackets) **(** [type](#type) **)\*** [>](#arrow-brackets)
-    + **lambda-type-structure** syntax description: **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
+    + **method-type-structure** syntax description: **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
     + **disjoint-type-structure** syntax description: [type](#type) **(** **(** [/](#forward-slash) [type](#type) **)+**
     + **class-generic-type-structure** syntax description: [&](#ampersand) [identifier](#identifier)
     + **method-generic-type-structure** syntax description: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
@@ -8910,7 +8993,7 @@ Each **generic-declaration** [identifier](#identifier) must be unique (no two ge
 A type is a classification of an object. Each type structure forms a type which classifies a different set of objects. Following are links to explainations for each type structure:
 
 - **class-segment-type-structure**: [classes](#classes-types-objects-and-dependancies), [class generics](#class-generics)
-- **lambda-type-structure**: [lambdas](#methods-and-lambdas)
+- **method-type-structure**: [lambdas](#methods-and-lambdas)
 - **disjoint-type-structure**: [disjoint types](#disjoint-types)
 - **class-generic-type-structure**: [class generics](#class-generics)
 - **method-generic-type-structure**: [method generics](#method-generics)
@@ -8919,7 +9002,7 @@ A type is a classification of an object. Each type structure forms a type which 
 
 If the type structure is empty, the type represents the [root type](#root-type).
 
-Types within the **class-generic-instantiation** cannot be a data segment type. The type after the [->](#arrow) in **lambda-type-structure** cannot be a data segment type. [See data segments.](#data-segments)
+Types within the **class-generic-instantiation** cannot be a data segment type. The type after the [->](#arrow) in **method-type-structure** cannot be a data segment type. [See data segments.](#data-segments)
 
 ### Dependancy Structure
 - [dependancy-structure](#dependancy-structure) syntax description: **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
@@ -9059,10 +9142,10 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [entry-point-class](#entry-point-class): [\[](#square-brackets) [\]](#square-brackets) [dependancy-structure](#dependancy-structure) [{](#curly-brackets) [expression](#expression) [}](#curly-brackets)
     - [generic-declaration-list](#generic-declaration-list): [<](#arrow-brackets) **generic-declaration** **(** [,](#comma) **generic-declaration** **)\*** [>](#arrow-brackets)
         + **generic-declaration**: [identifier](#identifier)
-    - [type](#type): [\[](#square-brackets) **(** **class-type-structure** **|** **lambda-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
+    - [type](#type): [\[](#square-brackets) **(** **class-type-structure** **|** **method-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
         + **class-segment-type-structure**: [identifier](#identifier) **(** **class-generic-instantiation** **)?**
             - **class-generic-instantiation**: [<](#arrow-brackets) **(** [type](#type) **)\*** [>](#arrow-brackets)
-        + **lambda-type-structure**: **(** **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
+        + **method-type-structure**: **(** **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
         + **disjoint-type-structure**: [type](#type) **(** [/](#forward-slash) [type](#type) **)+**
         + **class-generic-type-structure**: [&](#ampersand) [identifier](#identifier)
         + **method-generic-type-structure**: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
