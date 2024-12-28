@@ -7880,7 +7880,7 @@ A partial type represents multiple different possible types.
 
 **[?]** is a partial type that represents every other possible type. For example, **[?]** could represent **[Foo]**, **[['E]->['E]]**, **[Transform<[A][B]>]** or even **[[G]/[H]]** ([see disjoint types](#disjoint-types)).
 
-**[?]** can be used as a component of any type, thus resulting in a more restricted partial type. For example **[Transform<[?][?]>]** is a subtype that could represent **[Transform<[A][B]>]**, **[Transform<[A][->]>]** or even **[Transform<[Transform<[->[Foo]][->]>][->['M]]>]**.
+**[?]** can be used as a component of any type, thus resulting in a more restricted partial type. For example **[Transform<[?][?]>]** is a subtype that could represent **[Transform<[A][B]>]**, **[Transform<[A][->]>]** or even **[Transform<[Transform<[->[Foo]][->]>][->['M]]>]**, but it couldn't represent **[->]**.
 
 Possible types only include classes for which the current class has a dependancy. For example, **[?]** can only represent **[Transform<[A][B]>]** inside of the class **Foo** if **Foo** depends on **Transform**.
 
@@ -7894,54 +7894,417 @@ Partial types are used in the following sections:
 asdf
 
 ### Type Inference of Method Outputs
-* ->
-* ([A]a)-> a
-also using ->[?] {} ->
-every other possibility is a parent of this one4, otherwise abiguous
+
+A method output type in a 
 ```
+[Foo] (AB, A, B) {
 
-
-[Addition< E >] {
-
-    -++ add_Implementation [[Addition<[&E]>][Addition<[&E]>]->[Addition<[&E]>]]
-
-    :: add *([Addition<[[&E]/['V]]>] v1, [Addition<[[&E]/['V]]>] v2) -> [[&E]/['V]] {} -> (\v1:add_Implementation v1 v2)
-    :: add *([Addition<[[&E]/['V]]>] v1, [Addition<[[&E]/['V]]>] v2) -> (\v1:add_Implementation v1 v2) ???????? doesnt work yet malformeds
-
-    :: asasas *(['M]m) -> m
+    +++ bar *-> [?] {         @ Output type of bar is [AB]
+        [AB] ab = \[AB]:new;
+    } -> ab
 }
 
-```
 
-inifinte loop????
-```
+[AB :[A] :[B]] (A, B) {
 
-
-[T] {
-
-    +++ ep * -> :ep
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
 }
 
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
 ```
 
+without body and output type, same as previous example
+```
+[Foo] (AB, A, B) {
+
+    +++ bar *-> \[AB]:new  @ Output type of bar is [AB]
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+[duplicate inheritance](#duplicate-inheritance)
+
+
+ambiguous
+
+
+```
+[Foo] (AB, A, B, Container, DualContainer) {
+
+    +++ bar *-> [Container<[?]>] {  @ Invalid; output type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+        [AB] ab = \[AB]:new;
+        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as ab ab;
+    } -> abContainer
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+not anymore
+```
+[Foo] (AB, A, B, Container, DualContainer) {
+
+    +++ bar *-> [DualContainer<[A][?]>] {  @ Output type of bar is [DualContainer<[A][B]>]
+        [AB] ab = \[AB]:new;
+        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as ab ab;
+    } -> abContainer
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+multiple levels of inference, even though in this case an infinite loop occurs
+
+```
+[Foo] (AB, A, B) {
+
+    +++ barOne *-> \:barTwo             @ Output type of barOne is [AB]
+    +++ barTwo *-> \:barThree           @ Output type of barTwo is [AB]
+    +++ barThree *-> [AB] -> \:barOne
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+ambiguous because type loop
+```
+[Foo] (AB, A, B) {
+
+    +++ barOne *-> \:barTwo    @ Invalid; output type of barOne is ambiguous
+    +++ barTwo *-> \:barThree  @ Invalid; output type of barTwo is ambiguous
+    +++ barThree *-> \:barOne  @ Invalid; output type of barThree is ambiguous
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+can use method generics
+```
+[] {
+    *{
+        [['K]->['K]] identity = *(["K] k) -> k;
+    }
+}
+```
 
 ### Type Inference of Assignments
-=all types circumstances with ? in different parts of type (partial inference)
-= disjoint types^
-= disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
+
+```
+[] (AB, A, B) {
+    *{         
+        [?] bar = \[AB]:new;  @ type of bar is [AB]
+    }
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+
+[duplicate inheritance](#duplicate-inheritance)
+
+
+ambiguous
+
+
+```
+[] (AB, A, B, Container, DualContainer) {
+    *{  
+        [AB] ab = \[AB]:new;
+        [Container<[?]>] bar = \[DualContainer<[A][B]>]:as ab ab;  @ Invalid; type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+    } -> abContainer
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+not anymore
+[see disjoint types](#disjoint-types)
+[[DualContainer<[A][?]>]/[?]] is matching [[DualContainer<[A][B]>]/[DualContainer<[A][B]>]] which is the same as [DualContainer<[A][B]>]
+```
+[Foo] (AB, A, B, Container, DualContainer) {
+
+    *{  
+        [AB] ab = \[AB]:new;
+        [[DualContainer<[A][?]>]/[?]] bar = \[DualContainer<[A][B]>]:as ab ab;  @ type of bar is [DualContainer<[A][B]>]
+    } -> abContainer
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+
+multiple levels of inference, 
+
+```
+[] (AB, A, B) {
+    *{
+        [AB] ab = \[AB]:new;
+        [?] barOne = \[Container<[AB]>]:as ab;  @ type of barOne is [Container<[AB]>]
+        [?] barTwo = \barOne:get;               @ type of barTwo is [AB]
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
 
 
 ### Type Inference of Class Generics
 - ([Container<[?]>]:containing) =T= ([['E]->[Container<['E]>]]), can embed generic inferrence inside, i.e.[Container<[Container<[?]>]>]:containing is ([[Container<['E]>]->[Container<[Container<['E]>]>]])
-= disjoint types [[?]\[?]], method types [[?]->[?]], always matching to the most child/complex/advanced type possible
 
+
+= basic example, 
 = might need cast to disabiguate when only method generic is in output 
+= find ambiguous example
+= complex example of solution to ambiguous?
+
+asdf
+
+```
+[] {
+    *{
+        [[Transformation<[String][Integer]>]/[Transformation<[Integer][String]>]] stringToFromInteger1 = [:[Transformation<[String][Integer]>] :[Transformation<[Integer][String]>]] {
+                || ++ transform *([String] s) -> [Integer] {...} -> ...
+                || ++ transform *([Integer] i) -> [String] {...} -> ...
+            };
+    }
+}
+
+[Transformation< A, B >] {
+    ++ transform [[&A]->[&B]]
+}
+```
+
+
+
+```
+[] {
+    *{
+        [[Transformation<[String][Integer]>]/[Transformation<[Integer][String]>]] stringToFromInteger1 = [:[Transformation<[String][Integer]>] :[Transformation<[Integer][String]>]] {
+                || ++ transform *([String] s) -> [Integer] {...} -> ...
+                || ++ transform *([Integer] i) -> [String] {...} -> ...
+            };
+    }
+}
+
+[Transformation< A, B >] {
+    ++ transform [[&A]->[&B]]
+}
+```
 
 
 ### Type Inference of Unimplemented Instance Methods
 Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
 
 must using [?], THing<[?]>
+
+= simple example
+= ambiguous?
+= solve ambiguous with complex
 
 ### Type Inference of Type Casting
 
@@ -7951,9 +8314,15 @@ must using [?], THing<[?]>
 no ambiguous allowed, most child one
 
 
+= simple example
+= ambiguous?
+= solve ambiguous with complex
+
+
 ### Method Context Type
 ```
 [* ?]
+in embedded methods
 ```
 ### Parent Context Type
 
@@ -8669,6 +9038,21 @@ compile export import <path> [ ] { } ( ) ! , ->
     ::+++ add *([Addition<[[&E]/['V]]>] v1, [Addition<[[&E]/['V]]>] v2) -> [[&E]/['V]] {} -> (\v1:add_Implementation v1 v2)
 }
 
+```
+
+```
+[] {
+    *{
+        [[Transformation<[String][Integer]>]/[Transformation<[Integer][String]>]] stringToFromInteger1 = [:[Transformation<[String][Integer]>] :[Transformation<[Integer][String]>]] {
+                || ++ transform *([String] s) -> [Integer] {...} -> ...
+                || ++ transform *([Integer] i) -> [String] {...} -> ...
+            };
+    }
+}
+
+[Transformation< A, B >] {
+    ++ transform [[&A]->[&B]]
+}
 ```
 
 # Grammar
