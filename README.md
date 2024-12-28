@@ -7990,7 +7990,7 @@ In the following example, using [duplicate inheritance](#duplicate-inheritance);
 
 [B] { ~ new *{} }
 ```
-Changing the partial type to **[DualContainer<[A][?]>]**, now **bar** is no longer ambiguous:
+Changing the partial type to **[DualContainer<[A][?]>]**, now the output type of **bar** is no longer ambiguous:
 ```
 [Foo] (AB, A, B, Container, DualContainer) {
 
@@ -8034,7 +8034,7 @@ Changing the partial type to **[DualContainer<[A][?]>]**, now **bar** is no long
 
 [B] { ~ new *{} }
 ```
-Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the output type of **barOne** and **barTwo** are infered as **[AB]**, although the result of invoking these methods cwould result in an infinite execution loop.
+Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the output type of **barOne** and **barTwo** are infered as **[AB]**, although the result of invoking these methods would result in an infinite execution loop.
 ```
 [Foo] (AB, A, B) {
 
@@ -8097,6 +8097,7 @@ A partial type can be used as left hand side type declaration in an assignment s
 3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
+In the following example, the assigned type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the right hand side **\\[AB]:new**:
 ```
 [] (AB, A, B) {
     *{         
@@ -8118,14 +8119,7 @@ A partial type can be used as left hand side type declaration in an assignment s
 
 [B] { ~ new *{} }
 ```
-
-
-[duplicate inheritance](#duplicate-inheritance)
-
-
-ambiguous
-
-
+In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **bar** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
 ```
 [] (AB, A, B, Container, DualContainer) {
     *{  
@@ -8168,10 +8162,7 @@ ambiguous
 
 [B] { ~ new *{} }
 ```
-
-not anymore
-[see disjoint types](#disjoint-types)
-[[DualContainer<[A][?]>]/[?]] is matching [[DualContainer<[A][B]>]/[DualContainer<[A][B]>]] which is the same as [DualContainer<[A][B]>]
+Changing the partial type to **[DualContainer<[A][?]>]**, now the type of **bar** is no longer ambiguous:
 ```
 [Foo] (AB, A, B, Container, DualContainer) {
 
@@ -8215,9 +8206,7 @@ not anymore
 
 [B] { ~ new *{} }
 ```
-
-multiple levels of inference, 
-
+Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the type of **barOne** is inferred as **[Container<[AB]>]** and the type of **barTwo** is inferred as **[AB]**.
 ```
 [] (AB, A, B) {
     *{
@@ -8308,6 +8297,7 @@ must using [?], THing<[?]>
 = simple example
 = ambiguous?
 = solve ambiguous with complex
+= missing type or never existed is possible?
 
 ### Type Inference of Type Casting
 
