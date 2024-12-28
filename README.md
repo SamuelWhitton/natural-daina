@@ -5439,7 +5439,7 @@ An overloaded method can be chosen explicitly by [type casting](#type-casting) t
 }
 ```
 
-Class methods and the entry point method can be defined with an expression (this can be a [compound expression](#compound-expressions-and-statements)). Considered the following example where the method **bar**, **createA**, **doThing** and the entry point method have been defined using expressions which evautate to lambda objects:
+Class methods and the entry point method can be defined with an expression (this can be a [compound expression](#compound-expressions-and-statements) or [flexible method expression](#flexible-method-expression)). Considered the following example where the method **bar**, **createA**, **doThing** and the entry point method have been defined using expressions which evautate to lambda objects:
 ```
 [] (A) {
     [A]:bar
@@ -7895,7 +7895,13 @@ asdf
 
 ### Type Inference of Method Outputs
 
-A method output type in a 
+A partial type can be used as a method output type. In which case, the concrete method output type is inferred based on the following rules:
+1. The concrete type matches the partial type
+2. The concrete type is a parent of or equivalent to the method output expression
+3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
+
+In the following example, the output type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the output object **ab**:
 ```
 [Foo] (AB, A, B) {
 
@@ -7918,8 +7924,8 @@ A method output type in a
 
 [B] { ~ new *{} }
 ```
-
-without body and output type, same as previous example
+A method returning an object be written with no method body and no output type, this is equivalent to having a output type of **[?]**.
+The previous example of **bar** is rewritten this way:
 ```
 [Foo] (AB, A, B) {
 
@@ -7940,13 +7946,7 @@ without body and output type, same as previous example
 
 [B] { ~ new *{} }
 ```
-
-[duplicate inheritance](#duplicate-inheritance)
-
-
-ambiguous
-
-
+In the following example, using [duplicate inheritance](#duplicate-inheritance); the output type of **bar** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
 ```
 [Foo] (AB, A, B, Container, DualContainer) {
 
@@ -7990,8 +7990,7 @@ ambiguous
 
 [B] { ~ new *{} }
 ```
-
-not anymore
+Changing the partial type to **[DualContainer<[A][?]>]**, now **bar** is no longer ambiguous:
 ```
 [Foo] (AB, A, B, Container, DualContainer) {
 
@@ -8035,9 +8034,7 @@ not anymore
 
 [B] { ~ new *{} }
 ```
-
-multiple levels of inference, even though in this case an infinite loop occurs
-
+Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the output type of **barOne** and **barTwo** are infered as **[AB]**, although the result of invoking these methods cwould result in an infinite execution loop.
 ```
 [Foo] (AB, A, B) {
 
@@ -8060,8 +8057,7 @@ multiple levels of inference, even though in this case an infinite loop occurs
 
 [B] { ~ new *{} }
 ```
-
-ambiguous because type loop
+Changing the explicit output type of **barThree** to an inferred type, this is invalid as it results in ambiguous output types:
 ```
 [Foo] (AB, A, B) {
 
@@ -8084,8 +8080,7 @@ ambiguous because type loop
 
 [B] { ~ new *{} }
 ```
-
-can use method generics
+Inferred method outputs can be used to infer method generic types:
 ```
 [] {
     *{
@@ -8095,6 +8090,12 @@ can use method generics
 ```
 
 ### Type Inference of Assignments
+
+A partial type can be used as left hand side type declaration in an assignment statement. In which case, the concrete assignment type is inferred based on the following rules:
+1. The concrete type matches the partial type
+2. The concrete type is a parent of or equivalent to the right hand side of the assignment
+3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
 ```
 [] (AB, A, B) {
@@ -8258,9 +8259,11 @@ multiple levels of inference,
 
 
 = basic example, 
-= might need cast to disabiguate when only method generic is in output 
+= might need cast to disabiguate when only method generic is in output  [flexible method expression](#flexible-method-expression)
 = find ambiguous example
 = complex example of solution to ambiguous?
+
+
 
 asdf
 
@@ -8349,7 +8352,7 @@ in embedded methods
 = cast and then type inference
 
 ## Scope
-
+need this???
 ```
 *^ method self, method type [*?]
 ^ inside anonymous class objects it does refer to the anonymous class (see self reference)
@@ -8370,6 +8373,7 @@ overlapping method generic types inside method, using ['A] in method etc
 
 
 ## Variables and Mutability
+need this???
 lack of these in lanugaue level
 
 
