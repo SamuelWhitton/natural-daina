@@ -62,7 +62,6 @@
         - [Self Context Type](#self-context-type)
     + [Type Casting](#type-casting)
     + [Scope](#scope)
-    + [Variables and Mutability](#variables-and-mutability)
     + [Visibility and Inheritance of Constructors and Type Methods](#visibility-and-inheritance-of-constructors-and-type-methods)
     + [Void Identifier](#void-identifier)
 
@@ -267,6 +266,10 @@ A reverse dependancy must be adhered to strictly, thus in this example the defin
 [ClassA] () -> (ClassB) {}
 
 [ClassB] () {} @ Invalid; ClassB must depend on ClassA
+```
+A reverse dependancy list can be left empty, this prevents any class from depending on it. **ClassA** has an empty reverse dependancy list in the following example.
+```
+[ClassA] () -> () {} @ No class can depend on ClassA
 ```
 Classes are a template used to create objects. Instance is another word used for object. Instance objects are objects tied to another object/instance (often called instance variable in other languages). The instance object **aObject** is added to **ClassC** in the following example.
 ```
@@ -3438,6 +3441,7 @@ In this next example, **aDog** and **aBird** are created as anonymous class obje
     ++ sleep *{}
 }
 ```
+When using identifiers **:**, **$**, **$$**, **$$$** and so on to identify self and parent, constructors and methods; these always refer to the inner most class or anonymous class object where the identifier is located.
 
 Consider the expression which creates the anonymous class object **aDog** from the previous example:
 ```
@@ -7958,8 +7962,9 @@ In the following example, using [duplicate inheritance](#duplicate-inheritance);
 [Foo] (AB, A, B, Container, DualContainer) {
 
     +++ bar *-> [Container<[?]>] {  @ Invalid; output type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
-        [AB] ab = \[AB]:new;
-        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as ab ab;
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as a b;
     } -> abContainer
 }
 
@@ -8002,8 +8007,9 @@ Changing the partial type to **[DualContainer<[A][?]>]**, now the output type of
 [Foo] (AB, A, B, Container, DualContainer) {
 
     +++ bar *-> [DualContainer<[A][?]>] {  @ Output type of bar is [DualContainer<[A][B]>]
-        [AB] ab = \[AB]:new;
-        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as ab ab;
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as a b;
     } -> abContainer
 }
 
@@ -8046,8 +8052,9 @@ If we change the partial type to the [disjoint type](#disjoint-types) **[[Contai
 [Foo] (AB, A, B, Container, DualContainer) {
 
     +++ bar *-> [[Container<[?]>]/[Container<[?]>]] {  @ Invalid; output type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
-        [AB] ab = \[AB]:new;
-        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as ab ab;
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as a b;
     } -> abContainer
 }
 
@@ -8174,8 +8181,9 @@ In the following example, using [duplicate inheritance](#duplicate-inheritance);
 ```
 [] (AB, A, B, Container, DualContainer) {
     *{  
-        [AB] ab = \[AB]:new;
-        [Container<[?]>] bar = \[DualContainer<[A][B]>]:as ab ab;  @ Invalid; type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [Container<[?]>] bar = \[DualContainer<[A][B]>]:as a b;  @ Invalid; type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
     }
 }
 
@@ -8218,8 +8226,9 @@ Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of 
 [Foo] (AB, A, B, Container, DualContainer) {
 
     *{  
-        [AB] ab = \[AB]:new;
-        [[DualContainer<[A][?]>]/[?]] bar = \[DualContainer<[A][B]>]:as ab ab;  @ type of bar is [DualContainer<[A][B]>]
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [[DualContainer<[A][?]>]/[?]] bar = \[DualContainer<[A][B]>]:as a b;  @ type of bar is [DualContainer<[A][B]>]
     }
 }
 
@@ -8707,12 +8716,13 @@ In this first example, the expression **\\[AB]:new** is cast as the partial type
 
 [B] { ~ new *{} }
 ```
-In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **[Container<[?]>](\[DualContainer<[A][B]>]:as ab ab)** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
+In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **[Container<[?]>](\[DualContainer<[A][B]>]:as a b)** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
 ```
 [] (AB, A, B, Container, DualContainer) {
     *{  
-        [AB] ab = \[AB]:new;
-        [] bar = [Container<[?]>](\[DualContainer<[A][B]>]:as ab ab);  @ Invalid; type of the expression is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [] bar = [Container<[?]>](\[DualContainer<[A][B]>]:as a b);  @ Invalid; type of the expression is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
     }
 }
 
@@ -8755,8 +8765,9 @@ Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of 
 [Foo] (AB, A, B, Container, DualContainer) {
 
     *{  
-        [AB] ab = \[AB]:new;
-        [] bar = [[DualContainer<[A][?]>]/[?]](\[DualContainer<[A][B]>]:as ab ab);  @ type of the expression is [DualContainer<[A][B]>]
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [] bar = [[DualContainer<[A][?]>]/[?]](\[DualContainer<[A][B]>]:as a b);  @ type of the expression is [DualContainer<[A][B]>]
     }
 }
 
@@ -8980,40 +8991,23 @@ A few examples of using **[:?]** can be seen in the following example, including
 
 ## Type Casting
 
-= genercal use with wrong type will attempt to cast implicitly
-= accessing non inherited visible methods which are in fact externaly or class visible
-= can cast down not up, visa versa???
-= using type cast to select overloaded method which must not be ambiguous [Overloading Class Methods] + inferred type casting for overloaded, , must match only one of the overloaded methods i.e. cant cast to a smaller set of overloaded methods 
-= composite expressions, using to expose external visible but not inherited...
-= using type cast to select overloaded method when refering to it  flexibly, inferred casting [type casting](#type-casting), cast from overload must not be ambiguous
-= has very strong binding
-= flexible method expression, setting class method with object, casting it to change class method type
-= cast and then type inference
+
+- casting to different type example, must be parent
+- implicit cast when put into method input invocation, instance object assignment, or assigning method [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
+- accessing non inherited visible methods which are in fact externaly or class visible
+- [flexible method expression](#flexible-method-expression) can set class method with lamdba directly and the method type can be underloaded, unless cast is used ([see overloading and underloading](#overloading-and-underloading))
+
 
 ## Scope
-need this???
-```
-*^ method self, method type [*?]
-^ inside anonymous class objects it does refer to the anonymous class (see self reference)
-: and $ refer to anaymous class inside analymous class and not the outside class (put inside anaymous class section), methods/constructors and types [:?][$$?]
-aboslutely no conflicts or hiding types or objects (no ambiguity)
-Anonymous Class Object///
-lambdas
-statement group [Compound Expressions and Statements](#compound-expressions-and-statements)
-prologue statment
-can scope hide variables? no it cant.... not allowed, 
-method generics hiding other method generics etc, method generic same name inside method body is actually same type, not its own generic
-overlapping method generic types inside method, using ['A] in method etc
- [['M]->['M]] m = *(["M]m)->m; is valid becuase the m inside doesnt hide the oiriginal m scope
- [['M]->['M]] m = *(["M]o)->o;[['M]->['M]] p = *(["M]m)->m; is not valid because m gets hidden in second statement
- ["K] will block ["K] in an embedded landba but [['K]->['K]] will not block [['K]->['K]] and is the same as [['KM]->['KM]]
- [['KM]->['KM]] is independant of [['KM]->['KM]] but [["KM]->["KM]] is dependant to [["KM]->["KM]]
-```
+
+- scope refers to what is visible and hidden
 
 
-## Variables and Mutability
-need this???
-lack of these in lanugaue level
+- nothing is hidden aboslutely no conflicts or hiding types or objects (no ambiguity)
+
+
+See [compound expressions and statements](#compound-expressions-and-statements) for scope rules regarding statement blocks.
+See [anonymous class objects.](#anonymous-class-objects) for scope rules regarding anonymous class objects.
 
 
 ## Visibility and Inheritance of Constructors and Type Methods
@@ -9035,6 +9029,9 @@ lack of these in lanugaue level
 
 ## Void Identifier
 
+Can be used anywhere with no exceptions for regular identifier name of: (local declaration, lambda input)
+These cannot be referred to
+Can be used in concert with [root type](#root-type) to also eliminate type
 ```
 _
 ```
@@ -9698,6 +9695,15 @@ compile export import <path> [ ] { } ( ) ! , ->
 }
 ```
 
+```
+
+## Variables and Mutability
+need this???
+lack of these in lanugaue level
+can be implemented in libraries at the compiler/system level with example on varibales
+
+```
+
 # Grammar
 
 
@@ -10033,7 +10039,7 @@ Types within the **class-generic-instantiation** cannot be a data segment type. 
 
 ### Dependancy Structure
 - [dependancy-structure](#dependancy-structure) syntax description: **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
-    + **reverse-dependancy-list** syntax description: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
+    + **reverse-dependancy-list** syntax description: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
     + **dependancy-list** syntax description: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
 
 The [identifiers](#identifier) in the **dependancy-list** refer to [classes](#class) which are depended on by the parent of this dependancy structure. The [identifiers](#identifier) in the **reverse-dependancy-list** refer to [classes](#class) which depend on the parent of this dependancy structure. [See dependancies.](#classes-types-objects-and-dependancies)
@@ -10179,7 +10185,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
         + **data-segment-type-structure**: [%](#percent-sign) [identifier](#identifier)
         + **inferred-type-structure**: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
     - [dependancy-structure](#dependancy-structure): **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
-        + **reverse-dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
+        + **reverse-dependancy-list**: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
         + **dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
     - [object-declaration](#object-declaration): [type](#type) [identifier](#identifier)
     - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
