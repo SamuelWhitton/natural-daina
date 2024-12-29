@@ -8034,6 +8034,50 @@ Changing the partial type to **[DualContainer<[A][?]>]**, now the output type of
 
 [B] { ~ new *{} }
 ```
+If we change the partial type to the [disjoint type](#disjoint-types) **[[Container<[?]>]/[Container<[?]>]]**, this is also ambiguous since it can match **[[Container<[A]>]/[Container<[B]>]]** but it can also match **[[Container<[A]>]/[Container<[A]>]]** which is equivalent to **[Container<[A]>]**:
+```
+[Foo] (AB, A, B, Container, DualContainer) {
+
+    +++ bar *-> [[Container<[?]>]/[Container<[?]>]] {  @ Invalid; output type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+        [AB] ab = \[AB]:new;
+        [DualContainer<[A][B]>] abContainer = \[DualContainer<[A][B]>]:as ab ab;
+    } -> abContainer
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
 Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the output type of **barOne** and **barTwo** are infered as **[AB]**, although the result of invoking these methods would result in an infinite execution loop.
 ```
 [Foo] (AB, A, B) {
@@ -8208,7 +8252,7 @@ Changing the partial type to **[DualContainer<[A][?]>]**, now the type of **bar*
 ```
 Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the type of **barOne** is inferred as **[Container<[AB]>]** and the type of **barTwo** is inferred as **[AB]**.
 ```
-[] (AB, A, B) {
+[] (AB, A, B, Container) {
     *{
         [AB] ab = \[AB]:new;
         [?] barOne = \[Container<[AB]>]:as ab;  @ type of barOne is [Container<[AB]>]
@@ -8244,53 +8288,208 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 
 
 ### Type Inference of Class Generics
-- ([Container<[?]>]:containing) =T= ([['E]->[Container<['E]>]]), can embed generic inferrence inside, i.e.[Container<[Container<[?]>]>]:containing is ([[Container<['E]>]->[Container<[Container<['E]>]>]])
+
+A partial types can be used for instantiating a class generic when refering to a type method or a constructor. Every **[?]** of the partial will be replaced with a new method generic type. In the following example, **createContainer**, **createTransformation**, **modifyContainer** and **createContainerTransformation** are lambda objects created with [flexible method expression](#flexible-method-expression) by instantiating class generics.
+```
+[] (Container, Transformation) {
+    *{
+        [['Q]->[Container<['Q]>]] createContainer = [Container<[?]>]:as;
+        [[['Q]->['V]]->[Transformation<['Q]['V]>]] createTransformation = [Transformation<[?][?]>]:as;
+        [[Container<['Q]>][Transformation<['Q]['N]>]->[Container<['N]>]] modifyContainer = [Container<[?]>]:map;
+        [[[Container<['Q]>]->[Container<['V]>]]->[Transformation<[Container<['Q]>][Container<['V]>]>]] createContainerTransformation = [Transformation<[Container<[?]>][Container<[?]>]>]:as;
+    }
+}
 
 
-= basic example, 
-= might need cast to disabiguate when only method generic is in output  [flexible method expression](#flexible-method-expression)
-= find ambiguous example
-= complex example of solution to ambiguous?
+[Container<E>] (Transformation)
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+
+    :: map *([Container<[&E]>] container, [Transformation<[&E]['M]>] transformation) -> [Container<['M]>] {
+        [&E] object = \
+        [Container<['M]>] newContainer = \transformation:transform
+    }
+}
+
+
+[Transformation<A,B>] 
+    [[&A]->[&B]] transform
+{
+    ~ as *([[&A]->[&B]] transform) {
+        .transform = transform;
+    }
+
+    ++ transform *([&A] a) -> [&B] {} -> \.transform a
+}
+```
+These type and constrctor methods can be directly invoked the same as other methods with method generics:
+```
+[] (A, B, Container, Transformation) {
+    *{
+        [A] a = \[A]:new;
+        [B] b = \[B]:new;
+        [Container<[A]>] aContainer = \[Container<[?]>]:as a;
+        [Container<[B]>] bContainer = \[Container<[?]>]:as b;
+        [[Container<[A]>]->[A]] unwrapA = *([Container<[A]>] container) -> [A] -> \container:get;
+        [[Container<[B]>]->[B]] unwrapB = *([Container<[B]>] container) -> [B] -> \container:get;
+        [Transformation<[Container<[A]>][A]>] unwrapAContainer = \[Transformation<[Container<[?]>][?]>]:as unwrapA;
+        [Transformation<[Container<[B]>][B]>] unwrapBContainer = \[Transformation<[Container<[?]>][?]>]:as unwrapB;
+    }
+}
+
+
+[Container<E>] (Transformation)
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+
+    :: map *([Container<[&E]>] container, [Transformation<[&E]['M]>] transformation) -> [Container<['M]>] {
+        [&E] object = \
+        [Container<['M]>] newContainer = \transformation:transform
+    }
+}
+
+
+[Transformation<A,B>] 
+    [[&A]->[&B]] transform
+{
+    ~ as *([[&A]->[&B]] transform) {
+        .transform = transform;
+    }
+
+    ++ transform *([&A] a) -> [&B] {} -> \.transform a
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+In some cases method generics will exist only in the output type of a method, this can cause ambiguous invocations of a lambda object:
+```
+[] (A, B, Maybe) {
+    *{
+        [->[Maybe<['E]>]] makeNothing = [Maybe<[?]>]:nothing;
+        [Maybe<[A]>] nothing1 = \makeNothing;           @ Invalid; \makeNothing causes ambiguous method generic type
+        [Maybe<[B]>] nothing2 = \makeNothing;           @ Invalid; \makeNothing causes ambiguous method generic type
+        [Maybe<[A]>] nothing3 = \[Maybe<[?]>]:nothing;  @ Invalid; \[Maybe<[?]>]:nothing causes ambiguous method generic type
+        [Maybe<[B]>] nothing4 = \[Maybe<[?]>]:nothing;  @ Invalid; \[Maybe<[?]>]:nothing causes ambiguous method generic type
+    }
+}
+
+
+[Maybe<E>] {
+
+    ~ as *([&E] object) {}
+    ~ nothing *{}
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+The method generic type can be disambiguated using [type casting](#type-casting):
+```
+[] (A, B, Maybe) {
+    *{
+        [->[Maybe<['E]>]] makeNothing = [Maybe<[?]>]:nothing;
+        [Maybe<[A]>] nothing1 = \[Maybe<[A]>](makeNothing);
+        [Maybe<[B]>] nothing2 = \[Maybe<[B]>](makeNothing);
+        [Maybe<[A]>] nothing3 = \[Maybe<[A]>]([Maybe<[?]>]:nothing);
+        [Maybe<[B]>] nothing4 = \[Maybe<[B]>]([Maybe<[?]>]:nothing);
+    }
+}
+
+
+[Maybe<E>] {
+
+    ~ as *([&E] object) {}
+    ~ nothing *{}
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+Class generic inference can be used with [overloaded class methods](#overloading-class-methods), this can create ambiguous invocations just like when method generics are used in overloaded methods:
+```
+[] (A, B, Transformation) {
+    *{
+        [->[A]] wrappedA = *-> [A] -> \[A]:new;
+        [->[->[A]]] doubleWrappedA = *-> [->[A]] -> wrappedA;
+        [[->['M]]->['M]] unwrapSomething = [Unwrapper<[?]>]:unwrap;           @ Invalid; ambiguous since [Unwrapper<[?]>]:unwrap can match 2 methods
+        [[->[->['M]]]->['M]] doubleUnwrapSomething = [Unwrapper<[?]>]:unwrap; @ Invalid; ambiguous since [Unwrapper<[?]>]:unwrap can match 2 methods
+        [A] aUnwrapped = \[Unwrapper<[?]>]:unwrap wrappedA;                   @ Valid; unambiguous since invocation can only match the first unwrap method
+        [->[A]] aUnwrappedOnce = \[Unwrapper<[?]>]:unwrap doubleWrappedA;     @ Invalid; ambiguous since invocation can match both unwrap methods
+        [A] aUnwrappedTwice = \[Unwrapper<[?]>]:unwrap doubleWrappedA;        @ Invalid; ambiguous since invocation can match both unwrap methods
+    }
+}
+
+
+[Unwrapper<E>] {
+
+    :: unwrap *([->[&E]] lamdba) -> [&E] {
+        [&E] unwrapped = \lamda;
+    } -> unwrapped
+
+    :: unwrap *([->[->[&E]]] lamdba) -> [&E] {
+        [->[&E]] unwrapped1 = \lamda;
+        [&E] unwrapped2 = \unwrapped1;
+    } -> unwrapped2
+}
+
+
+[A] { ~ new *{} }
+```
+We can disabiguate these invocations with [type casting](#type-casting):
+```
+[] (A, B, Transformation) {
+    *{
+        [->[A]] wrappedA = *-> [A] -> \[A]:new;
+        [->[->[A]]] doubleWrappedA = *-> [->[A]] -> wrappedA;
+        [[->['M]]->['M]] unwrapSomething = [[->['M]]->['M]]([Unwrapper<[?]>]:unwrap);
+        [[->[->['M]]]->['M]] doubleUnwrapSomething = [[->[->['M]]]->['M]]([Unwrapper<[?]>]:unwrap); 
+        [A] aUnwrapped = \[Unwrapper<[?]>]:unwrap wrappedA;          
+        [->[A]] aUnwrappedOnce = \[[->['M]]->['M]]([Unwrapper<[?]>]:unwrap) doubleWrappedA; 
+        [A] aUnwrappedTwice = \[[->[->['M]]]->['M]]([Unwrapper<[?]>]:unwrap) doubleWrappedA; 
+    }
+}
+
+
+[Unwrapper<E>] {
+
+    :: unwrap *([->[&E]] lamdba) -> [&E] {
+        [&E] unwrapped = \lamda;
+    } -> unwrapped
+
+    :: unwrap *([->[->[&E]]] lamdba) -> [&E] {
+        [->[&E]] unwrapped1 = \lamda;
+        [&E] unwrapped2 = \unwrapped1;
+    } -> unwrapped2
+}
+
+
+[A] { ~ new *{} }
+```
+
+### Type Inference of Unimplemented Instance Methods
+Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
 
 
 
 asdf
 
-```
-[] {
-    *{
-        [[Transformation<[String][Integer]>]/[Transformation<[Integer][String]>]] stringToFromInteger1 = [:[Transformation<[String][Integer]>] :[Transformation<[Integer][String]>]] {
-                || ++ transform *([String] s) -> [Integer] {...} -> ...
-                || ++ transform *([Integer] i) -> [String] {...} -> ...
-            };
-    }
-}
-
-[Transformation< A, B >] {
-    ++ transform [[&A]->[&B]]
-}
-```
-
-
-
-```
-[] {
-    *{
-        [[Transformation<[String][Integer]>]/[Transformation<[Integer][String]>]] stringToFromInteger1 = [:[Transformation<[String][Integer]>] :[Transformation<[Integer][String]>]] {
-                || ++ transform *([String] s) -> [Integer] {...} -> ...
-                || ++ transform *([Integer] i) -> [String] {...} -> ...
-            };
-    }
-}
-
-[Transformation< A, B >] {
-    ++ transform [[&A]->[&B]]
-}
-```
-
-
-### Type Inference of Unimplemented Instance Methods
-Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
 
 must using [?], THing<[?]>
 
