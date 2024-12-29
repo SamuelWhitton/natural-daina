@@ -8669,33 +8669,19 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 
 ### Type Inference of Type Casting
 
-asdf
-
-= inferred type casting in general
-[type casting](#type-casting)
-
-no ambiguous allowed, most child one
-
-
-= simple example
-= ambiguous?
-= solve ambiguous with complex
-
-
-
-
-
-A partial type can be used as left hand side type declaration in an assignment statement. In which case, the concrete assignment type is inferred based on the following rules:
+A partial type can be used to [type cast](#type-casting). In which case, the concrete cast type type is inferred based on the following rules:
 1. The concrete type matches the partial type
-2. The concrete type is a parent of or equivalent to the right hand side of the assignment
+2. The concrete type is a parent of or equivalent to the object being type cast
 3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
-In the following example, the assigned type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the right hand side **\\[AB]:new**.
+In the following examples the [root type](#root-type) is used as the assigned type for the assignment statements, and expressions are using [compound expressions](#compound-expressions-and-statements).
+
+In this first example, the expression **\\[AB]:new** is cast as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the expression.
 ```
 [] (AB, A, B) {
     *{         
-        [?] bar = \[AB]:new;  @ type of bar is [AB]
+        [] bar = [?](\[AB]:new);  @ type of [?](\[AB]:new) is [AB]
     }
 }
 
@@ -8713,12 +8699,12 @@ In the following example, the assigned type of **bar** is written as the partial
 
 [B] { ~ new *{} }
 ```
-In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **bar** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
+In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **[Container<[?]>](\[DualContainer<[A][B]>]:as ab ab)** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
 ```
 [] (AB, A, B, Container, DualContainer) {
     *{  
         [AB] ab = \[AB]:new;
-        [Container<[?]>] bar = \[DualContainer<[A][B]>]:as ab ab;  @ Invalid; type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+        [] bar = [Container<[?]>](\[DualContainer<[A][B]>]:as ab ab);  @ Invalid; type of the expression is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
     }
 }
 
@@ -8756,13 +8742,13 @@ In the following example, using [duplicate inheritance](#duplicate-inheritance);
 
 [B] { ~ new *{} }
 ```
-Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of **bar** is no longer ambiguous:
+Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of the expression is no longer ambiguous:
 ```
 [Foo] (AB, A, B, Container, DualContainer) {
 
     *{  
         [AB] ab = \[AB]:new;
-        [[DualContainer<[A][?]>]/[?]] bar = \[DualContainer<[A][B]>]:as ab ab;  @ type of bar is [DualContainer<[A][B]>]
+        [] bar = [[DualContainer<[A][?]>]/[?]](\[DualContainer<[A][B]>]:as ab ab);  @ type of the expression is [DualContainer<[A][B]>]
     }
 }
 
@@ -8800,13 +8786,12 @@ Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of 
 
 [B] { ~ new *{} }
 ```
-Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the type of **barOne** is inferred as **[Container<[AB]>]** and the type of **barTwo** is inferred as **[AB]**.
+Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the type of **[?](\[Container<[AB]>]:as ab)** is inferred as **[Container<[AB]>]** and the type of **[?](\[?](\[Container<[AB]>]:as ab):get)** is inferred as **[AB]**.
 ```
 [] (AB, A, B, Container) {
     *{
         [AB] ab = \[AB]:new;
-        [?] barOne = \[Container<[AB]>]:as ab;  @ type of barOne is [Container<[AB]>]
-        [?] barTwo = \barOne:get;               @ type of barTwo is [AB]
+        [] bar = [?](\[?](\[Container<[AB]>]:as ab):get);  @ type of expression is [AB]
     }
 }
 
@@ -8835,7 +8820,6 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 
 [B] { ~ new *{} }
 ```
-
 
 ### Method Context Type
 ```
