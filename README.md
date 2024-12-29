@@ -4662,7 +4662,7 @@ To refer to a class, the class must be added as a dependancy. The following exam
 }
 
 [Foo] (A, B) {
-    :: getA *-> [A] -> \[A]:new
+    :: getA *-> [A] {} -> \[A]:new
     :: sendA *([A] a) {}
     :: sendB *([B] b) {}
 }
@@ -4686,7 +4686,7 @@ If the type of a method from another class has contains references to non-depend
 }
 
 [Foo] (A, B) {
-    :: getA *-> [A] -> \[A]:new
+    :: getA *-> [A] {} -> \[A]:new
     :: sendA *([A] a) {}
     :: sendB *([B] b) {}
 }
@@ -4710,7 +4710,7 @@ In the following example, **[Foo]:sendA** is invoked with a parameter from **\\[
 }
 
 [Foo] (A, B) {
-    :: getA *-> [A] -> \[A]:new
+    :: getA *-> [A] {} -> \[A]:new
     :: sendA *([A] a) {}
     :: sendB *([B] b) {}
 }
@@ -4734,7 +4734,7 @@ In the following example, **[Foo]:sendB** is invoked with a parameter from **\\[
 }
 
 [Foo] (A, B) {
-    :: getA *-> [A] -> \[A]:new
+    :: getA *-> [A] {} -> \[A]:new
     :: sendA *([A] a) {}
     :: sendB *([B] b) {}
 }
@@ -7742,7 +7742,7 @@ A generic can be instantiated with **[]** when the input lambda has no output. F
 [] (Beetle, Bug) {
     *{
         [[->['E]]->['E]] invoke = *([->['E]] lambda) -> ['E] {} -> \lambda;
-        [->[Beetle]] newBeetle = *-> [Beetle] -> \[Beetle]:new;
+        [->[Beetle]] newBeetle = *-> [Beetle] {} -> \[Beetle]:new;
         [->] doNothing = *{};
         [Beetle] beetle = \invoke newBeetle;   @ Outputs a [Beetle]; newBeetle instantiates ['E] with [Beetle]
         \invoke doNothing;                     @ Has no output; doNothing instantiates ['E] with []
@@ -7829,6 +7829,14 @@ Inside an [anonymous class object](#anonymous-class-objects), **^** refers to th
         \^:privateMethod;  @ Invalid; privateMethod does not have class or external visibility
     }
     --- privateMethod *{}
+}
+```
+**^** can't be used inside the entry point class ([see root type](#root-type) which is used in this example):
+```
+[] {
+    *{
+        [] foo = ^;  @ Invalid; ^ can't be used inside the entry point class
+    }
 }
 ```
 
@@ -8083,7 +8091,7 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 
     +++ barOne *-> \:barTwo             @ Output type of barOne is [AB]
     +++ barTwo *-> \:barThree           @ Output type of barTwo is [AB]
-    +++ barThree *-> [AB] -> \:barOne
+    +++ barThree *-> [AB] {} -> \:barOne
 }
 
 
@@ -8334,8 +8342,8 @@ These type and constrctor methods can be directly invoked the same as other meth
         [B] b = \[B]:new;
         [Container<[A]>] aContainer = \[Container<[?]>]:as a;
         [Container<[B]>] bContainer = \[Container<[?]>]:as b;
-        [[Container<[A]>]->[A]] unwrapA = *([Container<[A]>] container) -> [A] -> \container:get;
-        [[Container<[B]>]->[B]] unwrapB = *([Container<[B]>] container) -> [B] -> \container:get;
+        [[Container<[A]>]->[A]] unwrapA = *([Container<[A]>] container) -> [A] {} -> \container:get;
+        [[Container<[B]>]->[B]] unwrapB = *([Container<[B]>] container) -> [B] {} -> \container:get;
         [Transformation<[Container<[A]>][A]>] unwrapAContainer = \[Transformation<[Container<[?]>][?]>]:as unwrapA;
         [Transformation<[Container<[B]>][B]>] unwrapBContainer = \[Transformation<[Container<[?]>][?]>]:as unwrapB;
     }
@@ -8425,8 +8433,8 @@ Class generic inference can be used with [overloaded class methods](#overloading
 ```
 [] (A, B, Transformation) {
     *{
-        [->[A]] wrappedA = *-> [A] -> \[A]:new;
-        [->[->[A]]] doubleWrappedA = *-> [->[A]] -> wrappedA;
+        [->[A]] wrappedA = *-> [A] {} -> \[A]:new;
+        [->[->[A]]] doubleWrappedA = *-> [->[A]] {} -> wrappedA;
         [[->['M]]->['M]] unwrapSomething = [Unwrapper<[?]>]:unwrap;           @ Invalid; ambiguous since [Unwrapper<[?]>]:unwrap can match 2 methods
         [[->[->['M]]]->['M]] doubleUnwrapSomething = [Unwrapper<[?]>]:unwrap; @ Invalid; ambiguous since [Unwrapper<[?]>]:unwrap can match 2 methods
         [A] aUnwrapped = \[Unwrapper<[?]>]:unwrap wrappedA;                   @ Valid; unambiguous since invocation can only match the first unwrap method
@@ -8455,8 +8463,8 @@ We can disabiguate these invocations with [type casting](#type-casting):
 ```
 [] (A, B, Transformation) {
     *{
-        [->[A]] wrappedA = *-> [A] -> \[A]:new;
-        [->[->[A]]] doubleWrappedA = *-> [->[A]] -> wrappedA;
+        [->[A]] wrappedA = *-> [A] {} -> \[A]:new;
+        [->[->[A]]] doubleWrappedA = *-> [->[A]] {} -> wrappedA;
         [[->['M]]->['M]] unwrapSomething = [[->['M]]->['M]]([Unwrapper<[?]>]:unwrap);
         [[->[->['M]]]->['M]] doubleUnwrapSomething = [[->[->['M]]]->['M]]([Unwrapper<[?]>]:unwrap); 
         [A] aUnwrapped = \[Unwrapper<[?]>]:unwrap wrappedA;          
@@ -8822,20 +8830,152 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 ```
 
 ### Method Context Type
+
+**[\*?]** is the method context type. It represents the type of the inner most method expression where the method context type is located. It can be used in any place where the type it represents could be used.
+
+A few examples of using **[\*?]** can be seen in the following example, including in an [anonymous class object](#anonymous-class-objects):
 ```
-[* ?]
-in embedded methods
+[] (AB, A, B, Container, Transformation) {
+    *{
+        [*?] foo1 = *{};  @ [*?] here represents the type [->]
+        [Container<[*?]>] foo2 = \[Container<[*?]>]:as foo1;  @ [*?] here represents the type [->], thus the type of foo1 is [Container<[->]>]
+        [[AB]->[Container<[AB]>]] lambda = *([AB] ab) -> [Container<[AB]>] {
+                [*?] foo3 = *([AB] ab) -> [Container<[AB]>] {} -> \[Container<[AB]>]:as ab;  @ [*?] here represents the type [[AB]->[Container<[AB]>]]
+            } -> \foo3 ab;
+        [[Transformation<[A][B]>]/[Transformation<[B][A]>]] transformation = [:[Transformation<[A][B]>] :[Transformation<[B][A]>]] {
+                \$~new;
+                \$$~new;
+                ||++ transform *([A] a) -> [B] {
+                        [*?] foo4 = *([A] a) -> [B] {} -> \[B]:new;  @ [*?] here represents the type [[A]->[B]]
+                    } -> \foo4 a
+                ||++ transform *([B] b) -> [A] {} -> \[A]:new
+            };
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+        [*?] foo5 = *([&E] o) -> [Container<[&E]>] {} -> \[Container<[&E]>]:as o;  @ [*?] here represents the type [[&E]->[Container<[&E]>]]
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;  
+        [*?] foo6 = *-> [AB] {} -> \[AB]:new;  @ [*?] here represents the type [->[AB]]   
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+
+
+[Transformation< A, B >] {
+    ~ new *{}
+    ++ transform [[&A]->[&B]]
+}
+
 ```
+
 ### Parent Context Type
 
-[$?]
-[$$$$ ?] in anonymous class object
+A parent context type represents one of the parent types for the inner most class where the parent context type is located. **[$?]** represents the type of the first parent, **[$$?]** represents the type of the second parent, **[$$$?]** represents the type of the third parent and so on. Using a parent context type is only valid if the given parent exists. It can be used in any place where the type it represents could be used.
 
+A few examples of using parent context types can be seen in the following example, including in an [anonymous class object](#anonymous-class-objects) ([see self reference](#self-reference) which is used in this example):
+```
+[] (AB, A, B, Transformation) {
+    *{
+        [[Transformation<[A][B]>]/[Transformation<[B][A]>]] transformation = [:[Transformation<[A][B]>] :[Transformation<[B][A]>]] {
+                \$~new;
+                \$$~new;
+                ||++ transform *([A] a) -> [B] {
+                        [$?] foo1 = ^;   @ [$?] here represents the type [Transformation<[A][B]>]
+                        [$$?] foo2 = ^;  @ [$$?] here represents the type [Transformation<[B][A]>]
+                    } -> \[B]:new
+                ||++ transform *([B] b) -> [A] {} -> \[A]:new
+            };
+    }
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;  
+        [$$?] foo3 = ^;  @ [$$?] here represents the type [B]
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+
+
+[Transformation< A, B >] {
+    ~ new *{}
+    ++ transform [[&A]->[&B]]
+}
+```
 
 ### Self Context Type
 
-[:?]
-[: ?] in anonymous class object
+**[:?]** is the self context type. It represents the type of the inner most class where the self context type is located. It can be used in any place where the type it represents could be used.
+
+A few examples of using **[:?]** can be seen in the following example, including in an [anonymous class object](#anonymous-class-objects) ([see self reference](#self-reference) which is used in this example):
+```
+[] (AB, A, B, Transformation) {
+    *{
+        [:?] foo1 = \[A]:new;  @ [:?] here represents the type []
+    }
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;  
+        [:?] foo3 = ^;  @ [:?] here represents the type [AB]
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { 
+    ~ new *{
+        [[Transformation<[A][B]>]/[Transformation<[:?][A]>]] transformation = [:[Transformation<[A][:?]>] :[Transformation<[B][A]>]] {  @ [:?] here represents the type [B]
+                \$~new;
+                \$$~new;
+                ||++ transform *([A] a) -> [B] {
+                        [:?] foo2 = ^;   @ [:?] here represents the type [[Transformation<[A][B]>]/[Transformation<[B][A]>]]
+                    } -> \[B]:new
+                ||++ transform *([B] b) -> [A] {} -> \[A]:new
+            };
+    } 
+}
+
+
+[Transformation< A, B >] {
+    ~ new *{
+        [:?] foo4 = ^;  @ [:?] here represents the type [Transformation<[&A][&B]>]
+    }
+    ++ transform [[&A]->[&B]]
+}
+```
 
 
 ## Type Casting
