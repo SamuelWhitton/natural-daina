@@ -7891,7 +7891,6 @@ Partial types are used in the following sections:
 * [Type Inference of Unimplemented Class Methods](#type-inference-of-unimplemented-class-methods)
 * [Type Inference of Type Casting](#type-inference-of-type-casting)
 
-asdf
 
 ### Type Inference of Method Outputs
 
@@ -8141,7 +8140,7 @@ A partial type can be used as left hand side type declaration in an assignment s
 3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
-In the following example, the assigned type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the right hand side **\\[AB]:new**:
+In the following example, the assigned type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the right hand side **\\[AB]:new**.
 ```
 [] (AB, A, B) {
     *{         
@@ -8169,7 +8168,7 @@ In the following example, using [duplicate inheritance](#duplicate-inheritance);
     *{  
         [AB] ab = \[AB]:new;
         [Container<[?]>] bar = \[DualContainer<[A][B]>]:as ab ab;  @ Invalid; type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
-    } -> abContainer
+    }
 }
 
 
@@ -8206,14 +8205,14 @@ In the following example, using [duplicate inheritance](#duplicate-inheritance);
 
 [B] { ~ new *{} }
 ```
-Changing the partial type to **[DualContainer<[A][?]>]**, now the type of **bar** is no longer ambiguous:
+Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of **bar** is no longer ambiguous:
 ```
 [Foo] (AB, A, B, Container, DualContainer) {
 
     *{  
         [AB] ab = \[AB]:new;
         [[DualContainer<[A][?]>]/[?]] bar = \[DualContainer<[A][B]>]:as ab ab;  @ type of bar is [DualContainer<[A][B]>]
-    } -> abContainer
+    }
 }
 
 
@@ -8484,21 +8483,193 @@ We can disabiguate these invocations with [type casting](#type-casting):
 ```
 
 ### Type Inference of Unimplemented Instance Methods
-Partial Class Implementations - can use ||++ eat without type takes the original type, can use |++ eat without type or implementation, takes the original type of the existing function
+
+A partial type can be used as the type for an unimplemented class method that overrides a parent method, including when underloading the method type ([see partial class implementations](#partial-class-implementations), [see underloading class methods](#underloading-class-methods)). In which case, the concrete unimplemented class method type is inferred based on the following rules:
+1. The concrete type matches the partial type
+2. The concrete type is a parent of or equivalent to the parent method
+3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
+
+In the following example, the unimplemented type of **bar1** is written as the partial type **[?]** which is inferred to be **[[A]->]** from the type of **bar1** in **Parent**. Likewise, the unimplemented type of **bar2** is written as the partial type **[[AB]->[?]]** which is inferred to be **[[AB]->[B]]** from the type of **bar2** in **Parent**.
+```
+[Foo :[Parent]] (AB, A, B, Parent) {
+
+    |++ bar1 [?]
+    ||++ bar2 [[AB]->[?]]
+}
 
 
+[Parent] (AB, A, B) {
+    
+    ++ bar1 *([A] a) {}
+    ++ bar2 [[A]->[B]]
+}
 
-asdf
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
 
 
-must using [?], THing<[?]>
+[A] { ~ new *{} }
 
-= simple example
-= ambiguous?
-= solve ambiguous with complex
-= missing type or never existed is possible?
+[B] { ~ new *{} }
+```
+In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **bar** is ambiguous since **[->[Container<[?]>]]** can match both **[->[Container<[A]>]]** or **[->[Container<[B]>]]**.
+```
+[Foo :[Parent]] (AB, A, B, Parent, Container, DualContainer) {
+
+    ||++ bar [->[Container<[?]>]]  @ Invalid; type of bar is ambiguous, it could be [->[Container<[A]>]] or [->[Container<[B]>]]
+}
+
+
+[Parent] (AB, A, B, DualContainer) {
+    
+    ++ bar [->[DualContainer<[A][B]>]]
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+Changing the partial type to **[->[[DualContainer<[A][?]>]/[?]]]**, now the type of **bar** is no longer ambiguous:
+```
+[Foo :[Parent]] (AB, A, B, Parent, Container, DualContainer) {
+
+    ||++ bar [->[[DualContainer<[A][?]>]/[?]]]  @ type of bar is [->[DualContainer<[A][B]>]]
+}
+
+
+[Parent] (AB, A, B, DualContainer) {
+    
+    ++ bar [->[DualContainer<[A][B]>]]
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the type of **bar** in **Parent** is inferred as **[->[DualContainer<[->[A]][B]>]]** and the type of **bar** in **Foo** is inferred as **[->[Container<[->[A]]>]]**.
+```
+[Foo :[Parent]] (AB, A, B, Parent, Container, DualContainer) {
+
+    ||++ bar [->[Container<[->[?]]>]]
+}
+
+
+[Parent] (AB, A, B, DualContainer) {
+    
+    ||++ bar [?]
+}
+
+
+[Primal] (AB, A, B, DualContainer) {
+    
+    ++ bar [->[DualContainer<[->[A]][B]>]]
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
 
 ### Type Inference of Type Casting
+
+asdf
 
 = inferred type casting in general
 [type casting](#type-casting)
@@ -8509,6 +8680,161 @@ no ambiguous allowed, most child one
 = simple example
 = ambiguous?
 = solve ambiguous with complex
+
+
+
+
+
+A partial type can be used as left hand side type declaration in an assignment statement. In which case, the concrete assignment type is inferred based on the following rules:
+1. The concrete type matches the partial type
+2. The concrete type is a parent of or equivalent to the right hand side of the assignment
+3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
+
+In the following example, the assigned type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the right hand side **\\[AB]:new**.
+```
+[] (AB, A, B) {
+    *{         
+        [?] bar = \[AB]:new;  @ type of bar is [AB]
+    }
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+In the following example, using [duplicate inheritance](#duplicate-inheritance); the type of **bar** is ambiguous since **[Container<[?]>]** can match both **[Container<[A]>]** or **[Container<[B]>]**.
+```
+[] (AB, A, B, Container, DualContainer) {
+    *{  
+        [AB] ab = \[AB]:new;
+        [Container<[?]>] bar = \[DualContainer<[A][B]>]:as ab ab;  @ Invalid; type of bar is ambiguous, it could be [Container<[A]>] or [Container<[B]>]
+    }
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+Changing the partial type to **[[DualContainer<[A][?]>]/[?]]**, now the type of **bar** is no longer ambiguous:
+```
+[Foo] (AB, A, B, Container, DualContainer) {
+
+    *{  
+        [AB] ab = \[AB]:new;
+        [[DualContainer<[A][?]>]/[?]] bar = \[DualContainer<[A][B]>]:as ab ab;  @ type of bar is [DualContainer<[A][B]>]
+    }
+}
+
+
+[DualContainer< U, V > :[Container<[&U]>] :[Container<[&V]>]] {
+
+    ~ as *([&U] objectU, [&V] objectV) {
+        \$~as objectU;
+        \$$~as objectV;
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
+Multiple levels of type inference can occur leading to a chain of inferences. In the following example, the type of **barOne** is inferred as **[Container<[AB]>]** and the type of **barTwo** is inferred as **[AB]**.
+```
+[] (AB, A, B, Container) {
+    *{
+        [AB] ab = \[AB]:new;
+        [?] barOne = \[Container<[AB]>]:as ab;  @ type of barOne is [Container<[AB]>]
+        [?] barTwo = \barOne:get;               @ type of barTwo is [AB]
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[AB :[A] :[B]] (A, B) {
+
+    ~ new *{
+        \$~new;  
+        \$$~new;      
+    }
+}
+
+
+[A] { ~ new *{} }
+
+[B] { ~ new *{} }
+```
 
 
 ### Method Context Type
