@@ -3984,7 +3984,7 @@ Object methods can be refered to in a compound expression. In the following exam
     ~ new *{}
 }
 ```
-[Type casting](#type-casting) can be used inside a compound expression:
+[Type casting](#type-casting) can be used inside a compound expression and can be used to type cast a compund expression. In the following example, the result of **\[A]:new** is type cast to **[B]** before the instance method **getAnotherB** is invoked on it.
 ```
 [] (A, B) {
     *{
@@ -5443,7 +5443,7 @@ An overloaded method can be chosen explicitly by [type casting](#type-casting) t
 }
 ```
 
-Class methods and the entry point method can be defined with an expression (this can be a [compound expression](#compound-expressions-and-statements) or [flexible method expression](#flexible-method-expression)). Considered the following example where the method **bar**, **createA**, **doThing** and the entry point method have been defined using expressions which evautate to lambda objects:
+Class methods and the entry point method can be defined with an expression (this can be a [compound expression](#compound-expressions-and-statements)). Considered the following example where the method **bar**, **createA**, **doThing** and the entry point method have been defined using expressions which evautate to lambda objects:
 ```
 [] (A) {
     [A]:bar
@@ -6209,15 +6209,15 @@ An overloading method must have possible input types which dont match another me
     ~ new *{}
 }
 ``` 
-Overloading methods can have some ambiguous input types which match multiple overloading methods, just that these inputs must be [cast](#type-casting) to remove abiguity when the method is invoked. In the following example, **foodAndDrink1** and **foodAndDrink2** cannot be an input to the **add** method without [casting](#type-casting) due to matching both **[Drink]** and **[Food]** ([see disjoint types](#disjoint-types) for **foodAndDrink2**).
+Overloading methods can have some ambiguous input types which match multiple overloading methods, just that these inputs must be explicitly [type cast](#type-casting) to remove abiguity when the method is invoked. In the following example, **foodAndDrink1** and **foodAndDrink2** cannot be an input to the **add** method using implicit [type casting](#type-casting) due to matching both **[Drink]** and **[Food]** ([see disjoint types](#disjoint-types) for **foodAndDrink2**).
 ```
 [] (Meal, Food, Drink, Consumable, FoodAndDrink) {
     *{
         [Meal] meal = \[Meal]:new;
         [FoodAndDrink] foodAndDrink1 = \[FoodAndDrink]:new;
         [[Food]/[Drink]] foodAndDrink2 = \[FoodAndDrink]:new;               
-        \meal:add foodAndDrink1;           @ Invalid; ambiguous invocation could refer to either add method                     
-        \meal:add foodAndDrink2;           @ Invalid; ambiguous invocation could refer to either add method
+        \meal:add foodAndDrink1;           @ Invalid; ambiguous invocation could refer to either add method since implcit type casting can go either way                   
+        \meal:add foodAndDrink2;           @ Invalid; ambiguous invocation could refer to either add method since implcit type casting can go either way
         \meal:add [Food](foodAndDrink1);   @ Valid; invocation refers to first add method ++ add *([Food] food) {} 
         \meal:add [Drink](foodAndDrink2);  @ Valid; invocation refers to second add method ++ add *([Drink] drink) {}
     }
@@ -8991,14 +8991,127 @@ A few examples of using **[:?]** can be seen in the following example, including
 
 ## Type Casting
 
+Type casting allows a type to be expressed as one of its parent types. To type cast an object, first write the type that it will be cast to, then the object surrounded in brackets.
 
-- casting to different type example, must be parent
-- implicit cast when put into method input invocation, instance object assignment, or assigning method [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
-- accessing inherited invisible methods which are in fact externaly or class visible by casting to parent type, [class visible can be accessed if inside class]
-- [flexible method expression](#flexible-method-expression) can set class method with lamdba directly and the method type can be underloaded, unless cast is used ([see overloading and underloading](#overloading-and-underloading))
+In the following example, the object **apple** is cast to **[Fruit]** when it is used as an input and output of a method.
+```
+[] (Container, Apple, Fruit) {
+    *{
+        [Apple] apple = \[Apple]:new;
+        [Container<[Fruit]>] fruitContainer = \[Container<[Fruit]>]:as [Fruit](apple);  @ apple is type cast to [Fruit]
+        [->[Fruit]] createFruit = *-> [Fruit] {} -> [Fruit](apple);                     @ apple is type cast to [Fruit]
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[Apple :[Fruit]] (Fruit) {
+    ~ new *{ \$~new; }
+}
+
+
+[Fruit] { ~ new *{} }
+```
+When an object is used as the input and output of a method, it will be implicitly type cast if it is a child type of the expected input/output. The previous example is rewitten without the explicit type casting:
+```
+[] (Container, Apple, Fruit) {
+    *{
+        [Apple] apple = \[Apple]:new;
+        [Container<[Fruit]>] fruitContainer = \[Container<[Fruit]>]:as apple;  @ apple is implicitly type cast to [Fruit]
+        [->[Fruit]] createFruit = *-> [Fruit] {} -> apple;                     @ apple is implicitly type cast to [Fruit]
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+    }
+
+    ++ get *->[&E] {} -> .containedObject
+}
+
+
+[Apple :[Fruit]] (Fruit) {
+    ~ new *{ \$~new; }
+}
+
+
+[Fruit] { ~ new *{} }
+```
+Implicit type casting also applies when assigning instance objects and instance methods ([see assigning instance methods in constructors](#assigning-instance-methods-in-constructors), [see parent and child method types](#parent-and-child-method-types)):
+```
+[FruitContainer1] (Apple, Fruit)
+    [Fruit] containedFruit
+{
+    ~ withApple *([Apple] apple) {
+        .containedFruit = apple;  @ apple is implicitly type cast to [Fruit]
+    }
+
+    ++ getFruit *->[Fruit] {} -> .containedFruit
+}
+
+
+[FruitContainer2] (Apple, Fruit) {
+
+    ~ withApple *([Apple] apple) {
+        [->[Apple]] getApple = *->[Apple] {} -> apple;
+        :getFruit = getApple;  @ getApple is implicitly type cast to [->[Fruit]]
+    }
+
+    ++ getFruit [->[Fruit]]
+}
+
+
+[Apple :[Fruit]] (Fruit) {
+    ~ new *{ \$~new; }
+}
+
+
+[Fruit] { ~ new *{} }
+```
+When using [flexible method expression](#flexible-method-expression) to define a class method, type casting can be used to force the method to be declared as a parent type:
+```
+[FruitBasket] (Apple, Pear, Fruit) {
+
+    :: pickApple *-> [Apple] {} -> \[Apple]:new
+    :: pickPear *-> [Apple] {} -> \[Pear]:new
+    :: pickAnyFruit [->[Fruit]]([FruitBasket]:pickApple)  @ type of pickAnyFruit is [->[Fruit]]
+    :: pickBestFruit [FruitBasket]:pickPear               @ type of pickBestFruit is [->[Pear]]
+}
+
+
+[Apple :[Fruit]] (Fruit) {
+    ~ new *{ \$~new; }
+}
+
+
+[Pear :[Fruit]] (Fruit) {
+    ~ new *{ \$~new; }
+}
+
+
+[Fruit] { ~ new *{} }
+
+```
 
 
 ## Scope
+
+
+asdf
 
 - scope refers to what is visible and hidden
 
