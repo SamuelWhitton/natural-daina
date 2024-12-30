@@ -9110,20 +9110,44 @@ When using [flexible method expression](#flexible-method-expression) to define a
 
 ## Scope
 
-
-asdf
-
-- scope refers to what is visible and hidden
-
-
-- nothing is hidden aboslutely no conflicts or hiding types or objects (no ambiguity)
-
+Scope refers to what objects, classes and methods are are visible at each point in the code.
 
 See [compound expressions and statements](#compound-expressions-and-statements) for scope rules regarding statement blocks.
+
 See [anonymous class objects.](#anonymous-class-objects) for scope rules regarding anonymous class objects.
+
+Declaring an object with a name that is already visible is not allowed. This is sometimes called scope hiding in other languages. In other words, scope hiding is restricted in all cases.
+
+The following is an example of invalid scope hiding of **foo** and **bar**:
+```
+[] {
+    *{
+        [->] bar = *{};            @ original bar declaration
+        [->[->]] foo = *-> [->] {  @ original foo declaration
+                [->] bar = *{};    @ Invalid; conflicts with the original bar declaration
+            } -> bar;
+        [->] eye = *{
+                [->] foo = *{};    @ Invalid; conflicts with the original foo declaration
+            };
+    }
+}
+```
+A declared object is not visible in the expression on the right hand side of the equals sign. Thus in the following example, the second **foo** is not clashing with the original:
+```
+[] {
+    *{
+        [->[->]] foo = *-> [->] {  @ original foo declaration
+                [->] foo = *{};    @ Vallid; original foo declaration is not visible here
+            } -> bar;
+    }
+}
+
+```
 
 
 ## Visibility and Inheritance of Constructors and Type Methods
+asdf
+
 
 = each visibility and no visibility for type method, [generic doesnt matter for class visibility]
 = each visibility and no visibility for constructor methods [inherited constructor does not cause the type method of the constructor to be inherited] [generic doesnt matter for class visibility]
@@ -9137,11 +9161,40 @@ See [anonymous class objects.](#anonymous-class-objects) for scope rules regardi
 
 ## Void Identifier
 
-Can be used anywhere with no exceptions for regular identifier name of: (local declaration, lambda input)
-These cannot be referred to
-Can be used in concert with [root type](#root-type) to also eliminate type
+The void identifier is **_**. It can be used in place of any local object identifier or method input identifier.
+
+The following example shows the void identifier being used as the identifier of a local object and a method input:
 ```
-_
+[] {
+    *{
+        [[->]->[->]] _ = *([->] _) -> [->] {
+                [->] action = *{};
+            } -> action;
+    }
+}
+```
+The void identifier cannot be referred to, only used in declarations. Thus using a void identifier prevents the object from being used:
+```
+[] {
+    *{
+        [[->]->[->]] _ = *([->] _) -> [->] {
+                [->] action = *{};
+            } -> action;
+        [->] foo = _;  @ Invalid; cannot refer to an object with the void identifier
+    }
+}
+```
+Multiple void identifiers never conflict with each other in the current [scope](#scope), thus the following is valid:
+```
+[] {
+    *{
+        [[->]->] _ = *([->] _) {
+                [->] _ = *{};
+                [->] _ = *{};
+                [->] _ = *{};
+            };
+    }
+}
 ```
 
 ---
