@@ -8994,7 +8994,7 @@ A few examples of using **[:?]** can be seen in the following example, including
 
 - casting to different type example, must be parent
 - implicit cast when put into method input invocation, instance object assignment, or assigning method [Assigning Instance Methods in Constructors](#assigning-instance-methods-in-constructors)
-- accessing non inherited visible methods which are in fact externaly or class visible
+- accessing inherited invisible methods which are in fact externaly or class visible by casting to parent type, [class visible can be accessed if inside class]
 - [flexible method expression](#flexible-method-expression) can set class method with lamdba directly and the method type can be underloaded, unless cast is used ([see overloading and underloading](#overloading-and-underloading))
 
 
@@ -9011,20 +9011,15 @@ See [anonymous class objects.](#anonymous-class-objects) for scope rules regardi
 
 
 ## Visibility and Inheritance of Constructors and Type Methods
-=for constructor the first - or + conflicts with other constructors, and the second and third conflicts with other constructors and also type methods
-= default constructor visibility (+++) and type method visibility (++-)
-= overriding
-=constructors cannot access private type methods
-=constructors conflicting with type methods (whwen class or public visiibility for constructor) and vice versa +For resolving these issues, [see overloading and underloading](#overloading-and-underloading)
-= overriding type methods
-= cant override constructor except with type method (kind of)
-=inherited constructor does not cause the type method of the constructor to be inherited
-= constructor never inherited
-=visibility of type methods cant either be decreased either can constructor
-= generic doesnt matter for class visibility
-= constructor cannot override inherited type method, you must create type method for that
-= [Duplicate Inheritance](#duplicate-inheritance) and resolving of duplicate methods
 
+= each visibility and no visibility for type method, [generic doesnt matter for class visibility]
+= each visibility and no visibility for constructor methods [inherited constructor does not cause the type method of the constructor to be inherited] [generic doesnt matter for class visibility]
+= constructor can be blocked by type method inherited or in the class, but constructor cant override
+= for constructor the last - or + conflicts only with other self constructors, and the first and second conflicts with type methods
+= default constructor visibility (+++) and type method visibility (++-)
+= overriding with type methods (no overriding for constructors) [visibility of type methods cant be decreased when inheriting]
+= constructors and instance methods cannot access private type methods
+= resolving conflicts with constructors and type methods using underloading, and overloading automatically when inherited, [see overloading and underloading](#overloading-and-underloading), [Duplicate Inheritance](#duplicate-inheritance)
 
 
 ## Void Identifier
@@ -9037,6 +9032,532 @@ _
 ```
 
 ---
+
+
+# Grammar
+
+
+
+## Whitespace
+All whitespace is ignored. 
+
+Characters in a token cannot be seperated with whitespace, rather then they are considered to be seperate tokens. For example, consider the [triple less than token](#triple-less-than): ```<<<```. If we add whitespace sperating them: ```< <<```, now they are considered to be three [left arrow bracket tokens](#arrow-brackets).
+
+Additionally, tokens can always appear directly next to each other with no conflict. The tokens are interpreted in a greedy manner. In other words, the largest possible token will always be interpreted first. For example, consider the following sequence of characters:
+```
+<<<<<:::::
+```
+This sequence of characters is interpreted as one [triple less than](#triple-less-than), two [left arrow brackets](#arrow-brackets), two [double colons](#double-colon) and one [single colon](#colon).
+
+
+## Composite Tokens
+
+### Data Segment Anchor
+
+A data segment anchor starts with **#** and ends with another **#**. Between the two **#**'s can be any characters except for a **#**.
+
+Example tokens: **##**, **#fds#**, **#234h#**, **#_ DSA _#**, **#^^!~0()[]#**
+
+Syntax usages: [data-segment](#data-segment)
+
+### Identifier
+
+An identifier can contain any number of alphanumeric charaters and underscores. It must contain at least one character.
+
+Example tokens: **_**, **123foo**, **8**, **AnObject**, **cats_and_dogs**
+
+If the identifier is an underscore **_**, then it is a [void identifier](#void-identifier). A [void identifier](#void-identifier) cannot be identified by another [void identifier](#void-identifier) and it is always unique. In other words multiple [void identifier](#void-identifier)'s can be used without identifying each other, and so it can be used to signify when an object should be ignored.
+
+Syntax usages: [class](#class), [generic-declaration-list](#generic-declaration-list), [type](#type), [dependancy-structure](#dependancy-structure), [object-declaration](#object-declaration), [class-method](#class-method), [expression](#expression), [method-invocation](#method-invocation), [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object)
+
+### Parent Identifier
+
+A parent identifier contains one or more **$** charaters. 
+
+Example tokens: **$**, **$$**, **$$$**, **$$$$**, **$$$$$**, **$$$$$$$$$$$$$$**
+
+**$** represents the first parent, **$$** represents the second parent, **$$$** represents the third parent and so on...
+
+Syntax usages: [type](#type), [internal-context-identifier](#internal-context-identifier)
+
+## Simple Tokens
+
+
+### Ampersand
+
+Token: **&**
+
+Syntax usages: [type](#type)
+
+### Apostrophe
+
+Token: **'**
+
+Syntax usages: [type](#type)
+
+### Arrow
+
+Token: **->**
+
+Syntax usages: [type](#type), [dependancy-structure](#dependancy-structure), [method-expression](#method-expression)
+
+### Arrow Brackets
+
+Tokens: **\>**, **\<**
+
+Syntax usages: [generic-declaration-list](#generic-declaration-list), [type](#type), [method-invocation](#method-invocation)
+
+### Asterisk
+
+Token: **\***
+
+Syntax usages: [method-expression](#method-expression)
+
+### Asterisk Caret
+
+Token: **\*^**
+
+Syntax usages: [expression](#expression)
+
+### Asterisk Dash
+
+Token: **\*-**
+
+Syntax usages: [expression](#expression)
+
+### Backslash
+
+Token: **\\**
+
+Syntax usages: [method-invocation](#method-invocation)
+
+### Backtick
+
+Token: **\`**
+
+Syntax usages: [lexical-splitter](#lexical-splitter)
+
+### Caret
+
+Token: **^**
+
+Syntax usages: [expression](#expression)
+
+### Colon
+
+Token: **:**
+
+Syntax usages: [class](#class), [expression](#expression), [internal-context-identifier](#internal-context-identifier), [anonymous-class-object](#anonymous-class-object)
+
+### Comma
+
+Token: **,**
+
+Syntax usages: [method-expression](#method-expression), [dependancy-structure](#dependancy-structure), [generic-declaration-list](#generic-declaration-list)
+
+### Curly Brackets
+
+Tokens: **}**, **{**
+
+Syntax usages: [class](#class), [entry-point-class](#entry-point-class), [statement-group](#statement-group), [anonymous-class-object](#anonymous-class-object)
+
+### Double Apostrophe
+
+Token: **"**
+
+Syntax usages: [type](#type)
+
+### Double Colon
+
+Token: **::**
+
+Syntax usages: [class-method](#class-method)
+
+### Double Pipe
+
+Token: **||**
+
+Syntax usages: [class-method](#class-method)
+
+### Double Strudel
+
+Token: **@@**
+
+Syntax usages: [mutiline-comment](#mutiline-comment)
+
+### Equals Sign
+
+Token: **=**
+
+Syntax usages: [assignment-statement](#assignment-statement)
+
+### Exclamation Mark
+
+Token: **!**
+
+Syntax usages: [prologue-statement](#prologue-statement)
+
+### Forward Slash
+
+Token: **/**
+
+Syntax usages: [type](#type)
+
+### Full Stop
+
+Token: **.**
+
+Syntax usages: [internal-instance-object](#internal-instance-object)
+
+### Method Visibility Indicators
+
+Tokens: **-**, **+**, **++**, **---**, **--+**, **-+-**, **-++**, **+--**, **+-+**, **++-**, **+++**
+
+Syntax usages: [class-method](#class-method)
+
+### Percent Sign
+
+Token: **%**
+
+Syntax usages: [type](#type)
+
+### Pipe
+
+Token: **|**
+
+Syntax usages: [class-method](#class-method)
+
+### Question Mark
+
+Token: **?**
+
+Syntax usages: [type](#type)
+
+### Round Brackets
+
+Tokens: **)**, **(**
+
+Syntax usages: [dependancy-structure](#dependancy-structure), [expression](#expression), [method-expression](#method-expression)
+
+### Semicolon
+
+Token: **;**
+
+Syntax usages: [statement-group](#statement-group)
+
+### Square Brackets
+
+Tokens: **]**, **[**
+
+Syntax usages: [class](#class), [entry-point-class](#entry-point-class), [type](#type), [anonymous-class-object](#anonymous-class-object)
+
+### Strudel
+
+Token: **@**
+
+Syntax usages: [singleline-comment](#singleline-comment)
+
+### Tilde
+
+Token: **~**
+
+Syntax usages: [class-method](#class-method), [method-invocation](#method-invocation)
+
+### Triple Less Than
+
+Token: **<<<**
+
+Syntax usages: [compiler-injection](#compiler-injection)
+
+
+## Syntax
+The syntax is detailed in a top down tree like manner. Starting from the [root](#root), the complete syntax of Daina can be observed where each subheading represents a node in the syntax tree and links to all child branches.
+
+A simple regex-like syntax meta-language is used to describe grammar rules. It consists of the following symbols:
+
+* Tokens representing the use of a token in the syntax, e.g. [<<<](#triple-less-than), [(](#round-brackets), [@@](#double-strudel), [identifier](#identifier)
+* Child nodes representing the branching to the given child in the syntax tree, e.g. [class](#class), [mutiline-comment](#mutiline-comment), [singleline-comment](#singleline-comment)
+* Pipe **|** representing a choice between one syntax element or another. If there is any conflict between choices, the first option always takes precedence.
+* Question mark **?** representing an optional syntax element
+* Question mark **+** representing a syntax element which can optionally be repeated one or more times
+* Asterisk **\*** representing an optional syntax element which can optionally be repeated one or more times
+* Round brackets **( )** to group syntax elements together
+* Other characters **[description]** representing characters described between square brackets
+
+Consider the following example syntax description where A, B, C and D are tokens: **(** **(** **(** A **)\*** **|** B **)+** **|** C **|** D **)?** D
+
+Here are a few correct syntaxes from this syntax description: D, CD, DD, AAAD, ABBAAD
+
+Here are a few invalid syntaxes from this syntax description: CC, AAA, DDD, BCD
+
+### Root
+- [root](#root) syntax description: **(** [class](#class) **|** [entry-point-class](#entry-point-class) **)** **\***
+
+At the root of the Daina language, any number of classes can be defined. These classes must be unique, i.e. no two [classes](#class) can have the same [identifier](#identifier). Additionally, there can only be one [entry point class](#entry-point-class) which is the entry point of a Daina program.
+
+Starting from the root, there are three tokens which can appear anywhere in the program which will always branch to the corresponding nodes. In other words, when the following tokens appear for any syntax node, branching will always occur:
+
+* [Backtick \`](#backtick) always branches to [lexical-splitter](#lexical-splitter)
+* [Double strudel @@](#double-strudel) always branches to [mutiline-comment](#mutiline-comment)
+* [Strudel @](#strudel) always branches to [singleline-comment](#singleline-comment)
+
+### Lexical Splitter
+- [lexical-splitter](#lexical-splitter) syntax description: **[past character]**[\`](#backtick)**[middle characters]**[\`](#backtick)**[future characters]**
+
+The lexical splitter rearranges the characters so that the **[future characters]** are stitched to the **[past character]**, and the **[middle characters]** which start a new token come after the **[future characters]** until the next token is reached, i.e. into the following configuration: **[past character][future characters before next token][space][middle characters][future characters from next token]**. After this rearrangement, the syntax branches back to the parent syntax node. Consider the following example:
+```
+abc`def`hij klm
+```
+This would be equivalent to the following sequence of characters:
+```
+abchij def klm
+```
+[See more examples of the lexical splitter](#the-lexical-splitter).
+
+### Mutiline Comment
+- [mutiline-comment](#mutiline-comment) syntax description: [@@](#double-strudel)**[any characters except @@]**[@@](#double-strudel)
+
+The [@@](#double-strudel) tokens and all the characters in between are ignored by the compiler.
+
+### Singleline Comment
+- [singleline-comment](#singleline-comment) syntax description: [@](#strudel)**[all characters until the end of the line]**
+
+The [@](#strudel) token and all the characters until the end of the line are ignored by the compiler.
+
+### Class
+- [class](#class) syntax description: [\[](#square-brackets) [identifier](#identifier) **(** [generic-declaration-list](#generic-declaration-list) **)?** **(** [:](#colon) [type](#type) **)\*** [\]](#square-brackets) [dependancy-structure](#dependancy-structure) **(** [object-declaration](#object-declaration) **)\*** [{](#curly-brackets) **(** [class-method](#class-method) **|** [compiler-injection](#compiler-injection) **)\*** [}](#curly-brackets)
+
+The [identifier](#identifier) is the name of the class and must be unique (different from all other class identifiers). The class identifier cannot be the [void identifier](#identifier). The [object declarations](#object-declaration) are the declarations of the instance objects for the class. [See classes.](#classes-types-objects-and-dependancies)
+
+Each [type](#type) represents a parent of the class. A parent must be a class [type](#type). The first [type](#type) is the first parent, the second [type](#type) is the second parent and so on... A class cannot inherit from itself. [See inheritance.](#inheritance)
+
+### Entry Point Class
+- [entry-point-class](#entry-point-class) syntax description: [\[](#square-brackets) [\]](#square-brackets) [dependancy-structure](#dependancy-structure) [{](#curly-brackets) [expression](#expression) [}](#curly-brackets)
+
+The [expression](#expression) inside the class is the [entry point of a program](#entry-point-of-a-program), it is a method with no inputs or output. The [dependancy structure](#dependancy-structure) determines which classes the entry point method depends on.
+
+### Generic Declaration List
+- [generic-declaration-list](#generic-declaration-list) syntax description: [<](#arrow-brackets) **generic-declaration** **(** [,](#comma) **generic-declaration** **)\*** [>](#arrow-brackets)
+    + **generic-declaration** syntax description: [identifier](#identifier)
+
+Each **generic-declaration** [identifier](#identifier) must be unique (no two generics in a generic declaration list can have the same [identifier](#identifier)). [See class generics.](#class-generics) [See rising and falling generics.](#rising-and-falling-generics)
+
+### Type
+- [type](#type) syntax description: [\[](#square-brackets) **(** **class-type-structure** **|** **method-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
+    + **class-segment-type-structure** syntax description: [identifier](#identifier) **(** **class-generic-instantiation** **)?**
+        - **class-generic-instantiation** syntax description: [<](#arrow-brackets) **(** [type](#type) **)\*** [>](#arrow-brackets)
+    + **method-type-structure** syntax description: **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
+    + **disjoint-type-structure** syntax description: [type](#type) **(** **(** [/](#forward-slash) [type](#type) **)+**
+    + **class-generic-type-structure** syntax description: [&](#ampersand) [identifier](#identifier)
+    + **method-generic-type-structure** syntax description: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
+    + **data-segment-type-structure** syntax description: [%](#percent-sign) [identifier](#identifier)
+    + **inferred-type-structure** syntax description: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
+
+A type is a classification of an object. Each type structure forms a type which classifies a different set of objects. Following are links to explainations for each type structure:
+
+- **class-segment-type-structure**: [classes](#classes-types-objects-and-dependancies), [class generics](#class-generics)
+- **method-type-structure**: [lambdas](#methods-and-lambdas)
+- **disjoint-type-structure**: [disjoint types](#disjoint-types)
+- **class-generic-type-structure**: [class generics](#class-generics)
+- **method-generic-type-structure**: [method generics](#method-generics)
+- **data-segment-type-structure**: [data segments](#data-segments)
+- **inferred-type-structure**: [type inference](#type-inference)
+
+If the type structure is empty, the type represents the [root type](#root-type).
+
+Types within the **class-generic-instantiation** cannot be a data segment type. The type after the [->](#arrow) in **method-type-structure** cannot be a data segment type. [See data segments.](#data-segments)
+
+### Dependancy Structure
+- [dependancy-structure](#dependancy-structure) syntax description: **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
+    + **reverse-dependancy-list** syntax description: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
+    + **dependancy-list** syntax description: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
+
+The [identifiers](#identifier) in the **dependancy-list** refer to [classes](#class) which are depended on by the parent of this dependancy structure. The [identifiers](#identifier) in the **reverse-dependancy-list** refer to [classes](#class) which depend on the parent of this dependancy structure. [See dependancies.](#classes-types-objects-and-dependancies)
+
+### Object Declaration
+- [object-declaration](#object-declaration) syntax description: [type](#type) [identifier](#identifier)
+
+An object declaration is used in various contexts to declare the presence of an object. The [identifier](#identifier) is the name of the object and [type](#type) is gaurenteed to be a valid [type](#type) of the object. The [type](#type) cannot be the [root type](#root-type).
+
+### Class Method
+- [class-method](#class-method) syntax description: **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
+    + **class-method-classification** syntax description: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
+
+Inclusion of [|](#pipe) declares that this class method is overriding a existing class method from a parent [class](#class) ([see inheritance](#inheritance)). Inclusion of [||](#double-pipe) declares that this class method is overriding an unimplemented class method from a parent [class](#class) ([see partial class implementations](#partial-class-implementations)). The **class-method-classification** determines if a class method is a construtor, instance method or type method. [::](#double-colon) indicates a type method, [~](#tilde) indicates a constructor, and the lack of either represents an instance method. The [method-visibility-indicator](#method-visibility-indicators) determines the visibility of the method. [See instance method visibility.](#instance-method-visibility) [See constructor and type method visibility.](#visibility-and-inheritance-of-constructor-and-type-methods) The [identifier](#identifier) is the name of this class method.
+
+If the class method has an [expression](#expression), the [expression](#expression) must represent a [method](#methods-and-lambdas). [See constructors, instance methods and type methods.](#constructors-instance-methods-and-type-methods) Constructors have special rules for the method; [See statement order in constructors.](#statement-ordering-in-constructors)
+
+If the class method has a [type](#type) instead; the class method is said to be unimplemented, the [type](#type) in question is the [type](#type) of the unimplemented [method](#methods-and-lambdas). Only instance methods can be unimplemented. [See partial class implementations.](#partial-class-implementations)
+
+### Compiler Injection
+- [compiler-injection](#compiler-injection) syntax description: [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
+
+A compiler injection has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the compiler injection at it's own discretion. [See compiler injections.](#compiler-injections)
+
+### Expression
+- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+    + **object-method** syntax description: [expression](#expression) [:](#colon) [identifier](#identifier)
+    + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
+    + **grouped-expression** syntax description: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
+        - **type-cast** syntax description: [type](#type)
+    + **type-method** syntax description: [type](#type) [:](#colon) [identifier](#identifier)
+    + **object-identifier** syntax description: [identifier](#identifier)
+    + **self-reference** syntax description: [^](#caret)
+    + **method-self-reference** syntax description: [\*^](#asterisk-caret)
+
+A **grouped-expression** represents the same expression from its syntax description. The **type-cast** in a **grouped-expression** forces an upcast of the type of the original expression. [See type casting.](#type-casting)
+
+Any expression can have an attached [prologue-statement](#prologue-statement). [See prologue statements.](#prologue-statements)
+
+Some expressions will evalutate to an object. The following are all the types of expressions which can evaluate to an object:
+- [data-segment](#data-segment): Evaluates to a [data-segment](#data-segment) object. [See data segments.](#data-segments)
+- **object-method**: The **object-method**'s [expression](#expression) is evalutated first. Then this evalutates to the method named by the [identifier](#identifier), from the object which resulted from the **object-method**'s [expression](#expression). The rules for [instance method visibility](#instance-method-visibility) must be followed.
+- **proxy-object**: The **proxy-object**'s [expression](#expression) is evalutated first. Then this evalutates to a [proxy](#object-proxy) for the object which resulted from the **proxy-object**'s [expression](#expression).
+- [method-expression](#method-expression): Evalutates to the method expressed here. [See methods.](#methods-and-lambdas)
+- **grouped-expression**: The **grouped-expression**'s [expression](#expression) is evalutated first. Then this evalutates to the result of the **grouped-expression**'s [expression](#expression). The result is upcast to the **type-cast**'s [type](#type) if one is present. The **grouped-expression** must always evalutate to an object. If the result is upcast, then the **grouped-expression** cannot be a be a [data-segment](#data-segment).
+- [method-invocation](#method-invocation): Evaluates to the output object after the method is invoked. If the method has no output object then this expression does not evaluate to an object. [See methods.](#methods-and-lambdas)
+- **type-method**: Evalutates to the type method named by the **type-method**'s [identifier](#identifier) for the class identified by the **type-method**'s [type](#type). This type method can refer to a constructor. [See constructors and type methods.](#constructors-instance-methods-and-type-methods) The rules for [constructor and type method visibility](#visibility-and-inheritance-of-constructor-and-type-methods) must be followed. The **type-method**'s [type](#type) can have class generic instantiations. [See class generics.](#class-generics)
+- **object-identifier**: Evaluates to the local object or input object which is named with the **object-identifier**'s [identifier](#identifier). The local object or input object must be accessible in the current [scope](#scope). The local or input object cannot be a [data-segment](#data-segment).
+- [internal-instance-method](#internal-instance-method): Evalutates to the instance method named by the [internal-instance-method](#internal-instance-method)'s [identifier](#identifier), from the enclosing class or parent class identified by the [internal-instance-method](#internal-instance-method)'s [internal-context-identifier](#internal-context-identifier). [See classes.](#classes-types-objects-and-dependancies) [See inheritance.](#inheritance)
+- [internal-instance-object](#internal-instance-object): Evalutates to the instance object named by the [internal-instance-object](#internal-instance-object)'s [identifier](#identifier). [See classes.](#classes-types-objects-and-dependancies)
+- **self-reference**: Evalutates to the instance of the enclosing class. [See self reference.](#self-reference)
+- **method-self-reference**: Evalutates to the instance of the enclosing method. [See self reference.](#self-reference)
+- [anonymous-class-object](#anonymous-class-object): Evaluates to the new class object. [See anonymous class objects.](#anonymous-class-objects)
+
+### Internal Context Identifier
+- [internal-context-identifier](#internal-context-identifier) syntax description: [:](#colon) **|** [parent-identifier](#parent-identifier)
+
+The internal context identifier represents the enclosing class with a [:](#colon), or one of the parent classes identified by a [parent-identifier](#parent-identifier).
+
+### Data Segment
+- [data-segment](#data-segment) syntax description: [data-segment-anchor](#data-segment-anchor)**[data-component]**[data-segment-anchor](#data-segment-anchor).
+    + **data-component** syntax description: **[any characters not containing the data-segment-anchor]**
+
+Both [data-segment-anchor](#data-segment-anchor)'s surrounding the **data-component** must be identical and not contained within the **data-component**. The **data-component** has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the **data-component** at it's own discretion. [See data segments.](#data-segments)
+
+### Assignment Statement
+- [assignment-statement](#assignment-statement) syntax description: **(** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** [object-declaration](#object-declaration) **)** [=](#equals-sign) [expression](#expression)
+
+In an assignment statement the [expression](#expression) is evalutated first and the resulting object is assigned to the [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object) or [object-declaration](#object-declaration). The [expression](#expression) must result in an object, but cannot be a be a [data-segment](#data-segment). The [type](#type) of the [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object) or [object-declaration](#object-declaration) must match the [expression](#expression). Assigning an [internal-instance-method](#internal-instance-method) or [internal-instance-object](#internal-instance-object) can only happen in a constructor. [See statement order in constructors.](#statement-ordering-in-constructors)
+
+### Statement Group
+- [statement-group](#statement-group) syntax description: [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
+
+The [statement](#statement)s are executed one after another in order from the first to the last.
+
+### Method Expression
+- [method-expression](#method-expression) syntax description: [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
+    + **input-list** syntax description: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
+    + **method-body** syntax description: [statement](#statement)
+    + **output-type** syntax description: [type](#type)
+    + **output-expression** syntax description: [expression](#expression)
+
+The **method-body** [statement](#statement) is executed first, then the **output-expression** is evalutated and the result is returned. [See methods.](#methods-and-lambdas). The **output-expression** cannot be a [data-segment](#data-segment).
+
+### Method Invocation
+- [method-invocation](#method-invocation) syntax description: [\\](#backslash) **(** [expression](#expression) **|** **internal-constructor** **)** **method-inputs**
+    + **internal-constructor** syntax description: [internal-context-identifier](#internal-context-identifier) [~](#tilde) **(** **(** [>](#arrow-brackets) **)** **|** [identifier](#identifier) **)**
+    + **method-inputs** syntax description: **(** [expression](#expression) **)\***
+
+The method invocation either invokes the result of an [expression](#expression), or an **internal-constructor**. If an [expression](#expression) is invoked; first the expression is evaluated to a method, then each of the **method-inputs** [expression](#expression)'s are evaluated in order that they appear from left to right, finally the method is invoked with the evaluated **method-inputs** as the input objects to the method. [See methods.](#methods-and-lambdas) If an **internal-constructor** is invoked; first the **internal-constructor**'s [expression](#expression) is evaluated if it has one, then each of the **method-inputs** [expression](#expression)'s are evaluated in order that they appear from left to right, finally the constructor is invoked with the evaluated **method-inputs** as the input objects to the method. 
+
+An **internal-constructor** invocation can be a parent constructor ([See inheritance.](#inheritance)) or a [self constructor](#invoking-self-constructors). Wether representing a constructor from the enclosing class or a parent class is determined by the [internal-context-identifier](#internal-context-identifier). If the [>](#arrow-brackets) is not present, then the **internal-constructor** represents a constructor as normal. If the [>](#arrow-brackets) is present, then the **internal-constructor** represents a [pointer constructor](#pointer-constructors) and the first [expression](#expression) after the [>](#arrow-brackets) evalutates to the object which the new object will point to.
+
+### Internal Instance Method
+- [internal-instance-method](#internal-instance-method) syntax description: [internal-context-identifier](#internal-context-identifier) [identifier](#identifier)
+
+Represents a method named by the [identifier](#identifier) from either the enclosing class or a parent class. Wether representing a method from the enclosing class or a parent class is determined by the [internal-context-identifier](#internal-context-identifier). [See inheritance.](#inheritance)
+
+### Internal Instance Object
+- [internal-instance-object](#internal-instance-object) syntax description: [.](#full-stop) [identifier](#identifier)
+
+Represents the instance object named by the [identifier](#identifier). [See classes.](#classes-types-objects-and-dependancies)
+
+### Anonymous Class Object
+- [anonymous-class-object](#anonymous-class-object) syntax description: [\[](#square-brackets) **(** [:](#colon) [type](#type) **)+** [\]](#square-brackets) [{](#curly-brackets) **anonymous-class-object-construction** **(** [class-method](#class-method) **)\*** [}](#curly-brackets)
+    + **anonymous-class-object-construction** syntax description: **(** [statement](#statement) **)\***
+
+Represents a new class object which overrides each of the [type](#type)'s, is constructed by the **anonymous-class-object-construction**, and implements each of the [class-method](#class-method)'s. Each [type](#type) represents a parent of the new class object, the first [type](#type) is the first parent, the second [type](#type) is the second parent and so on... [See anonymous class objects.](#anonymous-class-objects)
+
+### Prologue Statement
+- [prologue-statement](#prologue-statement) syntax description: [!](#exclamation-mark) [statement](#statement)
+
+A prologue statement is evalutated before the expression which comes before it. [See prologue statements.](#prologue-statements)
+
+### Statement
+- [statement](#statement) syntax description: [expression](#expression)
+
+A statement is an [expression](#expression) which does not evalutate to an object. In other words, the statement is only valid if the [expression](#expression) does not evalutate to an object.
+ 
+
+## Syntax Summary
+- Whitespace is ignored
+- [composite-tokens](#composite-tokens): [data-segment-anchor](#data-segment-anchor), [identifier](#identifier), [parent-identifier](#parent-identifier)
+- [simple-tokens](#simple-tokens): [&](#ampersand), ['](#apostrophe), [->](#arrow), [<](#arrow-brackets), [>](#arrow-brackets), [\*](#asterisk), [\\](#backslash), [\`](#backtick), [^](#caret), [:](#colon), [{](#curly-brackets), [}](#curly-brackets), [::](#double-colon), [||](#double-pipe), [@@](#double-strudel), [=](#equals-sign), [!](#exclamation-mark), [/](#forward-slash), [.](#full-stop), [-](#method-visibility-indicators), [+](#method-visibility-indicators), [++](#method-visibility-indicators), [---](#method-visibility-indicators), [--+](#method-visibility-indicators), [-+-](#method-visibility-indicators), [-++](#method-visibility-indicators), [+--](#method-visibility-indicators), [+-+](#method-visibility-indicators), [++-](#method-visibility-indicators), [+++](#method-visibility-indicators), [%](#percent-sign), [|](#pipe), [?](#question-mark), [(](#round-brackets), [)](#round-brackets), [;](#semicolon), [\[](#square-brackets), [\]](#square-brackets), [@](#strudel), [~](#tilde), [<<<](#triple-less-than)
+- [Backtick \`](#backtick) always branches to [lexical-splitter](#lexical-splitter)
+    + [lexical-splitter](#lexical-splitter): **[past character]**[\`](#backtick)**[middle characters]**[\`](#backtick)**[future characters]**
+- [Double strudel @@](#double-strudel) always branches to [mutiline-comment](#mutiline-comment)
+    + [mutiline-comment](#mutiline-comment): [@@](#double-strudel)**[any characters except @@]**[@@](#double-strudel)
+- [Strudel @](#strudel) always branches to [singleline-comment](#singleline-comment)
+    + [singleline-comment](#singleline-comment): [@](#strudel)**[all characters until the end of the line]**
+- [root](#root): **(** [class](#class) **|** [entry-point-class](#entry-point-class) **)** **\***
+    - [class](#class): [\[](#square-brackets) [identifier](#identifier) **(** [generic-declaration-list](#generic-declaration-list) **)?** **(** [:](#colon) [type](#type) **)\*** [\]](#square-brackets) [dependancy-structure](#dependancy-structure) **(** [object-declaration](#object-declaration) **)\*** [{](#curly-brackets) **(** [class-method](#class-method) **|** [compiler-injection](#compiler-injection) **)\*** [}](#curly-brackets)
+    - [entry-point-class](#entry-point-class): [\[](#square-brackets) [\]](#square-brackets) [dependancy-structure](#dependancy-structure) [{](#curly-brackets) [expression](#expression) [}](#curly-brackets)
+    - [generic-declaration-list](#generic-declaration-list): [<](#arrow-brackets) **generic-declaration** **(** [,](#comma) **generic-declaration** **)\*** [>](#arrow-brackets)
+        + **generic-declaration**: [identifier](#identifier)
+    - [type](#type): [\[](#square-brackets) **(** **class-type-structure** **|** **method-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
+        + **class-segment-type-structure**: [identifier](#identifier) **(** **class-generic-instantiation** **)?**
+            - **class-generic-instantiation**: [<](#arrow-brackets) **(** [type](#type) **)\*** [>](#arrow-brackets)
+        + **method-type-structure**: **(** **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
+        + **disjoint-type-structure**: [type](#type) **(** [/](#forward-slash) [type](#type) **)+**
+        + **class-generic-type-structure**: [&](#ampersand) [identifier](#identifier)
+        + **method-generic-type-structure**: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
+        + **data-segment-type-structure**: [%](#percent-sign) [identifier](#identifier)
+        + **inferred-type-structure**: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
+    - [dependancy-structure](#dependancy-structure): **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
+        + **reverse-dependancy-list**: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
+        + **dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
+    - [object-declaration](#object-declaration): [type](#type) [identifier](#identifier)
+    - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
+        + **class-method-classification**: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
+    - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
+    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
+        + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
+        + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
+        + **grouped-expression**: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
+            - **type-cast**: [type](#type)
+        + **type-method**: [type](#type) [:](#colon) [identifier](#identifier)
+        + **object-identifier**: [identifier](#identifier)
+        + **self-reference**: [^](#caret)
+        + **method-self-reference**: [\*^](#asterisk-caret)
+    - [internal-context-identifier](#internal-context-identifier): [:](#colon) **|** [parent-identifier](#parent-identifier)
+    - [data-segment](#data-segment): [data-segment-anchor](#data-segment-anchor)**[data-component]**[data-segment-anchor](#data-segment-anchor).
+        + **data-component**: **[any characters not containing the data-segment-anchor]**
+    - [assignment-statement](#assignment-statement): **(** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** [object-declaration](#object-declaration) **)** [=](#equals-sign) [expression](#expression)
+    - [statement-group](#statement-group): [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
+    - [method-expression](#method-expression): [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
+        + **input-list**: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
+        + **method-body**: [statement](#statement)
+        + **output-type**: [type](#type)
+        + **output-expression**: [expression](#expression)
+    - [method-invocation](#method-invocation) syntax description: [\\](#backslash) **(** [expression](#expression) **|** **internal-constructor** **)** **method-inputs**
+        + **internal-constructor** syntax description: [internal-context-identifier](#internal-context-identifier) [~](#tilde) **(** **(** [>](#arrow-brackets) **)** **|** [identifier](#identifier) **)**
+        + **method-inputs** syntax description: **(** [expression](#expression) **)\***
+    - [internal-instance-method](#internal-instance-method): [internal-context-identifier](#internal-context-identifier) [identifier](#identifier)
+    - [internal-instance-object](#internal-instance-object): [.](#full-stop) [identifier](#identifier)
+    - [anonymous-class-object](#anonymous-class-object): [\[](#square-brackets) **(** [:](#colon) [type](#type) **)+** [\]](#square-brackets) [{](#curly-brackets) **anonymous-class-object-construction** **(** [class-method](#class-method) **)\*** [}](#curly-brackets)
+        + **anonymous-class-object-construction**: **(** [statement](#statement) **)\***
+    - [prologue-statement](#prologue-statement): [!](#exclamation-mark) [statement](#statement)
+    - [statement](#statement): [expression](#expression)
+
+
+
+
+---
+***
+
+
+
 
 
 
@@ -9704,525 +10225,7 @@ can be implemented in libraries at the compiler/system level with example on var
 
 ```
 
-# Grammar
 
 
 
-## Whitespace
-All whitespace is ignored. 
-
-Characters in a token cannot be seperated with whitespace, rather then they are considered to be seperate tokens. For example, consider the [triple less than token](#triple-less-than): ```<<<```. If we add whitespace sperating them: ```< <<```, now they are considered to be three [left arrow bracket tokens](#arrow-brackets).
-
-Additionally, tokens can always appear directly next to each other with no conflict. The tokens are interpreted in a greedy manner. In other words, the largest possible token will always be interpreted first. For example, consider the following sequence of characters:
-```
-<<<<<:::::
-```
-This sequence of characters is interpreted as one [triple less than](#triple-less-than), two [left arrow brackets](#arrow-brackets), two [double colons](#double-colon) and one [single colon](#colon).
-
-
-## Composite Tokens
-
-### Data Segment Anchor
-
-A data segment anchor starts with **#** and ends with another **#**. Between the two **#**'s can be any characters except for a **#**.
-
-Example tokens: **##**, **#fds#**, **#234h#**, **#_ DSA _#**, **#^^!~0()[]#**
-
-Syntax usages: [data-segment](#data-segment)
-
-### Identifier
-
-An identifier can contain any number of alphanumeric charaters and underscores. It must contain at least one character.
-
-Example tokens: **_**, **123foo**, **8**, **AnObject**, **cats_and_dogs**
-
-If the identifier is an underscore **_**, then it is a [void identifier](#void-identifier). A [void identifier](#void-identifier) cannot be identified by another [void identifier](#void-identifier) and it is always unique. In other words multiple [void identifier](#void-identifier)'s can be used without identifying each other, and so it can be used to signify when an object should be ignored.
-
-Syntax usages: [class](#class), [generic-declaration-list](#generic-declaration-list), [type](#type), [dependancy-structure](#dependancy-structure), [object-declaration](#object-declaration), [class-method](#class-method), [expression](#expression), [method-invocation](#method-invocation), [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object)
-
-### Parent Identifier
-
-A parent identifier contains one or more **$** charaters. 
-
-Example tokens: **$**, **$$**, **$$$**, **$$$$**, **$$$$$**, **$$$$$$$$$$$$$$**
-
-**$** represents the first parent, **$$** represents the second parent, **$$$** represents the third parent and so on...
-
-Syntax usages: [type](#type), [internal-context-identifier](#internal-context-identifier)
-
-## Simple Tokens
-
-
-### Ampersand
-
-Token: **&**
-
-Syntax usages: [type](#type)
-
-### Apostrophe
-
-Token: **'**
-
-Syntax usages: [type](#type)
-
-### Arrow
-
-Token: **->**
-
-Syntax usages: [type](#type), [dependancy-structure](#dependancy-structure), [method-expression](#method-expression)
-
-### Arrow Brackets
-
-Tokens: **\>**, **\<**
-
-Syntax usages: [generic-declaration-list](#generic-declaration-list), [type](#type), [method-invocation](#method-invocation)
-
-### Asterisk
-
-Token: **\***
-
-Syntax usages: [method-expression](#method-expression)
-
-### Asterisk Caret
-
-Token: **\*^**
-
-Syntax usages: [expression](#expression)
-
-### Asterisk Dash
-
-Token: **\*-**
-
-Syntax usages: [expression](#expression)
-
-### Backslash
-
-Token: **\\**
-
-Syntax usages: [method-invocation](#method-invocation)
-
-### Backtick
-
-Token: **\`**
-
-Syntax usages: [lexical-splitter](#lexical-splitter)
-
-### Caret
-
-Token: **^**
-
-Syntax usages: [expression](#expression)
-
-### Colon
-
-Token: **:**
-
-Syntax usages: [class](#class), [expression](#expression), [internal-context-identifier](#internal-context-identifier), [anonymous-class-object](#anonymous-class-object)
-
-### Comma
-
-Token: **,**
-
-Syntax usages: [method-expression](#method-expression), [dependancy-structure](#dependancy-structure), [generic-declaration-list](#generic-declaration-list)
-
-### Curly Brackets
-
-Tokens: **}**, **{**
-
-Syntax usages: [class](#class), [entry-point-class](#entry-point-class), [statement-group](#statement-group), [anonymous-class-object](#anonymous-class-object)
-
-### Double Apostrophe
-
-Token: **"**
-
-Syntax usages: [type](#type)
-
-### Double Colon
-
-Token: **::**
-
-Syntax usages: [class-method](#class-method)
-
-### Double Pipe
-
-Token: **||**
-
-Syntax usages: [class-method](#class-method)
-
-### Double Strudel
-
-Token: **@@**
-
-Syntax usages: [mutiline-comment](#mutiline-comment)
-
-### Equals Sign
-
-Token: **=**
-
-Syntax usages: [assignment-statement](#assignment-statement)
-
-### Exclamation Mark
-
-Token: **!**
-
-Syntax usages: [prologue-statement](#prologue-statement)
-
-### Forward Slash
-
-Token: **/**
-
-Syntax usages: [type](#type)
-
-### Full Stop
-
-Token: **.**
-
-Syntax usages: [internal-instance-object](#internal-instance-object)
-
-### Method Visibility Indicators
-
-Tokens: **-**, **+**, **++**, **---**, **--+**, **-+-**, **-++**, **+--**, **+-+**, **++-**, **+++**
-
-Syntax usages: [class-method](#class-method)
-
-### Percent Sign
-
-Token: **%**
-
-Syntax usages: [type](#type)
-
-### Pipe
-
-Token: **|**
-
-Syntax usages: [class-method](#class-method)
-
-### Question Mark
-
-Token: **?**
-
-Syntax usages: [type](#type)
-
-### Round Brackets
-
-Tokens: **)**, **(**
-
-Syntax usages: [dependancy-structure](#dependancy-structure), [expression](#expression), [method-expression](#method-expression)
-
-### Semicolon
-
-Token: **;**
-
-Syntax usages: [statement-group](#statement-group)
-
-### Square Brackets
-
-Tokens: **]**, **[**
-
-Syntax usages: [class](#class), [entry-point-class](#entry-point-class), [type](#type), [anonymous-class-object](#anonymous-class-object)
-
-### Strudel
-
-Token: **@**
-
-Syntax usages: [singleline-comment](#singleline-comment)
-
-### Tilde
-
-Token: **~**
-
-Syntax usages: [class-method](#class-method), [method-invocation](#method-invocation)
-
-### Triple Less Than
-
-Token: **<<<**
-
-Syntax usages: [compiler-injection](#compiler-injection)
-
-
-## Syntax
-The syntax is detailed in a top down tree like manner. Starting from the [root](#root), the complete syntax of Daina can be observed where each subheading represents a node in the syntax tree and links to all child branches.
-
-A simple regex-like syntax meta-language is used to describe grammar rules. It consists of the following symbols:
-
-* Tokens representing the use of a token in the syntax, e.g. [<<<](#triple-less-than), [(](#round-brackets), [@@](#double-strudel), [identifier](#identifier)
-* Child nodes representing the branching to the given child in the syntax tree, e.g. [class](#class), [mutiline-comment](#mutiline-comment), [singleline-comment](#singleline-comment)
-* Pipe **|** representing a choice between one syntax element or another. If there is any conflict between choices, the first option always takes precedence.
-* Question mark **?** representing an optional syntax element
-* Question mark **+** representing a syntax element which can optionally be repeated one or more times
-* Asterisk **\*** representing an optional syntax element which can optionally be repeated one or more times
-* Round brackets **( )** to group syntax elements together
-* Other characters **[description]** representing characters described between square brackets
-
-Consider the following example syntax description where A, B, C and D are tokens: **(** **(** **(** A **)\*** **|** B **)+** **|** C **|** D **)?** D
-
-Here are a few correct syntaxes from this syntax description: D, CD, DD, AAAD, ABBAAD
-
-Here are a few invalid syntaxes from this syntax description: CC, AAA, DDD, BCD
-
-### Root
-- [root](#root) syntax description: **(** [class](#class) **|** [entry-point-class](#entry-point-class) **)** **\***
-
-At the root of the Daina language, any number of classes can be defined. These classes must be unique, i.e. no two [classes](#class) can have the same [identifier](#identifier). Additionally, there can only be one [entry point class](#entry-point-class) which is the entry point of a Daina program.
-
-Starting from the root, there are three tokens which can appear anywhere in the program which will always branch to the corresponding nodes. In other words, when the following tokens appear for any syntax node, branching will always occur:
-
-* [Backtick \`](#backtick) always branches to [lexical-splitter](#lexical-splitter)
-* [Double strudel @@](#double-strudel) always branches to [mutiline-comment](#mutiline-comment)
-* [Strudel @](#strudel) always branches to [singleline-comment](#singleline-comment)
-
-### Lexical Splitter
-- [lexical-splitter](#lexical-splitter) syntax description: **[past character]**[\`](#backtick)**[middle characters]**[\`](#backtick)**[future characters]**
-
-The lexical splitter rearranges the characters so that the **[future characters]** are stitched to the **[past character]**, and the **[middle characters]** which start a new token come after the **[future characters]** until the next token is reached, i.e. into the following configuration: **[past character][future characters before next token][space][middle characters][future characters from next token]**. After this rearrangement, the syntax branches back to the parent syntax node. Consider the following example:
-```
-abc`def`hij klm
-```
-This would be equivalent to the following sequence of characters:
-```
-abchij def klm
-```
-[See more examples of the lexical splitter](#the-lexical-splitter).
-
-### Mutiline Comment
-- [mutiline-comment](#mutiline-comment) syntax description: [@@](#double-strudel)**[any characters except @@]**[@@](#double-strudel)
-
-The [@@](#double-strudel) tokens and all the characters in between are ignored by the compiler.
-
-### Singleline Comment
-- [singleline-comment](#singleline-comment) syntax description: [@](#strudel)**[all characters until the end of the line]**
-
-The [@](#strudel) token and all the characters until the end of the line are ignored by the compiler.
-
-### Class
-- [class](#class) syntax description: [\[](#square-brackets) [identifier](#identifier) **(** [generic-declaration-list](#generic-declaration-list) **)?** **(** [:](#colon) [type](#type) **)\*** [\]](#square-brackets) [dependancy-structure](#dependancy-structure) **(** [object-declaration](#object-declaration) **)\*** [{](#curly-brackets) **(** [class-method](#class-method) **|** [compiler-injection](#compiler-injection) **)\*** [}](#curly-brackets)
-
-The [identifier](#identifier) is the name of the class and must be unique (different from all other class identifiers). The class identifier cannot be the [void identifier](#identifier). The [object declarations](#object-declaration) are the declarations of the instance objects for the class. [See classes.](#classes-types-objects-and-dependancies)
-
-Each [type](#type) represents a parent of the class. A parent must be a class [type](#type). The first [type](#type) is the first parent, the second [type](#type) is the second parent and so on... A class cannot inherit from itself. [See inheritance.](#inheritance)
-
-### Entry Point Class
-- [entry-point-class](#entry-point-class) syntax description: [\[](#square-brackets) [\]](#square-brackets) [dependancy-structure](#dependancy-structure) [{](#curly-brackets) [expression](#expression) [}](#curly-brackets)
-
-The [expression](#expression) inside the class is the [entry point of a program](#entry-point-of-a-program), it is a method with no inputs or output. The [dependancy structure](#dependancy-structure) determines which classes the entry point method depends on.
-
-### Generic Declaration List
-- [generic-declaration-list](#generic-declaration-list) syntax description: [<](#arrow-brackets) **generic-declaration** **(** [,](#comma) **generic-declaration** **)\*** [>](#arrow-brackets)
-    + **generic-declaration** syntax description: [identifier](#identifier)
-
-Each **generic-declaration** [identifier](#identifier) must be unique (no two generics in a generic declaration list can have the same [identifier](#identifier)). [See class generics.](#class-generics) [See rising and falling generics.](#rising-and-falling-generics)
-
-### Type
-- [type](#type) syntax description: [\[](#square-brackets) **(** **class-type-structure** **|** **method-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
-    + **class-segment-type-structure** syntax description: [identifier](#identifier) **(** **class-generic-instantiation** **)?**
-        - **class-generic-instantiation** syntax description: [<](#arrow-brackets) **(** [type](#type) **)\*** [>](#arrow-brackets)
-    + **method-type-structure** syntax description: **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
-    + **disjoint-type-structure** syntax description: [type](#type) **(** **(** [/](#forward-slash) [type](#type) **)+**
-    + **class-generic-type-structure** syntax description: [&](#ampersand) [identifier](#identifier)
-    + **method-generic-type-structure** syntax description: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
-    + **data-segment-type-structure** syntax description: [%](#percent-sign) [identifier](#identifier)
-    + **inferred-type-structure** syntax description: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
-
-A type is a classification of an object. Each type structure forms a type which classifies a different set of objects. Following are links to explainations for each type structure:
-
-- **class-segment-type-structure**: [classes](#classes-types-objects-and-dependancies), [class generics](#class-generics)
-- **method-type-structure**: [lambdas](#methods-and-lambdas)
-- **disjoint-type-structure**: [disjoint types](#disjoint-types)
-- **class-generic-type-structure**: [class generics](#class-generics)
-- **method-generic-type-structure**: [method generics](#method-generics)
-- **data-segment-type-structure**: [data segments](#data-segments)
-- **inferred-type-structure**: [type inference](#type-inference)
-
-If the type structure is empty, the type represents the [root type](#root-type).
-
-Types within the **class-generic-instantiation** cannot be a data segment type. The type after the [->](#arrow) in **method-type-structure** cannot be a data segment type. [See data segments.](#data-segments)
-
-### Dependancy Structure
-- [dependancy-structure](#dependancy-structure) syntax description: **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
-    + **reverse-dependancy-list** syntax description: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
-    + **dependancy-list** syntax description: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
-
-The [identifiers](#identifier) in the **dependancy-list** refer to [classes](#class) which are depended on by the parent of this dependancy structure. The [identifiers](#identifier) in the **reverse-dependancy-list** refer to [classes](#class) which depend on the parent of this dependancy structure. [See dependancies.](#classes-types-objects-and-dependancies)
-
-### Object Declaration
-- [object-declaration](#object-declaration) syntax description: [type](#type) [identifier](#identifier)
-
-An object declaration is used in various contexts to declare the presence of an object. The [identifier](#identifier) is the name of the object and [type](#type) is gaurenteed to be a valid [type](#type) of the object. The [type](#type) cannot be the [root type](#root-type).
-
-### Class Method
-- [class-method](#class-method) syntax description: **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
-    + **class-method-classification** syntax description: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
-
-Inclusion of [|](#pipe) declares that this class method is overriding a existing class method from a parent [class](#class) ([see inheritance](#inheritance)). Inclusion of [||](#double-pipe) declares that this class method is overriding an unimplemented class method from a parent [class](#class) ([see partial class implementations](#partial-class-implementations)). The **class-method-classification** determines if a class method is a construtor, instance method or type method. [::](#double-colon) indicates a type method, [~](#tilde) indicates a constructor, and the lack of either represents an instance method. The [method-visibility-indicator](#method-visibility-indicators) determines the visibility of the method. [See instance method visibility.](#instance-method-visibility) [See constructor and type method visibility.](#visibility-and-inheritance-of-constructor-and-type-methods) The [identifier](#identifier) is the name of this class method.
-
-If the class method has an [expression](#expression), the [expression](#expression) must represent a [method](#methods-and-lambdas). [See constructors, instance methods and type methods.](#constructors-instance-methods-and-type-methods) Constructors have special rules for the method; [See statement order in constructors.](#statement-ordering-in-constructors)
-
-If the class method has a [type](#type) instead; the class method is said to be unimplemented, the [type](#type) in question is the [type](#type) of the unimplemented [method](#methods-and-lambdas). Only instance methods can be unimplemented. [See partial class implementations.](#partial-class-implementations)
-
-### Compiler Injection
-- [compiler-injection](#compiler-injection) syntax description: [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
-
-A compiler injection has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the compiler injection at it's own discretion. [See compiler injections.](#compiler-injections)
-
-### Expression
-- [expression](#expression) syntax description: **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
-    + **object-method** syntax description: [expression](#expression) [:](#colon) [identifier](#identifier)
-    + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
-    + **grouped-expression** syntax description: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
-        - **type-cast** syntax description: [type](#type)
-    + **type-method** syntax description: [type](#type) [:](#colon) [identifier](#identifier)
-    + **object-identifier** syntax description: [identifier](#identifier)
-    + **self-reference** syntax description: [^](#caret)
-    + **method-self-reference** syntax description: [\*^](#asterisk-caret)
-
-A **grouped-expression** represents the same expression from its syntax description. The **type-cast** in a **grouped-expression** forces an upcast of the type of the original expression. [See type casting.](#type-casting)
-
-Any expression can have an attached [prologue-statement](#prologue-statement). [See prologue statements.](#prologue-statements)
-
-Some expressions will evalutate to an object. The following are all the types of expressions which can evaluate to an object:
-- [data-segment](#data-segment): Evaluates to a [data-segment](#data-segment) object. [See data segments.](#data-segments)
-- **object-method**: The **object-method**'s [expression](#expression) is evalutated first. Then this evalutates to the method named by the [identifier](#identifier), from the object which resulted from the **object-method**'s [expression](#expression). The rules for [instance method visibility](#instance-method-visibility) must be followed.
-- **proxy-object**: The **proxy-object**'s [expression](#expression) is evalutated first. Then this evalutates to a [proxy](#object-proxy) for the object which resulted from the **proxy-object**'s [expression](#expression).
-- [method-expression](#method-expression): Evalutates to the method expressed here. [See methods.](#methods-and-lambdas)
-- **grouped-expression**: The **grouped-expression**'s [expression](#expression) is evalutated first. Then this evalutates to the result of the **grouped-expression**'s [expression](#expression). The result is upcast to the **type-cast**'s [type](#type) if one is present. The **grouped-expression** must always evalutate to an object. If the result is upcast, then the **grouped-expression** cannot be a be a [data-segment](#data-segment).
-- [method-invocation](#method-invocation): Evaluates to the output object after the method is invoked. If the method has no output object then this expression does not evaluate to an object. [See methods.](#methods-and-lambdas)
-- **type-method**: Evalutates to the type method named by the **type-method**'s [identifier](#identifier) for the class identified by the **type-method**'s [type](#type). This type method can refer to a constructor. [See constructors and type methods.](#constructors-instance-methods-and-type-methods) The rules for [constructor and type method visibility](#visibility-and-inheritance-of-constructor-and-type-methods) must be followed. The **type-method**'s [type](#type) can have class generic instantiations. [See class generics.](#class-generics)
-- **object-identifier**: Evaluates to the local object or input object which is named with the **object-identifier**'s [identifier](#identifier). The local object or input object must be accessible in the current [scope](#scope). The local or input object cannot be a [data-segment](#data-segment).
-- [internal-instance-method](#internal-instance-method): Evalutates to the instance method named by the [internal-instance-method](#internal-instance-method)'s [identifier](#identifier), from the enclosing class or parent class identified by the [internal-instance-method](#internal-instance-method)'s [internal-context-identifier](#internal-context-identifier). [See classes.](#classes-types-objects-and-dependancies) [See inheritance.](#inheritance)
-- [internal-instance-object](#internal-instance-object): Evalutates to the instance object named by the [internal-instance-object](#internal-instance-object)'s [identifier](#identifier). [See classes.](#classes-types-objects-and-dependancies)
-- **self-reference**: Evalutates to the instance of the enclosing class. [See self reference.](#self-reference)
-- **method-self-reference**: Evalutates to the instance of the enclosing method. [See self reference.](#self-reference)
-- [anonymous-class-object](#anonymous-class-object): Evaluates to the new class object. [See anonymous class objects.](#anonymous-class-objects)
-
-### Internal Context Identifier
-- [internal-context-identifier](#internal-context-identifier) syntax description: [:](#colon) **|** [parent-identifier](#parent-identifier)
-
-The internal context identifier represents the enclosing class with a [:](#colon), or one of the parent classes identified by a [parent-identifier](#parent-identifier).
-
-### Data Segment
-- [data-segment](#data-segment) syntax description: [data-segment-anchor](#data-segment-anchor)**[data-component]**[data-segment-anchor](#data-segment-anchor).
-    + **data-component** syntax description: **[any characters not containing the data-segment-anchor]**
-
-Both [data-segment-anchor](#data-segment-anchor)'s surrounding the **data-component** must be identical and not contained within the **data-component**. The **data-component** has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the **data-component** at it's own discretion. [See data segments.](#data-segments)
-
-### Assignment Statement
-- [assignment-statement](#assignment-statement) syntax description: **(** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** [object-declaration](#object-declaration) **)** [=](#equals-sign) [expression](#expression)
-
-In an assignment statement the [expression](#expression) is evalutated first and the resulting object is assigned to the [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object) or [object-declaration](#object-declaration). The [expression](#expression) must result in an object, but cannot be a be a [data-segment](#data-segment). The [type](#type) of the [internal-instance-method](#internal-instance-method), [internal-instance-object](#internal-instance-object) or [object-declaration](#object-declaration) must match the [expression](#expression). Assigning an [internal-instance-method](#internal-instance-method) or [internal-instance-object](#internal-instance-object) can only happen in a constructor. [See statement order in constructors.](#statement-ordering-in-constructors)
-
-### Statement Group
-- [statement-group](#statement-group) syntax description: [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
-
-The [statement](#statement)s are executed one after another in order from the first to the last.
-
-### Method Expression
-- [method-expression](#method-expression) syntax description: [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
-    + **input-list** syntax description: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
-    + **method-body** syntax description: [statement](#statement)
-    + **output-type** syntax description: [type](#type)
-    + **output-expression** syntax description: [expression](#expression)
-
-The **method-body** [statement](#statement) is executed first, then the **output-expression** is evalutated and the result is returned. [See methods.](#methods-and-lambdas). The **output-expression** cannot be a [data-segment](#data-segment).
-
-### Method Invocation
-- [method-invocation](#method-invocation) syntax description: [\\](#backslash) **(** [expression](#expression) **|** **internal-constructor** **)** **method-inputs**
-    + **internal-constructor** syntax description: [internal-context-identifier](#internal-context-identifier) [~](#tilde) **(** **(** [>](#arrow-brackets) **)** **|** [identifier](#identifier) **)**
-    + **method-inputs** syntax description: **(** [expression](#expression) **)\***
-
-The method invocation either invokes the result of an [expression](#expression), or an **internal-constructor**. If an [expression](#expression) is invoked; first the expression is evaluated to a method, then each of the **method-inputs** [expression](#expression)'s are evaluated in order that they appear from left to right, finally the method is invoked with the evaluated **method-inputs** as the input objects to the method. [See methods.](#methods-and-lambdas) If an **internal-constructor** is invoked; first the **internal-constructor**'s [expression](#expression) is evaluated if it has one, then each of the **method-inputs** [expression](#expression)'s are evaluated in order that they appear from left to right, finally the constructor is invoked with the evaluated **method-inputs** as the input objects to the method. 
-
-An **internal-constructor** invocation can be a parent constructor ([See inheritance.](#inheritance)) or a [self constructor](#invoking-self-constructors). Wether representing a constructor from the enclosing class or a parent class is determined by the [internal-context-identifier](#internal-context-identifier). If the [>](#arrow-brackets) is not present, then the **internal-constructor** represents a constructor as normal. If the [>](#arrow-brackets) is present, then the **internal-constructor** represents a [pointer constructor](#pointer-constructors) and the first [expression](#expression) after the [>](#arrow-brackets) evalutates to the object which the new object will point to.
-
-### Internal Instance Method
-- [internal-instance-method](#internal-instance-method) syntax description: [internal-context-identifier](#internal-context-identifier) [identifier](#identifier)
-
-Represents a method named by the [identifier](#identifier) from either the enclosing class or a parent class. Wether representing a method from the enclosing class or a parent class is determined by the [internal-context-identifier](#internal-context-identifier). [See inheritance.](#inheritance)
-
-### Internal Instance Object
-- [internal-instance-object](#internal-instance-object) syntax description: [.](#full-stop) [identifier](#identifier)
-
-Represents the instance object named by the [identifier](#identifier). [See classes.](#classes-types-objects-and-dependancies)
-
-### Anonymous Class Object
-- [anonymous-class-object](#anonymous-class-object) syntax description: [\[](#square-brackets) **(** [:](#colon) [type](#type) **)+** [\]](#square-brackets) [{](#curly-brackets) **anonymous-class-object-construction** **(** [class-method](#class-method) **)\*** [}](#curly-brackets)
-    + **anonymous-class-object-construction** syntax description: **(** [statement](#statement) **)\***
-
-Represents a new class object which overrides each of the [type](#type)'s, is constructed by the **anonymous-class-object-construction**, and implements each of the [class-method](#class-method)'s. Each [type](#type) represents a parent of the new class object, the first [type](#type) is the first parent, the second [type](#type) is the second parent and so on... [See anonymous class objects.](#anonymous-class-objects)
-
-### Prologue Statement
-- [prologue-statement](#prologue-statement) syntax description: [!](#exclamation-mark) [statement](#statement)
-
-A prologue statement is evalutated before the expression which comes before it. [See prologue statements.](#prologue-statements)
-
-### Statement
-- [statement](#statement) syntax description: [expression](#expression)
-
-A statement is an [expression](#expression) which does not evalutate to an object. In other words, the statement is only valid if the [expression](#expression) does not evalutate to an object.
- 
-
-## Syntax Summary
-- Whitespace is ignored
-- [composite-tokens](#composite-tokens): [data-segment-anchor](#data-segment-anchor), [identifier](#identifier), [parent-identifier](#parent-identifier)
-- [simple-tokens](#simple-tokens): [&](#ampersand), ['](#apostrophe), [->](#arrow), [<](#arrow-brackets), [>](#arrow-brackets), [\*](#asterisk), [\\](#backslash), [\`](#backtick), [^](#caret), [:](#colon), [{](#curly-brackets), [}](#curly-brackets), [::](#double-colon), [||](#double-pipe), [@@](#double-strudel), [=](#equals-sign), [!](#exclamation-mark), [/](#forward-slash), [.](#full-stop), [-](#method-visibility-indicators), [+](#method-visibility-indicators), [++](#method-visibility-indicators), [---](#method-visibility-indicators), [--+](#method-visibility-indicators), [-+-](#method-visibility-indicators), [-++](#method-visibility-indicators), [+--](#method-visibility-indicators), [+-+](#method-visibility-indicators), [++-](#method-visibility-indicators), [+++](#method-visibility-indicators), [%](#percent-sign), [|](#pipe), [?](#question-mark), [(](#round-brackets), [)](#round-brackets), [;](#semicolon), [\[](#square-brackets), [\]](#square-brackets), [@](#strudel), [~](#tilde), [<<<](#triple-less-than)
-- [Backtick \`](#backtick) always branches to [lexical-splitter](#lexical-splitter)
-    + [lexical-splitter](#lexical-splitter): **[past character]**[\`](#backtick)**[middle characters]**[\`](#backtick)**[future characters]**
-- [Double strudel @@](#double-strudel) always branches to [mutiline-comment](#mutiline-comment)
-    + [mutiline-comment](#mutiline-comment): [@@](#double-strudel)**[any characters except @@]**[@@](#double-strudel)
-- [Strudel @](#strudel) always branches to [singleline-comment](#singleline-comment)
-    + [singleline-comment](#singleline-comment): [@](#strudel)**[all characters until the end of the line]**
-- [root](#root): **(** [class](#class) **|** [entry-point-class](#entry-point-class) **)** **\***
-    - [class](#class): [\[](#square-brackets) [identifier](#identifier) **(** [generic-declaration-list](#generic-declaration-list) **)?** **(** [:](#colon) [type](#type) **)\*** [\]](#square-brackets) [dependancy-structure](#dependancy-structure) **(** [object-declaration](#object-declaration) **)\*** [{](#curly-brackets) **(** [class-method](#class-method) **|** [compiler-injection](#compiler-injection) **)\*** [}](#curly-brackets)
-    - [entry-point-class](#entry-point-class): [\[](#square-brackets) [\]](#square-brackets) [dependancy-structure](#dependancy-structure) [{](#curly-brackets) [expression](#expression) [}](#curly-brackets)
-    - [generic-declaration-list](#generic-declaration-list): [<](#arrow-brackets) **generic-declaration** **(** [,](#comma) **generic-declaration** **)\*** [>](#arrow-brackets)
-        + **generic-declaration**: [identifier](#identifier)
-    - [type](#type): [\[](#square-brackets) **(** **class-type-structure** **|** **method-type-structure** **|** **data-segment-type-structure** **|** **disjoint-type-structure** **|** **class-generic-type-structure** **|** **lambda-generic-type-structure** **|** **inferred-type-structure** **)?** [\]](#square-brackets)
-        + **class-segment-type-structure**: [identifier](#identifier) **(** **class-generic-instantiation** **)?**
-            - **class-generic-instantiation**: [<](#arrow-brackets) **(** [type](#type) **)\*** [>](#arrow-brackets)
-        + **method-type-structure**: **(** **(** [type](#type) **)\*** [->](#arrow) **(** [type](#type) **)?**
-        + **disjoint-type-structure**: [type](#type) **(** [/](#forward-slash) [type](#type) **)+**
-        + **class-generic-type-structure**: [&](#ampersand) [identifier](#identifier)
-        + **method-generic-type-structure**: **(** **(** ['](#apostrophe) **)+** **|** ["](#double-apostrophe) **)** [identifier](#identifier)
-        + **data-segment-type-structure**: [%](#percent-sign) [identifier](#identifier)
-        + **inferred-type-structure**: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
-    - [dependancy-structure](#dependancy-structure): **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
-        + **reverse-dependancy-list**: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
-        + **dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
-    - [object-declaration](#object-declaration): [type](#type) [identifier](#identifier)
-    - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
-        + **class-method-classification**: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
-    - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
-    - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
-        + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
-        + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
-        + **grouped-expression**: **(** **type-cast** **)?** [(](#round-brackets) [expression](#expression) [)](#round-brackets)
-            - **type-cast**: [type](#type)
-        + **type-method**: [type](#type) [:](#colon) [identifier](#identifier)
-        + **object-identifier**: [identifier](#identifier)
-        + **self-reference**: [^](#caret)
-        + **method-self-reference**: [\*^](#asterisk-caret)
-    - [internal-context-identifier](#internal-context-identifier): [:](#colon) **|** [parent-identifier](#parent-identifier)
-    - [data-segment](#data-segment): [data-segment-anchor](#data-segment-anchor)**[data-component]**[data-segment-anchor](#data-segment-anchor).
-        + **data-component**: **[any characters not containing the data-segment-anchor]**
-    - [assignment-statement](#assignment-statement): **(** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** [object-declaration](#object-declaration) **)** [=](#equals-sign) [expression](#expression)
-    - [statement-group](#statement-group): [{](#curly-brackets) **(** [statement](#statement) **(** [;](#semicolon) **)?** **)\*** [}](#curly-brackets)
-    - [method-expression](#method-expression): [\*](#asterisk) **(** **input-list** **)?** **(** **method-body** **|** **(** **(** [->](#arrow) **output-type** **method-body** **)?** [->](#arrow) **output-expression** **)** **)**
-        + **input-list**: [(](#round-brackets) [object-declaration](#object-declaration) **(** [,](#comma) [object-declaration](#object-declaration) **)\*** [)](#round-brackets)
-        + **method-body**: [statement](#statement)
-        + **output-type**: [type](#type)
-        + **output-expression**: [expression](#expression)
-    - [method-invocation](#method-invocation) syntax description: [\\](#backslash) **(** [expression](#expression) **|** **internal-constructor** **)** **method-inputs**
-        + **internal-constructor** syntax description: [internal-context-identifier](#internal-context-identifier) [~](#tilde) **(** **(** [>](#arrow-brackets) **)** **|** [identifier](#identifier) **)**
-        + **method-inputs** syntax description: **(** [expression](#expression) **)\***
-    - [internal-instance-method](#internal-instance-method): [internal-context-identifier](#internal-context-identifier) [identifier](#identifier)
-    - [internal-instance-object](#internal-instance-object): [.](#full-stop) [identifier](#identifier)
-    - [anonymous-class-object](#anonymous-class-object): [\[](#square-brackets) **(** [:](#colon) [type](#type) **)+** [\]](#square-brackets) [{](#curly-brackets) **anonymous-class-object-construction** **(** [class-method](#class-method) **)\*** [}](#curly-brackets)
-        + **anonymous-class-object-construction**: **(** [statement](#statement) **)\***
-    - [prologue-statement](#prologue-statement): [!](#exclamation-mark) [statement](#statement)
-    - [statement](#statement): [expression](#expression)
-
-
-
-
----
-***
 
