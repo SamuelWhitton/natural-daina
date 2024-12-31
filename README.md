@@ -4513,7 +4513,7 @@ If a class and none of its parents has a constructor, then we say it has implici
 [AB :[A] :[B]] (A, B) {
     ||++ methodB *{}
     ||++ unimplementedMethodA [->]
-    ||:: ++ inheritedTypeMethodB *{}
+    :: |++ inheritedTypeMethodB *{}
 }
 
 [A] {
@@ -9137,7 +9137,7 @@ A declared object is not visible in the expression on the right hand side of the
 [] {
     *{
         [->[->]] foo = *-> [->] {  @ original foo declaration
-                [->] foo = *{};    @ Vallid; original foo declaration is not visible here
+                [->] foo = *{};    @ Valid; original foo declaration is not visible here
             } -> bar;
     }
 }
@@ -9146,9 +9146,33 @@ A declared object is not visible in the expression on the right hand side of the
 
 
 ## Visibility and Inheritance of Constructors and Type Methods
+
+Type and constructor methods have visibility levels similar to instance methods. Type and constructor method visibilities include external visibility, class visibility and inherited visibility. 
+
+These visibilities are indicated in the same way as instance methods and are written after **~** for constructors or **::** for type methods:
+```
+[Foo] {
+    ~ --- constructor1 *{}  @ constructor without external visibility, without class visibility and without inherited visibility
+    ~ --+ constructor2 *{}
+    ~ -+- constructor3 *{}
+    ~ -++ constructor4 *{}
+    ~ +-- constructor5 *{}
+    ~ +-+ constructor6 *{}
+    ~ ++- constructor7 *{}
+    ~ +++ constructor8 *{}
+
+    :: --- typeMethod1 *{}  @ type method without external visibility, without class visibility and without inherited visibility
+    :: --+ typeMethod2 *{}
+    :: -+- typeMethod3 *{}
+    :: -++ typeMethod4 *{}
+    :: +-- typeMethod5 *{}
+    :: +-+ typeMethod6 *{}
+    :: ++- typeMethod7 *{}
+    :: +++ typeMethod8 *{}
+}
+```
+
 asdf
-
-
 = each visibility and no visibility for type method, [generic doesnt matter for class visibility]
 = each visibility and no visibility for constructor methods [inherited constructor does not cause the type method of the constructor to be inherited] [generic doesnt matter for class visibility]
 = constructor can be blocked by type method inherited or in the class, but constructor cant override
@@ -9161,7 +9185,7 @@ asdf
 
 ## Void Identifier
 
-The void identifier is **_**. It can be used in place of any local object identifier or method input identifier.
+**_** is the void identifier. It can be used in place of any local object identifier or method input identifier.
 
 The following example shows the void identifier being used as the identifier of a local object and a method input:
 ```
@@ -9546,10 +9570,10 @@ The [identifiers](#identifier) in the **dependancy-list** refer to [classes](#cl
 An object declaration is used in various contexts to declare the presence of an object. The [identifier](#identifier) is the name of the object and [type](#type) is gaurenteed to be a valid [type](#type) of the object. The [type](#type) cannot be the [root type](#root-type).
 
 ### Class Method
-- [class-method](#class-method) syntax description: **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
-    + **class-method-classification** syntax description: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
+- [class-method](#class-method) syntax description: **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
+    + **class-method-classification** syntax description: **(** **(** [|](#pipe) **|** [||](#double-pipe) **)?** [method-visibility-indicator](#method-visibility-indicators) **)** **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [|](#pipe) **)?** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
 
-Inclusion of [|](#pipe) declares that this class method is overriding a existing class method from a parent [class](#class) ([see inheritance](#inheritance)). Inclusion of [||](#double-pipe) declares that this class method is overriding an unimplemented class method from a parent [class](#class) ([see partial class implementations](#partial-class-implementations)). The **class-method-classification** determines if a class method is a construtor, instance method or type method. [::](#double-colon) indicates a type method, [~](#tilde) indicates a constructor, and the lack of either represents an instance method. The [method-visibility-indicator](#method-visibility-indicators) determines the visibility of the method. [See instance method visibility.](#instance-method-visibility) [See constructor and type method visibility.](#visibility-and-inheritance-of-constructor-and-type-methods) The [identifier](#identifier) is the name of this class method.
+Inclusion of [|](#pipe) declares that this class method is overriding a existing class method from a parent [class](#class) ([see inheritance](#inheritance)). Inclusion of [||](#double-pipe) declares that this class method is overriding an unimplemented class method from a parent [class](#class) ([see partial class implementations](#partial-class-implementations)). [::](#double-colon) indicates a type method, [~](#tilde) indicates a constructor, and the lack of either represents an instance method. The [method-visibility-indicator](#method-visibility-indicators) determines the visibility of the method. [See instance method visibility.](#instance-method-visibility) [See constructor and type method visibility.](#visibility-and-inheritance-of-constructor-and-type-methods) The [identifier](#identifier) is the name of this class method.
 
 If the class method has an [expression](#expression), the [expression](#expression) must represent a [method](#methods-and-lambdas). [See constructors, instance methods and type methods.](#constructors-instance-methods-and-type-methods) Constructors have special rules for the method; [See statement order in constructors.](#statement-ordering-in-constructors)
 
@@ -9684,8 +9708,8 @@ A statement is an [expression](#expression) which does not evalutate to an objec
         + **reverse-dependancy-list**: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
         + **dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
     - [object-declaration](#object-declaration): [type](#type) [identifier](#identifier)
-    - [class-method](#class-method): **(** [|](#pipe) **|** [||](#double-pipe) **)?** **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
-        + **class-method-classification**: [method-visibility-indicator](#method-visibility-indicators) **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
+    - [class-method](#class-method): **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
+        + **class-method-classification**: **(** **(** [|](#pipe) **|** [||](#double-pipe) **)?** [method-visibility-indicator](#method-visibility-indicators) **)** **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [|](#pipe) **)?** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
     - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
     - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
         + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
