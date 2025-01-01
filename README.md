@@ -101,11 +101,12 @@
         - [Statement](#statement)
     + [Syntax Summary](#syntax-summary)
 
-
+* [Extra Topics](#extra-topics)
 
 ---
 
 # Introduction to Daina
+TODO
 
 Foundationally objects, methods and classes
 
@@ -6089,7 +6090,7 @@ An object proxy can be created for any object:
 
 ### Overloading Class Methods
 
-It is possible to have multiple class methods with the same name, in which case the method invocation is distinguished by the input types used when invoking. This is called overloading a class method. In the following example, the method **add** is overloaded five times:
+It is possible to have multiple class methods with the same name, in which case the method invocation is distinguished by the input types used when invoking. This is called overloading a class method. When overloading, each class method must have at least one input, overloading is not possible if a method has no inputs. In the following example, the method **add** is overloaded five times:
 ```
 [] (Meal, Food, Drink) {
     *{
@@ -9354,9 +9355,7 @@ Inherited visibility allows a constructor to be invoked as a parent constructor 
     ~ --+ createFruit *{}                      @ createFruit has --+ visibility
 }
 ```
-
-asdf
-Different to constructors, inherited vi
+Different to constructors, inherited visibility for a type method copies it into all future parent classes:
 ```
 [] (Blueberry, Berry, Fruit) {
     *{
@@ -9410,7 +9409,7 @@ Different to constructors, inherited vi
     } -> \[Fruit]:new
 }
 ```
-Class and external visibility is inherited
+Class and external visibility is inherited along with the type method:
 ```
 [] (Blueberry, Berry, Fruit) {
     *{
@@ -9464,7 +9463,7 @@ Class and external visibility is inherited
     } -> \[Fruit]:new
 }
 ```
-overriding, also cannot change the visibility level when overriding similar to instance method overriding. Does not override the original [Fruit]:createFruit like a instance method, only future ones in the decendants that are inherited
+Type methods can override other type methods which have been inherited. Just like instance methods, when overriding a type method the visibility levels can be increased but not decreased. Overriding a type method in a new class does not affect the original, only classes which inherit from the new class are affected. When overriding a type method, the symbol **|** is placed between **::** and the visibility indicator:
 ```
 [] (Blueberry, Berry, Fruit) {
     *{
@@ -9521,14 +9520,86 @@ overriding, also cannot change the visibility level when overriding similar to i
     } -> \[Fruit]:new
 }
 ```
-Overriding does not exist for constructors
+Overriding does not exist for constructors.
+
+Type methods with inherited visibility will conflict with and [overload](#overloading-class-methods). constructors if both have external visibility, or the constructor has class visibility:
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Fruit] fruit = \[Fruit]:new;
+        [Berry] berry = \[Berry]:new;
+        [Blueberry] blueberry = \[Blueberry]:new;
+        [Blueberry] pickedFruit1 = \[Blueberry]:pickFruit blueberry berry fruit;  @ Invokes the second [Blueberry]:pickFruit constructor
+        [Fruit] pickedFruit2 = \[Blueberry]:pickFruit blueberry berry;            @ Invokes the second [Fruit]:pickFruit type method
+    }
+}
 
 
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new;
+    }
 
-= for constructor the last - or + conflicts only with other self constructors, and the first and second conflicts with type methods (the inherited type mathod also conflicts)
-= conflict can be solved with overloading (already shown previoulsy but not inherited context) [Overloading Class Methods](#overloading-class-methods)
+    ~ --+ createFruitA *-> [Blueberry] {  @ Valid; does not conflict with any method
+        \$~new;
+    } -> \[Blueberry]:new
+
+    ~ +-+ createFruitB *-> [Blueberry] {  @ Valid; does not conflict with any method
+        \$~new;
+    } -> \[Blueberry]:new
+
+    ~ +-+ createFruitC *-> [Blueberry] {  @ Valid; does not conflict with any method
+        \$~new;
+    } -> \[Blueberry]:new
+
+    ~ +++ pickFruit *([Fruit] fruit) {                           @ Invalid; conflicts with first [Fruit]:pickFruit method
+        \$~new;
+    }
+
+    ~ +++ pickFruit *([Blueberry] c1, [Berry] c2, [Fruit] c3) {  @ Valid; overloads with both [Fruit]:pickFruit methods
+        \$~new;
+    }
+}
 
 
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \$~new;
+    }
+
+    ~ +-- createFruitA *-> [Berry] {  @ Invalid; conflicts with inherited type method [Fruit]:createFruitA
+        \$~new;
+    } -> \[Berry]:new
+
+    ~ -++ createFruitB *-> [Berry] {  @ Invalid; conflicts with inherited type method [Fruit]:createFruitB
+        \$~new;
+    } -> \[Berry]:new
+
+    ~ --- createFruitC *-> [Berry] {  @ Valid; does not conflict with any method
+        \$~new;
+    } -> \[Berry]:new
+}
+
+
+[Fruit] { 
+    ~ new *{}
+
+    :: +-+ createFruitA *-> [Fruit] {
+    } -> \[Fruit]:new
+
+    :: --+ createFruitB *-> [Fruit] {
+    } -> \[Fruit]:new
+
+    :: -++ createFruitC *-> [Fruit] {
+    } -> \[Fruit]:new
+
+    :: +++ pickFruit *([Fruit] choice1) -> [Fruit] {
+    } -> choice1
+
+    :: +++ pickFruit *([Fruit] choice1, [Fruit] choice2)-> [Fruit] {
+    } -> choice2
+}
+```
 
 
 ## Void Identifier
@@ -10089,19 +10160,13 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [statement](#statement): [expression](#expression)
 
 
-
-
 ---
-***
 
 
+# Extra Topics
 
 
-
-
-
-
-
+TODO
 
 extra???
 
@@ -10763,6 +10828,9 @@ can be implemented in libraries at the compiler/system level with example on var
 
 ```
 
+
+
+***
 
 
 
