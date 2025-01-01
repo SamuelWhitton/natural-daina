@@ -4439,7 +4439,7 @@ Constructor invocation statements must always come after any instance assignment
     ~ newBar *{}
 }
 ```
-Constructor invocations and instance assignments can only appear in the most base level scope of a constructor method. [See scope.](#scope) The scope requirement is demonstrated in the following example where every statement of **fooConstructor1** and **fooConstructor2** is placed inside a [statement group](#compound-expressions-and-statements).
+Constructor invocations and instance assignments can only appear in the most base level scope of a constructor method, and they can never appear in any other methods. [See scope.](#scope) The scope requirement is demonstrated in the following example where every statement of **fooConstructor1** and **fooConstructor2** is placed inside a [statement group](#compound-expressions-and-statements).
 ```
 [Foo :[BaseClass1] :[BaseClass2]] (Bar, BaseClass1, BaseClass2) 
     [Bar] instanceObject1
@@ -8343,7 +8343,7 @@ A partial types can be used for instantiating a class generic when refering to a
     ++ transform *([&A] a) -> [&B] {} -> \.transform a
 }
 ```
-These type and constrctor methods can be directly invoked the same as other methods with method generics:
+These type and constructor methods can be directly invoked the same as other methods with method generics:
 ```
 [] (A, B, Container, Transformation) {
     *{
@@ -9152,27 +9152,106 @@ Type and constructor methods have visibility levels similar to instance methods.
 These visibilities are indicated in the same way as instance methods and are written after **~** for constructors or **::** for type methods:
 ```
 [Foo] {
-    ~ --- constructor1 *{}  @ constructor without external visibility, without class visibility and without inherited visibility
-    ~ --+ constructor2 *{}
-    ~ -+- constructor3 *{}
-    ~ -++ constructor4 *{}
-    ~ +-- constructor5 *{}
-    ~ +-+ constructor6 *{}
-    ~ ++- constructor7 *{}
-    ~ +++ constructor8 *{}
+    ~ --- constructor1 *{}  @ constructor; without external, class or inherited visibility
+    ~ --+ constructor2 *{}  @ constructor; with only inherited visibility
+    ~ -+- constructor3 *{}  @ constructor; with only class visibility
+    ~ -++ constructor4 *{}  @ constructor; with class and inherited, but without external visibility
+    ~ +-- constructor5 *{}  @ constructor; with only external visibility
+    ~ +-+ constructor6 *{}  @ constructor; with external and inherited, but without class visibility
+    ~ ++- constructor7 *{}  @ constructor; with external and class, but without inherited visibility
+    ~ +++ constructor8 *{}  @ constructor; with external, class and inherited visibility
 
-    :: --- typeMethod1 *{}  @ type method without external visibility, without class visibility and without inherited visibility
-    :: --+ typeMethod2 *{}
-    :: -+- typeMethod3 *{}
-    :: -++ typeMethod4 *{}
-    :: +-- typeMethod5 *{}
-    :: +-+ typeMethod6 *{}
-    :: ++- typeMethod7 *{}
-    :: +++ typeMethod8 *{}
+    :: --- typeMethod1 *{}  @ type method; without external, class or inherited visibility
+    :: --+ typeMethod2 *{}  @ type method; with only inherited visibility
+    :: -+- typeMethod3 *{}  @ type method; with only class visibility
+    :: -++ typeMethod4 *{}  @ type method; with class and inherited, but without external visibility
+    :: +-- typeMethod5 *{}  @ type method; with only external visibility
+    :: +-+ typeMethod6 *{}  @ type method; with external and inherited, but without class visibility
+    :: ++- typeMethod7 *{}  @ type method; with external and class, but without inherited visibility
+    :: +++ typeMethod8 *{}  @ type method; with external, class and inherited visibility
+}
+```
+Its not required to include explicit visibility levels for constructors and type methods. When a visibility level is not explicit; a constructor has a visibility of **+++** by default, and a type method has as visibility of **++-** by default.
+
+When a type method has no external, class or inherited visibility (written as **---**), it can be accessed only within other type methods in the same class:
+```
+[] (Container) {
+    *{
+        @ map is not visible here
+    }
+}
+
+
+[Container<E>]
+    [&E] containedObject
+{
+    ~ as *([&E] object) {
+        .containedObject = object;
+        @ map is not visible here
+    }
+
+    :: unwrap *([Container<[Container<[&E]>]>] containerContainer) -> [Container<[&E]>] {
+        [[Container<[&E]>]->[&E]] uncontain = *([Container<[&E]>] c) -> [&E] {} -> \c:get;
+    } -> \[Container<[Container<[&E]>]>]:map uncontain containerContainer  @ map is visible here
+
+    :: --- map *([[&E]->['M]] f, [Container<[&E]>] c) -> [Container<['M]>] {  @ map has --- visibility
+        [&E] original = \c:get;
+        ['M] transformed = \f original;
+    } -> \[Container<['M]>]:as transformed
+
+    ++ get *->[&E] {
+        @ map is not visible here
+    } -> .containedObject
+}
+```
+Similarly when a constructor has no external, class or inherited visibility (also written as **---**), it can be invoked only as a constructor within other constructors in the same class, but it cannot be used to create a new object:
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Berry] berry = \[Berry]:createBerry;  @ Invalid; createBerry is not visible here
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new; 
+    }
+
+    ~ newBlueberry *{ 
+        \$~createBerry;                        @ Invalid; createBerry is not visible here
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \:~createBerry;                        @ Valid; createBerry is visible here
+        [Berry] berry = \[Berry]:createBerry;  @ Invalid; createBerry cannot be used to create a new object
+    }
+
+    ~ --- createBerry *{  @ createBerry has --- visibility
+        \$~new; 
+    }
+
+    :: foo *{
+        [Berry] berry = \[Berry]:createBerry;  @ Invalid; createBerry is not visible here
+    }
+}
+
+
+[Fruit] { 
+    ~ new *{} 
 }
 ```
 
 asdf
+
+
+
+= constructor inheritance only works for a single level (immidiate child)
+
+
 = each visibility and no visibility for type method, [generic doesnt matter for class visibility]
 = each visibility and no visibility for constructor methods [inherited constructor does not cause the type method of the constructor to be inherited] [generic doesnt matter for class visibility]
 = constructor can be blocked by type method inherited or in the class, but constructor cant override
