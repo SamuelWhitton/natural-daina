@@ -1691,7 +1691,7 @@ In the following example, we add type method **getHatFromHatContainer** which re
     ~ newHat *{}
 }
 ```
-**someHat**, **hatTakenFromContainer** and **hatTakenFromContainer2** are all refering to the same object.
+**someHat**, **hatTakenFromContainer** and **hatTakenFromContainer2** are all referring to the same object.
 
 
 In summary:
@@ -4410,17 +4410,17 @@ Constructor invocation statements must always come after any instance assignment
         \$$~initBaseClass2;             @ Constructor invocation (after all instance assignments and before any self referential statements)
         [Bar] bar3 = \[Bar]:newBar;     @ Other
         \$~initBaseClass1;              @ Constructor invocation (after all instance assignments and before any self referential statements)
-        \:instanceMethod1;              @ Self referential (refering to instance method instanceMethod1)
-        [Foo] myself = ^;               @ Self referential (refering to self)
+        \:instanceMethod1;              @ Self referential (referring to instance method instanceMethod1)
+        [Foo] myself = ^;               @ Self referential (referring to self)
         \myself:instanceMethod2;        @ Other
     }
 
     ~ fooConstructor2 *{
         [Bar] bar1 = \[Bar]:newBar;             @ Other
         \:~fooConstructor1 bar1;                @ Constructor invocation (after all instance assignments and before any self referential statements)
-        [->] lambda = *{ \:instanceMethod2; };  @ Self referential (refering to instance method instanceMethod2)
+        [->] lambda = *{ \:instanceMethod2; };  @ Self referential (referring to instance method instanceMethod2)
         \lambda;                                @ Other
-        [Bar] bar2 = .instanceObject2;          @ Self referential (refering to instance object instanceObject2)
+        [Bar] bar2 = .instanceObject2;          @ Self referential (referring to instance object instanceObject2)
     }
 
     - instanceMethod1 *{}
@@ -5326,7 +5326,7 @@ Consider the following example where instance and type methods are captured in l
     :: useA *([A] a){}
 }
 ```
-In the above example, invoking **newALambda**, **createALambda**, **a1DoThingLambda**, **a2DoThingLambda** and **useALambda** is the same as invoking **[A]:newA**, **[A]:createA**, **a1:doThing**, **a2:doThing** and **[A]:useA** respectively. Instance and type methods can be captured as lambda objects by refering to them directly in an expression. The previous example is rewritten so that the instance and type methods are captured as lambda objects directly:
+In the above example, invoking **newALambda**, **createALambda**, **a1DoThingLambda**, **a2DoThingLambda** and **useALambda** is the same as invoking **[A]:newA**, **[A]:createA**, **a1:doThing**, **a2:doThing** and **[A]:useA** respectively. Instance and type methods can be captured as lambda objects by referring to them directly in an expression. The previous example is rewritten so that the instance and type methods are captured as lambda objects directly:
 ```
 [] (A) {
     *{
@@ -6813,7 +6813,7 @@ Remove the output or adding parameters to a method type with no parameters also 
 }
 ```
 
-Refering to a method with input parameters which originally had no input parameters, results in input paramters which are ignored when invoked. Likewise a removed output results in an ignored output parameter when invoked. These new method types are parent types of the original. The previous **lambdaB**, **lambdaC** and **lambdaD** are rewritten with equivalent method expressions to show this logic:
+referring to a method with input parameters which originally had no input parameters, results in input paramters which are ignored when invoked. Likewise a removed output results in an ignored output parameter when invoked. These new method types are parent types of the original. The previous **lambdaB**, **lambdaC** and **lambdaD** are rewritten with equivalent method expressions to show this logic:
 ```
 
 [] (Beetle, Bug, Insect) {
@@ -7293,7 +7293,7 @@ A self constructor cannot be invoked if it will assign an already assigned metho
 }
 ```
 
-Refering to parent methods that were originally unimplemented will refer to the next avaliable implementation from a child class. In the following example, **\swappedDefaultDisplayB:width** creates an infinite execution loop becuase inside **swappedDefaultDisplayB**, **$height** and **$width** refers to its own **:height** and **:width** methods respectively. This is not the case for **swappedDefaultDisplayA:width** becuase the constructor **swapDefaultA** invokes **$~default**, thus inside **swappedDefaultDisplayA**, **$height** and **$width** refers to the *:*width** and **:height** methods assigned in the **default** constructor.
+referring to parent methods that were originally unimplemented will refer to the next avaliable implementation from a child class. In the following example, **\swappedDefaultDisplayB:width** creates an infinite execution loop becuase inside **swappedDefaultDisplayB**, **$height** and **$width** refers to its own **:height** and **:width** methods respectively. This is not the case for **swappedDefaultDisplayA:width** becuase the constructor **swapDefaultA** invokes **$~default**, thus inside **swappedDefaultDisplayA**, **$height** and **$width** refers to the *:*width** and **:height** methods assigned in the **default** constructor.
 ```
 [] (Integer, DisplayParameters, SwappedDisplay) {
     *{
@@ -8305,7 +8305,7 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 
 ### Type Inference of Class Generics
 
-A partial types can be used for instantiating a class generic when refering to a type method or a constructor. Every **[?]** of the partial will be replaced with a new method generic type. In the following example, **createContainer**, **createTransformation**, **modifyContainer** and **createContainerTransformation** are lambda objects created with [flexible method expression](#flexible-method-expression) by instantiating class generics.
+A partial types can be used for instantiating a class generic when referring to a type method or a constructor. Every **[?]** of the partial will be replaced with a new method generic type. In the following example, **createContainer**, **createTransformation**, **modifyContainer** and **createContainerTransformation** are lambda objects created with [flexible method expression](#flexible-method-expression) by instantiating class generics.
 ```
 [] (Container, Transformation) {
     *{
@@ -9192,7 +9192,7 @@ When a type method has no external, class or inherited visibility (written as **
 
     :: unwrap *([Container<[Container<[&E]>]>] containerContainer) -> [Container<[&E]>] {
         [[Container<[&E]>]->[&E]] uncontain = *([Container<[&E]>] c) -> [&E] {} -> \c:get;
-    } -> \[Container<[Container<[&E]>]>]:map uncontain containerContainer  @ map is visible here
+    } -> \[Container<[Container<[&E]>]>]:map uncontain containerContainer     @ map is visible here
 
     :: --- map *([[&E]->['M]] f, [Container<[&E]>] c) -> [Container<['M]>] {  @ map has --- visibility
         [&E] original = \c:get;
@@ -9219,7 +9219,7 @@ Similarly when a constructor has no external, class or inherited visibility (als
     }
 
     ~ newBlueberry *{ 
-        \$~createBerry;                        @ Invalid; createBerry is not visible here
+        \$~createBerry;                        @ Invalid; createBerry is not within the same class
     }
 }
 
@@ -9230,7 +9230,7 @@ Similarly when a constructor has no external, class or inherited visibility (als
         [Berry] berry = \[Berry]:createBerry;  @ Invalid; createBerry cannot be used to create a new object
     }
 
-    ~ --- createBerry *{  @ createBerry has --- visibility
+    ~ --- createBerry *{                       @ createBerry has --- visibility
         \$~new; 
     }
 
@@ -9244,22 +9244,291 @@ Similarly when a constructor has no external, class or inherited visibility (als
     ~ new *{} 
 }
 ```
+Class visibility allows a constructor to create objects within the class, and external visibility allows a constructor to create objects outside the class:
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry is visible here due to external visibility
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new; 
+    }
+
+    ~ newBlueberry *{ 
+        \$~createBerry;                        @ Invalid; createBerry is not within the same class
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \:~createBerry;                        @ Valid; createBerry is visible here
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry can be used to create an object here due to class visibility
+    }
+
+    ~ ++- createBerry *{                       @ createBerry has ++- visibility
+        \$~new; 
+    }
+
+    :: foo *{
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry is visible here due to class visibility
+    }
+}
+
+
+[Fruit] { 
+    ~ new *{} 
+}
+```
+Similarly class visibility allows a type method to be invoked within the class, and external visibility allows a type method to be invoked outside the class:
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry is visible here due to external visibility
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new; 
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry is visible here due to external visibility
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry is visible here due to class visibility
+    }
+
+    :: ++- createBerry *->[Berry] {            @ createBerry has ++- visibility
+    } -> \[Berry]:new
+
+    :: foo *{
+        [Berry] berry = \[Berry]:createBerry;  @ Valid; createBerry is always visible here no matter the visibility levels
+    }
+}
+
+
+[Fruit] { 
+    ~ new *{} 
+}
+```
+Inherited visibility allows a constructor to be invoked as a parent constructor for the immidiate class inheriting from it. This is a bit different from inherited instance methods that continue being visible for all their decendants:
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Invalid; createFruit is not visible here
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new; 
+    }
+
+    ~ newBlueberry *{ 
+        \$~createFruit;                        @ Invalid; createFruit is not visible here
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \$~createFruit;                        @ Valid; createFruit is visible here
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Invalid; createFruit cannot be used to create an object here
+    }
+}
+
+
+[Fruit] { 
+    ~ new *{
+        \:~createFruit;                        @ Valid; createFruit is visible here     
+    } 
+    ~ --+ createFruit *{}                      @ createFruit has --+ visibility
+}
+```
 
 asdf
+Different to constructors, inherited vi
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Fruit] fruit = \[Fruit]:createFruit;              @ Invalid; [Fruit]:createFruit is not visible here
+        [Berry] berry = \[Berry]:createFruit;              @ Invalid; [Berry]:createFruit is not visible here
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ Invalid; [Blueberry]:createFruit is not visible here
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new;
+        [Fruit] fruit = \[Fruit]:createFruit;              @ Invalid; [Fruit]:createFruit is not visible here
+        [Berry] berry = \[Berry]:createFruit;              @ Invalid; [Berry]:createFruit is not visible here
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ Invalid; [Blueberry]:createFruit is not visible here
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;              @ Invalid; [Fruit]:createFruit is not visible here
+        [Berry] berry = \[Berry]:createFruit;              @ Invalid; [Berry]:createFruit is not visible here
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ Valid; [Blueberry]:createFruit is visible here
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \$~new;
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Invalid; [Fruit]:createFruit is not visible here
+        [Berry] berry = \[Berry]:createFruit;  @ Invalid; [Berry]:createFruit is not visible here
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Invalid; [Fruit]:createFruit is not visible here
+        [Berry] berry = \[Berry]:createFruit;  @ Valid; [Berry]:createFruit is visible here
+    }
+}
+
+
+[Fruit] { 
+    ~ new *{ 
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Invalid; [Fruit]:createFruit is not visible here
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Valid; [Fruit]:createFruit is visible here
+    }
+
+    :: --+ createFruit *->[Fruit] {            @ [Fruit]:createFruit has --+ visibility
+    } -> \[Fruit]:new
+}
+```
+Class and external visibility is inherited
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Fruit] fruit = \[Fruit]:createFruit;              @ Now Valid; [Fruit]:createFruit is visible due to external visibility
+        [Berry] berry = \[Berry]:createFruit;              @ Now Valid; [Berry]:createFruit is visible due to external visibility
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ Now Valid; [Blueberry]:createFruit is visible due to external visibility
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new;
+        [Fruit] fruit = \[Fruit]:createFruit;              @ Now Valid; [Fruit]:createFruit is visible due to external visibility
+        [Berry] berry = \[Berry]:createFruit;              @ Now Valid; [Berry]:createFruit is visible due to external visibility
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ Now Valid; [Blueberry]:createFruit is visible due to class visibility
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;              @ Now Valid; [Fruit]:createFruit is visible due to external visibility
+        [Berry] berry = \[Berry]:createFruit;              @ Now Valid; [Berry]:createFruit is visible due to external visibility
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ Valid; [Blueberry]:createFruit is visible here
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \$~new;
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Now Valid; [Fruit]:createFruit is visible due to external visibility
+        [Berry] berry = \[Berry]:createFruit;  @ Now Valid; [Berry]:createFruit is visible due to class visibility
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Now Valid; [Fruit]:createFruit is visible due to external visibility
+        [Berry] berry = \[Berry]:createFruit;  @ Valid; [Berry]:createFruit is visible here
+    }
+}
+
+
+[Fruit] { 
+    ~ new *{ 
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Now Valid; [Fruit]:createFruit is visible due to class visibility
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ Valid; [Fruit]:createFruit is visible here
+    }
+
+    :: +++ createFruit *->[Fruit] {            @ [Fruit]:createFruit has +++ visibility
+    } -> \[Fruit]:new
+}
+```
+overriding, also cannot change the visibility level when overriding similar to instance method overriding. Does not override the original [Fruit]:createFruit like a instance method, only future ones in the decendants that are inherited
+```
+[] (Blueberry, Berry, Fruit) {
+    *{
+        [Fruit] fruit = \[Fruit]:createFruit;              @ referring to the original createFruit method in Fruit
+        [Berry] berry = \[Berry]:createFruit;              @ referring to the overriden createFruit method in Berry
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ referring to the overriden createFruit method in Berry
+    }
+}
+
+
+[Blueberry :[Berry]] (Berry) {
+    ~ new *{ 
+        \$~new;
+        [Fruit] fruit = \[Fruit]:createFruit;              @ referring to the original createFruit method in Fruit
+        [Berry] berry = \[Berry]:createFruit;              @ referring to the overriden createFruit method in Berry
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ referring to the overriden createFruit method in Berry
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;              @ referring to the original createFruit method in Fruit
+        [Berry] berry = \[Berry]:createFruit;              @ referring to the overriden createFruit method in Berry
+        [Blueberry] blueberry = \[Blueberry]:createFruit;  @ referring to the overriden createFruit method in Berry
+    }
+}
+
+
+[Berry :[Fruit]] (Fruit) {
+    ~ new *{ 
+        \$~new;
+        [Fruit] fruit = \[Fruit]:createFruit;  @ referring to the original createFruit method in Fruit
+        [Berry] berry = \[Berry]:createFruit;  @ referring to the overriden createFruit method in Berry
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ referring to the original createFruit method in Fruit
+        [Berry] berry = \[Berry]:createFruit;  @ referring to the overriden createFruit method in Berry
+    }
+
+    :: |+++ createFruit *->[Fruit] {            @ overriding the createFruit method
+    } -> \[Fruit]:new
+}
+
+
+[Fruit] { 
+    ~ new *{ 
+        [Fruit] fruit = \[Fruit]:createFruit;  @ referring to the original createFruit method in Fruit
+    }
+
+    :: foo *{
+        [Fruit] fruit = \[Fruit]:createFruit;  @ referring to the original createFruit method in Fruit
+    }
+
+    :: +++ createFruit *->[Fruit] {            @ original createFruit method
+    } -> \[Fruit]:new
+}
+```
+Overriding does not exist for constructors
 
 
 
-= constructor inheritance only works for a single level (immidiate child)
+= for constructor the last - or + conflicts only with other self constructors, and the first and second conflicts with type methods (the inherited type mathod also conflicts)
+= conflict can be solved with overloading (already shown previoulsy but not inherited context) [Overloading Class Methods](#overloading-class-methods)
 
 
-= each visibility and no visibility for type method, [generic doesnt matter for class visibility]
-= each visibility and no visibility for constructor methods [inherited constructor does not cause the type method of the constructor to be inherited] [generic doesnt matter for class visibility]
-= constructor can be blocked by type method inherited or in the class, but constructor cant override
-= for constructor the last - or + conflicts only with other self constructors, and the first and second conflicts with type methods
-= default constructor visibility (+++) and type method visibility (++-)
-= overriding with type methods (no overriding for constructors) [visibility of type methods cant be decreased when inheriting]
-= constructors and instance methods cannot access private type methods
-= resolving conflicts with constructors and type methods using underloading, and overloading automatically when inherited, [see overloading and underloading](#overloading-and-underloading), [Duplicate Inheritance](#duplicate-inheritance)
 
 
 ## Void Identifier
