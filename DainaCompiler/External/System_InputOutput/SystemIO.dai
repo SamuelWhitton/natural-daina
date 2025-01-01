@@ -1,0 +1,243 @@
+
+
+@@
+
+SystemIO : []
+	:: inputStreamForFileWithFilename [[String] -> [InputStream]]
+	:: outputStreamForFileWithFilename [[String] -> [OutputStream]]
+	:: bindAndListenToSocketOnLocalPort [[SocketPort] -> [Maybe<[SocketBinding]>]]
+	:: connectToOpenSocketWithIPAddressAndPort [[IPAddress],[SocketPort] -> [Maybe<[SocketConnection]>]]
+	:: stdout [ -> [OutputStream]]
+	:: stderr [ -> [OutputStream]]
+	:: stdin [ -> [InputStream]]
+
+
+@@
+
+
+
+
+[AutomaticallyClosingInputFileDataStream : [InputStream]] (InputStream) -> (SystemInputOutput)
+{
+	~ automaticallyClosingInputFileStreamConnectedToNullDevice *{
+		\::inputStreamConnectedToNullDevice;
+	}
+	
+	<deallocator
+	##
+		FILE *fileDevicePointer = injected_DATASTREAM_GET_DEVICE_POINTER_WITH_DATASTREAMOBJECT(object);
+		if (fileDevicePointer) {
+			fclose(fileDevicePointer);
+		}
+	##
+}
+
+[AutomaticallyClosingOutputFileDataStream : [OutputStream]] (OutputStream) -> (SystemInputOutput)
+{
+	~ automaticallyClosingOutputFileStreamConnectedToNullDevice *{
+		\::outputStreamConnectedToNullDevice;
+	}
+	
+	<deallocator
+	##
+		FILE *fileDevicePointer = injected_DATASTREAM_GET_DEVICE_POINTER_WITH_DATASTREAMOBJECT(object);
+		if (fileDevicePointer) {
+			fclose(fileDevicePointer);
+		}
+	##
+}
+
+
+
+[SystemInputOutput] (OutputStream, InputStream, Object, AutomaticallyClosingInputFileDataStream, Maybe, SocketBinding,
+		AutomaticallyClosingOutputFileDataStream, String, Data, SocketPort, SocketConnection, IPAddress, ControlFlow, Boolean) 
+{
+
+
+	<header 
+	##
+		#define SystemIO_MALLOC_CSTRING_WITH_ASCII_DATAOBJECT_AND_CHARPOINTEROUTPUT(_dataObject, _outputCharPointer) \
+			size_t originalDataLength = injected_DATA_SIZE_WITH_DATA_OBJECT(_dataObject);\
+			_outputCharPointer = (char*)malloc(originalDataLength+1);\
+			memcpy(_outputCharPointer, injected_DATA_POINTER_WITH_DATA_OBJECT(_dataObject), originalDataLength);\
+			_outputCharPointer[originalDataLength] = 0;
+	##
+	
+	:: maybeInputStreamForFileWithFilename *([String] filename) -> [Maybe<[InputStream]>] {
+		[AutomaticallyClosingInputFileDataStream] fileInputStream = \[AutomaticallyClosingInputFileDataStream]:automaticallyClosingInputFileStreamConnectedToNullDevice;
+	   	[Data] filenameASCIIData = \filename:asciiDataRepresentationOfString;
+		<instant
+		##
+			char *filenameAsCString;
+			SystemIO_MALLOC_CSTRING_WITH_ASCII_DATAOBJECT_AND_CHARPOINTEROUTPUT(Z_local_filenameASCIIData, filenameAsCString);
+			FILE* file = fopen(filenameAsCString, "r");
+			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_fileInputStream, file);
+    		free(filenameAsCString);
+		##;
+		[Maybe<[InputStream]>] maybeInputStreamIfNotConnectedToNullDevice = \[ControlFlow<[Maybe<[InputStream]>]>]:selectWithSelectorOrDefault 
+			*([[Maybe<[InputStream]>]->] selectInputStreamNotConnectedToNullDevice) {
+				[Boolean] streamIsNullDevice = \fileInputStream:isConnectedToNullDevice;
+				\streamIsNullDevice:ifFALSE *{
+					\selectInputStreamNotConnectedToNullDevice (\[Maybe<[InputStream]>]:asJust fileInputStream)
+				}
+			} (*->\[Maybe<[InputStream]>]:asNothing);
+	} -> maybeInputStreamIfNotConnectedToNullDevice
+
+	:: maybeOutputStreamForFileWithFilename *([String] filename) -> [Maybe<[OutputStream]>] {
+		[AutomaticallyClosingOutputFileDataStream] fileOutputStream = \[AutomaticallyClosingOutputFileDataStream]:automaticallyClosingOutputFileStreamConnectedToNullDevice;
+	   	[Data] filenameASCIIData = \filename:asciiDataRepresentationOfString;
+		<instant
+		##
+			char *filenameAsCString;
+			SystemIO_MALLOC_CSTRING_WITH_ASCII_DATAOBJECT_AND_CHARPOINTEROUTPUT(Z_local_filenameASCIIData, filenameAsCString);
+			FILE* file = fopen(filenameAsCString, "w");
+			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_fileOutputStream, file);
+    		free(filenameAsCString);
+		##;
+		[Maybe<[OutputStream]>] maybeOutputStreamIfNotConnectedToNullDevice = \[ControlFlow<[Maybe<[OutputStream]>]>]:selectWithSelectorOrDefault 
+			*([[Maybe<[OutputStream]>]->] selectOutputStreamNotConnectedToNullDevice) {
+				[Boolean] streamIsNullDevice = \fileOutputStream:isConnectedToNullDevice;
+				\streamIsNullDevice:ifFALSE *{
+					\selectOutputStreamNotConnectedToNullDevice (\[Maybe<[OutputStream]>]:asJust fileOutputStream)
+				}
+			} (*->\[Maybe<[OutputStream]>]:asNothing);
+	} -> maybeOutputStreamIfNotConnectedToNullDevice
+
+
+	:: bindAndListenToSocketOnLocalPort *([SocketPort] portToListenOn) -> [Maybe<[SocketBinding]>] {
+		[Maybe<[SocketBinding]>] localSocketBinding = \[Maybe<[SocketBinding]>]:nothing;
+		[SocketBinding] localSocketBindingProxyObject = \[SocketBinding]:newSocketBindingOnNullSocket;
+
+		<instant
+		##
+			
+    int server_fd=0, new_socket, valread;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    int success = 0==1;
+      
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) != 0) {
+        if (!setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
+                                                  &opt, sizeof(opt))) {
+		unsigned short PORT;
+		injected_UNSIGNED_SHORT_PORT_NUMBER_WITH_SOCKET_PORT_AND_RESULT_UNSIGNED_SHORT(Z_local_portToListenOn, PORT);
+		if (PORT > 0) {
+
+			address.sin_family = AF_INET;
+    			address.sin_addr.s_addr = INADDR_ANY;
+    			address.sin_port = htons( PORT );
+
+    			if (bind(server_fd, (struct sockaddr *)&address, 
+                                 sizeof(address))>=0) {
+
+				if (listen(server_fd, 13) >= 0) {
+					success = 0==0;
+					void *addressDataObject = SocketBinding_SocketAddressCStructDataObject(Z_local_localSocketBindingProxyObject);
+					injected_DATA_REALLOCATE_WITH_SIZE_AND_DATA_OBJECT((long)addrlen, addressDataObject);
+					injected_DATA_COPY_WITH_SIZE_DATAFROM_AND_DATA_OBJECT((long)addrlen, &address, addressDataObject);
+					SocketBinding_CSocketFileDescriptor(Z_local_localSocketBindingProxyObject) = (void*)((long)server_fd);
+		##;
+		localSocketBinding = \[Maybe<[SocketBinding]>]:just localSocketBindingProxyObject;
+		<instant
+		##
+    				}
+    			}
+		}
+    	}		
+    }		
+
+    if (!success && server_fd) {
+	close(server_fd);
+    }		
+		##;
+
+	} -> localSocketBinding
+	
+	:: connectToOpenSocketWithIPAddressAndPort *([IPAddress] ipAddressToConnectTo, [SocketPort] portToConnectTo) -> [Maybe<[SocketConnection]>] {
+		[Maybe<[SocketConnection]>] connectedSocket = \[Maybe<[SocketConnection]>]:nothing;
+		[SocketConnection] connectedSocketProxyObject = \[SocketConnection]:newSocketBindingOnNullSocket;
+		
+		<instant
+		##
+			char *ipaddressCString;
+			SystemIO_MALLOC_CSTRING_WITH_ASCII_DATAOBJECT_AND_CHARPOINTEROUTPUT(((struct Z_template_IPAddress *)Z_local_ipAddressToConnectTo)->Z_attribute_IPAddress_asciiDataRepresentationOfIPAddress, ipaddressCString);
+			
+    struct sockaddr_in address;
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+
+    unsigned short PORT;
+    injected_UNSIGNED_SHORT_PORT_NUMBER_WITH_SOCKET_PORT_AND_RESULT_UNSIGNED_SHORT(Z_local_portToConnectTo, PORT);
+
+	int success = 0==1;
+    if (ipaddressCString && PORT > 0 && (sock = socket(AF_INET, SOCK_STREAM, 0)) >= 0) {
+        
+    	memset(&serv_addr, '0', sizeof(serv_addr));
+  
+    	serv_addr.sin_family = AF_INET;
+    	serv_addr.sin_port = htons(PORT);
+      
+    	if(inet_pton(AF_INET, ipaddressCString, &serv_addr.sin_addr)>0) 
+    	{
+      	  	if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0)
+    		{
+			success = 0==0;
+			SocketConnection_CSocketFileDescriptor(Z_local_connectedSocketProxyObject) = (void*)((long)sock);
+		##;
+		connectedSocket = \[Maybe<[SocketConnection]>]:just connectedSocketProxyObject;
+		<instant
+		##
+    		}
+    	}
+  
+    	
+    }
+  
+    if (!success && sock) {
+	close(sock);
+    }	
+			free(ipaddressCString);
+		##;
+
+	} -> connectedSocket
+
+	
+
+	:: stdout *() -> [OutputStream] {
+	   	[OutputStream] systemOutputStream = \[OutputStream]:outputStreamConnectedToNullDevice;
+		<instant
+		##
+			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_systemOutputStream, stdout);
+		##;
+	} -> systemOutputStream
+
+	:: stderr *() -> [OutputStream] {
+	   	[OutputStream] systemOutputStream = \[OutputStream]:outputStreamConnectedToNullDevice;
+		<instant
+		##
+			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_systemOutputStream, stderr);
+		##;
+	} -> systemOutputStream
+
+	:: stdin *() -> [InputStream] {
+	   	[InputStream] systemInputStream = \[InputStream]:inputStreamConnectedToNullDevice;
+		<instant
+		##
+			injected_DATASTREAM_SET_DEVICE_POINTER_WITH_DATASTREAMOBJECT_AND_DEVICEPOINTER(Z_local_systemInputStream, stdin);
+		##;
+	} -> (systemInputStream)
+
+	:: stdoutOutputStream * -> (\[SystemInputOutput]:stdout)
+	:: stdinInputStream * -> (\[SystemInputOutput]:stdin)
+	
+}
+
+
+
+
+
+
+
+
+

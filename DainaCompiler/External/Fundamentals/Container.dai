@@ -1,0 +1,55 @@
+
+@@
+
+Container<E:[Object]> : [Object]
+	:: newEmptyContainer [ -> [Container]]
+	++ store [[&E] -> ]
+	++ retrive [[[&E] -> ] -> ]
+	++ transformStoredObject [[[&E] -> [&E]] -> ]
+	++ isEmpty [ -> [Boolean]]
+
+@@
+
+
+
+
+
+[Container<E [Object]> : [Object]] (Object, Boolean)
+	[[[&E]->]->] storedObjectProvider
+	[Boolean] objectIsStored
+{
+	~ newEmptyContainer * {
+		\::new;
+		.objectIsStored = \[Boolean]:false;
+		.storedObjectProvider = *([[&E]->]_){};
+	}
+
+	++ store *([&E] objectToStoreInContainer) {
+		.objectIsStored = \[Boolean]:true;
+		.storedObjectProvider = *([[&E]->] provideObject){\provideObject objectToStoreInContainer};
+	}
+
+	++ retrive *([[&E]->] objectTaker) {
+		\.storedObjectProvider objectTaker
+	}
+
+	++ transformStoredObject *([[&E]->[&E]] transformation) {
+		\:retrive *([&E] theObjectInQuestion) {
+			[&E] transformedObject = \transformation theObjectInQuestion;
+			\:store transformedObject;
+		};
+	}
+
+	++ isEmpty * -> [Boolean] {} -> (\[Boolean]:not .objectIsStored)
+
+}
+
+
+
+
+
+
+
+
+
+

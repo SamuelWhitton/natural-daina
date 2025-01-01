@@ -1,0 +1,133 @@
+
+@@
+
+
+String : [SetObject<[String]>]
+	:: newString [[%STRING] -> [String]]
+	:: stringRepresentationOfInteger [[Integer] -> [String]]
+	:: stringWithASCIIDataRepresentationOfString [[Data] -> [String]]
+	|++ isEqualTo [[String] -> [Boolean]]
+	|++ provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects [ -> [Data]]
+	++ stringByAppendingString [[String] -> [String]]
+	++ asciiDataRepresentationOfString [ -> [Data]]
+
+
+
+@@
+
+
+
+
+
+
+
+[String : [SetObject<[String]>]] (Data, Integer, SetObject, Boolean) 
+	[Data] internalString
+{
+
+	~ newString *([%STRING] constantString) {
+		\::newSetObject;
+		.internalString = \[Data]:emptyData;
+		<instant
+		##
+			injected_STRING_SET_INTERNAL_DATA_WITH_STRING_OBJECT_AND_C_STRING(Z_self, Z_local_constantString);
+		##;
+	}
+
+	~ stringFromLiteral *([%STRING] literalString) {
+		\::newSetObject;
+		.internalString = \[Data]:emptyData;
+		<instant
+		##
+			injected_STRING_SET_INTERNAL_DATA_WITH_STRING_OBJECT_AND_C_STRING(Z_self, Z_local_literalString);
+		##;
+	}
+
+	|++ isEqualTo *([String] someOtherString) -> [Boolean] {
+		[Data] asciiRepForString1 = \:asciiDataRepresentationOfString;
+		[Data] asciiRepForString2 = \someOtherString:asciiDataRepresentationOfString;
+	} -> \[Data]:isDataIdenticalToData asciiRepForString1 asciiRepForString2
+
+	|++ provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects *->[Data]{}->.internalString
+
+	~ stringRepresentationOfInteger *([Integer] theIntegerInQuestion) {
+		\::newSetObject;
+		.internalString = \[Data]:emptyData;
+		<instant
+		##
+			long* integerRepresentationOriginal = (long*)(injected_DATA_POINTER_WITH_DATA_OBJECT(((struct Z_template_Integer *)(Z_local_theIntegerInQuestion))->Z_attribute_Integer_internalInteger));
+			size_t integerRepresentationSegmentLength = (injected_DATA_SIZE_WITH_DATA_OBJECT(((struct Z_template_Integer *)(Z_local_theIntegerInQuestion))->Z_attribute_Integer_internalInteger)) / sizeof(long);
+			long* integerRepresentation = malloc(integerRepresentationSegmentLength*sizeof(long));
+			for (int i=0;i<integerRepresentationSegmentLength;++i)
+				integerRepresentation[i] = integerRepresentationOriginal[i];
+			injected_REVERSE_LONG_ARRAY_WITH_SIZE(((long *)(&integerRepresentation[1])), integerRepresentationSegmentLength-2);
+			char* cStringRepresentation = (char*)malloc(integerRepresentationSegmentLength*4);
+			int cStringRepresentationPosition = 0;
+			int integerRepresentationPosition = 0;
+			if (integerRepresentation[integerRepresentationPosition] == -1 && !(integerRepresentation[integerRepresentationPosition+1] == 0 && integerRepresentation[integerRepresentationPosition+2] == -1))
+				cStringRepresentation[cStringRepresentationPosition++] = '-';
+			integerRepresentationPosition++;
+			while (integerRepresentation[integerRepresentationPosition] != -1) {
+				size_t charsWritten = snprintf(cStringRepresentation+cStringRepresentationPosition, 5, "%ld", integerRepresentation[integerRepresentationPosition]);
+				if (integerRepresentationPosition == 1) {
+					cStringRepresentationPosition+=charsWritten;
+				} else {
+					int zerosToPad = 4 - charsWritten;
+					int i;
+					i = 3;
+					while (i >= zerosToPad) {
+						cStringRepresentation[cStringRepresentationPosition+i] = cStringRepresentation[cStringRepresentationPosition+(i-zerosToPad)];
+						i--;
+					}
+					i = 0;
+					while (i < zerosToPad) {
+						cStringRepresentation[cStringRepresentationPosition+i] = '0';
+						i++;
+					}
+	
+					cStringRepresentationPosition += 4;
+				}
+				integerRepresentationPosition++;
+			}
+			cStringRepresentation[cStringRepresentationPosition] = 0;
+			injected_STRING_SET_INTERNAL_DATA_WITH_STRING_OBJECT_AND_C_STRING(Z_self, cStringRepresentation);
+			free(cStringRepresentation);
+			free(integerRepresentation);
+		##;
+	}
+
+	~ stringWithASCIIDataRepresentationOfString *([Data] asciiDataRepresentationOfString) {
+		\::newSetObject;
+		.internalString = asciiDataRepresentationOfString;
+	}
+
+	++ stringByAppendingString *([String] anotherString) -> [String] {
+		[Data] asciiDataOfSelf = \:asciiDataRepresentationOfString;
+		[Data] appendedASCIIDataOfBothStrings = 
+			\asciiDataOfSelf:dataByAppendingData \anotherString:asciiDataRepresentationOfString;
+	} -> \[String]:stringWithASCIIDataRepresentationOfString (appendedASCIIDataOfBothStrings)
+
+	++ asciiDataRepresentationOfString *->.internalString
+
+
+
+	<deallocator
+	##
+		#define injected_STRING_SET_INTERNAL_DATA_WITH_STRING_OBJECT_AND_C_STRING(_string, _aCString) \
+		size_t cStringLength = strlen(_aCString);\
+		injected_DATA_REALLOCATE_WITH_SIZE_AND_DATA_OBJECT(cStringLength, ((struct Z_template_String *)(_string))->Z_attribute_String_internalString);\
+		injected_DATA_COPY_WITH_SIZE_DATAFROM_AND_DATA_OBJECT(cStringLength, _aCString, ((struct Z_template_String *)(_string))->Z_attribute_String_internalString)
+
+	##
+
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,50 @@
+
+@@
+
+Wrapper<F:[Object]> : [Container<[&F]>]
+	:: wrapperWithObject [[&F] -> [Wrapper]]
+	|++ isEmpty [ -> [Boolean]]
+	|++ takeFromContainerWithSubstituteOnEmpty [[Object] -> [&F]]
+	|++ store [[&F] -> ]
+	|++ retrive [[[&F] -> ] -> ]
+	++ unwrap [ -> [&F]]
+
+@@
+
+
+
+
+[Wrapper<F [Object]> : [Container<[&F]>]] (Object, Container, Boolean)
+	[&F] wrappedObject
+{
+	~ wrapperWithObject *([&F] objectToWrap) {
+		\::newEmptyContainer;
+		.wrappedObject = objectToWrap;
+	}
+
+	|++ isEmpty *->[Boolean]{}->\[Boolean]:false
+
+	|++ store *([&F] objectToStoreInContainer) {
+		.wrappedObject = objectToStoreInContainer;
+	}
+
+	|++ retrive *([[&F]->] objectTaker) {
+		\objectTaker .wrappedObject;
+	}
+
+	++ unwrap *->.wrappedObject
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

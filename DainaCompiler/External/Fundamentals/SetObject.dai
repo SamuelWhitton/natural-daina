@@ -1,0 +1,33 @@
+
+@@
+
+SetObject<E:[SetObject]> : [Object]
+	:: newSetObject [ -> [SetObject]]
+	++ provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects [ -> [Data]]
+	++ isEqualTo [[&E] -> [Boolean]]
+
+@@
+
+
+
+
+[SetObject<E [SetObject]> : [Object]] (Object, Boolean, Data)
+{
+	~ newSetObject * {
+		\::new;
+	}	
+	++ provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects *->\[Data]:emptyData
+
+	++ isEqualTo *([&E] anotherObjectInSet) -> \[Boolean]:false
+
+}
+
+
+
+
+
+
+
+
+
+

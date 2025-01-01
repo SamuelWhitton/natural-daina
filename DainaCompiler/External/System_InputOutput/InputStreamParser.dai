@@ -1,0 +1,97 @@
+@@
+
+InputStreamParser : [Object]
+	:: parserWithInputStream [[InputStream] -> [InputStreamParser]]
+	++ endOfInputStreamHasBeenReached [ -> [Boolean]]
+	++ parseDataUntilEndOfStream [ -> [Data]]
+	++ parseDataUntilByte [[Byte] -> [Data]]
+	++ parseDataAsStringUntilNewline [ -> [String]]
+
+@@
+
+
+
+
+[InputStreamParser : [Object]] (InputStream, Object, Byte, ControlFlow, Boolean, Conjecture, Maybe, Data, String, Wrapper)
+	[InputStream] inputStreamToParse
+	[Boolean] hasReachedTheEndOfInputStream
+{
+	~ parserWithInputStream *([InputStream] inputStreamToParse) {
+		\::new;
+		.inputStreamToParse = inputStreamToParse;
+		.hasReachedTheEndOfInputStream = \[Boolean]:false;
+	}
+
+	++ endOfInputStreamHasBeenReached *-> (\[Boolean]:or .hasReachedTheEndOfInputStream \.inputStreamToParse:isConnectedToNullDevice)
+
+	++ parseDataUntilEndOfStream *->[Data] {
+		[Wrapper<[Data]>] wrappedParsedData = \[Wrapper<[Data]>]:wrapperWithObject (\[Data]:emptyData);
+		\[ControlFlow]:repeatWhile (*->\[Boolean]:not \:endOfInputStreamHasBeenReached) *{
+			[Maybe<[Data]>] theNextDataChunkThatHasBeenRead = \.inputStreamToParse:readNextChunkOfData;
+			\theNextDataChunkThatHasBeenRead:ifNothing *{
+				.hasReachedTheEndOfInputStream = \[Boolean]:true
+			};
+			\theNextDataChunkThatHasBeenRead:ifJust takeChunkOfData;
+			
+		}		!{
+					[[Data]->] takeChunkOfData = *([Data] theNextDataChunk) {
+						[Data] currentData = \wrappedParsedData:unwrap;
+						\wrappedParsedData:store (\currentData:dataByAppendingData theNextDataChunk);
+					}
+				};
+		[Data] parsedData = \wrappedParsedData:unwrap;
+		
+	
+		@@
+ 		[Data] parsedData = \[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideAByte) {
+			\[ControlFlow]:repeatWhile (*->\[Boolean]:not \:endOfInputStreamHasBeenReached) *{
+				[Maybe<[Byte]>] theNextByteThatHasBeenRead = \.inputStreamToParse:readNextByte;
+				\theNextByteThatHasBeenRead:ifNothing *{
+					.hasReachedTheEndOfInputStream = \[Boolean]:true
+				};
+				\theNextByteThatHasBeenRead:ifJust parseNextByte;
+			
+			}	!{
+
+					[[Byte]->] parseNextByte = *([Byte] theNextByte) {
+						\provideAByte theNextByte;
+					}
+				};
+		};
+		@@
+	} -> parsedData
+
+	++ parseDataUntilByte *([Byte] byteToStopParsingAt) -> [Data] {
+ 		[Data] parsedData = \[Data]:dataFromBytesWithByteProvider *([[Byte]->] provideAByte) {
+			[Conjecture] parsingOfBytesShouldContinue = \[Conjecture]:declareAs (\[Boolean]:not .hasReachedTheEndOfInputStream);
+			\[ControlFlow]:repeatWhile (*->\parsingOfBytesShouldContinue:isTrue) *{
+				[Maybe<[Byte]>] theNextByteThatHasBeenRead = \.inputStreamToParse:readNextByte;
+				\theNextByteThatHasBeenRead:ifNothing *{
+					\stopParsing;
+					.hasReachedTheEndOfInputStream = \[Boolean]:true
+				};
+				\theNextByteThatHasBeenRead:ifJust parseNextByte;
+			
+			}	!{
+					[->] stopParsing = *{\parsingOfBytesShouldContinue:declareFalse};
+
+					[[Byte]->] parseNextByte = *([Byte] theNextByte) {
+						[Boolean] thisByteIsTheByteToStopParsingAt = \byteToStopParsingAt:sameAsByte theNextByte;
+						\thisByteIsTheByteToStopParsingAt:ifTrue stopParsing;
+						\thisByteIsTheByteToStopParsingAt:ifFalse *{\provideAByte theNextByte};
+					}
+				};
+		};
+	} -> parsedData
+
+	++ parseDataAsStringUntilNewline *-> [String] {
+		[Byte] asciiNewlineCharacter = \[Byte]:newByte 0b0A;
+		[Data] parsedStringData = \:parseDataUntilByte asciiNewlineCharacter;
+	} -> \[String]:stringWithASCIIDataRepresentationOfString parsedStringData
+}
+
+
+
+
+
+

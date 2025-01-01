@@ -1,0 +1,196 @@
+@@
+
+
+
+ControlFlow : []
+	:: repeatWhile [[ -> [Boolean]],[ -> ] -> ]
+	:: ifThenElse [[ -> [Boolean]],[ -> ],[ -> ] -> ]
+	:: repeatNTimes [[Natural],[[Natural] -> ] -> ]
+
+@@
+
+
+
+
+
+[ControlFlow<Q [Object], V [Object]>] (Boolean, Natural, Wrapper, Object, CoreFlow, Variable, ControlFlowRecursiveConstructor, ControlFlowRecursiveTransformer)
+{
+	:: repeatWhile *([->[Boolean]] conditionForRepeat, [->] lambdaToRepeat) {
+		\[CoreFlow]:repeatUntilStopped *([->] stop) {
+			\[ControlFlow]:ifThenElse conditionForRepeat lambdaToRepeat stop;
+		};
+	}
+
+	:: ifThenElse *([->[Boolean]] conditionForIf, [->] onTrue, [->] onFalse) {
+		[Boolean] conditionResult = \conditionForIf;
+		\conditionResult:ifTrue onTrue;
+		\conditionResult:ifFalse onFalse;
+	}
+
+	:: selectWithSelectorOrDefault *([[[&Q]->]->] selector, [->[&Q]] default) -> [&Q] {
+		[Variable<[&Q]>] returnThing = \[Variable<[&Q]>]:as (\default);
+		\selector *([&Q] selectedThing) {
+			\returnThing:set (selectedThing);
+		};
+
+		@compiler if segfaulting here, just ignore it untill we trash this compiler
+		@@[VariableReturnerOfThing<[&Q]>] currentSelection = \[VariableReturnerOfThing<[&Q]>]:as default;
+		\selector *([&Q] selectedThing) {
+			\currentSelection:set (*->selectedThing);
+		};
+		[->[&Q]] finalSelection = \currentSelection:get;@@
+	} -> (\returnThing:get)
+
+	:: repeatNTimes *([Natural] numberOfTimesToRepeat, [[Natural]->] lambdaToRepeatReceivingCurrentCount) {
+		[Wrapper<[Natural]>] wrappedCurrentCount = \[Wrapper<[Natural]>]:wrapperWithObject (\[Natural]:one);
+
+		(\[ControlFlow]:repeatWhile currentCountHasNotExceededNumberOfTimesToRepeat *{
+			\lambdaToRepeatReceivingCurrentCount \wrappedCurrentCount:unwrap;
+			\incrementCount;
+
+		})	!{
+				[->[Boolean]] currentCountHasNotExceededNumberOfTimesToRepeat = *-> (\numberOfTimesToRepeat:isGreaterThanOrEqualTo \wrappedCurrentCount:unwrap);
+				
+				[->] incrementCount = *{
+					\wrappedCurrentCount:transformStoredObject *([Natural] count)-> (\count:naturalByAddingOne);
+				};
+			};
+	}
+
+	:: constructRecursively *([[->[&Q]]->[&Q]] recursiveConstructorOperation) -> [&Q] {
+		[ControlFlowRecursiveConstructor<[&Q]>] recursiveConstructor = \[ControlFlowRecursiveConstructor<[&Q]>]:constructorWithRecursiveConstructorOperation recursiveConstructorOperation;
+	} -> (\recursiveConstructor:construct)
+
+	:: transformRecursively *([&V] objectToTransform, [[&V][[&V]->[&Q]]->[&Q]] recursiveTransformationOperation) -> [&Q] {
+		[ControlFlowRecursiveTransformer<[&V][&Q]>] recursiveTransformer = \[ControlFlowRecursiveTransformer<[&V][&Q]>]:transformerWithRecursiveTransformationOperation recursiveTransformationOperation;
+	} -> (\recursiveTransformer:transform objectToTransform)
+
+	:: repeatUntilStopped *([[->]->] lambdaToRepeatUntilStopped) {
+		[Wrapper<[Boolean]>] wrappedShouldStop = \[Wrapper<[Boolean]>]:wrapperWithObject \[Boolean]:false;
+		[Boolean] shouldStop = \[Boolean]:false;
+		[->] stopCommand = *{\wrappedShouldStop:store \[Boolean]:true;};
+	    	<instant
+		##
+			while (0==0) {
+		##;
+		\lambdaToRepeatUntilStopped stopCommand;
+		shouldStop = \wrappedShouldStop:unwrap;
+		<instant
+		##
+			if (!((struct Z_template_Boolean *)(Z_local_shouldStop))->Z_attribute_Boolean_internalBoolean) {
+		##;
+		<instant
+		##
+			} else {
+				break;
+			}
+			}
+		##;
+	}
+
+}
+
+
+[ControlFlow2<Q [Object], V [Object]>] (Boolean, Wrapper, Object, CoreFlow, Variable, ControlFlowRecursiveConstructor, ControlFlowRecursiveTransformer)
+{
+
+	:: ifThenElse *([->[Boolean]] conditionForIf, [->] onTrue, [->] onFalse) {
+		[Boolean] conditionResult = \conditionForIf;
+		\conditionResult:ifTrue onTrue;
+		\conditionResult:ifFalse onFalse;
+	}
+
+	:: selectWithSelectorOrDefault *([[[&Q]->]->] selector, [->[&Q]] default) -> [&Q] {
+		[Variable<[&Q]>] returnThing = \[Variable<[&Q]>]:as (\default);
+		\selector *([&Q] selectedThing) {
+			\returnThing:set (selectedThing);
+		};
+
+		@compiler if segfaulting here, just ignore it untill we trash this compiler
+		@@[VariableReturnerOfThing<[&Q]>] currentSelection = \[VariableReturnerOfThing<[&Q]>]:as default;
+		\selector *([&Q] selectedThing) {
+			\currentSelection:set (*->selectedThing);
+		};
+		[->[&Q]] finalSelection = \currentSelection:get;@@
+	} -> (\returnThing:get)
+
+
+	:: constructRecursively *([[->[&Q]]->[&Q]] recursiveConstructorOperation) -> [&Q] {
+		[ControlFlowRecursiveConstructor<[&Q]>] recursiveConstructor = \[ControlFlowRecursiveConstructor<[&Q]>]:constructorWithRecursiveConstructorOperation recursiveConstructorOperation;
+	} -> (\recursiveConstructor:construct)
+
+	:: transformRecursively *([&V] objectToTransform, [[&V][[&V]->[&Q]]->[&Q]] recursiveTransformationOperation) -> [&Q] {
+		[ControlFlowRecursiveTransformer<[&V][&Q]>] recursiveTransformer = \[ControlFlowRecursiveTransformer<[&V][&Q]>]:transformerWithRecursiveTransformationOperation recursiveTransformationOperation;
+	} -> (\recursiveTransformer:transform objectToTransform)
+
+	:: repeatUntilStopped *([[->]->] lambdaToRepeatUntilStopped) {
+		[Wrapper<[Boolean]>] wrappedShouldStop = \[Wrapper<[Boolean]>]:wrapperWithObject \[Boolean]:false;
+		[Boolean] shouldStop = \[Boolean]:false;
+		[->] stopCommand = *{\wrappedShouldStop:store \[Boolean]:true;};
+	    	<instant
+		##
+			while (0==0) {
+		##;
+		\lambdaToRepeatUntilStopped stopCommand;
+		shouldStop = \wrappedShouldStop:unwrap;
+		<instant
+		##
+			if (!((struct Z_template_Boolean *)(Z_local_shouldStop))->Z_attribute_Boolean_internalBoolean) {
+		##;
+		<instant
+		##
+			} else {
+				break;
+			}
+			}
+		##;
+	}
+
+}
+
+
+
+[ControlFlowRecursiveConstructor<Q [Object]>] (Object) -> (ControlFlow, ControlFlow2)
+	[[->[&Q]]->[&Q]] recursiveConstructorOperation
+{
+	~ constructorWithRecursiveConstructorOperation *([[->[&Q]]->[&Q]] recursiveConstructorOperation) {
+		.recursiveConstructorOperation = recursiveConstructorOperation
+	}
+
+	++ construct *()->[&Q] {} -> \.recursiveConstructorOperation (:construct)
+}
+
+[ControlFlowRecursiveTransformer<FROM [Object], TO [Object]>] (Object) -> (ControlFlow, ControlFlow2)
+	[[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation
+{
+	~ transformerWithRecursiveTransformationOperation *([[&FROM][[&FROM]->[&TO]]->[&TO]] recursiveTransformationOperation) {
+		.recursiveTransformationOperation = recursiveTransformationOperation
+	}
+
+	++ transform *([&FROM] from)->[&TO] {} -> \.recursiveTransformationOperation from (:transform)
+}
+
+@@
+
+[VariableReturnerOfThing<THING [Object]> : [Object]] (Object)
+	[->[&THING]] thingThatReturns
+{
+	~ as *([->[&THING]] thingThatReturns) {
+		\::newObject;
+		.thingThatReturns = thingThatReturns
+	}
+
+	++ set *([->[&THING]] thingThatReturns) {
+		.thingThatReturns = thingThatReturns
+	}
+
+	++ get *->.thingThatReturns
+}@@
+
+
+
+
+
+
+
+

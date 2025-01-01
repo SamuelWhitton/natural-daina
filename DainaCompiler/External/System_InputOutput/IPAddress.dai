@@ -1,0 +1,22 @@
+
+@@
+
+IPAddress : [Object]
+	:: newIPAddressFromStringRepresentation [[String] -> [IPAddress]]
+
+@@
+
+
+[IPAddress : [Object]] (Object, String, Data)
+	[Data] asciiDataRepresentationOfIPAddress
+{
+	~ newIPAddressFromStringRepresentation *([String] stringRepresentationOfIPAddress) {
+		\::new;
+		.asciiDataRepresentationOfIPAddress = \stringRepresentationOfIPAddress:asciiDataRepresentationOfString;
+	}
+}
+
+
+
+
+

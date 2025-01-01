@@ -1,0 +1,70 @@
+
+@@
+
+Maybe<E:[Object]> : [Object]
+	:: nothing [ -> [Maybe]]
+	:: just [[&E] -> [Maybe]]
+	++ ifNothing [[ -> ] -> ]
+	++ ifJust [[[&E] -> ] -> ]
+	
+@@
+
+
+
+[Maybe<E [Object], Q [Object]> : [Object]] (Object, Container, Wrapper, Boolean)
+	[Container<[&E]>] possiblyContainingAnObject 
+{
+	~ nothing *{
+		\::new;
+		.possiblyContainingAnObject = \[Container<[&E]>]:newEmptyContainer;
+	}
+
+	~ just *([&E] theObjectThatThisMaybeIsJust) {
+		\::new;
+		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
+	}
+
+	~ asNothing *{
+		\::new;
+		.possiblyContainingAnObject = \[Container<[&E]>]:newEmptyContainer;
+	}
+
+	~ asJust *([&E] theObjectThatThisMaybeIsJust) {
+		\::new;
+		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
+	}
+
+	++ ifNothing *([->] actOnNothing) {
+		[Boolean] nothingToSeeHere = \.possiblyContainingAnObject:isEmpty;
+		\nothingToSeeHere:ifTrue *{\actOnNothing}
+	}
+
+	++ ifJust *([[&E]->] actOnJust) {
+		\.possiblyContainingAnObject:retrive actOnJust
+	}
+
+	@@++ constructFromNothingOrJust *([->[&Q]], [[&E]->[&Q]]) -> [&Q] {
+
+	}@@
+
+	@@++ justThisOrAlternative *([&E] alternative) -> [&E] {
+		[Variable<[&E]>] justThisOrAlternative = \[Variable<[&E]>]:as alternative;
+		\:ifJust *([&E] justThis) {
+			\justThisOrAlternative:set justThis
+		}
+	} -> \justThisOrAlternative:get@@
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

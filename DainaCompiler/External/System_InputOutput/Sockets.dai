@@ -1,0 +1,152 @@
+
+@@
+
+SocketConnection : [Object]
+	:: newSocketBindingOnNullSocket [ -> [SocketConnection]]
+	++ getOutputStreamToSocketConnection [ -> [OutputStream]]
+	++ getInputStreamToSocketConnection [ -> [InputStream]]
+
+SocketBinding : [Object]
+	:: newSocketBindingOnNullSocket [ -> [SocketBinding]]
+	++ receiveIncomingSocketConnections [[[SocketConnection] -> ] -> ]
+
+@@
+
+[InternalSocketHeader] -> (AutomaticallyClosingSocketLink)
+{
+	<header
+	##
+		#include <sys/socket.h>
+		#include <netinet/in.h>
+		#include <arpa/inet.h>
+	##
+}
+
+
+
+[AutomaticallyClosingSocketLink] (InternalSocketHeader, DataStream) -> (SocketBinding, SocketConnection, SocketLinkOutputStream, SocketLinkInputStream)
+	[] cSocketFileDescriptor
+{
+	~ newAutomaticallyClosingSocketLinkToNullSocket *{
+		.cSocketFileDescriptor = ();
+	}
+
+	<deallocator
+	##	
+		#define AutomaticallyClosingSocketLink_CSocketFileDescriptor(_socketLink)\
+			((struct Z_template_AutomaticallyClosingSocketLink *)(_socketLink))->Z_attribute_AutomaticallyClosingSocketLink_cSocketFileDescriptor
+
+		int cSocketFileDescriptor = (int)((long)AutomaticallyClosingSocketLink_CSocketFileDescriptor(object));
+		if (cSocketFileDescriptor) {
+			close(cSocketFileDescriptor);
+		}
+	##
+}
+
+
+[SocketBinding : [Object]] (Object, SocketConnection, AutomaticallyClosingSocketLink, Data)
+	[AutomaticallyClosingSocketLink] socketLink
+	[Data] socketAddressCStruct
+{
+	<header
+	##
+		#define SocketBinding_CSocketFileDescriptor(_socketBinding)\
+			AutomaticallyClosingSocketLink_CSocketFileDescriptor(((struct Z_template_SocketBinding *)(_socketBinding))->Z_attribute_SocketBinding_socketLink)
+
+		#define SocketBinding_SocketAddressCStructDataObject(_socketBinding)\
+			((struct Z_template_SocketBinding *)(_socketBinding))->Z_attribute_SocketBinding_socketAddressCStruct
+	##
+
+	~ newSocketBindingOnNullSocket *{
+		\::new;
+		.socketLink = \[AutomaticallyClosingSocketLink]:newAutomaticallyClosingSocketLinkToNullSocket;
+		.socketAddressCStruct = \[Data]:emptyData;
+	}
+
+
+	++ receiveIncomingSocketConnections *([[SocketConnection]->] socketConnectionReceiver) {
+		[SocketConnection] mostRecentSocketConnection = \[SocketConnection]:newSocketBindingOnNullSocket;
+		
+		<instant
+		##
+    int new_socket;
+    int server_fd = (int)((long)SocketBinding_CSocketFileDescriptor(Z_self));
+    void *socketAddressDataObject = SocketBinding_SocketAddressCStructDataObject(Z_self);
+    struct sockaddr_in* address = injected_DATA_POINTER_WITH_DATA_OBJECT(socketAddressDataObject);
+    int addrlen = (int)injected_DATA_SIZE_WITH_DATA_OBJECT(socketAddressDataObject);
+	
+    while (server_fd) {
+	
+	    if ((new_socket = accept(server_fd, (struct sockaddr *)address, 
+                       (socklen_t*)&addrlen))>=0) {
+
+        	SocketConnection_CSocketFileDescriptor(Z_local_mostRecentSocketConnection) = (void*)((long)new_socket);
+		##;
+		\socketConnectionReceiver mostRecentSocketConnection;
+		mostRecentSocketConnection = \[SocketConnection]:newSocketBindingOnNullSocket;
+		<instant
+		##
+
+    	    }
+    }
+		##;
+
+	}
+}
+
+
+
+[SocketLinkOutputStream : [OutputStream]] (AutomaticallyClosingSocketLink, OutputStream) -> (SocketConnection)
+	[AutomaticallyClosingSocketLink] socketLink
+{
+	~ outputStreamWithSocketLink *([AutomaticallyClosingSocketLink] socketLink) {
+		\::outputStreamConnectedToNullDevice;
+		.socketLink = socketLink;
+		<instant
+		##
+			void* socketFileDescriptor = AutomaticallyClosingSocketLink_CSocketFileDescriptor(Z_local_socketLink);
+			injected_DATASTREAM_SET_FILE_DESCRIPTOR_WITH_DATASTREAMOBJECT_AND_FILEDESCRIPTOR(Z_self, socketFileDescriptor);
+		##;
+	}
+}
+
+[SocketLinkInputStream : [InputStream]] (AutomaticallyClosingSocketLink, InputStream) -> (SocketConnection)
+	[AutomaticallyClosingSocketLink] socketLink
+{
+	~ inputStreamWithSocketLink *([AutomaticallyClosingSocketLink] socketLink) {
+		\::inputStreamConnectedToNullDevice;
+		.socketLink = socketLink;
+		<instant
+		##
+			void* socketFileDescriptor = AutomaticallyClosingSocketLink_CSocketFileDescriptor(Z_local_socketLink);
+			injected_DATASTREAM_SET_FILE_DESCRIPTOR_WITH_DATASTREAMOBJECT_AND_FILEDESCRIPTOR(Z_self, socketFileDescriptor);
+		##;
+	}
+}
+
+
+[SocketConnection : [Object]] (Object, AutomaticallyClosingSocketLink, SocketLinkOutputStream, SocketLinkInputStream)
+	[AutomaticallyClosingSocketLink] socketLink
+{
+
+	<header
+	##
+		#define SocketConnection_CSocketFileDescriptor(_socketCnnection)\
+			AutomaticallyClosingSocketLink_CSocketFileDescriptor(((struct Z_template_SocketConnection *)(_socketCnnection))->Z_attribute_SocketConnection_socketLink)
+	##
+
+	~ newSocketBindingOnNullSocket *{
+		\::new;
+		.socketLink = \[AutomaticallyClosingSocketLink]:newAutomaticallyClosingSocketLinkToNullSocket;
+	}
+
+	++ getOutputStreamToSocketConnection *->\[SocketLinkOutputStream]:outputStreamWithSocketLink .socketLink
+	++ getInputStreamToSocketConnection *->\[SocketLinkInputStream]:inputStreamWithSocketLink .socketLink
+}
+
+
+
+
+
+
+
