@@ -9174,6 +9174,12 @@ These visibilities are indicated in the same way as instance methods and are wri
 ```
 Its not required to include explicit visibility levels for constructors and type methods. When a visibility level is not explicit; a constructor has a visibility of **+++** by default, and a type method has as visibility of **++-** by default.
 
+These same abbreviations as for instance methods are also avaliable for constructors and type methods:
+
++ **-** is an abbreviation for **---**
++ **+** is an abbreviation for **--+**
++ **++** is an abbreviation for **+++**
+
 When a type method has no external, class or inherited visibility (written as **---**), it can be accessed only within other type methods in the same class:
 ```
 [] (Container) {
