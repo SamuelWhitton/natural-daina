@@ -1,0 +1,7 @@
+[Configuration] (InputStream, OutputStream, SystemInputOutput) {
+	
+	~ init *{}
+
+	++ errorInput *->[InputStream] {} -> \[SystemInputOutput]:stdout
+	++ commandOutput *->[OutputStream] {} -> \[SystemInputOutput]:stdout
+}

@@ -141,6 +141,7 @@ Goals
 - visualisation of code without colouring
 - launguage/localisation independant
 - complexity in system and interactions rather then the syntax
+- to elimate variation that is not needed because of context, easier to remember whole language that way
 
 ```
 
@@ -5819,6 +5820,25 @@ In the above example, the method **receive** is overloaded in **RecursiveReceive
 
 
 ## The Lexical Splitter
+
+asdf
+```
+mgiht be `  `  ` ` then ``` = 2 times
+
+
+~!@#$%^&*()-_=+|\]}[[{}]]
+
+transformFrom`[&M]m,`AndTo`[&N]n` *(```){...}
+
+
+(\transformFrom`q`AndTo`p` ```)
+
+(\transformFrom`q`AndTo p)
+
+
+transformFrom`*([&M] m,`AndTo [&N] n){...}
+
+```
 
 **\`** is the lexical splitter. The lexical splitter is used in pairs, the second usage must come just before a token ([see grammar](#grammar)). The token is 'stitched' to the end of the first lexical splitter. When there are multiple uses of the lexical splitter, later splitters are stiched before earlier ones. Take the following example:
 ```

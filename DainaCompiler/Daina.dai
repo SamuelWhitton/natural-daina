@@ -1,8 +1,10 @@
 
-[Daina] {
+[Daina] (Configuration, OutputStream, InputStream, Loops, Variable) {
 	
-	:: run *{
-		
+	:: run *([Configuration] configuration) {
+		[Commands] commands = \[Commands]:from (\configuration:commandOutput);
+		[Variable<[Commmand]>] currentCommand = \[Variable<[Commmand]>]:as (\[Commands]:readNext);
+		\[Loops]:while
 	}
 }
 
