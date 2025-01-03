@@ -17,6 +17,8 @@ SystemIO : []
 
 
 
+
+
 [AutomaticallyClosingInputFileDataStream : [InputStream]] (InputStream) -> (SystemInputOutput)
 {
 	~ automaticallyClosingInputFileStreamConnectedToNullDevice *{

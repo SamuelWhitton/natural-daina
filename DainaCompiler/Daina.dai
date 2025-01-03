@@ -1,10 +1,42 @@
 
-[Daina] (Configuration, OutputStream, InputStream, Loops, Variable) {
-	
+[Daina :[CommandReader]] (
+			Configuration, 
+			OutputStream, 
+			InputStream, 
+			Loops, 
+			Variable, 
+			Boolean, 
+			CommandReader, 
+			String,
+			Commands,
+			Debug
+		) 
+	[Variable<[Boolean]>] exitReached
+{
+
 	:: run *([Configuration] configuration) {
-		[Commands] commands = \[Commands]:from (\configuration:commandOutput);
-		[Variable<[Commmand]>] currentCommand = \[Variable<[Commmand]>]:as (\[Commands]:readNext);
-		\[Loops]:while
+		[Daina] daina = \[Daina]:init configuration;
+		[Commands] commands = \[Commands]:from (\configuration:commandInput);
+		\[Loops]:while (*->(\[Boolean]:not \daina:exitReached)) *{
+			\commands:readNext daina;
+		};
 	}
+	
+	~ @@-+-@@ init *([Configuration] configuration) {
+		\::interface;
+		.exitReached = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+	}
+
+	++@@-+-@@ exitReached *->[Boolean]{}-> \.exitReached:get
+
+	|++ exit *{
+		\.exitReached:set (\[Boolean]:true);
+	}
+
+	|++ parseSourceFile *([String] path) {
+
+	}
+
 }
+
 

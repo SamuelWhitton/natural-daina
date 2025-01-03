@@ -36,6 +36,17 @@ CoreFlow : []
 }
 
 
+[Loops :[CoreFlow]] (CoreFlow, Boolean) {
+	:: while *([->[Boolean]] condition, [->] action) {
+		\[CoreFlow]:repeatUntilStopped *([->]stop) {
+		[Boolean] conditionResult = \condition;
+			\conditionResult:ifTrue action;
+			\conditionResult:ifFalse stop;
+		};
+	}
+}
+
+
 
 
 

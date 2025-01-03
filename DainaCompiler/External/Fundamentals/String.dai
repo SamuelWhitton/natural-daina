@@ -34,6 +34,15 @@ String : [SetObject<[String]>]
 		##;
 	}
 
+	~ as *([%STRING] constantString) {
+		\::newSetObject;
+		.internalString = \[Data]:emptyData;
+		<instant
+		##
+			injected_STRING_SET_INTERNAL_DATA_WITH_STRING_OBJECT_AND_C_STRING(Z_self, Z_local_constantString);
+		##;
+	}
+
 	~ stringFromLiteral *([%STRING] literalString) {
 		\::newSetObject;
 		.internalString = \[Data]:emptyData;

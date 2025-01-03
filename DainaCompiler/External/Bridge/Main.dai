@@ -1,7 +1,15 @@
 
-[] (Daina) {
+[] (Daina, Configuration) {
 	^ *{
-		\[Daina]:run;
+		\[Daina]:run \[Configuration]:init;
 	}
 }
 
+
+[Configuration] (InputStream, OutputStream, SystemInputOutput) {
+	
+	~ init *{}
+
+	++ errorOutput *->[OutputStream] {} -> \[SystemInputOutput]:stdout
+	++ commandInput *->[InputStream] {} -> \[SystemInputOutput]:stdin
+}

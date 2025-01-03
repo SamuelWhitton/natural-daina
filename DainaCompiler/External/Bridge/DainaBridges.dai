@@ -1,7 +1,32 @@
-[Configuration] (InputStream, OutputStream, SystemInputOutput) {
-	
-	~ init *{}
 
-	++ errorInput *->[InputStream] {} -> \[SystemInputOutput]:stdout
-	++ commandOutput *->[OutputStream] {} -> \[SystemInputOutput]:stdout
+
+
+[CommandReader] (String) {
+	~interface*{}
+	++ exit *{}
+	++ parseSourceFile *([String] path){}
+	@+ renameUnstagedClassnames *([String] path){}
+	@stageClasses
+	@removeStagedClasses
+	@removeUnstagedClasses
 }
+
+[Commands] (InputStream, CommandReader) {
+	~ from *([InputStream] inputStream) {
+
+	}
+
+	++ readNext *([CommandReader] reader) {
+		\reader:exit;
+	}
+}
+
+
+
+[Debug] (OutputStream, String, SystemInputOutput){
+	:: log *([String] s){
+		[OutputStream] out = \[SystemInputOutput]:stdout;
+		\out:writeString s;
+	}
+}@\[Debug]:log (\[String]:as "false\n");
+
