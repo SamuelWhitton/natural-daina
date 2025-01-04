@@ -24,6 +24,11 @@ Maybe<E:[Object]> : [Object]
 		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
 	}
 
+	~ as *([&E] theObjectThatThisMaybeIsJust) {
+		\::new;
+		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
+	}
+
 	~ asNothing *{
 		\::new;
 		.possiblyContainingAnObject = \[Container<[&E]>]:newEmptyContainer;
@@ -40,6 +45,10 @@ Maybe<E:[Object]> : [Object]
 	}
 
 	++ ifJust *([[&E]->] actOnJust) {
+		\.possiblyContainingAnObject:retrive actOnJust
+	}
+
+	++ ifIs *([[&E]->] actOnJust) {
 		\.possiblyContainingAnObject:retrive actOnJust
 	}
 

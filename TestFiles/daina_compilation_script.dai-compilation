@@ -1,3 +1,2 @@
-parse dainasource exposed
-TestFiles/DainaCommandParser.dai
-exit
++TestFiles/DainaCommandParser.dai
+;

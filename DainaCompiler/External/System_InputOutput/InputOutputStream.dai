@@ -19,8 +19,6 @@ InputStream : [DataStream]
 @@
 
 
-
-
 [DataStream : [Object]] (Object, Boolean) 
 	[] internalDevicePointer
 	[] internalFileDescriptor

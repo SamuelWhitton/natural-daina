@@ -11,13 +11,26 @@
 	@removeUnstagedClasses
 }
 
-[Commands] (InputStream, CommandReader) {
+[Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String) 
+	[InputStream] inputStream
+	[Maybe<[Byte]>] nextByte
+{
 	~ from *([InputStream] inputStream) {
-
+		.inputStream = inputStream;
+		.nextByte = \inputStream:readNextByte;
 	}
 
 	++ readNext *([CommandReader] reader) {
-		\reader:exit;
+		\.nextByte:ifNothing (reader:exit);
+		\.nextByte:ifIs *([Byte] byte) {
+			[Boolean] exit = (\byte:equals (\[Byte]:as 0b3B));
+			\exit:ifTrue reader:exit;
+			[Boolean] parseSourceFile = (\byte:equals (\[Byte]:as 0b2B));
+			\parseSourceFile:ifTrue *{
+				\[Debug]:log (\[String]:as "parse\n");
+			};
+			.nextByte = \.inputStream:readNextByte;
+		};
 	}
 }
 
