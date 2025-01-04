@@ -163,7 +163,7 @@ namespace Daina {
 	    
             bool inConstructorContext = this->parentScopeLayer->scopeClassification == ScopeClassification::CONSTRUCTOR_CONTEXT;
             if (inConstructorContext) {
-                SYNTAX_ERROR(source, "cannot invoke self instance method in constructor scope");
+                //asdf SYNTAX_ERROR(source, "cannot invoke self instance method in constructor scope");
             }
         }
 
@@ -182,12 +182,12 @@ namespace Daina {
         void StaticAnalysisScopeLayer::notifyScopeOfSelfReferencePollutionDueToPollutedInvocationWithASTSource(AST *source, Analyser *analyser) {
             assert(this->isBaseScope);
             bool inConstructorContext = this->parentScopeLayer->scopeClassification == ScopeClassification::CONSTRUCTOR_CONTEXT;
-            if (inConstructorContext) {
-                SYNTAX_ERROR(source, "invocation is restricted in constructor since it is polluted with self reference");
-            } else {
+            //if (inConstructorContext) {
+              //  SYNTAX_ERROR(source, "invocation is restricted in constructor since it is polluted with self reference");
+            //} else {
                 assert(this->parentScopeLayer->lambdaScopeOwner != nullptr);
                 this->parentScopeLayer->lambdaScopeOwner->markAsPollutedWithSelfReference();
-            }
+            //}
         }
 
 	bool StaticAnalysisScopeLayer::isOnTopLevelLambdaScopeLayer() {

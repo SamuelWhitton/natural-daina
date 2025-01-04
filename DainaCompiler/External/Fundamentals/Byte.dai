@@ -50,6 +50,15 @@ Byte : [Object]
 			((struct Z_template_Boolean *)(Z_local_bytesAreTheSame))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
 		##;
 	} -> bytesAreTheSame
+
+	++ inclusiveBetween *([Byte] anotherByte1, [Byte] anotherByte2) -> [Boolean] {
+		[Boolean] isInclusiveBetween = \[Boolean]:false;
+		<instant
+		##
+		if (((struct Z_template_Byte *)(Z_self))->Z_attribute_Byte_internalByte >= ((struct Z_template_Byte *)(Z_local_anotherByte1))->Z_attribute_Byte_internalByte && ((struct Z_template_Byte *)(Z_self))->Z_attribute_Byte_internalByte <= ((struct Z_template_Byte *)(Z_local_anotherByte2))->Z_attribute_Byte_internalByte)
+			((struct Z_template_Boolean *)(Z_local_isInclusiveBetween))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
+		##;
+	} -> isInclusiveBetween
 }
 
 

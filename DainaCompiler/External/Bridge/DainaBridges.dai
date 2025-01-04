@@ -3,35 +3,117 @@
 
 [CommandReader] (String) {
 	~interface*{}
-	++ exit *{}
-	++ parseSourceFile *([String] path){}
+	++ exit *{} 							@ ;
+	++ parseSourceFile *([String] path){}	@ + <file path>
+	++ compileToFile *([String] path){}		@ ~ <compilation method> : <file path>
+	++ invalidCommand *{}
 	@+ renameUnstagedClassnames *([String] path){}
 	@stageClasses
 	@removeStagedClasses
 	@removeUnstagedClasses
 }
 
-[Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String) 
+[Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String, Character, Loops, Variable, Data) 
 	[InputStream] inputStream
-	[Maybe<[Byte]>] nextByte
+	[Maybe<[Character]>] currentCharacter
 {
 	~ from *([InputStream] inputStream) {
 		.inputStream = inputStream;
-		.nextByte = \inputStream:readNextByte;
+		.currentCharacter = \[Maybe<[Character]>]:asNothing;
+		\:readNextCharacter;
 	}
 
 	++ readNext *([CommandReader] reader) {
-		\.nextByte:ifNothing (reader:exit);
-		\.nextByte:ifIs *([Byte] byte) {
-			[Boolean] exit = (\byte:equals (\[Byte]:as 0b3B));
+		\:eatWhitespaceCharacters;
+		\.currentCharacter:ifNothing (reader:exit);
+		\.currentCharacter:ifIs *([Character] character) {
+			[Boolean] exit = (\character:isSemicolon);
 			\exit:ifTrue reader:exit;
-			[Boolean] parseSourceFile = (\byte:equals (\[Byte]:as 0b2B));
+			[Variable<[Boolean]>] validCommand = \[Variable<[Boolean]>]:as exit;
+			[Boolean] parseSourceFile = (\character:isPlus);
 			\parseSourceFile:ifTrue *{
-				\[Debug]:log (\[String]:as "parse\n");
+				\reader:parseSourceFile (\:readNextFilePath);
+				\validCommand:set (\[Boolean]:true);
 			};
-			.nextByte = \.inputStream:readNextByte;
+			[Boolean] compileToFile = (\character:isTilde);
+			\compileToFile:ifTrue *{
+				[String] compilationMethod = \:readNextString (*([Character]c)->\c:isAlphanumeric);
+				\:eatWhitespaceCharacters;
+				[Boolean] colonPresent = (\character:isColon);
+				\colonPresent:ifTrue *{
+					\reader:compileToFile (\:readNextFilePath);
+					\validCommand:set (\[Boolean]:true);
+				};
+			};
+			[Boolean] invalidCommand = \[Boolean]:not (\validCommand:get);
+			\invalidCommand:ifTrue *{
+				\reader:invalidCommand;
+				\:readNextCharacter;
+			};
 		};
 	}
+
+	- readNextCharacter *{
+		.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.inputStream:readNextByte);
+	}
+
+	- readNextString *([[Character]->[Boolean]] inString) -> [String] {
+		\:eatWhitespaceCharacters;
+		[Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
+			\[Loops]:while (*->[Boolean]{
+				[Variable<[Boolean]>] charcterInString = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+				\:readNextCharacter;
+				\.currentCharacter:ifIs *([Character] character) {
+					\charcterInString:set (\inString character);
+				};
+			} -> \charcterInString:get) *{
+				\.currentCharacter:ifIs *([Character] character) {
+					\useByte (\character:asASCIIByte);
+				};
+			};
+		});
+	} -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
+
+	- readNextFilePath *-> [String] {
+	} -> \:readNextString *([Character] c) ->[Boolean] {
+		} -> \[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\c:isAlphanumeric) (\c:isFullstop)) (\c:isForwardslash)) (\c:isBackslash)) (\c:isUnderscore)
+
+	- eatWhitespaceCharacters *{
+		\[Loops]:while (*->[Boolean]{
+			[Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+			\.currentCharacter:ifIs *([Character] character) {
+				\isWhitespace:set (\character:isWhitespace);
+			};
+		} -> \isWhitespace:get) (:readNextCharacter);
+	}
+}
+
+[Character :[Object]] (Byte, Boolean, Object)
+	[Byte] asciiByte
+{
+	~ asASCII *([Byte] asciiByte) {
+		\::new;
+		.asciiByte = asciiByte;
+	}
+
+	++ asASCIIByte *->[Byte]{} -> .asciiByte
+
+	++ isSemicolon *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3B))
+	++ isPlus *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2B))
+	++ isUnderscore *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5F))
+	++ isBackslash *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5C))
+	++ isForwardslash *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2F))
+	++ isFullstop *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2E))
+	++ isColon *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3A))
+	++ isTilde *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b7E))
+
+	@	~pure:.\..
+
+	++ isAlphanumeric *->[Boolean] {
+	} -> \[Boolean]:or (\[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:as 0b30) (\[Byte]:as 0b39)) (\.asciiByte:inclusiveBetween (\[Byte]:as 0b41) (\[Byte]:as 0b5A))) (\.asciiByte:inclusiveBetween (\[Byte]:as 0b61) (\[Byte]:as 0b7A))
+
+	++ isWhitespace *->[Boolean] {
+	} -> \[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:as 0b09) (\[Byte]:as 0b0D)) (\.asciiByte:equals (\[Byte]:as 0b20))
 }
 
 

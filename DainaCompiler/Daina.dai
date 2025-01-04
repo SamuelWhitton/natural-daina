@@ -31,10 +31,23 @@
 
 	|++ exit *{
 		\.exitReached:set (\[Boolean]:true);
+		\[Debug]:log (\[String]:as "Exit\n");
 	}
 
 	|++ parseSourceFile *([String] path) {
+		\[Debug]:log (\[String]:as "parse from ");
+		\[Debug]:log path;
+		\[Debug]:log (\[String]:as "\n");
+	}
 
+	|++ compileToFile *([String] path) {
+		\[Debug]:log (\[String]:as "compile to ");
+		\[Debug]:log path;
+		\[Debug]:log (\[String]:as "\n");
+	}
+
+	|++ invalidCommand *{
+		\[Debug]:log (\[String]:as "Invalid command\n");
 	}
 
 }

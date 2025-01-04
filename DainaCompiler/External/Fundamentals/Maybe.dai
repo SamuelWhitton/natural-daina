@@ -11,7 +11,7 @@ Maybe<E:[Object]> : [Object]
 
 
 
-[Maybe<E [Object], Q [Object]> : [Object]] (Object, Container, Wrapper, Boolean)
+[Maybe<E [Object], Q [Object]> : [Object]] (Object, Container, Wrapper, Boolean, Variable)
 	[Container<[&E]>] possiblyContainingAnObject 
 {
 	~ nothing *{
@@ -28,6 +28,13 @@ Maybe<E:[Object]> : [Object]
 		\::new;
 		.possiblyContainingAnObject = \[Wrapper<[&E]>]:wrapperWithObject theObjectThatThisMaybeIsJust;
 	}
+
+	:: map *([[&E]->[&Q]] f, [Maybe<[&E]>] m) -> [Maybe<[&Q]>] {
+		[Variable<[Maybe<[&Q]>]>] maybe = \[Variable<[Maybe<[&Q]>]>]:as (\[Maybe<[&Q]>]:nothing);
+		\m:ifIs *([&E]e){
+			\maybe:set (\[Maybe<[&Q]>]:as (\f e));
+		};
+	} -> \maybe:get
 
 	~ asNothing *{
 		\::new;
