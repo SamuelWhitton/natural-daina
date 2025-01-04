@@ -70,6 +70,13 @@ Maybe<E:[Object]> : [Object]
 		}
 	} -> \justThisOrAlternative:get@@
 
+	++ is *([[&E]->[Boolean]] condition) -> [Boolean] {
+		[Variable<[Boolean]>] is = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+		\:ifIs *([&E] e) {
+			\is:set (\condition e);
+		};
+	} -> \is:get
+
 }
 
 

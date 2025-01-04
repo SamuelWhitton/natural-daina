@@ -39,7 +39,7 @@
 			\compileToFile:ifTrue *{
 				[String] compilationMethod = \:readNextString (*([Character]c)->\c:isAlphanumeric);
 				\:eatWhitespaceCharacters;
-				[Boolean] colonPresent = (\character:isColon);
+				[Boolean] colonPresent = (\.currentCharacter:is (*([Character]c)->\c:isColon));
 				\colonPresent:ifTrue *{
 					\reader:compileToFile (\:readNextFilePath);
 					\validCommand:set (\[Boolean]:true);
@@ -106,6 +106,7 @@
 	++ isFullstop *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2E))
 	++ isColon *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3A))
 	++ isTilde *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b7E))
+	++ isNewline *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b0A))
 
 	@	~pure:.\..
 
@@ -124,4 +125,7 @@
 		\out:writeString s;
 	}
 }@\[Debug]:log (\[String]:as "false\n");
+
+
+
 

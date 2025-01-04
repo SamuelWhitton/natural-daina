@@ -153,6 +153,23 @@ Boolean : [Object]
 		##;
 	}
 
+	++ ifElse *([->] branchForTrue, [->] branchForFalse) {
+	 	<instant
+		##
+			if ((((struct Z_template_Boolean *)(Z_self))->Z_attribute_Boolean_internalBoolean)) {
+		##;
+		\branchForTrue;
+	 	<instant
+		##
+			} else {
+		##;
+		\branchForFalse;
+	 	<instant
+		##
+			}
+		##;
+	}
+
 @@
 	- branchOnTrueOrFalse *([->] branchForTrue, [->] branchForFalse) {
 	 	<instant

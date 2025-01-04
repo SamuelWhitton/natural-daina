@@ -118,6 +118,11 @@ String : [SetObject<[String]>]
 
 	++ asciiDataRepresentationOfString *->.internalString
 
+	++ appending *([String] anotherString) -> [String] {
+		[Data] asciiDataOfSelf = \:asciiDataRepresentationOfString;
+		[Data] appendedASCIIDataOfBothStrings = 
+			\asciiDataOfSelf:dataByAppendingData \anotherString:asciiDataRepresentationOfString;
+	} -> (\[String]:stringWithASCIIDataRepresentationOfString (appendedASCIIDataOfBothStrings))
 
 
 	<deallocator

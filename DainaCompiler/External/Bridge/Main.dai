@@ -6,10 +6,16 @@
 }
 
 
-[Configuration] (InputStream, OutputStream, SystemInputOutput) {
+[Configuration] (InputStream, OutputStream, SystemInputOutput, Maybe, Error, String) {
 	
 	~ init *{}
 
-	++ errorOutput *->[OutputStream] {} -> \[SystemInputOutput]:stdout
+	++ outputError *([Error] error) {
+		[OutputStream] errorOutput = \[SystemInputOutput]:stdout;
+		\errorOutput:write (\error:asString);
+		\errorOutput:write (\[String]:as "\n");
+	}
 	++ commandInput *->[InputStream] {} -> \[SystemInputOutput]:stdin
+	++ compilationFileOutput *([String] filePath)-> [Maybe<[OutputStream]>] {} -> \[SystemInputOutput]:maybeOutputStreamForFileWithFilename filePath
+	++ sourceFileInput *([String] filePath)-> [Maybe<[InputStream]>] {} -> \[SystemInputOutput]:maybeInputStreamForFileWithFilename filePath
 }

@@ -9,9 +9,17 @@
 			CommandReader, 
 			String,
 			Commands,
+			Parser,
+			Error,
+			DainaClass,
+			List,
+			Maybe,
+
 			Debug
 		) 
+	[Configuration] configuration
 	[Variable<[Boolean]>] exitReached
+	[List<[DainaClass]>] parsedClasses
 {
 
 	:: run *([Configuration] configuration) {
@@ -25,6 +33,8 @@
 	~ @@-+-@@ init *([Configuration] configuration) {
 		\::interface;
 		.exitReached = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+		.configuration = configuration;
+		.parsedClasses = \[List<[DainaClass]>]:empty;
 	}
 
 	++@@-+-@@ exitReached *->[Boolean]{}-> \.exitReached:get
@@ -38,12 +48,34 @@
 		\[Debug]:log (\[String]:as "parse from ");
 		\[Debug]:log path;
 		\[Debug]:log (\[String]:as "\n");
+
+		[Maybe<[InputStream]>] maybeSourceInput = \.configuration:sourceFileInput path;
+		[Boolean] sourceFileSuccess = \maybeSourceInput:is *([InputStream] sourceInput) -> [Boolean] {
+			[Parser] parser = \[Parser]:withSourceNameAndInput path sourceInput;
+			[List<[DainaClass]>] parsedClasses = \[DainaClass]:parseClasses parser;
+			[List<[Error]>] errors = \parser:errors;
+			[Boolean] parseSuccess = \errors:isEmpty;
+			\parseSuccess:ifElse *{
+				\parsedClasses:iterate *([DainaClass] parsedClass) {
+					\.parsedClasses:append parsedClass;
+				};
+			} *{
+				\errors:iterate *([Error] error) {
+					\.configuration:outputError error;
+				};
+			};
+		} -> \[Boolean]:true;
+		\sourceFileSuccess:ifElse *{} *{
+			\.configuration:outputError (\[Error]:sourceFileNotAccessible path);
+		};
 	}
 
 	|++ compileToFile *([String] path) {
 		\[Debug]:log (\[String]:as "compile to ");
 		\[Debug]:log path;
 		\[Debug]:log (\[String]:as "\n");
+
+		
 	}
 
 	|++ invalidCommand *{
@@ -51,5 +83,82 @@
 	}
 
 }
+
+
+[Parser] (
+			InputStream,
+			String,
+			Maybe,
+			List,
+			Error,
+			Character,
+			Byte,
+			Token
+		)
+	[String] sourceName
+	[InputStream] sourceInput
+	[List<[Error]>] errors
+	[Maybe<[Token]>] currentToken
+{
+	~ withSourceNameAndInput *([String] sourceName, [InputStream] sourceInput) {
+		.sourceName = sourceName;
+		.sourceInput = sourceInput;
+		.errors = \[List<[Error]>]:empty;
+		.currentToken = \[Maybe<[Token]>]:asNothing;
+		\:nextToken;
+	}
+
+	@@- nextCharacter *{
+		.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+	}@@
+
+	- nextToken *{
+
+	}
+
+	++ errors *-> [List<[Error]>] {} -> .errors
+}
+
+
+[Error :[Object]] (Object, String)
+	[String] errorString 
+{
+	++ asString *-> [String] {} -> .errorString
+
+	~ @@-++@@ as *([String] errorString) {
+		\::new;
+		.errorString = errorString;
+	}
+
+	:: sourceFileNotAccessible *([String] fileName) -> [Error] {
+		[String] prefix = \[String]:as "Source file not accessible: ";
+	} -> \[Error]:as (\prefix:appending fileName)
+}
+
+
+[Token :[Object]] (
+			Object
+		)
+{
+
+}
+
+
+[DainaClass :[Object]] (
+			Object, 
+			Parser, 
+			List
+		)
+{
+	:: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
+	} -> \[List<[DainaClass]>]:empty
+}
+
+
+
+
+
+
+
 
 

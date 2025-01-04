@@ -85,6 +85,9 @@ InputStream : [DataStream]
 	++ writeString *([String] stringToWrite) {
 		\:writeData (\stringToWrite:asciiDataRepresentationOfString);
 	}
+	++ write *([String] stringToWrite) {
+		\:writeData (\stringToWrite:asciiDataRepresentationOfString);
+	}
 
 	++ writeInteger *([Integer] integerToWrite) {
 		\:writeString (\[String]:stringRepresentationOfInteger integerToWrite);
