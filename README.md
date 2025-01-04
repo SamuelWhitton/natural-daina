@@ -201,6 +201,8 @@ can be blank or ?
 [?] means new method generic
 *(q,m)->m
 ```
+asdf does [:?] get copied with inheritance, no it doesnt
+asdf Method Visibility Indicators should be Visibility Indicators
 
 
 ---

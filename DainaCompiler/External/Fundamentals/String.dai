@@ -57,6 +57,11 @@ String : [SetObject<[String]>]
 		[Data] asciiRepForString2 = \someOtherString:asciiDataRepresentationOfString;
 	} -> \[Data]:isDataIdenticalToData asciiRepForString1 asciiRepForString2
 
+	++ equals *([String] someOtherString) -> [Boolean] {
+		[Data] asciiRepForString1 = \:asciiDataRepresentationOfString;
+		[Data] asciiRepForString2 = \someOtherString:asciiDataRepresentationOfString;
+	} -> \[Data]:isDataIdenticalToData asciiRepForString1 asciiRepForString2
+
 	|++ provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects *->[Data]{}->.internalString
 
 	~ stringRepresentationOfInteger *([Integer] theIntegerInQuestion) {

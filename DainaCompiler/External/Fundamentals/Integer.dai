@@ -39,6 +39,10 @@ Integer : [SetObject<[Integer]>]
 	   	\::newPositive 0;
 	}
 
+	~ one *{
+	   	\::newPositive 1;
+	}
+
 	~ newArbitraryIntegerSeededByData *([Data] someDataThatIsAlsoProbablyArbitrary) {
 		\::newSetObject;
 		.internalInteger = \[Data]:emptyData;
@@ -93,6 +97,13 @@ Integer : [SetObject<[Integer]>]
 	|++ provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects *->[Data]{}->.internalInteger
 
 	|++ isEqualTo *([Integer] someOtherInteger) -> [Boolean] {
+		[Wrapper<[Boolean]>] isGreaterThan = \[Wrapper<[Boolean]>]:wrapperWithObject (\[Boolean]:false);
+		[Wrapper<[Boolean]>] isLessThan = \[Wrapper<[Boolean]>]:wrapperWithObject (\[Boolean]:false);
+		\:compareToSomeIntegerSettingIsLargerThanOrIsLessThan someOtherInteger isGreaterThan isLessThan;
+		[Boolean] result = \[Boolean]:not (\[Boolean]:or (\isGreaterThan:unwrap) \isLessThan:unwrap);
+	} -> result
+
+	++ equals *([Integer] someOtherInteger) -> [Boolean] {
 		[Wrapper<[Boolean]>] isGreaterThan = \[Wrapper<[Boolean]>]:wrapperWithObject (\[Boolean]:false);
 		[Wrapper<[Boolean]>] isLessThan = \[Wrapper<[Boolean]>]:wrapperWithObject (\[Boolean]:false);
 		\:compareToSomeIntegerSettingIsLargerThanOrIsLessThan someOtherInteger isGreaterThan isLessThan;
@@ -382,6 +393,59 @@ Integer : [SetObject<[Integer]>]
 	} -> resultInteger
 
 	++ integerByAdding *([Integer] someOtherInteger) -> [Integer] {
+		[Integer] resultInteger = \[Integer]:zero;
+		<instant
+		##
+			PULL_INTEGER_REPRESENTATIONS_FOR_OPERATION;
+
+			size_t maxResultIntegerRepSize = MAX(integerRepresentationSizeForSelf,integerRepresentationSizeForOtherInteger)+1;
+			injected_DATA_REALLOCATE_WITH_SIZE_AND_DATA_OBJECT((maxResultIntegerRepSize*sizeof(long)), ((struct Z_template_Integer *)(Z_local_resultInteger))->Z_attribute_Integer_internalInteger);
+			
+			long* integerRepresentationForResult = (long*)(injected_DATA_POINTER_WITH_DATA_OBJECT(((struct Z_template_Integer *)(Z_local_resultInteger))->Z_attribute_Integer_internalInteger));
+
+			int selfSegmentIsNegative = (integerRepresentationForSelf[0] == -1);
+			int otherSegmentIsNegative = (integerRepresentationForOtherInteger[0] == -1);
+
+			size_t resultIntegerRepresentationSize;
+			size_t resultIntegerRepresentationSign = 1;
+			if (selfSegmentIsNegative == otherSegmentIsNegative) {
+				if (selfSegmentIsNegative && otherSegmentIsNegative)
+					resultIntegerRepresentationSign = -1;
+				ADD_INTEGER_MODULUS_OF_SEGMENTS_INTO_RESULT_WITH_RESULT_MODULUS_SIZE(integerRepresentationForSelf, integerRepresentationForOtherInteger, integerRepresentationForResult, resultIntegerRepresentationSize);
+			} else {
+				long *seg1 = integerRepresentationForSelf;
+				long *seg2 = integerRepresentationForOtherInteger;
+				size_t seg1Size = integerRepresentationSizeForSelf;
+				size_t seg2Size = integerRepresentationSizeForOtherInteger;
+				int seg1IsNegative = selfSegmentIsNegative;
+				int seg2IsNegative = otherSegmentIsNegative;
+				int seg2HasALargerMagnitudeThanSeg1 = 0;
+				SEG2_IS_LARGER_IN_MAGNITUDE_WITH_SEG12_SEG12SIZE_AND_RESULT(seg1, seg2, seg1Size, seg2Size, seg2HasALargerMagnitudeThanSeg1);
+				if (seg2HasALargerMagnitudeThanSeg1) {
+					seg2 = integerRepresentationForSelf;
+					seg1 = integerRepresentationForOtherInteger;
+					if (seg2IsNegative) {
+						resultIntegerRepresentationSign = -1;
+					}
+				} else {
+					if (seg1IsNegative) {
+						resultIntegerRepresentationSign = -1;
+					}
+				}
+				SUBTRACT_INTEGER_MODULUS_OF_SEGMENTS_INTO_RESULT_WITH_RESULT_MODULUS_SIZE(seg1, seg2, integerRepresentationForResult, resultIntegerRepresentationSize);
+			}
+			integerRepresentationForResult[0] = resultIntegerRepresentationSign;
+			integerRepresentationForResult[resultIntegerRepresentationSize-1] = -1;
+			/*printf("[0] = %ld\n", integerRepresentationForResult[0]);
+			printf("[1] = %ld\n", integerRepresentationForResult[1]);
+			printf("[2] = %ld\n", integerRepresentationForResult[2]);
+			printf("[3] = %ld\n", integerRepresentationForResult[3]);
+			printf("size = %ld\n", resultIntegerRepresentationSize);*/
+			injected_DATA_CHANGE_SIZE_WITH_SIZE_AND_DATA_OBJECT((resultIntegerRepresentationSize*sizeof(long)), ((struct Z_template_Integer *)(Z_local_resultInteger))->Z_attribute_Integer_internalInteger);
+		##;
+	} -> resultInteger
+
+	++ adding *([Integer] someOtherInteger) -> [Integer] {
 		[Integer] resultInteger = \[Integer]:zero;
 		<instant
 		##
