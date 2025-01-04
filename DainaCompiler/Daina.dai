@@ -190,7 +190,8 @@
 			Object,
 			Integer,
 			String,
-			Boolean
+			Boolean,
+			Variable
 		)
 	[Integer] id
 	[Integer] secondId
@@ -214,61 +215,97 @@
 		\::new;
 		.id = id;
 		.content = content;
-		.repetition = \[Integer]:zero;
+		.secondId = \[Integer]:zero;
 	}
 
 	++ @@-+-@@ id *->[Integer] {} -> .id
 	++ @@-+-@@ content *->[String] {} -> .content
-	++ @@-+-@@ repetition *->[Integer] {} -> .repetition
+	++ @@-+-@@ secondId *->[Integer] {} -> .secondId
+
+	++ asDebugString *->[String] {
+		[String] idString = \[String]:stringRepresentationOfInteger .id;
+		[String] seperator = \[String]:as "~";
+		[String] secondIDString = \[String]:stringRepresentationOfInteger .secondId;
+	} -> \idString:appending (\seperator:appending (\secondIDString:appending (\seperator:appending .content)))
 
 	++ equals *([Token] t) -> [Boolean] {
-	} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.repetition:equals (\t:repetition))) (\.id:equals (\t:id)))
+	} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
 
 	:: visibilityIndicator *([Boolean] externalVisibility, [Boolean] classVisibility, [Boolean] inheritedVisibility) -> [Token] {
-		
-	} -> (\[Token]:secondIdToken (\[Integer]:newPositive 1) repetition)
+		[Variable<[Integer]>] visibility = \[Variable<[Integer]>]:as (\[Integer]:zero);
+		\externalVisibility:ifElse (*{
+				\visibility:set (\one:adding (\visibility:get));
+			} !{[Integer] one = \[Integer]:one;}) *{};
+		\classVisibility:ifElse (*{
+				\visibility:set (\ten:adding (\visibility:get));
+			} !{[Integer] ten = \[Integer]:newPositive 10;}) *{};
+		\inheritedVisibility:ifElse (*{
+				\visibility:set (\hundred:adding (\visibility:get));
+			} !{[Integer] hundred = \[Integer]:newPositive 100;}) *{};
+	} -> (\[Token]:secondIdToken (\[Integer]:newPositive 1) (\visibility:get))
+
 	:: parentIdentifier *([Integer] repetition) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetition)
 	:: identifier *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 3) content)
-	:: dataSegment *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 4) content)
+	@:: dataSegment *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 4) content)
+	
 	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-
-	:: singleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: arrow *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: arrowBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: arrowBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: asterisk *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: asteriskCaret *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: asteriskDash *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: backslash *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: caret *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: colon *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: comma *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: curlyBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: curlyBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: doubleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: doubleColon *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: doublePipe *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: doubleStrudel *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: equalsSign *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: exclamationMark *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: forwardSlash *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: fullStop *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
-	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
+	:: singleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 6)
+	:: arrow *-> (\[Token]:basicToken \[Integer]:newPositive 7)
+	:: arrowBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 8)
+	:: arrowBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 9)
+	:: asterisk *-> (\[Token]:basicToken \[Integer]:newPositive 10)
+	:: asteriskCaret *-> (\[Token]:basicToken \[Integer]:newPositive 11)
+	:: asteriskDash *-> (\[Token]:basicToken \[Integer]:newPositive 12)
+	:: backslash *-> (\[Token]:basicToken \[Integer]:newPositive 13)
+	:: caret *-> (\[Token]:basicToken \[Integer]:newPositive 14)
+	:: colon *-> (\[Token]:basicToken \[Integer]:newPositive 15)
+	:: comma *-> (\[Token]:basicToken \[Integer]:newPositive 16)
+	:: curlyBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 17)
+	:: curlyBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 18)
+	:: doubleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 19)
+	:: doubleColon *-> (\[Token]:basicToken \[Integer]:newPositive 20)
+	:: doublePipe *-> (\[Token]:basicToken \[Integer]:newPositive 21)
+	:: doubleStrudel *-> (\[Token]:basicToken \[Integer]:newPositive 22)
+	:: equalsSign *-> (\[Token]:basicToken \[Integer]:newPositive 23)
+	:: exclamationMark *-> (\[Token]:basicToken \[Integer]:newPositive 24)
+	:: forwardSlash *-> (\[Token]:basicToken \[Integer]:newPositive 25)
+	:: fullStop *-> (\[Token]:basicToken \[Integer]:newPositive 26)
+	:: percentSign *-> (\[Token]:basicToken \[Integer]:newPositive 27)
+	:: pipe *-> (\[Token]:basicToken \[Integer]:newPositive 28)
+	:: questionMark *-> (\[Token]:basicToken \[Integer]:newPositive 29)
+	:: roundBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 30)
+	:: roundBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 31)
+	:: semicolon *-> (\[Token]:basicToken \[Integer]:newPositive 32)
+	:: squareBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 33)
+	:: squareBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 34)
+	:: strudel *-> (\[Token]:basicToken \[Integer]:newPositive 35)
+	:: tilde *-> (\[Token]:basicToken \[Integer]:newPositive 36)
+	:: tripleLessThan *-> (\[Token]:basicToken \[Integer]:newPositive 37)
 }
 
 
 [DainaClass :[Object]] (
 			Object, 
 			Parser, 
-			List
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+
+			Debug
 		)
 {
 	:: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
+		\[Loops]:while (*->[Boolean]{[Maybe<[Token]>] token = \parser:token;}->\token:is (*([]a)->\[Boolean]:true)) *{
+			[Maybe<[Token]>] maybeToken = \parser:token;
+			\maybeToken:ifIs *([Token] token) {
+				\[Debug]:log (\token:asDebugString);
+				\[Debug]:log (\[String]:as "\n");
+			};
+			\parser:gotoNextToken;
+		}
 	} -> \[List<[DainaClass]>]:empty
 }
 
