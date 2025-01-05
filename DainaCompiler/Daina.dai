@@ -216,11 +216,10 @@
             };
 
             \if (*->\[Boolean]:or (\character1:isDash) (\character1:isPlus)) *{
-               	\ifPlusOrDashOrElse *{
-               		\:gotoNextCharacter;
-               		\ifPlusOrDashOrElse *{
+               	\ifPlusOrDashOrElse (\[Maybe<[Character]>]:as character1) *{
+               		\ifPlusOrDashOrElse .currentCharacter *{
                			\:gotoNextCharacter;
-               			\ifPlusOrDashOrElse *{
+               			\ifPlusOrDashOrElse .currentCharacter *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:true));
                			} *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:false));
@@ -229,30 +228,35 @@
                			};
                		} *{
                			\:gotoNextCharacter;
-               			\ifPlusOrDashOrElse *{
+               			\ifPlusOrDashOrElse .currentCharacter *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:true));
                			} *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:false));
-               			} *{};
+               			} *{
+               				\:addError (\[Error]:invalidVisibilityIndicator position1);
+               			};
                		} *{
                			\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
                		};
                	} *{
-               		\:gotoNextCharacter;
-               		\ifPlusOrDashOrElse *{
+               		\ifPlusOrDashOrElse .currentCharacter *{
                			\:gotoNextCharacter;
-               			\ifPlusOrDashOrElse *{
+               			\ifPlusOrDashOrElse .currentCharacter *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:true) (\[Boolean]:true));
                			} *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:true) (\[Boolean]:false));
-               			} *{};
+               			} *{
+               				\:addError (\[Error]:invalidVisibilityIndicator position1);
+               			};
                		} *{
                			\:gotoNextCharacter;
-               			\ifPlusOrDashOrElse *{
+               			\ifPlusOrDashOrElse .currentCharacter *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
                			} *{
                				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
-               			} *{};
+               			} *{
+               				\:addError (\[Error]:invalidVisibilityIndicator position1);
+               			};
                		} *{
                			\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
                		};
@@ -308,7 +312,7 @@
 			};
 			
 			\ifNoToken *{
-				\:addError (\[Error]:invalidToken (\character1:asString) .currentCharacterPosition);
+				\:addError (\[Error]:unrecognisedToken (\character1:asString) position1);
 			};
 		};		
 	} 	!{
@@ -353,8 +357,7 @@
 				};
 				\maybeCurrentCharacter:ifNothing else;
 			};
-			[[->][->][->]->] ifPlusOrDashOrElse = *([->] plus, [->] dash, [->] else) {
-				[Maybe<[Character]>] maybeChar = .currentCharacter;
+			[[Maybe<[Character]>][->][->][->]->] ifPlusOrDashOrElse = *([Maybe<[Character]>] maybeChar, [->] plus, [->] dash, [->] else) {
 				\maybeChar:ifNothing else;
 				\maybeChar:ifIs *([Character] char) {
 					\ifElse (char:isPlus) plus *{
@@ -433,11 +436,17 @@
 		[String] prefix = \[String]:as "Source file not accessible: ";
 	} -> (\[Error]:as (\prefix:appending fileName))
 
-	:: invalidToken *([String] token, [SourcePosition] position) -> [Error] {
-		[String] prefix = \[String]:as "Invalid token: ";
+	:: unrecognisedToken *([String] token, [SourcePosition] position) -> [Error] {
+		[String] prefix = \[String]:as "Unrecognised token: ";
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
 		\context:append position;
 	} -> (\[Error]:errorWithContext (\prefix:appending token) context)
+
+	:: invalidVisibilityIndicator *([SourcePosition] position) -> [Error] {
+		[String] error = \[String]:as "Invalid visibility indicator";
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
+		\context:append position;
+	} -> (\[Error]:errorWithContext error context)
 }
 
 
