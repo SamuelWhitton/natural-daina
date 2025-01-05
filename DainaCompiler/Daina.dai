@@ -99,6 +99,7 @@
 			Variable,
 			Loops,
 			Data,
+			Integer,
 
 			Debug
 		)
@@ -203,6 +204,46 @@
 				\setToken position1 (\[Token]:identifier identifierString);
 			} *{};
 
+			\if (character1:isDollarSign) *{
+               	[Variable<[Integer]>] repetitionCount = \[Variable<[Integer]>]:as (\[Integer]:one);
+               	\scanToken *([Character] thisCharacter, [->] continueScanning) {
+               		\ifElse (thisCharacter:isDollarSign) *{
+               			\repetitionCount:set (\x:integerByAdding (\[Integer]:one)) !{[Integer] x = \repetitionCount:get};
+               			\continueScanning;
+               		} *{};
+               	};
+               	\setToken position1 (\[Token]:parentIdentifier (\repetitionCount:get));
+            };
+
+            \if (*->\[Boolean]:or (\character1:isDash) (\character1:isPlus)) *{
+               	\:gotoNextCharacter;
+               	\.currentCharacter:ifIs *([Character] character2) {
+               		\ifElse (*->\[Boolean]:or (\character2:isDash) (\character2:isPlus)) *{
+						\:gotoNextCharacter;
+               			\.currentCharacter:ifIs *([Character] character3) {
+               				\ifElse (*->\[Boolean]:or (\character3:isDash) (\character3:isPlus)) *{
+               					@ 3 +-+,...
+               					\:gotoNextCharacter;
+							} *{
+								@ ++
+							};
+               			};
+					} *{
+						\ifElse (\character1:isDash) *{
+							\setToken position1 (\[Token]:asteriskCaret)
+						} *{
+
+						};
+						@ -, +
+					};
+
+					@\ifNoToken *{
+
+					@};
+               	};
+               	\.currentCharacter:ifNothing 
+            };
+
 			\.currentCharacter:ifIs *([Character] character2) {
 				[SourcePosition] position2 = .currentCharacterPosition;
                 \if (character1:isDash) *{
@@ -296,6 +337,9 @@
 					\ifElse (currentCharacter:isStrudel) action else;
 				};
 				\maybeCurrentCharacter:ifNothing else;
+			};
+			[[Maybe<[Character]>][->][->][->]->] ifPlusOrMinusOrElse *([Maybe<[Character]>] maybeChar, [->] plux, [->] minus, [->] else) {
+				\maybeChar:ifNothing
 			};
 		}
 }
@@ -434,7 +478,7 @@
 			} !{[Integer] hundred = \[Integer]:newPositive 100;}) *{};
 	} -> (\[Token]:secondIdToken (\[Integer]:newPositive 1) (\visibility:get))@@
 
-	@:: parentIdentifier *([Integer] repetitionCount) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetitionCount)
+	:: parentIdentifier *([Integer] repetitionCount) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetitionCount)
 	:: identifier *([String] identifierString) -> (\[Token]:contentToken (\[Integer]:newPositive 3) identifierString)
 	@:: dataSegment *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 4) content)
 	
