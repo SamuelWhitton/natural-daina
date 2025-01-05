@@ -88,13 +88,15 @@
 	}
 }
 
-[Character :[Object]] (Byte, Boolean, Object)
+[Character :[Object]] (Byte, Boolean, Object, String, Data)
 	[Byte] asciiByte
 {
 	~ asASCII *([Byte] asciiByte) {
 		\::new;
 		.asciiByte = asciiByte;
 	}
+
+	++ asString *->(\[String]:stringWithASCIIDataRepresentationOfString (\[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {\useByte .asciiByte})))
 
 	++ asASCIIByte *->[Byte]{} -> .asciiByte
 
@@ -106,9 +108,32 @@
 	++ isFullstop *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2E))
 	++ isColon *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3A))
 	++ isTilde *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b7E))
-	++ isNewline *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b0A))
+	++ isHash *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b23))
+	++ isDollarSign *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b24))
+	++ isBacktick *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b60))
+	++ isAmpersand *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b26))
+	++ isSingleApostrophe *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b27))
+	++ isDash *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2D))
+	++ isArrowBracketOpen *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3C))
+	++ isArrowBracketClose *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3E))
+	++ isAsterisk *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2A))
+	++ isCaret *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5E))
+	++ isComma *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2C))
+	++ isCurlyBracketOpen *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b7B))
+	++ isCurlyBracketClose *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b7D))
+	++ isDoubleApostrophe *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b22))
+	++ isPipe *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b7C))
+	++ isStrudel *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b40))
+	++ isEqualsSign *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3D))
+	++ isExclamationMark *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b21))
+	++ isPercentSign *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b25))
+	++ isQuestionMark *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3F))
+	++ isRoundBracketOpen *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b28))
+	++ isRoundBracketClose *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b29))
+	++ isSquareBracketOpen *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5B))
+	++ isSquareBracketClose *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5D))
 
-	@	~pure:.\..
+	++ isNewline *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b0A))
 
 	++ isAlphanumeric *->[Boolean] {
 	} -> \[Boolean]:or (\[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:as 0b30) (\[Byte]:as 0b39)) (\.asciiByte:inclusiveBetween (\[Byte]:as 0b41) (\[Byte]:as 0b5A))) (\.asciiByte:inclusiveBetween (\[Byte]:as 0b61) (\[Byte]:as 0b7A))

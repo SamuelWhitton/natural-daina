@@ -73,7 +73,7 @@
         - [Identifier](#identifier)
         - [Parent Identifier](#parent-identifier)
     + [Simple Tokens](#simple-tokens)
-        - [Ampersand](#ampersand), [Apostrophe](#apostrophe), [Arrow](#arrow), [Arrow Brackets](#arrow-brackets), [Asterisk](#asterisk), [Asterisk Caret](#asterisk-caret), [Asterisk Dash](#asterisk-dash), [Backslash](#backslash), [Backtick](#backtick), [Caret](#caret), [Colon](#colon), [Comma](#comma), [Curly Brackets](#curly-brackets), [Double Apostrophe](#double-apostrophe), [Double Colon](#double-colon), [Double Pipe](#double-pipe), [Double Strudel](#double-strudel), [Equals Sign](#equals-sign), [Exclamation Mark](#exclamation-mark), [Forward Slash](#forward-slash), [Full Stop](#full-stop), [Method Visibility Indicators](#method-visibility-indicators), [Percent Sign](#percent-sign), [Pipe](#pipe), [Question Mark](#question-mark), [Round Brackets](#round-brackets), [Semicolon](#semicolon), [Square Brackets](#square-brackets), [Strudel](#strudel), [Tilde](#tilde), [Triple Less Than](#triple-less-than)
+        - [Ampersand](#ampersand), [Apostrophe](#apostrophe), [Arrow](#arrow), [Arrow Brackets](#arrow-brackets), [Asterisk](#asterisk), [Asterisk Caret](#asterisk-caret), [Asterisk Dash](#asterisk-dash), [Backslash](#backslash), [Backtick](#backtick), [Caret](#caret), [Colon](#colon), [Comma](#comma), [Curly Brackets](#curly-brackets), [Double Apostrophe](#double-apostrophe), [Double Colon](#double-colon), [Double Pipe](#double-pipe), [Double Strudel](#double-strudel), [Equals Sign](#equals-sign), [Exclamation Mark](#exclamation-mark), [Forward Slash](#forward-slash), [Full Stop](#full-stop), [Method Visibility Indicators](#method-visibility-indicators), [Percent Sign](#percent-sign), [Pipe](#pipe), [Question Mark](#question-mark), [Round Brackets](#round-brackets), [Semicolon](#semicolon), [Square Brackets](#square-brackets), [Strudel](#strudel), [Tilde](#tilde), [Double Less Than](#double-less-than)
     + [Syntax](#syntax)
         - [Root](#root)
         - [Lexical Splitter](#lexical-splitter)
@@ -3660,7 +3660,7 @@ The following is an example of a class **Foo** which contains a compiler injecti
 [Foo] {
     :: bar *{
         @@ start of compiler injection @@
-        <<< Assembly 
+        << Assembly 
             ##
                 mov ax, 7c0h
                 mov gs, ax
@@ -3675,7 +3675,7 @@ The following is an example of a class **Foo** which contains a compiler injecti
 ```
 There are three components to a compiler injection:
 
-+ **<<<** always begins a compiler injection
++ **<<** always begins a compiler injection
 + an identifier; in this example the identifier was **Assembly**
 + a data segment ([see data segments](#data-segments))
  
@@ -3693,7 +3693,7 @@ A compiler could interperate this compiler injection as a compiler directive to 
 The following is an example of a compiler injection within the body of a class **Bumblebees**.
 ```
 [Bumblebees] {
-    <<< OverwriteImplementation 
+    << OverwriteImplementation 
         ##
                 .' '.            __
        .        .   .           (__\_
@@ -9690,13 +9690,13 @@ Multiple void identifiers never conflict with each other in the current [scope](
 ## Whitespace
 All whitespace is ignored. 
 
-Characters in a token cannot be seperated with whitespace, rather then they are considered to be seperate tokens. For example, consider the [triple less than token](#triple-less-than): ```<<<```. If we add whitespace sperating them: ```< <<```, now they are considered to be three [left arrow bracket tokens](#arrow-brackets).
+Characters in a token cannot be seperated with whitespace, rather then they are considered to be seperate tokens. For example, consider the [double less than token](#double-less-than): ```<<```. If we add whitespace sperating them: ```< <```, now they are considered to be two [left arrow bracket tokens](#arrow-brackets).
 
 Additionally, tokens can always appear directly next to each other with no conflict. The tokens are interpreted in a greedy manner. In other words, the largest possible token will always be interpreted first. For example, consider the following sequence of characters:
 ```
-<<<<<:::::
+<<<:::::
 ```
-This sequence of characters is interpreted as one [triple less than](#triple-less-than), two [left arrow brackets](#arrow-brackets), two [double colons](#double-colon) and one [single colon](#colon).
+This sequence of characters is interpreted as one [double less than](#double-less-than), one [left arrow brackets](#arrow-brackets), two [double colons](#double-colon) and one [single colon](#colon).
 
 
 ## Composite Tokens
@@ -9912,9 +9912,9 @@ Token: **~**
 
 Syntax usages: [class-method](#class-method), [method-invocation](#method-invocation)
 
-### Triple Less Than
+### Double Less Than
 
-Token: **<<<**
+Token: **<<**
 
 Syntax usages: [compiler-injection](#compiler-injection)
 
@@ -9924,7 +9924,7 @@ The syntax is detailed in a top down tree like manner. Starting from the [root](
 
 A simple regex-like syntax meta-language is used to describe grammar rules. It consists of the following symbols:
 
-* Tokens representing the use of a token in the syntax, e.g. [<<<](#triple-less-than), [(](#round-brackets), [@@](#double-strudel), [identifier](#identifier)
+* Tokens representing the use of a token in the syntax, e.g. [<<](#double-less-than), [(](#round-brackets), [@@](#double-strudel), [identifier](#identifier)
 * Child nodes representing the branching to the given child in the syntax tree, e.g. [class](#class), [mutiline-comment](#mutiline-comment), [singleline-comment](#singleline-comment)
 * Pipe **|** representing a choice between one syntax element or another. If there is any conflict between choices, the first option always takes precedence.
 * Question mark **?** representing an optional syntax element
@@ -10039,7 +10039,7 @@ If the class method has an [expression](#expression), the [expression](#expressi
 If the class method has a [type](#type) instead; the class method is said to be unimplemented, the [type](#type) in question is the [type](#type) of the unimplemented [method](#methods-and-lambdas). Only instance methods can be unimplemented. [See partial class implementations.](#partial-class-implementations)
 
 ### Compiler Injection
-- [compiler-injection](#compiler-injection) syntax description: [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
+- [compiler-injection](#compiler-injection) syntax description: [<<](#double-less-than) [identifier](#identifier) [data-segment](#data-segment)
 
 A compiler injection has no explicit interpretation at the Daina language level and is ostensibly ignored. An individual compiler may interpret the compiler injection at it's own discretion. [See compiler injections.](#compiler-injections)
 
@@ -10142,7 +10142,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
 ## Syntax Summary
 - Whitespace is ignored
 - [composite-tokens](#composite-tokens): [data-segment-anchor](#data-segment-anchor), [identifier](#identifier), [parent-identifier](#parent-identifier)
-- [simple-tokens](#simple-tokens): [&](#ampersand), ['](#apostrophe), [->](#arrow), [<](#arrow-brackets), [>](#arrow-brackets), [\*](#asterisk), [\\](#backslash), [\`](#backtick), [^](#caret), [:](#colon), [{](#curly-brackets), [}](#curly-brackets), [::](#double-colon), [||](#double-pipe), [@@](#double-strudel), [=](#equals-sign), [!](#exclamation-mark), [/](#forward-slash), [.](#full-stop), [-](#method-visibility-indicators), [+](#method-visibility-indicators), [++](#method-visibility-indicators), [---](#method-visibility-indicators), [--+](#method-visibility-indicators), [-+-](#method-visibility-indicators), [-++](#method-visibility-indicators), [+--](#method-visibility-indicators), [+-+](#method-visibility-indicators), [++-](#method-visibility-indicators), [+++](#method-visibility-indicators), [%](#percent-sign), [|](#pipe), [?](#question-mark), [(](#round-brackets), [)](#round-brackets), [;](#semicolon), [\[](#square-brackets), [\]](#square-brackets), [@](#strudel), [~](#tilde), [<<<](#triple-less-than)
+- [simple-tokens](#simple-tokens): [&](#ampersand), ['](#apostrophe), [->](#arrow), [<](#arrow-brackets), [>](#arrow-brackets), [\*](#asterisk), [\\](#backslash), [\`](#backtick), [^](#caret), [:](#colon), [{](#curly-brackets), [}](#curly-brackets), [::](#double-colon), [||](#double-pipe), [@@](#double-strudel), [=](#equals-sign), [!](#exclamation-mark), [/](#forward-slash), [.](#full-stop), [-](#method-visibility-indicators), [+](#method-visibility-indicators), [++](#method-visibility-indicators), [---](#method-visibility-indicators), [--+](#method-visibility-indicators), [-+-](#method-visibility-indicators), [-++](#method-visibility-indicators), [+--](#method-visibility-indicators), [+-+](#method-visibility-indicators), [++-](#method-visibility-indicators), [+++](#method-visibility-indicators), [%](#percent-sign), [|](#pipe), [?](#question-mark), [(](#round-brackets), [)](#round-brackets), [;](#semicolon), [\[](#square-brackets), [\]](#square-brackets), [@](#strudel), [~](#tilde), [<<](#double-less-than)
 - [Backtick \`](#backtick) always branches to [lexical-splitter](#lexical-splitter)
     + [lexical-splitter](#lexical-splitter): **[past character]**[\`](#backtick)**[middle characters]**[\`](#backtick)**[future characters]**
 - [Double strudel @@](#double-strudel) always branches to [mutiline-comment](#mutiline-comment)
@@ -10169,7 +10169,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
     - [object-declaration](#object-declaration): [type](#type) [identifier](#identifier)
     - [class-method](#class-method): **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
         + **class-method-classification**: **(** **(** [|](#pipe) **|** [||](#double-pipe) **)?** [method-visibility-indicator](#method-visibility-indicators) **)** **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [|](#pipe) **)?** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
-    - [compiler-injection](#compiler-injection): [<<<](#triple-less-than) [identifier](#identifier) [data-segment](#data-segment)
+    - [compiler-injection](#compiler-injection): [<<](#double-less-than) [identifier](#identifier) [data-segment](#data-segment)
     - [expression](#expression): **(** [data-segment](#data-segment) **|** [compiler-injection](#compiler-injection) **|** [assignment-statement](#assignment-statement) **|** [statement-group](#statement-group) **|** **object-method** **|** **proxy-object** **|** [method-expression](#method-expression) **|** **grouped-expression** **|** [method-invocation](#method-invocation) **|** **type-method** **|** **object-identifier** **|** [internal-instance-method](#internal-instance-method) **|** [internal-instance-object](#internal-instance-object) **|** **self-reference** **|** **method-self-reference** **|** [anonymous-class-object](#anonymous-class-object) **)** **(** [prologue-statement](#prologue-statement) **)?**
         + **object-method**: [expression](#expression) [:](#colon) [identifier](#identifier)
         + **proxy-object** syntax description: [\*-](#asterisk-dash) [expression](#expression)
