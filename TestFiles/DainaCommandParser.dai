@@ -1,10 +1,10 @@
 @  $$$$$$$$
-[DainaCommandParser : [Object]] (@$$$
+[DainaCommandParser : [Object]] ($$$
 		String, 
-		Object, @@
+		Object,
 		DainaCommandReceiver, 
 		DainaCommandStrings, 
-		Maybe,  @@@@
+		Maybe,
 		DainaCommandParsingAction, 
 		ValidDainaCommandsToParse, 
 		DainaCommandDescriptionStrings,
@@ -154,7 +154,7 @@
 
 }
 
-@@
+
 
 
 

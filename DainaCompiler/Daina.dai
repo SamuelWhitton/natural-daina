@@ -164,6 +164,7 @@
                			\ifElse (thisCharacter:isStrudel) *{
                				\ifElse (lastCharacterWasStrudel:get) *{
                					\lastCharacterWasStrudel:set (\[Boolean]:false);
+               					\:gotoNextCharacter;
                					\:eatWhitespaceCharacters;
                				} *{
                					\lastCharacterWasStrudel:set (\[Boolean]:true);
@@ -290,10 +291,11 @@
 				});
 			} -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData;
 			[[->][->]->] ifStrudelOrElse = *([->] action, [->] else) {
-				\.currentCharacter:ifIs *([Character] currentCharacter) {
+				[Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+				\maybeCurrentCharacter:ifIs *([Character] currentCharacter) {
 					\ifElse (currentCharacter:isStrudel) action else;
 				};
-				\.currentCharacter:ifNothing else;
+				\maybeCurrentCharacter:ifNothing else;
 			};
 		}
 }
