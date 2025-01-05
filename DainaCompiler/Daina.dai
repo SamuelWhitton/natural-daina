@@ -216,32 +216,47 @@
             };
 
             \if (*->\[Boolean]:or (\character1:isDash) (\character1:isPlus)) *{
-               	\:gotoNextCharacter;
-               	\.currentCharacter:ifIs *([Character] character2) {
-               		\ifElse (*->\[Boolean]:or (\character2:isDash) (\character2:isPlus)) *{
-						\:gotoNextCharacter;
-               			\.currentCharacter:ifIs *([Character] character3) {
-               				\ifElse (*->\[Boolean]:or (\character3:isDash) (\character3:isPlus)) *{
-               					@ 3 +-+,...
-               					\:gotoNextCharacter;
-							} *{
-								@ ++
-							};
+               	\ifPlusOrDashOrElse *{
+               		\:gotoNextCharacter;
+               		\ifPlusOrDashOrElse *{
+               			\:gotoNextCharacter;
+               			\ifPlusOrDashOrElse *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:true));
+               			} *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:false));
+               			} *{
+               				\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:true));
                			};
-					} *{
-						\ifElse (\character1:isDash) *{
-							\setToken position1 (\[Token]:asteriskCaret)
-						} *{
-
-						};
-						@ -, +
-					};
-
-					@\ifNoToken *{
-
-					@};
-               	};
-               	\.currentCharacter:ifNothing 
+               		} *{
+               			\:gotoNextCharacter;
+               			\ifPlusOrDashOrElse *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:true));
+               			} *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:false));
+               			} *{};
+               		} *{
+               			\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
+               		};
+               	} *{
+               		\:gotoNextCharacter;
+               		\ifPlusOrDashOrElse *{
+               			\:gotoNextCharacter;
+               			\ifPlusOrDashOrElse *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:true) (\[Boolean]:true));
+               			} *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:true) (\[Boolean]:false));
+               			} *{};
+               		} *{
+               			\:gotoNextCharacter;
+               			\ifPlusOrDashOrElse *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
+               			} *{
+               				\:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
+               			} *{};
+               		} *{
+               			\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
+               		};
+               	} *{};
             };
 
 			\.currentCharacter:ifIs *([Character] character2) {
@@ -338,8 +353,14 @@
 				};
 				\maybeCurrentCharacter:ifNothing else;
 			};
-			[[Maybe<[Character]>][->][->][->]->] ifPlusOrMinusOrElse *([Maybe<[Character]>] maybeChar, [->] plux, [->] minus, [->] else) {
-				\maybeChar:ifNothing
+			[[->][->][->]->] ifPlusOrDashOrElse = *([->] plus, [->] dash, [->] else) {
+				[Maybe<[Character]>] maybeChar = .currentCharacter;
+				\maybeChar:ifNothing else;
+				\maybeChar:ifIs *([Character] char) {
+					\ifElse (char:isPlus) plus *{
+						\ifElse (char:isDash) dash else;
+					};
+				};
 			};
 		}
 }
@@ -465,7 +486,7 @@
 	++ equals *([Token] t) -> [Boolean] {
 	} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
 
-	@@:: visibilityIndicator *([Boolean] externalVisibility, [Boolean] classVisibility, [Boolean] inheritedVisibility) -> [Token] {
+	:: visibilityIndicator *([Boolean] externalVisibility, [Boolean] classVisibility, [Boolean] inheritedVisibility) -> [Token] {
 		[Variable<[Integer]>] visibility = \[Variable<[Integer]>]:as (\[Integer]:zero);
 		\externalVisibility:ifElse (*{
 				\visibility:set (\one:adding (\visibility:get));
@@ -476,7 +497,7 @@
 		\inheritedVisibility:ifElse (*{
 				\visibility:set (\hundred:adding (\visibility:get));
 			} !{[Integer] hundred = \[Integer]:newPositive 100;}) *{};
-	} -> (\[Token]:secondIdToken (\[Integer]:newPositive 1) (\visibility:get))@@
+	} -> (\[Token]:secondIdToken (\[Integer]:newPositive 1) (\visibility:get))
 
 	:: parentIdentifier *([Integer] repetitionCount) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetitionCount)
 	:: identifier *([String] identifierString) -> (\[Token]:contentToken (\[Integer]:newPositive 3) identifierString)
