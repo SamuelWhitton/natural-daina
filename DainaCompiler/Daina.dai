@@ -97,7 +97,10 @@
 			SourcePosition,
 			Boolean,
 			Variable,
-			Loops
+			Loops,
+			Data,
+
+			Debug
 		)
 	[InputStream] sourceInput
 	[List<[Error]>] errors
@@ -150,9 +153,55 @@
 	++ gotoNextToken *{
 		\.currentToken:set (\[Maybe<[Token]>]:asNothing);
 		\:eatWhitespaceCharacters;
+
+		\ifStrudelOrElse *{
+			\[Loops]:while (*->\.currentCharacter:is (*([Character] c)->\c:isStrudel)) *{
+				\:gotoNextCharacter;
+				\ifStrudelOrElse *{
+               		\:gotoNextCharacter;
+                	[Variable<[Boolean]>] lastCharacterWasStrudel = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+               		\scanToken *([Character] thisCharacter, [->] continueScanning) {
+               			\ifElse (thisCharacter:isStrudel) *{
+               				\ifElse (lastCharacterWasStrudel:get) *{
+               					\lastCharacterWasStrudel:set (\[Boolean]:false);
+               					\:eatWhitespaceCharacters;
+               				} *{
+               					\lastCharacterWasStrudel:set (\[Boolean]:true);
+               					\continueScanning;
+               				};
+               			} *{
+               				\lastCharacterWasStrudel:set (\[Boolean]:false);
+               				\continueScanning;
+               			};
+					};
+               	} *{
+               		\scanToken *([Character] thisCharacter, [->] continueScanning) {
+               			\ifElse (thisCharacter:isNewline) *{
+               				\:eatWhitespaceCharacters;
+               			} *{
+               				\continueScanning;
+               			};
+					};
+               	};
+            };
+        } *{};
+
 		\.currentCharacter:ifIs *([Character] character1) {
 			[SourcePosition] position1 = .currentCharacterPosition;
 			\:gotoNextCharacter;
+			
+			[Boolean] isIdentifier = \[Boolean]:or (\character1:isAlphanumeric) (\character1:isUnderscore);
+			\isIdentifier:ifElse *{
+				[String] identifierString = \stringFromCharacters *([[Character]->] useCharacter) {
+					\useCharacter character1;
+					\scanToken *([Character] thisCharacter, [->] continueScanning) {
+						[Boolean] thisCharacterIsForIdentifier = \[Boolean]:or (\thisCharacter:isAlphanumeric) (\thisCharacter:isUnderscore);
+						\thisCharacterIsForIdentifier:ifElse *{\useCharacter thisCharacter;\continueScanning;} *{};
+					};
+				};
+				\setToken position1 (\[Token]:identifier identifierString);
+			} *{};
+
 			\.currentCharacter:ifIs *([Character] character2) {
 				[SourcePosition] position2 = .currentCharacterPosition;
                 \if (character1:isDash) *{
@@ -162,18 +211,15 @@
                 		\if (character2:isCaret) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskCaret)};
                 		\if (character2:isDash) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskDash)};
                 	};
-                \if (character1:isColon) *{
+               	 \if (character1:isColon) *{
                 		\if (character2:isColon) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleColon)};
                 	};
                 \if (character1:isPipe) *{
-                		\if (character2:isPipe) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doublePipe)};
-                	};
-                \if (character1:isStrudel) *{
-                		\if (character2:isStrudel) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleStrudel)};
+                	\if (character2:isPipe) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doublePipe)};
                 	};
                 \if (character1:isArrowBracketOpen) *{
                 		\if (character2:isArrowBracketOpen) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleLessThan)};
-                	};
+               		};
 			};	
 
 			\ifNoToken *{
@@ -201,7 +247,6 @@
 				\if (character1:isSemicolon) *{\setToken position1 (\[Token]:semicolon)};
 				\if (character1:isSquareBracketOpen) *{\setToken position1 (\[Token]:squareBracketOpen)};
 				\if (character1:isSquareBracketClose) *{\setToken position1 (\[Token]:squareBracketClose)};
-				\if (character1:isStrudel) *{\setToken position1 (\[Token]:strudel)};
 				\if (character1:isTilde) *{\setToken position1 (\[Token]:tilde)};
 			};
 			
@@ -220,6 +265,35 @@
 			[[->[Boolean]][->]->] if = *([->[Boolean]] condition, [->] action) {
 				[Boolean] result = \condition;
 				\result:ifElse action *{};
+			};
+			[[->[Boolean]][->][->]->] ifElse = *([->[Boolean]] condition, [->] action, [->] else) {
+				[Boolean] result = \condition;
+				\result:ifElse action else;
+			};
+			[[[Character][->]->]->] scanToken = *([[Character][->]->] provideCharacterAndContinueScannning) {
+				[Variable<[Boolean]>] continuing = \[Variable<[Boolean]>]:as (\[Boolean]:true);
+				\[Loops]:while (continuing:get) *{
+					\continuing:set (\[Boolean]:false);
+					\.currentCharacter:ifIs *([Character] character) {
+						\provideCharacterAndContinueScannning character *{
+							\continuing:set (\[Boolean]:true);
+							\:gotoNextCharacter;
+						};
+					};
+				};
+			};
+			[[[[Character]->]->]->[String]] stringFromCharacters = *([[[Character]->]->] getCharacters) -> [String] {
+				[Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
+					\getCharacters *([Character] character) {
+						\useByte (\character:asASCIIByte);
+					};
+				});
+			} -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData;
+			[[->][->]->] ifStrudelOrElse = *([->] action, [->] else) {
+				\.currentCharacter:ifIs *([Character] currentCharacter) {
+					\ifElse (currentCharacter:isStrudel) action else;
+				};
+				\.currentCharacter:ifNothing else;
 			};
 		}
 }
@@ -358,8 +432,8 @@
 			} !{[Integer] hundred = \[Integer]:newPositive 100;}) *{};
 	} -> (\[Token]:secondIdToken (\[Integer]:newPositive 1) (\visibility:get))@@
 
-	@:: parentIdentifier *([Integer] repetition) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetition)
-	@:: identifier *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 3) content)
+	@:: parentIdentifier *([Integer] repetitionCount) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetitionCount)
+	:: identifier *([String] identifierString) -> (\[Token]:contentToken (\[Integer]:newPositive 3) identifierString)
 	@:: dataSegment *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 4) content)
 	
 	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
@@ -379,7 +453,6 @@
 	:: doubleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 19)
 	:: doubleColon *-> (\[Token]:basicToken \[Integer]:newPositive 20)
 	:: doublePipe *-> (\[Token]:basicToken \[Integer]:newPositive 21)
-	:: doubleStrudel *-> (\[Token]:basicToken \[Integer]:newPositive 22)
 	:: equalsSign *-> (\[Token]:basicToken \[Integer]:newPositive 23)
 	:: exclamationMark *-> (\[Token]:basicToken \[Integer]:newPositive 24)
 	:: forwardSlash *-> (\[Token]:basicToken \[Integer]:newPositive 25)
@@ -392,7 +465,6 @@
 	:: semicolon *-> (\[Token]:basicToken \[Integer]:newPositive 32)
 	:: squareBracketOpen *-> (\[Token]:basicToken \[Integer]:newPositive 33)
 	:: squareBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 34)
-	:: strudel *-> (\[Token]:basicToken \[Integer]:newPositive 35)
 	:: tilde *-> (\[Token]:basicToken \[Integer]:newPositive 36)
 	:: doubleLessThan *-> (\[Token]:basicToken \[Integer]:newPositive 37)
 }
