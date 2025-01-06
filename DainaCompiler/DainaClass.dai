@@ -15,12 +15,14 @@
 			DainaDependancyStructure,
 			DainaExpression,
 			Variable,
+			DainaIdentifier,
 
 			Debug
 		)
 	@[] isEntryPoint
 	[DainaDependancyStructure] dependancyStructure
 	[Maybe<[DainaExpression]>] entryPointMethod
+	[DainaIdentifier] className
 {
 	:: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
 		[List<[DainaClass]>] classes = \[List<[DainaClass]>]:empty;
@@ -49,6 +51,8 @@
 	~ @@-+-@@ parse *([Parser] parser) {
 		[DainaDependancyStructure] dependancyStructure = \[DainaDependancyStructure]:base;
 		[Variable<[Maybe<[DainaExpression]>]>] entryPointMethod = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
+		[DainaIdentifier] className = \[DainaIdentifier]:base;
+
 		\parser:gotoNextToken;
 		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
 			\parser:gotoNextToken;
@@ -70,10 +74,16 @@
 				\parser:addError (\[Error]:expectingBodyOfClass (\parser:position));	
 			};
 		} *{	
-			@class regular
+			\[O]:ifElse (\[DainaIdentifier]:isFirstToken (\parser:token)) *{
+				\className:parse parser;
+			} *{
+				\parser:addError (\[Error]:expectingClassName (\parser:position));	
+			};
+			
 		};
 		.dependancyStructure = dependancyStructure;
 		.entryPointMethod = \entryPointMethod:get;
+		.className = className;
 		\::new;
 	}
 }
@@ -129,6 +139,37 @@
 		
 
 		
+	}
+}
+
+[DainaIdentifier :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+
+			Debug
+		)
+{
+	:: isFirstToken *([Token] token) -> [Boolean] {
+	} -> (\token:isIdentifier)
+
+	~ base *{
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		[Token] identifierToken = \parser:token;
+		\[O]:ifElse (\identifierToken:isIdentifier) *{
+			\parser:gotoNextToken;
+		} *{
+			\parser:addError (\[Error]:expectingIdentifier (\parser:position));	
+		};
 	}
 }
 

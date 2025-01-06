@@ -509,6 +509,17 @@
 	:: expectingClosingBracketForClassBody *([SourcePosition] position) -> [Error] {
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for class body") context)
+
+	:: expectingClassName *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting class name") context)
+
+	:: expectingIdentifier *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting identifier") context)
+
+
+	
 }
 
 
