@@ -16,6 +16,11 @@
 			DainaExpression,
 			Variable,
 			DainaIdentifier,
+			DainaGenericDeclarationList,
+			DainaType,
+			DainaObjectDeclaration,
+			DainaClassMethod,
+			DainaCompilerInjection,
 
 			Debug
 		)
@@ -150,22 +155,33 @@
 			Token,
 			Boolean,
 			Maybe,
-			String,
+			String, Variable,
 			Error, M, O,
 
 			Debug
 		)
+	@[Variable<[Maybe<[String]>]>]
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> (\token:isIdentifier)
+		[Variable<[Boolean]>] isIdentifier = \[Variable<[Boolean]>]:as \[Boolean]:false;
+		\token:ifIdentifier *([String] s) {
+			\isIdentifier:set \[Boolean]:true;
+		};
+	} -> (\isIdentifier:get)
 
 	~ base *{
 		\::new;
 	}
 
 	++ parse *([Parser] parser) {
-		[Token] identifierToken = \parser:token;
-		\[O]:ifElse (\identifierToken:isIdentifier) *{
+		@@[Token] identifierToken = \parser:token;
+		[Variable<[Boolean]>] isIdentifier = \[Variable<[Boolean]>]:as \[Boolean]:false;
+		\identifierToken:ifIdentifier *([String] s) {
+			\isIdentifier:set \[Boolean]:true;
+		};@@
+
+
+		\[O]:ifElse (\[DainaIdentifier]:isFirstToken (\parser:token)) *{
 			\parser:gotoNextToken;
 		} *{
 			\parser:addError (\[Error]:expectingIdentifier (\parser:position));	
@@ -174,7 +190,11 @@
 }
 
 
-
+DainaGenericDeclarationList,
+			DainaType,
+			DainaObjectDeclaration,
+			DainaClassMethod,
+			DainaCompilerInjection,
 
 
 

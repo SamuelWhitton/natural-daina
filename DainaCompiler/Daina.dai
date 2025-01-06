@@ -565,6 +565,14 @@
 		[String] secondIDString = \[String]:stringRepresentationOfInteger .secondId;
 	} -> (\idString:appending (\seperator:appending (\secondIDString:appending (\seperator:appending .content))))
 
+	++ ifIdentifier *([[String]->] ifIdentifier) {
+		[Token] idToken = \[Token]:identifier (\[String]:as "");
+		[Boolean] isIdentifier = \.id:equals (\idToken:id);
+		\isIdentifier:ifElse *{
+			\ifIdentifier .content;
+		} *{};
+	}
+
 	@++ equals *([Token] t) -> [Boolean] {
 	@} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
 
