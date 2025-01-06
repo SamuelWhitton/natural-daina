@@ -12,17 +12,22 @@
 			Maybe,
 			String,
 			Error, M, O,
+			DainaDependancyStructure,
+			DainaExpression,
+			Variable,
 
 			Debug
 		)
+	@[] isEntryPoint
+	[DainaDependancyStructure] dependancyStructure
+	[Maybe<[DainaExpression]>] entryPointMethod
 {
 	:: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
-		@\parser:addError (\[Error]:invalidVisibilityIndicator position1);
-
 		[List<[DainaClass]>] classes = \[List<[DainaClass]>]:empty;
 		\[Loops]:until *([->] stop) {
 			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
-				\parser:gotoNextToken;
+				\classes:append (\[DainaClass]:parse parser);
+				\[O]:ifElse (\parser:hasErrors) stop *{};
 			} *{	
 				\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:EOF) *{} *{
 					\parser:addError (\[Error]:expectingClassAtTopLevel (\parser:position));
@@ -30,7 +35,7 @@
 				\stop;
 			};
 		};
-		
+
 		@@\[Loops]:while (*->[Boolean]{[Maybe<[Token]>] token = \parser:token;}->\token:is (*([]a)->\[Boolean]:true)) *{
 			[Maybe<[Token]>] maybeToken = \parser:token;
 			\maybeToken:ifIs *([Token] token) {
@@ -40,5 +45,96 @@
 			\parser:gotoNextToken;
 		}@@
 	} -> classes
+
+	~ @@-+-@@ parse *([Parser] parser) {
+		[DainaDependancyStructure] dependancyStructure = \[DainaDependancyStructure]:base;
+		[Variable<[Maybe<[DainaExpression]>]>] entryPointMethod = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
+		\parser:gotoNextToken;
+		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+			\parser:gotoNextToken;
+			\dependancyStructure:parse parser;
+			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketOpen) *{
+				\parser:gotoNextToken;
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					[DainaExpression] entryPointExpression = \[DainaExpression]:base;
+					\entryPointExpression:parse parser;
+					\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketClose) *{
+						\parser:gotoNextToken;
+					} *{	
+						\parser:addError (\[Error]:expectingClosingBracketForClassBody (\parser:position));
+					};
+				} *{
+					\parser:addError (\[Error]:expectingEntryPointMethod (\parser:position));	
+				};
+			} *{
+				\parser:addError (\[Error]:expectingBodyOfClass (\parser:position));	
+			};
+		} *{	
+			@class regular
+		};
+		.dependancyStructure = dependancyStructure;
+		.entryPointMethod = \entryPointMethod:get;
+		\::new;
+	}
 }
+
+
+[DainaDependancyStructure :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+
+			Debug
+		)
+{
+	~ base *{
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		
+
+		
+	}
+}
+
+[DainaExpression :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+
+			Debug
+		)
+{
+	:: isFirstToken *([Token] token) -> [Boolean] {
+	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
+
+	~ base *{
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		
+
+		
+	}
+}
+
+
+
+
+
+
 

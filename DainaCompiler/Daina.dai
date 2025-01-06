@@ -171,6 +171,8 @@
 		} -> \isWhitespace:get) (:gotoNextCharacter);
 	}
 
+	++ hasErrors *-> [Boolean] {} -> (\[Boolean]:not (\.errors:isEmpty))
+
     ++ errors *-> [List<[Error]>] {} -> .errors
 
     ++ addError *([Error] error) {
@@ -495,6 +497,18 @@
 	:: expectingClassAtTopLevel *([SourcePosition] position) -> [Error] {
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting class at top level") context)
+
+	:: expectingBodyOfClass *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting body of class") context)
+
+	:: expectingEntryPointMethod *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting entry point method") context)
+
+	:: expectingClosingBracketForClassBody *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for class body") context)
 }
 
 
