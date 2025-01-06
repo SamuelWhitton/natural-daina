@@ -100,7 +100,6 @@
 
 	++ asASCIIByte *->[Byte]{} -> .asciiByte
 
-
 	++ isSemicolon *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3B))
 	++ isPlus *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2B))
 	++ isUnderscore *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5F))
@@ -144,6 +143,20 @@
 }
 
 
+[O] (Boolean) {
+
+	:: ifElse *([Boolean] b, [->] action, [->] else) {
+		\b:ifElse action else;
+	} 
+}
+
+[M] (Boolean, Token, Maybe) {
+
+	:: ifElse *([Maybe<[Token]>] b, [[Token]->] action, [->] else) {
+		\b:ifNothing else;
+		\b:ifIs action;
+	} 
+}
 
 [Debug] (OutputStream, String, SystemInputOutput){
 	:: log *([String] s){

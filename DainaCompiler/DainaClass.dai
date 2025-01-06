@@ -1,0 +1,44 @@
+
+
+
+
+[DainaClass :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+
+			Debug
+		)
+{
+	:: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
+		@\parser:addError (\[Error]:invalidVisibilityIndicator position1);
+
+		[List<[DainaClass]>] classes = \[List<[DainaClass]>]:empty;
+		\[Loops]:until *([->] stop) {
+			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+				\parser:gotoNextToken;
+			} *{	
+				\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:EOF) *{} *{
+					\parser:addError (\[Error]:expectingClassAtTopLevel (\parser:position));
+				};
+				\stop;
+			};
+		};
+		
+		@@\[Loops]:while (*->[Boolean]{[Maybe<[Token]>] token = \parser:token;}->\token:is (*([]a)->\[Boolean]:true)) *{
+			[Maybe<[Token]>] maybeToken = \parser:token;
+			\maybeToken:ifIs *([Token] token) {
+				@\[Debug]:log (\token:asDebugString);
+				@\[Debug]:log (\[String]:as "\n");
+			};
+			\parser:gotoNextToken;
+		}@@
+	} -> classes
+}
+

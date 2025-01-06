@@ -86,7 +86,7 @@ Trains<A:[Object],B:[Object]> : []
 
 
 
-[List<E [Object]> : [Object]] (Object, TrainCarriage, Container, Boolean, Wrapper, CoreFlow, Conjecture)
+[List<E [Object]> : [Object]] (Object, TrainCarriage, Container, Boolean, Wrapper, CoreFlow, Conjecture, Maybe, Variable)
 	[TrainCarriage<[&E]>] backCarriage
 	[TrainCarriage<[&E]>] frontCarriage
 {
@@ -137,6 +137,13 @@ Trains<A:[Object],B:[Object]> : []
 				};
 			};
 		}
+
+	++ popFirst *->[Maybe<[&E]>] {
+		[Variable<[Maybe<[&E]>]>] m = \[Variable<[Maybe<[&E]>]>]:as (\[Maybe<[&E]>]:nothing);
+		\:popFromFront *([&E] e) {
+			\m:set (\[Maybe<[&E]>]:as e);
+		};
+	} -> \m:get
 
 
 	++ popFromBack *([[&E]->] cargoReceiver) {

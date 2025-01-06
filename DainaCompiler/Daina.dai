@@ -109,27 +109,57 @@
 	[Variable<[SourcePosition]>] currentTokenPosition
 	[Maybe<[Character]>] currentCharacter
 	[SourcePosition] currentCharacterPosition
+	[List<[Character]>] buffer
 {
 	~ withSourceNameAndInput *([String] sourceName, [InputStream] sourceInput) {
 		.sourceInput = sourceInput;
 		.errors = \[List<[Error]>]:empty;
 		.currentToken = \[Variable<[Maybe<[Token]>]>]:as (\[Maybe<[Token]>]:asNothing);
+		.buffer = \[List<[Character]>]:empty;
 		.currentCharacter = \[Maybe<[Character]>]:asNothing;
-		[SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName;
+		[SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName (\:getCopyOfNextLine);
 		.currentCharacterPosition = initialPosition;
 		.currentTokenPosition = \[Variable<[SourcePosition]>]:as initialPosition;
 		\:gotoNextCharacter;
 		\:gotoNextToken;
 	}
 
+	- getCopyOfNextLine *->[String] {
+		[String] line = \:stringFromCharacters *([[Character]->] useCharacter) {
+			\[Loops]:until *([->] stop) {
+				[Maybe<[Character]>] nextChar = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+				\nextChar:ifIs *([Character] c) {
+					\.buffer:append c;
+					[Boolean] notEndOfLine = \[Boolean]:not (\c:isNewline);
+					\notEndOfLine:ifElse *{
+						\useCharacter c;
+					} stop;
+				};
+				\nextChar:ifNothing stop;
+			};
+		};
+	} -> line
+
+	- stringFromCharacters *([[[Character]->]->] getCharacters) -> [String] {
+				[Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
+					\getCharacters *([Character] character) {
+						\useByte (\character:asASCIIByte);
+					};
+				});
+			} -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
+
 	- gotoNextCharacter *{
 		[Boolean] isNewline = \.currentCharacter:is *([Character] c) -> [Boolean] {} -> \c:isNewline;
 		\isNewline:ifElse *{
-			.currentCharacterPosition = \.currentCharacterPosition:startOfNextLine;
+			.currentCharacterPosition = \.currentCharacterPosition:startOfNextLine (\:getCopyOfNextLine);
 		} *{
 			.currentCharacterPosition = \.currentCharacterPosition:nextColumn;
 		};
-		.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+		[Maybe<[Character]>] bufferedChar = \.buffer:popFirst;
+		.currentCharacter = bufferedChar;
+		\bufferedChar:ifNothing *{
+			.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+		};
 	}
 
 	- eatWhitespaceCharacters *{
@@ -147,7 +177,11 @@
     	\.errors:append error;
     }
 
-	++ token *->[Maybe<[Token]>] {} -> \.currentToken:get
+	++ token *->[Token] {
+		[Variable<[Token]>] token = \[Variable<[Token]>]:as (\[Token]:EOF);
+		[Maybe<[Token]>] m = \.currentToken:get;
+		\m:ifIs *([Token] t) {\token:set t};
+	} -> \token:get
 
 	++ position *->[SourcePosition] {} -> \.currentTokenPosition:get
 
@@ -373,36 +407,46 @@
 			Integer,
 			String,
 			Variable,
-			Object
+			Object,
+			Loops
 		)
 	[String] sourceName
 	[Integer] line
 	[Integer] column
+	[String] lineContent
 {
-	~ initialPositionIn *([String] sourceName) {
-		\::lineAndColumnIn (\[Integer]:one) (\[Integer]:zero) sourceName;
+	~ initialPositionIn *([String] sourceName, [String] lineContent) {
+		\::lineAndColumnIn (\[Integer]:one) (\[Integer]:zero) sourceName lineContent;
 	}
 
-	~ @@-+-@@ lineAndColumnIn *([Integer] line, [Integer] column, [String] sourceName) {
+	~ @@-+-@@ lineAndColumnIn *([Integer] line, [Integer] column, [String] sourceName, [String] lineContent) {
 		\::new;
 		.sourceName = sourceName;
 		.column = column;
 		.line = line;
+		.lineContent = lineContent;
 	}
 
 	++ asString *-> [String] {
-		[String] prefix = \[String]:as "- ";
 		[String] colon = \[String]:as ":";
 		[String] pos = \[String]:as " pos ";
 		[String] line = \[String]:stringRepresentationOfInteger .line;
 		[String] column = \[String]:stringRepresentationOfInteger .column;
-	} -> (\prefix:appending (\.sourceName:appending (\colon:appending (\line:appending (\pos:appending column)))))
+		[String] tabulation = \[String]:as "\n    ";
+		[Variable<[String]>] linePositionArrow = \[Variable<[String]>]:as (\[String]:as "");
+		\[Loops]:repeatNTimes (\.column:integerBySubtracting (\[Integer]:one)) *{
+			[String] curr = \linePositionArrow:get;
+			\linePositionArrow:set (\curr:appending (\[String]:as " "));
+		};
+		[String] curr = \linePositionArrow:get;
+		\linePositionArrow:set (\curr:appending (\[String]:as "^"));
+	} -> (\.sourceName:appending (\colon:appending (\line:appending (\pos:appending (\column:appending (\tabulation:appending (\.lineContent:appending (\tabulation:appending (\linePositionArrow:get)))))))))
 
 	++ nextColumn *-> [SourcePosition] {
-	} -> \[SourcePosition]:lineAndColumnIn (.line) (\.column:adding (\[Integer]:one)) (.sourceName)
+	} -> \[SourcePosition]:lineAndColumnIn (.line) (\.column:adding (\[Integer]:one)) (.sourceName) (.lineContent)
 
-	++ startOfNextLine *-> [SourcePosition] {
-	} -> \[SourcePosition]:lineAndColumnIn (\.line:adding (\[Integer]:one)) (\[Integer]:one) (.sourceName)
+	++ startOfNextLine *([String] lineContent)-> [SourcePosition] {
+	} -> \[SourcePosition]:lineAndColumnIn (\.line:adding (\[Integer]:one)) (\[Integer]:one) (.sourceName) lineContent
 }
 
 
@@ -423,7 +467,7 @@
 		[Variable<[String]>] errorWithContext = \[Variable<[String]>]:as errorString;
 		\context:iterate *([SourcePosition] sourcePosition) {
 			[String] addedContext = (\prefix:appending (\sourcePosition:asString)) !{
-					[String] prefix = \[String]:as "\n    ";
+					[String] prefix = \[String]:as " - ";
 				};
 			\errorWithContext:set (\prefix:appending addedContext) !{
 					[String] prefix = \errorWithContext:get;
@@ -447,6 +491,10 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
 		\context:append position;
 	} -> (\[Error]:errorWithContext error context)
+
+	:: expectingClassAtTopLevel *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting class at top level") context)
 }
 
 
@@ -490,10 +538,16 @@
 		[String] idString = \[String]:stringRepresentationOfInteger .id;
 		[String] seperator = \[String]:as "~";
 		[String] secondIDString = \[String]:stringRepresentationOfInteger .secondId;
-	} -> \idString:appending (\seperator:appending (\secondIDString:appending (\seperator:appending .content)))
+	} -> (\idString:appending (\seperator:appending (\secondIDString:appending (\seperator:appending .content))))
 
-	++ equals *([Token] t) -> [Boolean] {
-	} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
+	@++ equals *([Token] t) -> [Boolean] {
+	@} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
+
+	:: equals *([Token] t, [Token] t2) -> [Boolean] {
+		[String] content = \t2:content;
+		[Integer] id = \t2:id;
+		[Integer] secondId = \t2:secondId;
+	} -> (\[Boolean]:and (\[Boolean]:and (\content:equals (\t:content)) (\secondId:equals (\t:secondId))) (\id:equals (\t:id)))
 
 	:: visibilityIndicator *([Boolean] externalVisibility, [Boolean] classVisibility, [Boolean] inheritedVisibility) -> [Token] {
 		[Variable<[Integer]>] visibility = \[Variable<[Integer]>]:as (\[Integer]:zero);
@@ -543,33 +597,9 @@
 	:: squareBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 34)
 	:: tilde *-> (\[Token]:basicToken \[Integer]:newPositive 36)
 	:: doubleLessThan *-> (\[Token]:basicToken \[Integer]:newPositive 37)
+	:: EOF *-> (\[Token]:basicToken \[Integer]:newPositive 38)
 }
 
-
-[DainaClass :[Object]] (
-			Object, 
-			Parser, 
-			List,
-			Loops,
-			Token,
-			Boolean,
-			Maybe,
-			String,
-
-			Debug
-		)
-{
-	:: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
-		\[Loops]:while (*->[Boolean]{[Maybe<[Token]>] token = \parser:token;}->\token:is (*([]a)->\[Boolean]:true)) *{
-			[Maybe<[Token]>] maybeToken = \parser:token;
-			\maybeToken:ifIs *([Token] token) {
-				\[Debug]:log (\token:asDebugString);
-				\[Debug]:log (\[String]:as "\n");
-			};
-			\parser:gotoNextToken;
-		}
-	} -> \[List<[DainaClass]>]:empty
-}
 
 
 

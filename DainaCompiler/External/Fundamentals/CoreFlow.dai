@@ -36,13 +36,41 @@ CoreFlow : []
 }
 
 
-[Loops :[CoreFlow]] (CoreFlow, Boolean) {
+[Loops :[CoreFlow]] (CoreFlow, Boolean, Maybe, Token, Integer, Wrapper, ControlFlow) {
 	:: while *([->[Boolean]] condition, [->] action) {
 		\[CoreFlow]:repeatUntilStopped *([->]stop) {
 		[Boolean] conditionResult = \condition;
 			\conditionResult:ifTrue action;
 			\conditionResult:ifFalse stop;
 		};
+	}
+
+	:: until *([[->]->] actionWithStop) {
+		\[CoreFlow]:repeatUntilStopped actionWithStop;
+	}
+
+	:: whileIs *([->[Maybe<[Token]>]] getMaybe, [[Token]->] action) {
+		\[Loops]:until *([->] stop) {
+			[Maybe<[Token]>] maybe = \getMaybe;
+			\maybe:ifNothing stop;
+			\maybe:ifIs action;
+		};
+	}
+
+	:: repeatNTimes *([Integer] numberOfTimesToRepeat, [->] lambdaToRepeatReceivingCurrentCount) {
+		[Wrapper<[Integer]>] wrappedCurrentCount = \[Wrapper<[Integer]>]:wrapperWithObject (\[Integer]:one);
+
+		(\[ControlFlow]:repeatWhile currentCountHasNotExceededNumberOfTimesToRepeat *{
+			\lambdaToRepeatReceivingCurrentCount;
+			\incrementCount;
+
+		})	!{
+				[->[Boolean]] currentCountHasNotExceededNumberOfTimesToRepeat = *-> (\numberOfTimesToRepeat:isGreaterThanOrEqualTo \wrappedCurrentCount:unwrap);
+				
+				[->] incrementCount = *{
+					\wrappedCurrentCount:transformStoredObject *([Integer] count)-> (\count:adding (\[Integer]:one));
+				};
+			};
 	}
 }
 
