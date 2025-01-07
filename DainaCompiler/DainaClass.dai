@@ -157,7 +157,51 @@
 	}
 }
 
- @[ identifier ( generic-declaration-list )? ( : type )* ] dependancy-structure ( object-declaration )* { ( class-method | compiler-injection )* }
+[DainaGenericDeclarationList :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+			DainaGeneralIdentifier,
+
+			Debug
+		)
+	[List<[DainaGeneralIdentifier]>] generics
+{
+	~ base *{
+		.generics = \[List<[DainaGeneralIdentifier]>]:empty;
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
+			\parser:gotoNextToken;
+			\[Loops]:until *([->] stop) {
+				\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+					[DainaGeneralIdentifier] generic = \[DainaGeneralIdentifier]:base;
+					\generic:parse parser;
+					\.generics:append generic;
+					\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:comma) *{
+						\parser:gotoNextToken;
+					} stop;
+				} *{
+					\parser:addError (\[Error]:expectingGenericIdentifier (\parser:position));
+				};
+			};
+			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose) *{
+				\parser:gotoNextToken;
+			} *{
+				\parser:addError (\[Error]:expectingClosingBracketForGenericDeclarationList (\parser:position));
+			};
+		} *{};
+	}
+}
+
 
 [DainaDependancyStructure :[Object]] (
 			Object, 
@@ -184,30 +228,7 @@
 	}
 }
 
-[DainaGenericDeclarationList :[Object]] (
-			Object, 
-			Parser, 
-			List,
-			Loops,
-			Token,
-			Boolean,
-			Maybe,
-			String,
-			Error, M, O,
 
-			Debug
-		)
-{
-	~ base *{
-		\::new;
-	}
-
-	++ parse *([Parser] parser) {
-		
-
-		
-	}
-}
 
 [DainaExpression :[Object]] (
 			Object, 
