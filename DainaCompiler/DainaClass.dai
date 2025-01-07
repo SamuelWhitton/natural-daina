@@ -268,35 +268,6 @@
 }
 
 
-[DainaExpression :[Object]] (
-			Object, 
-			Parser, 
-			List,
-			Loops,
-			Token,
-			Boolean,
-			Maybe,
-			String,
-			Error, M, O,
-
-			Debug
-		)
-{
-	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
-
-	~ base *{
-		\::new;
-	}
-
-	++ parse *([Parser] parser) {
-		
-
-		
-	}
-}
-
-
 [DainaGeneralIdentifier :[Object]] (
 			Object, 
 			Parser, 
@@ -375,6 +346,57 @@
 			Loops,
 			Token,
 			Boolean,
+			Integer,
+			Maybe,
+			String,
+			Error, M, O,
+			Variable,
+			DainaClassIdentifier,
+			DainaGeneralIdentifier,
+
+			Debug
+		)
+	[[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstanciation
+	[[[List<[DainaType]>][Maybe<[DainaType]>]->]->] ifMethodInputsAndOutput
+	[[[List<[DainaType]>]->]->] ifDisjoint
+	[[[DainaGeneralIdentifier]->]->] ifClassGeneric
+	[[[Integer][DainaGeneralIdentifier]->]->] ifMethodGenericLevelAndIdentifier
+	[[[DainaGeneralIdentifier]->]->] ifDataSegment
+	[[->]->] ifInferredMethod
+	[[->]->] ifInferredSelf
+	[[[Integer]->]->] ifInferredParent
+{
+	:: isFirstToken *([Token] token) -> [Boolean] {
+	} -> (\[Token]:equals token \[Token]:squareBracketOpen)
+
+	~ base *{
+		.ifClassNameAndGenericInstanciation = *([]a){};
+		.ifMethodInputsAndOutput = *([]a){};
+		.ifDisjoint = *([]a){};
+		.ifClassGeneric = *([]a){};
+		.ifMethodGenericLevelAndIdentifier = *([]a){};
+		.ifDataSegment = *([]a){};
+		.ifInferredMethod = *([]a){};
+		.ifInferredSelf = *([]a){};
+		.ifInferredParent = *([]a){};
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		
+
+		
+	}
+}
+
+
+[DainaExpression :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
 			Maybe,
 			String,
 			Error, M, O,
@@ -395,6 +417,10 @@
 		
 	}
 }
+
+
+
+
 
 [DainaObjectDeclaration :[Object]] (
 			Object, 
@@ -451,6 +477,8 @@
 		
 	}
 }
+
+
 
 [DainaCompilerInjection :[Object]] (
 			Object, 
