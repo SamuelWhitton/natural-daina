@@ -191,6 +191,7 @@
 					} stop;
 				} *{
 					\parser:addError (\[Error]:expectingGenericIdentifier (\parser:position));
+					\stop;
 				};
 			};
 			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose) *{
@@ -213,21 +214,58 @@
 			Maybe,
 			String,
 			Error, M, O,
+			DainaGeneralIdentifier,
+			SourcePosition,
 
 			Debug
 		)
+	[List<[DainaGeneralIdentifier]>] dependancies
+	[List<[DainaGeneralIdentifier]>] reverseDependancies
 {
 	~ base *{
+		.dependancies = \[List<[DainaGeneralIdentifier]>]:empty;
+		.reverseDependancies = \[List<[DainaGeneralIdentifier]>]:empty;
 		\::new;
 	}
 
 	++ parse *([Parser] parser) {
-		
-
-		
-	}
+		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketOpen) *{
+			\parseIDList .dependancies ([Error]:expectingDependancy);
+			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+				\parser:gotoNextToken;
+				\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketOpen) *{
+					\parseIDList .reverseDependancies ([Error]:expectingReverseDependancy);
+				} *{
+					\parser:addError (\[Error]:expectingReverseDependancyList (\parser:position));
+				};
+			} *{};
+		} *{};
+	} 	!{
+			[[List<[DainaGeneralIdentifier]>][[SourcePosition]->[Error]]->] parseIDList = *([List<[DainaGeneralIdentifier]>] list, [[SourcePosition]->[Error]] missingIDError) {
+				\parser:gotoNextToken;
+				\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+					\[Loops]:until *([->] stop) {
+						\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+							[DainaGeneralIdentifier] id = \[DainaGeneralIdentifier]:base;
+							\id:parse parser;
+							\list:append id;
+							\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:comma) *{
+								\parser:gotoNextToken;
+							} stop;
+						} *{
+							\parser:addError (\missingIDError (\parser:position));
+							\stop;
+						};
+					};
+				} *{};
+				\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketClose) *{
+					\parser:gotoNextToken;
+				} *{
+					\parser:addError (\[Error]:expectingRoundClosingBracket (\parser:position));
+				};
+			};
+	   	}
 }
-
 
 
 [DainaExpression :[Object]] (

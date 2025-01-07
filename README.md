@@ -10020,7 +10020,7 @@ Types within the **class-generic-instantiation** cannot be a data segment type. 
 ### Dependancy Structure
 - [dependancy-structure](#dependancy-structure) syntax description: **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
     + **reverse-dependancy-list** syntax description: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
-    + **dependancy-list** syntax description: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
+    + **dependancy-list** syntax description: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
 
 The [identifiers](#identifier) in the **dependancy-list** refer to [classes](#class) which are depended on by the parent of this dependancy structure. The [identifiers](#identifier) in the **reverse-dependancy-list** refer to [classes](#class) which depend on the parent of this dependancy structure. [See dependancies.](#classes-types-objects-and-dependancies)
 
@@ -10166,7 +10166,7 @@ A statement is an [expression](#expression) which does not evalutate to an objec
         + **inferred-type-structure**: **(** [internal-context-identifier](#internal-context-identifier) | [\*](#asterisk) **)?** [?](#question-mark)
     - [dependancy-structure](#dependancy-structure): **(** **dependancy-list** **(** [->](#arrow) **reverse-dependancy-list** **)?** **)?**
         + **reverse-dependancy-list**: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
-        + **dependancy-list**: [(](#round-brackets) [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** [)](#round-brackets)
+        + **dependancy-list**: [(](#round-brackets) **(** [identifier](#identifier) **(** [,](#comma) [identifier](#identifier) **)\*** **)?** [)](#round-brackets)
     - [object-declaration](#object-declaration): [type](#type) [identifier](#identifier)
     - [class-method](#class-method): **class-method-classification** [identifier](#identifier) **(** [type](#type) **|** [expression](#expression) **)**
         + **class-method-classification**: **(** **(** [|](#pipe) **|** [||](#double-pipe) **)?** [method-visibility-indicator](#method-visibility-indicators) **)** **|** **(** **(** [~](#tilde) **|** [::](#double-colon) **)** **(** [|](#pipe) **)?** **(** [method-visibility-indicator](#method-visibility-indicators) **)?** **)**
