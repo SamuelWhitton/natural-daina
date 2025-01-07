@@ -100,6 +100,56 @@
 		} *{	
 			\[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
 				\.className:parse parser;
+				\.genericDeclarationList:parse parser;
+				\[Loops]:until *([->] stop) {
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) *{
+						\parser:gotoNextToken;
+						\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+							[DainaType] parentType = \[DainaType]:base;
+							\parentType:parse parser;
+							\.inheritedParentTypes:append parentType;
+						} *{	
+							\parser:addError (\[Error]:expectingParentType (\parser:position));
+							\stop;
+						};
+					} stop;
+				};
+				\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+					\parser:gotoNextToken;
+					\.dependancyStructure:parse parser;
+					\[Loops]:until *([->] stop) {
+						\[O]:ifElse (\[DainaObjectDeclaration]:isFirstToken (\parser:token)) *{
+							[DainaObjectDeclaration] instanceObject = \[DainaObjectDeclaration]:base;
+							\instanceObject:parse parser;
+							\.instanceObjects:append instanceObject;
+						} stop;
+					};
+					\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketOpen) *{
+						\parser:gotoNextToken;
+						\[Loops]:until *([->] stop) {
+							\[O]:ifElse (\[DainaClassMethod]:isFirstToken (\parser:token)) *{
+								[DainaClassMethod] classMethod = \[DainaClassMethod]:base;
+								\classMethod:parse parser;
+								\.classMethods:append classMethod;
+							} *{
+								\[O]:ifElse (\[DainaCompilerInjection]:isFirstToken (\parser:token)) *{
+									[DainaCompilerInjection] compilerInjection = \[DainaCompilerInjection]:base;
+									\compilerInjection:parse parser;
+									\.compilerInjections:append compilerInjection;
+								} stop;
+							};
+						};
+						\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketClose) *{
+							\parser:gotoNextToken;
+						} *{	
+							\parser:addError (\[Error]:expectingClosingBracketForClassBody (\parser:position));
+						};
+					} *{
+						\parser:addError (\[Error]:expectingBodyOfClass (\parser:position));
+					};
+				} *{	
+					\parser:addError (\[Error]:expectingClosingSquareBracketAfterClassHeader (\parser:position));
+				};
 			} *{
 				\parser:addError (\[Error]:expectingClassName (\parser:position));	
 			};	
@@ -107,6 +157,7 @@
 	}
 }
 
+ @[ identifier ( generic-declaration-list )? ( : type )* ] dependancy-structure ( object-declaration )* { ( class-method | compiler-injection )* }
 
 [DainaDependancyStructure :[Object]] (
 			Object, 
