@@ -204,7 +204,7 @@ can be blank or ?
 asdf does [:?] get copied with inheritance, no it doesnt
 asdf Method Visibility Indicators should be Visibility Indicators
 asdf cant distinguish [%STRING] data segment types between each other when overloading
-
+asdf () brackets around dependancy also adds all classes in the public interface (public constructors, public type methods and public instance methods)
 
 ---
 
