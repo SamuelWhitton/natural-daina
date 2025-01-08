@@ -383,9 +383,21 @@
 	}
 
 	++ parse *([Parser] parser) {
-		
+		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
+				[DainaClassIdentifier] className = \[DainaClassIdentifier]:base;
+				\className:parse parser;
+				\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
+					\parser:gotoNextToken;
+					
+				} *{};
+			} *{
 
-		
+			};
+		} *{
+			\parser:addError (\[Error]:expectingType (\parser:position));
+		};
 	}
 }
 

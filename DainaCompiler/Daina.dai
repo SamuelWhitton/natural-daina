@@ -546,6 +546,10 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting reverse dependancy list") context)
 
+	:: expectingType *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting type") context)
+
 
 }
 
