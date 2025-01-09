@@ -132,7 +132,12 @@
 					\.buffer:append c;
 					[Boolean] notEndOfLine = \[Boolean]:not (\c:isNewline);
 					\notEndOfLine:ifElse *{
-						\useCharacter c;
+						[Boolean] cIsTab = \c:isTab;
+						\cIsTab:ifElse *{
+							\useCharacter (\[Character]:asSpace);
+						} *{
+							\useCharacter c;
+						};
 					} stop;
 				};
 				\nextChar:ifNothing stop;
@@ -538,9 +543,9 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting reverse dependancy") context)
 
-	:: expectingRoundClosingBracket *([SourcePosition] position) -> [Error] {
+	:: expectingClosingBracketForDependancyList *([SourcePosition] position) -> [Error] {
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
-	} -> (\[Error]:errorWithContext (\[String]:as "Expecting round closing bracket") context)
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for dependancy list") context)
 
 	:: expectingReverseDependancyList *([SourcePosition] position) -> [Error] {
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
@@ -549,6 +554,23 @@
 	:: expectingType *([SourcePosition] position) -> [Error] {
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting type") context)
+
+	:: expectingOneOrMoreTypesForClassGenericInstantiation *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting one or more types for class generic instantiation") context)
+
+	:: expectingClosingBracketForClassGenericInstantiations *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for class generic instantiations") context)
+
+	:: expectingClosingBracketForType *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for type") context)
+
+	:: expectingClosingBracketForDependancyWithDerivatives *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for dependancy with derivatives") context)
+
 
 
 }

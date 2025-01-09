@@ -96,6 +96,11 @@
 		.asciiByte = asciiByte;
 	}
 
+	~ asSpace *{
+		\::new;
+		.asciiByte = \[Byte]:as 0b20;
+	}
+
 	++ asString *->(\[String]:stringWithASCIIDataRepresentationOfString (\[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {\useByte .asciiByte})))
 
 	++ asASCIIByte *->[Byte]{} -> .asciiByte
@@ -133,6 +138,7 @@
 	++ isSquareBracketOpen *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5B))
 	++ isSquareBracketClose *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5D))
 
+	++ isTab *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b09))
 	++ isNewline *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b0A))
 
 	++ isAlphanumeric *->[Boolean] {
