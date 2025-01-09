@@ -383,6 +383,7 @@
 			Debug
 		)
 	[[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstantiation
+
 	[[[List<[DainaType]>][Maybe<[DainaType]>]->]->] ifMethodInputsAndOutput
 	[[[List<[DainaType]>]->]->] ifDisjoint
 	[[[DainaGeneralIdentifier]->]->] ifClassGeneric
@@ -397,6 +398,7 @@
 
 	~ base *{
 		.ifClassNameAndGenericInstantiation = *([]a){};
+
 		.ifMethodInputsAndOutput = *([]a){};
 		.ifDisjoint = *([]a){};
 		.ifClassGeneric = *([]a){};
@@ -436,7 +438,22 @@
 				} *{};
 				.ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->] get) {\get className genericInstantiations};
 			} *{
-
+				@ bla my way through
+				\[Loops]:until *([->] stop) {
+					\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+						[DainaType] subtype = \[DainaType]:base;
+						\subtype:parse parser;
+					} *{
+						\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow) *{
+							\parser:gotoNextToken;
+							.ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:nothing)};
+						} *{
+							\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) stop *{
+								\parser:gotoNextToken;
+							};
+						};
+					};
+				};
 			};
 			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
 				\parser:gotoNextToken;
@@ -446,6 +463,73 @@
 		} *{
 			\parser:addError (\[Error]:expectingType (\parser:position));
 		};
+	}
+}
+
+
+[DainaObjectDeclaration :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+			DainaType,
+			DainaGeneralIdentifier,
+
+			Debug
+		)
+	[DainaType] type
+	[DainaGeneralIdentifier] identifier
+{
+	:: isFirstToken *([Token] token) -> [Boolean] {
+	} -> (\[DainaType]:isFirstToken token)
+
+	~ base *{
+		.type = \[DainaType]:base;
+		.identifier = \[DainaGeneralIdentifier]:base;
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		\.type:parse parser;
+		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+			\.identifier:parse parser;
+		} *{
+			\parser:addError (\[Error]:expectingIdentifierForObjectDeclaration (\parser:position));
+		};
+	}
+}
+
+
+[DainaClassMethod :[Object]] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+
+			Debug
+		)
+{
+	:: isFirstToken *([Token] token) -> [Boolean] {
+	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
+
+	~ base *{
+		\::new;
+	}
+
+	++ parse *([Parser] parser) {
+		
+
+		
 	}
 }
 
@@ -480,63 +564,6 @@
 
 
 
-
-
-[DainaObjectDeclaration :[Object]] (
-			Object, 
-			Parser, 
-			List,
-			Loops,
-			Token,
-			Boolean,
-			Maybe,
-			String,
-			Error, M, O,
-
-			Debug
-		)
-{
-	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
-
-	~ base *{
-		\::new;
-	}
-
-	++ parse *([Parser] parser) {
-		
-
-		
-	}
-}
-
-[DainaClassMethod :[Object]] (
-			Object, 
-			Parser, 
-			List,
-			Loops,
-			Token,
-			Boolean,
-			Maybe,
-			String,
-			Error, M, O,
-
-			Debug
-		)
-{
-	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
-
-	~ base *{
-		\::new;
-	}
-
-	++ parse *([Parser] parser) {
-		
-
-		
-	}
-}
 
 
 

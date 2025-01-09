@@ -571,6 +571,10 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for dependancy with derivatives") context)
 
+	:: expectingIdentifierForObjectDeclaration *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting identifier for object declaration") context)
+
 
 
 }
