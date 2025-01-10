@@ -316,9 +316,6 @@
                	 \if (character1:isColon) *{
                 		\if (character2:isColon) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleColon)};
                 	};
-                \if (character1:isPipe) *{
-                	\if (character2:isPipe) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doublePipe)};
-                	};
                 \if (character1:isArrowBracketOpen) *{
                 		\if (character2:isArrowBracketOpen) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleLessThan)};
                		};
@@ -575,6 +572,18 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting identifier for object declaration") context)
 
+	:: expectingVisibilityIndicatorForInstanceMethod *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting visibility indicator for instance method") context)
+
+	:: expectingIdentifierForClassMethod *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting identifier for class method") context)
+
+	:: expectingClassMethodExpression *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting class method expression") context)
+
 
 
 }
@@ -630,6 +639,10 @@
 		} *{};
 	}
 
+	:: isVisibilityIndicator *([Token]t) -> [Boolean] {
+		[Integer] id = \t:id;
+	} -> (\id:equals (\[Integer]:newPositive 1))
+
 	@++ equals *([Token] t) -> [Boolean] {
 	@} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
 
@@ -672,7 +685,6 @@
 	:: curlyBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 18)
 	:: doubleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 19)
 	:: doubleColon *-> (\[Token]:basicToken \[Integer]:newPositive 20)
-	:: doublePipe *-> (\[Token]:basicToken \[Integer]:newPositive 21)
 	:: equalsSign *-> (\[Token]:basicToken \[Integer]:newPositive 23)
 	:: exclamationMark *-> (\[Token]:basicToken \[Integer]:newPositive 24)
 	:: forwardSlash *-> (\[Token]:basicToken \[Integer]:newPositive 25)

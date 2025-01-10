@@ -523,6 +523,7 @@
 			DainaGeneralIdentifier,
 			Variable,
 			DainaExpression,
+			DainaType,
 
 			Debug
 		)
@@ -532,10 +533,10 @@
 	[[->][->][->]->] isInstanceTypeOrConstructor
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
+	} -> (\[Boolean]:or (\[Boolean]:or (\[Token]:isVisibilityIndicator token) (\[Token]:equals token (\[Token]:pipe))) (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleColon)) (\[Token]:equals token (\[Token]:tilde))))
 
 	~ base *{
-		.isInstanceTypeOrConstructor = *([->]a,[]b,[]c){\a};
+		.isInstanceTypeOrConstructor = *([->]a,[]b,[]c){};
 		.methodExpression = \[DainaExpression]:base;
 		.identifier = \[DainaGeneralIdentifier]:base;
 		.unimplementedMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
@@ -543,9 +544,50 @@
 	}
 
 	++ parse *([Parser] parser) {
-		
-
-		
+		.isInstanceTypeOrConstructor = *([->]a,[]b,[]c){\a};
+		\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:tilde)) *{
+			\parser:gotoNextToken;
+			.isInstanceTypeOrConstructor = *([]a,[]b,[->]c){\c};
+		} *{
+			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:doubleColon)) *{
+				\parser:gotoNextToken;
+				.isInstanceTypeOrConstructor = *([]a,[->]b,[]c){\b};
+			} *{};
+		};
+		\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:pipe)) *{
+			\parser:gotoNextToken;
+		} *{};
+		\.isInstanceTypeOrConstructor *{
+			\[O]:ifElse (\[Token]:isVisibilityIndicator (\parser:token)) *{
+				\parser:gotoNextToken;
+			} *{
+				\parser:addError (\[Error]:expectingVisibilityIndicatorForInstanceMethod (\parser:position));
+			};
+		} *{
+			\[O]:ifElse (\[Token]:isVisibilityIndicator (\parser:token)) *{
+				\parser:gotoNextToken;
+			} *{};
+		} *{
+			\[O]:ifElse (\[Token]:isVisibilityIndicator (\parser:token)) *{
+				\parser:gotoNextToken;
+			} *{};
+		};
+		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+			\.identifier:parse parser;
+			\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+				\.unimplementedMethod:set (\[Boolean]:true); 
+				[DainaType] typeForUnimplemented = \[DainaType]:base;
+				\typeForUnimplemented:parse parser;
+			} *{
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					\.methodExpression:parse parser;
+				} *{
+					\parser:addError (\[Error]:expectingClassMethodExpression (\parser:position));
+				};
+			};
+		} *{
+			\parser:addError (\[Error]:expectingIdentifierForClassMethod (\parser:position));
+		};
 	}
 }
 
