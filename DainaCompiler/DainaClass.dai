@@ -505,6 +505,11 @@
 }
 
 
+@class-method-classification identifier ( type | expression )
+
+@    class-method-classification: ( ( | | || )? method-visibility-indicator ) | ( ( ~ | :: ) ( | )? ( method-visibility-indicator )? )
+
+
 [DainaClassMethod :[Object]] (
 			Object, 
 			Parser, 
@@ -515,14 +520,25 @@
 			Maybe,
 			String,
 			Error, M, O,
+			DainaGeneralIdentifier,
+			Variable,
+			DainaExpression,
 
 			Debug
 		)
+	[Variable<[Boolean]>] unimplementedMethod
+	[DainaGeneralIdentifier] identifier
+	[DainaExpression] methodExpression
+	[[->][->][->]->] isInstanceTypeOrConstructor
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
 
 	~ base *{
+		.isInstanceTypeOrConstructor = *([->]a,[]b,[]c){\a};
+		.methodExpression = \[DainaExpression]:base;
+		.identifier = \[DainaGeneralIdentifier]:base;
+		.unimplementedMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
 		\::new;
 	}
 
