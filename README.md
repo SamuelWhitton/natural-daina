@@ -4082,7 +4082,7 @@ All the different expressions can be combined in a compound way. Various constru
 3. **:** binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method)
 cast
 4. A type (such as **[Foo]**) binding to an object name in an assignment or to an expression as in [type casting](#type-casting).
-5. All other symbols; such as **.**, **$**, **$$**, **:~**, **~** and **$$~**
+5. All other symbols; such as **.**, **$**, **$$**, **:~** and **$$~**
 
 **=**, **\\**, **->**, **\*** and **\*-** ([object proxy](#object-proxy)) have the same binding strength. 
 

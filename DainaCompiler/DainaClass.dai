@@ -620,10 +620,48 @@
 	}
 }
 
+@@
+expression: ( data-segment | compiler-injection | assignment-statement | statement-group | object-method | proxy-object | method-expression | grouped-expression | method-invocation | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) ( prologue-statement )?
+
+    object-method: expression : identifier
+    proxy-object syntax description: *- expression
+    grouped-expression: ( type-cast )? ( expression )
+        type-cast: type
+    type-method: type : identifier
+    object-identifier: identifier
+    self-reference: ^
+    method-self-reference: *^
 
 
 
+All the different expressions can be combined in a compound way. Various constructs have different binding strength. The following list shows constructs in order of binding strength from weakest to strongest.
 
+   1 ! binding to the preceeding expression and the following statement (as in a prologue statement for an expression)
+   2 = binding to the left hand side and the next expression, \ binding to the following one or more expressions (as in invoking a method and the corresponding inputs), -> binding to the next expression (as in the output of a method), *- binding to the next expression (as in the object of which to form an object proxy) and * binding to the lone statement or statement group of a method which may be preceeded by a method input list (see flexible method expression)
+   3 : binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method) cast
+   4 A type (such as [Foo]) binding to an object name in an assignment or to an expression as in type casting.
+   5 All other symbols; such as ., $, $$, :~ and $$~
+
+   .
+   id
+   $
+   :
+   <<
+   ##
+   [type]
+   {}
+   *
+   ()
+   \
+   ^
+   *^
+   *-
+   [:[...]]
+
+
+A construct will bind stronger then a preceeding construct at the same binding level indicated by the above list. In other words, an ! will bind stronger then all other ! which preceeded it, and a -> will bind stronger then all other \ which preceeded it.
+
+@@
 
 [DainaCompilerInjection :[Object]] (
 			Object, 

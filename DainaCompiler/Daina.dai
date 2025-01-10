@@ -643,6 +643,10 @@
 		[Integer] id = \t:id;
 	} -> (\id:equals (\[Integer]:newPositive 1))
 
+	:: isDataSegment *([Token]t) -> [Boolean] {
+		[Integer] id = \t:id;
+	} -> (\id:equals (\[Integer]:newPositive 4))
+
 	@++ equals *([Token] t) -> [Boolean] {
 	@} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
 
