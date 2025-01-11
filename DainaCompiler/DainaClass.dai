@@ -614,16 +614,16 @@
 
 			Debug
 		)
-	[[[List<[DainaExpression]>]->]->] ifStatementBody
+	[[[List<[DainaExpression]>]->]->] ifStatementGroup
 	[[[String]->]->] ifDataSegment
 	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
 	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))
+	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk))))
 
 	~ base *{
-		.ifStatementBody = *([[List<[DainaExpression]>]->]get){\get (\[List<[DainaExpression]>]:empty)};
+		.ifStatementGroup = *([[List<[DainaExpression]>]->]get){\get (\[List<[DainaExpression]>]:empty)};
 		.ifDataSegment = *([]a){};
 		.ifWithPrologueStatement = *([]a){};
 		.ifMethodExpression = *([]a){};
@@ -631,13 +631,13 @@
 		\::new;
 	}
 
-	++ ifStatementBody *([[List<[DainaExpression]>]->] get) {\.ifStatementBody get}
+	++ ifStatementGroup *([[List<[DainaExpression]>]->] get) {\.ifStatementGroup get}
 	++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
 	++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
 	++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
 
 	- copy *([DainaExpression] other) {
-		.ifStatementBody = other:ifStatementBody;
+		.ifStatementGroup = other:ifStatementGroup;
 		.ifDataSegment = other:ifDataSegment;
 		.ifWithPrologueStatement = other:ifWithPrologueStatement;
 		.ifMethodExpression = other:ifMethodExpression;
@@ -721,6 +721,25 @@
 				};
 			} *{};
 		} *{};
+		\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketOpen)) *{
+			\parser:gotoNextToken;
+			[List<[DainaExpression]>] statements = \[List<[DainaExpression]>]:empty;
+			.ifStatementGroup *([[List<[DainaExpression]>]->] get) {\get statements};
+			\[Loops]:until *([->] stop) {
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					[DainaExpression] statement = \[DainaExpression]:base;
+					\statement:parse parser;
+					\statements:append statement;
+
+				} *{};
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:semicolon)) (parser:gotoNextToken) stop;
+			};
+			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketClose)) *{
+				\parser:gotoNextToken;
+			} *{
+				\parser:addError (\[Error]:expectingClosingBracketForStatementGroup (\parser:position));
+			};
+		} *{};
 	}
 }
 
@@ -729,7 +748,7 @@
 @ method-invocation    
 		@ assignment-statement
 		@ proxy-object
-expression: ( compiler-injection | statement-group | object-method | grouped-expression | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) (  )?
+expression: ( compiler-injection | object-method | grouped-expression | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) (  )?
 
    .
    id
@@ -737,7 +756,6 @@ expression: ( compiler-injection | statement-group | object-method | grouped-exp
    :
    <<
    [type]
-   {}
    ()
    ^
    \
