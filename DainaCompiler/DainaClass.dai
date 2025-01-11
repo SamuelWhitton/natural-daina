@@ -609,7 +609,7 @@
 
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
+	} -> (\[Token]:isDataSegment token) @(\[Token]:equals token \[Token]:squareBracketOpen)
 
 	~ base *{
 		.ifDataSegment = *([]a){};
@@ -617,13 +617,16 @@
 	}
 
 	++ parse *([Parser] parser) {
-		
-
-		
+		[Token] token1 = (\parser:token);
+		\[O]:ifElse (\[Token]:isDataSegment token1) *{
+			.ifDataSegment = *([[String]->] get) {\get (\token1:content)};
+			\parser:gotoNextToken;
+		} *{};
 	}
 }
 
 @@
+
 expression: ( data-segment | compiler-injection | assignment-statement | statement-group | object-method | proxy-object | method-expression | grouped-expression | method-invocation | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) ( prologue-statement )?
 
     object-method: expression : identifier
@@ -676,21 +679,36 @@ A construct will bind stronger then a preceeding construct at the same binding l
 			Maybe,
 			String,
 			Error, M, O,
+			DainaGeneralIdentifier,
 
 			Debug
 		)
+	[DainaGeneralIdentifier] identifier
+	[String] dataSegment
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
+	} -> (\[Token]:equals token \[Token]:doubleLessThan)
 
 	~ base *{
+		.identifier = \[DainaGeneralIdentifier]:base;
+		.dataSegment = \[String]:as "";
 		\::new;
 	}
 
 	++ parse *([Parser] parser) {
-		
-
-		
+		\parser:gotoNextToken;
+		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+			\.identifier:parse parser;
+			\[O]:ifElse (\[Token]:isDataSegment (\parser:token)) *{
+				[Token] token = (\parser:token);
+				.dataSegment = \token:content;
+				\parser:gotoNextToken;
+			} *{
+				\parser:addError (\[Error]:expectingDataSegmentForCompilerInjection (\parser:position));
+			};
+		} *{
+			\parser:addError (\[Error]:expectingIdentifierForCompilerInjection (\parser:position));
+		};
 	}
 }
 
