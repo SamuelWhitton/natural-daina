@@ -606,17 +606,51 @@
 			Debug
 		)
 	[[[String]->]->] ifDataSegment
-
+	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> (\[Token]:isDataSegment token) @(\[Token]:equals token \[Token]:squareBracketOpen)
 
 	~ base *{
 		.ifDataSegment = *([]a){};
+		.ifWithPrologueStatement = *([]a){};
 		\::new;
 	}
 
+	++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
+	++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
+
+	- copy *([DainaExpression] other) {
+		.ifDataSegment = other:ifDataSegment;
+		.ifWithPrologueStatement = other:ifWithPrologueStatement;
+	}
+
 	++ parse *([Parser] parser) {
+		[DainaExpression] left = \[DainaExpression]:base;
+		\left:parseMediumBinding parser;
+		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:exclamationMark) *{
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+				[DainaExpression] right = \[DainaExpression]:base;
+				\right:parse parser;
+				.ifWithPrologueStatement = *([[DainaExpression][DainaExpression]->] get) {\get left right};
+			} *{
+				\parser:addError (\[Error]:expectingPrologueStatement (\parser:position));
+			};
+		} *{
+			\:copy left;
+		};
+	}
+
+	++ @@-+-@@ parseMediumBinding *([Parser] parser) {
+		@ method-invocation
+		@ assignment-statement
+		@ proxy-object
+		@ method-expression
+		\:parseStrongestBinding parser;
+	}
+
+	++ @@-+-@@ parseStrongestBinding *([Parser] parser) {
 		[Token] token1 = (\parser:token);
 		\[O]:ifElse (\[Token]:isDataSegment token1) *{
 			.ifDataSegment = *([[String]->] get) {\get (\token1:content)};
@@ -626,6 +660,25 @@
 }
 
 @@
+
+expression: ( compiler-injection | statement-group | object-method | grouped-expression | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) (  )?
+
+   .
+   id
+   $
+   :
+   <<
+   [type]
+   {}
+   *
+   ()
+   \
+   ^
+   *^
+   *-
+   [:[...]]
+
+
 
 expression: ( data-segment | compiler-injection | assignment-statement | statement-group | object-method | proxy-object | method-expression | grouped-expression | method-invocation | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) ( prologue-statement )?
 
@@ -648,21 +701,7 @@ All the different expressions can be combined in a compound way. Various constru
    4 A type (such as [Foo]) binding to an object name in an assignment or to an expression as in type casting.
    5 All other symbols; such as ., $, $$, :~ and $$~
 
-   .
-   id
-   $
-   :
-   <<
-   ##
-   [type]
-   {}
-   *
-   ()
-   \
-   ^
-   *^
-   *-
-   [:[...]]
+   
 
 
 A construct will bind stronger then a preceeding construct at the same binding level indicated by the above list. In other words, an ! will bind stronger then all other ! which preceeded it, and a -> will bind stronger then all other \ which preceeded it.

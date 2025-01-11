@@ -4081,7 +4081,7 @@ All the different expressions can be combined in a compound way. Various constru
 2. **=** binding to the left hand side and the next expression, **\\** binding to the following one or more expressions (as in invoking a method and the corresponding inputs), **->** binding to the next expression (as in the output of a method), **\*-** binding to the next expression (as in the object of which to form an object proxy) and **\*** binding to the lone statement or statement group of a method which may be preceeded by a method input list ([see flexible method expression](#flexible-method-expression))
 3. **:** binding to the following identifier and sometimes the preceeding type or expression (as in a type method or an instance method)
 cast
-4. A type (such as **[Foo]**) binding to an object name in an assignment or to an expression as in [type casting](#type-casting).
+4. A type (such as **[Foo]**) binding to an object name in an assignment or to a bracketed expression as in [type casting](#type-casting).
 5. All other symbols; such as **.**, **$**, **$$**, **:~** and **$$~**
 
 **=**, **\\**, **->**, **\*** and **\*-** ([object proxy](#object-proxy)) have the same binding strength. 

@@ -1,5 +1,4 @@
-@  $$$$$$$$
-@[] {*{}}
+
 [DainaCommandParser : [Object]] (
 		String, 
 		Object,
@@ -14,8 +13,6 @@
 	)
 	[ValidDainaCommandsToParse] validDainaCommandsToParse
 {
-	<< asdfasdf ####
-	+++ asdf ##assd##
 	~ newDainaCommandParser *() {
 		\::newObject;
 		.validDainaCommandsToParse = validDainaCommandsToParse
