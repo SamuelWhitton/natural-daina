@@ -229,7 +229,45 @@
             };
         } *{};
 
-		\.currentCharacter:ifIs *([Character] character1) {
+        \ifHashOrElse *{
+            [SourcePosition] position1 = .currentCharacterPosition;
+        	\:gotoNextCharacter;
+        	\ifHashOrElse *{
+        		\:gotoNextCharacter;
+        		[String] dataSegmentString = \stringFromCharacters *([[Character]->] useCharacter) {
+					[Variable<[Character]>] variablePreviousCharacter = \[Variable<[Character]>]:as (\[Character]:asSpace);
+					\[Loops]:until *([->] stop) {
+						[Character] previousCharacter = \variablePreviousCharacter:get;
+						\.currentCharacter:ifIs *([Character] char) {\variablePreviousCharacter:set char};
+						\ifElse (previousCharacter:isHash) *{
+							\ifHashOrElse stop *{
+								\useCharacter previousCharacter;
+								\.currentCharacter:ifIs *([Character] char) {\useCharacter char};
+								\.currentCharacter:ifNothing *{
+									\:addError (\[Error]:expectingSecondDataSegmentAnchor position1);
+									\stop;
+								};
+							};
+						} *{
+							\ifHashOrElse *{} *{
+								\.currentCharacter:ifIs *([Character] char) {\useCharacter char};
+								\.currentCharacter:ifNothing *{\:addError (
+									\[Error]:expectingSecondDataSegmentAnchor position1);
+									\stop;
+								};
+							};
+						};
+						\:gotoNextCharacter;
+					}
+				};
+				\ifElse (.errors:isEmpty) *{
+					\setToken position1 (\[Token]:dataSegment dataSegmentString);
+				} *{};				
+        	} *{
+        		\:addError (\[Error]:expectingSecondHashForDataSegmentAnchor position1);
+        	}; 
+        } *{
+        \.currentCharacter:ifIs *([Character] character1) {
 			[SourcePosition] position1 = .currentCharacterPosition;
 			\:gotoNextCharacter;
 			
@@ -352,7 +390,7 @@
 			\ifNoToken *{
 				\:addError (\[Error]:unrecognisedToken (\character1:asString) position1);
 			};
-		};		
+		}};		
 	} 	!{
 			[[SourcePosition][Token]->] setToken = *([SourcePosition] position, [Token] token) {
 				\.currentToken:set (\[Maybe<[Token]>]:as token);
@@ -392,6 +430,13 @@
 				[Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
 				\maybeCurrentCharacter:ifIs *([Character] currentCharacter) {
 					\ifElse (currentCharacter:isStrudel) action else;
+				};
+				\maybeCurrentCharacter:ifNothing else;
+			};
+			[[->][->]->] ifHashOrElse = *([->] action, [->] else) {
+				[Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+				\maybeCurrentCharacter:ifIs *([Character] currentCharacter) {
+					\ifElse (currentCharacter:isHash) action else;
 				};
 				\maybeCurrentCharacter:ifNothing else;
 			};
@@ -495,6 +540,14 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
 		\context:append position;
 	} -> (\[Error]:errorWithContext error context)
+
+    :: expectingSecondHashForDataSegmentAnchor *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting second hash for data segment anchor") context)
+
+	:: expectingSecondDataSegmentAnchor *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting second data segment anchor") context)
 
 	:: expectingClassAtTopLevel *([SourcePosition] position) -> [Error] {
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
@@ -671,7 +724,7 @@
 
 	:: parentIdentifier *([Integer] repetitionCount) -> (\[Token]:secondIdToken (\[Integer]:newPositive 2) repetitionCount)
 	:: identifier *([String] identifierString) -> (\[Token]:contentToken (\[Integer]:newPositive 3) identifierString)
-	@:: dataSegment *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 4) content)
+	:: dataSegment *([String] content) -> (\[Token]:contentToken (\[Integer]:newPositive 4) content)
 	
 	:: ampersand *-> (\[Token]:basicToken \[Integer]:newPositive 5)
 	:: singleApostrophe *-> (\[Token]:basicToken \[Integer]:newPositive 6)

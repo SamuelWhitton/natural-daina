@@ -605,11 +605,14 @@
 
 			Debug
 		)
+	[[[String]->]->] ifDataSegment
+
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> \[Boolean]:false@(\[Token]:equals token \[Token]:squareBracketOpen)
 
 	~ base *{
+		.ifDataSegment = *([]a){};
 		\::new;
 	}
 

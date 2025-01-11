@@ -209,7 +209,7 @@ asdf cant distinguish [%STRING] data segment types between each other when overl
 asdf () brackets around dependancy also adds all classes in the public interface (public constructors, public type methods and public instance methods) (doesnt include reverse dependancies so it doesnt get blocked), call this derivative dependancies
 asdf || is no longer needed
 asdf instance objects can be partially instantiated on a private consturctor
-asdf ; is required between statements and cant have an empty statmenet, and the last statement doesnt have ;
+asdf ; is required between statements and can have an empty statmenet, and the last statement doesnt have to have ;
 
 ---
 
