@@ -649,6 +649,22 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting prologue statement") context)
 
+	:: expectingMethodInput *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting method input") context)
+
+	:: expectingClosingBracketForMethodInputs *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting closing bracket for method inputs") context)
+
+	:: expectingMethodBody *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting method body") context)
+
+	:: expectingMethodOutput *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting method output") context)
+
 
 }
 

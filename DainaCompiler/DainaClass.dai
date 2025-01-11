@@ -391,6 +391,7 @@
 	[[[DainaGeneralIdentifier]->]->] ifDataSegment
 	[[->]->] ifInferredMethod
 	[[->]->] ifInferredSelf
+	[[->]->] ifInferred
 	[[[Integer]->]->] ifInferredParent
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
@@ -407,6 +408,7 @@
 		.ifInferredMethod = *([]a){};
 		.ifInferredSelf = *([]a){};
 		.ifInferredParent = *([]a){};
+		.ifInferred = *([->]a){\a};
 		\::new;
 	}
 
@@ -486,7 +488,7 @@
 	[DainaGeneralIdentifier] identifier
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> (\[DainaType]:isFirstToken token)
+	} -> (\[Boolean]:or (\[DainaType]:isFirstToken token) (\[DainaGeneralIdentifier]:isFirstToken token))
 
 	~ base *{
 		.type = \[DainaType]:base;
@@ -495,11 +497,15 @@
 	}
 
 	++ parse *([Parser] parser) {
-		\.type:parse parser;
 		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
 			\.identifier:parse parser;
 		} *{
-			\parser:addError (\[Error]:expectingIdentifierForObjectDeclaration (\parser:position));
+			\.type:parse parser;
+			\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+				\.identifier:parse parser;
+			} *{
+				\parser:addError (\[Error]:expectingIdentifierForObjectDeclaration (\parser:position));
+			};
 		};
 	}
 }
@@ -602,32 +608,44 @@
 			Maybe,
 			String,
 			Error, M, O,
+			DainaObjectDeclaration,
+			DainaType,
+			Variable,
 
 			Debug
 		)
+	[[[List<[DainaExpression]>]->]->] ifStatementBody
 	[[[String]->]->] ifDataSegment
 	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
+	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> (\[Token]:isDataSegment token) @(\[Token]:equals token \[Token]:squareBracketOpen)
+	} -> (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))
 
 	~ base *{
+		.ifStatementBody = *([[List<[DainaExpression]>]->]get){\get (\[List<[DainaExpression]>]:empty)};
 		.ifDataSegment = *([]a){};
 		.ifWithPrologueStatement = *([]a){};
+		.ifMethodExpression = *([]a){};
+
 		\::new;
 	}
 
+	++ ifStatementBody *([[List<[DainaExpression]>]->] get) {\.ifStatementBody get}
 	++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
 	++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
+	++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
 
 	- copy *([DainaExpression] other) {
+		.ifStatementBody = other:ifStatementBody;
 		.ifDataSegment = other:ifDataSegment;
 		.ifWithPrologueStatement = other:ifWithPrologueStatement;
+		.ifMethodExpression = other:ifMethodExpression;
 	}
 
 	++ parse *([Parser] parser) {
 		[DainaExpression] left = \[DainaExpression]:base;
-		\left:parseMediumBinding parser;
+		\left:parseStrongBinding parser;
 		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:exclamationMark) *{
 			\parser:gotoNextToken;
 			\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
@@ -642,25 +660,75 @@
 		};
 	}
 
-	++ @@-+-@@ parseMediumBinding *([Parser] parser) {
-		@ method-invocation
-		@ assignment-statement
-		@ proxy-object
-		@ method-expression
-		\:parseStrongestBinding parser;
-	}
-
-	++ @@-+-@@ parseStrongestBinding *([Parser] parser) {
-		[Token] token1 = (\parser:token);
-		\[O]:ifElse (\[Token]:isDataSegment token1) *{
+	++ @@-+-@@ parseStrongBinding *([Parser] parser) {
+		\[O]:ifElse (\[Token]:isDataSegment (\parser:token)) *{
+			[Token] token1 = (\parser:token);
 			.ifDataSegment = *([[String]->] get) {\get (\token1:content)};
 			\parser:gotoNextToken;
+		} *{};
+		\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:asterisk)) *{
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
+				\parser:gotoNextToken;
+				[List<[DainaObjectDeclaration]>] parameters = \[List<[DainaObjectDeclaration]>]:empty;
+				[DainaExpression] body = \[DainaExpression]:base;
+				[Variable<[Maybe<[DainaExpression]>]>] output = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
+				.ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {
+					\get parameters body (\output:get);
+				};
+				\[Loops]:until *([->] stop) {
+					\[O]:ifElse (\[DainaObjectDeclaration]:isFirstToken (\parser:token)) *{
+						[DainaObjectDeclaration] parameter = \[DainaObjectDeclaration]:base;
+						\parameter:parse parser;
+						\parameters:append parameter;
+					} *{
+						\parser:addError (\[Error]:expectingMethodInput (\parser:position));
+					};
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:comma)) (parser:gotoNextToken) stop;
+				};
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketClose)) *{
+					\parser:gotoNextToken;
+				} *{
+					\parser:addError (\[Error]:expectingClosingBracketForMethodInputs (\parser:position));
+				};
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					\body:parse parser;
+				} *{
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+						\parser:gotoNextToken;
+						\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+							[DainaType] outputType = \[DainaType]:base;
+							\outputType:parse parser;
+							\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+								\body:parse parser;
+							} *{
+								\parser:addError (\[Error]:expectingMethodBody (\parser:position));
+							};
+							\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+								\parser:gotoNextToken;
+							} *{
+								\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
+							};
+						} *{};
+						\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+							[DainaExpression] outputExpression = \[DainaExpression]:base;
+							\outputExpression:parse parser;
+							\output:set (\[Maybe<[DainaExpression]>]:as outputExpression);
+						} *{
+							\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
+						};
+					} *{};
+				};
+			} *{};
 		} *{};
 	}
 }
 
 @@
 
+@ method-invocation    
+		@ assignment-statement
+		@ proxy-object
 expression: ( compiler-injection | statement-group | object-method | grouped-expression | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) (  )?
 
    .
@@ -670,10 +738,9 @@ expression: ( compiler-injection | statement-group | object-method | grouped-exp
    <<
    [type]
    {}
-   *
    ()
-   \
    ^
+   \
    *^
    *-
    [:[...]]

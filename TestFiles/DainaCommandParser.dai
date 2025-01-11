@@ -13,7 +13,7 @@
 	)
 	[ValidDainaCommandsToParse] validDainaCommandsToParse
 {
-	~ newDainaCommandParser *() {
+	~ newDainaCommandParser * {
 		\::newObject;
 		.validDainaCommandsToParse = validDainaCommandsToParse
 	} 	!{
