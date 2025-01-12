@@ -615,6 +615,7 @@
 			DainaType,
 			Variable,
 			DainaClassMethod,
+			DainaGeneralIdentifier,
 
 			Debug
 		)
@@ -623,6 +624,7 @@
 	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
 	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
 	[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
+	[[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))))
@@ -633,6 +635,7 @@
 		.ifWithPrologueStatement = *([]a){};
 		.ifMethodExpression = *([]a){};
 		.ifAnonymousClassObject = *([]a){};
+		.ifInstanceMethod = *([]a){};
 
 		\::new;
 	}
@@ -642,13 +645,15 @@
 	++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
 	++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
 	++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get) {\.ifAnonymousClassObject get}
+	++ ifInstanceMethod *([[DainaExpression][DainaGeneralIdentifier]->] get) {\.ifInstanceMethod get}
 
-	- copy *([DainaExpression] other) {
+	++ @@-+-@@ copy *([DainaExpression] other) {
 		.ifStatementGroup = other:ifStatementGroup;
 		.ifDataSegment = other:ifDataSegment;
 		.ifWithPrologueStatement = other:ifWithPrologueStatement;
 		.ifMethodExpression = other:ifMethodExpression;
 		.ifAnonymousClassObject = other:ifAnonymousClassObject;
+		.ifInstanceMethod = other:ifInstanceMethod;
 	}
 
 	++ parse *([Parser] parser) {
@@ -668,7 +673,26 @@
 		};
 	}
 
+	
+
 	++ @@-+-@@ parseStrongBinding *([Parser] parser) {
+		[DainaExpression] left = \[DainaExpression]:base;
+		\left:parseStrongestBinding parser;
+		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:colon) *{
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+				[DainaGeneralIdentifier] right = \[DainaGeneralIdentifier]:base;
+				\right:parse parser;
+				.ifInstanceMethod = *([[DainaExpression][DainaGeneralIdentifier]->] get) {\get left right};
+			} *{
+				\parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
+			};
+		} *{
+			\:copy left;
+		};
+	}
+
+	++ @@-+-@@ parseStrongestBinding *([Parser] parser) {
 		[Token] token1 = (\parser:token);
 		[Token] token2 = (\parser:peekAtNextToken);
 		\[O]:ifElse (\[Token]:isDataSegment token1) *{
@@ -702,7 +726,7 @@
 				};
 			} *{};
 			\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
-				\body:parse parser;
+				\body:parseStrongBinding parser;
 			} *{
 				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
 					\parser:gotoNextToken;
@@ -710,7 +734,7 @@
 						[DainaType] outputType = \[DainaType]:base;
 						\outputType:parse parser;
 						\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
-							\body:parse parser;
+							\body:parseStrongBinding parser;
 						} *{
 							\parser:addError (\[Error]:expectingMethodBody (\parser:position));
 						};
@@ -722,7 +746,7 @@
 					} *{};
 					\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
 						[DainaExpression] outputExpression = \[DainaExpression]:base;
-						\outputExpression:parse parser;
+						\outputExpression:parseStrongBinding parser;
 						\output:set (\[Maybe<[DainaExpression]>]:as outputExpression);
 					} *{
 						\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
@@ -801,9 +825,21 @@
 			};
 		} *{};
 		\[O]:ifElse (\[Boolean]:and (\[DainaType]:isFirstToken token1) (\[Boolean]:not (\[Token]:equals token2 (\[Token]:colon)))) *{
-			@grouped expression cast
-			@type-method
-			@ local object assignment-statement
+			[DainaType] type = \[DainaType]:base;
+			\type:parse parser;
+			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
+				@grouped expression cast
+			} *{
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) *{
+					@type-method
+				} *{
+					\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+						@ local object assignment-statement
+					} *{
+						\parser:addError (\[Error]:unexpectedTokenAfterType (\parser:position));
+					};
+				};
+			};
 		} *{};
 	}
 }
@@ -813,7 +849,7 @@
 @ method-invocation    
 		@ assignment-statement(instancemethod, instance-object)
 		@ proxy-object
-expression: ( compiler-injection | object-method | grouped-expression(non-cast) | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference ) (  )?
+expression: ( compiler-injection | grouped-expression(non-cast) | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference ) (  )?
 
    .
    id
@@ -853,6 +889,34 @@ All the different expressions can be combined in a compound way. Various constru
 
 
 A construct will bind stronger then a preceeding construct at the same binding level indicated by the above list. In other words, an ! will bind stronger then all other ! which preceeded it, and a -> will bind stronger then all other \ which preceeded it.
+
+
+
+
+
+[TokenSelect<E>] {
+	:: default *([&E] defaultValue) {
+	} -> [:[TokenSelect<[&E]>]] {
+		|++ openCurlyBracket *->defaultValue
+		|++ closeCurlyBracket *->defaultValue
+		|++ identifier *->defaultValue
+	};
+	++ openCurlyBracket [->[&E]]
+	++ closeCurlyBracket [->[&E]]
+	++ identifier [[String]->[&E]]
+}
+
+[[TokenSelect<['E]>]->['E]] firstToken = *([TokenSelect<[?]>] t) -> \t:identifier \[String]:as ##identifierTest##;
+[[TokenSelect<['E]>]->['E]] secondToken = *([TokenSelect<[?]>] t) -> \t:closeCurlyBracket;
+
+[Boolean] isBracket = \firstToken [:[TokenSelect<[Boolean]>]] {
+	\$~>\[TokenSelect<[?]>]:default \[Boolean]:false
+	|++ openCurlyBracket *->\[Boolean]:true
+	|++ closeCurlyBracket *->\[Boolean]:true
+};
+
+
+
 
 @@
 
