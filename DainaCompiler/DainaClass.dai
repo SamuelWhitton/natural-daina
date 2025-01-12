@@ -496,6 +496,12 @@
 		\::new;
 	}
 
+	~ as *([DainaType] type, [DainaGeneralIdentifier] identifier){
+		.type = type;
+		.identifier = identifier;
+		\::new;
+	}
+
 	++ parse *([Parser] parser) {
 		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
 			\.identifier:parse parser;
@@ -625,6 +631,8 @@
 	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
 	[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
 	[[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
+	[[[DainaObjectDeclaration][DainaExpression]->]->] ifLocalObjectAssignment
+	[[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))))
@@ -636,7 +644,9 @@
 		.ifMethodExpression = *([]a){};
 		.ifAnonymousClassObject = *([]a){};
 		.ifInstanceMethod = *([]a){};
-
+		.ifLocalObjectAssignment = *([]a){};
+		.ifTypeMethod = *([]a){};
+		
 		\::new;
 	}
 
@@ -646,6 +656,8 @@
 	++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
 	++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get) {\.ifAnonymousClassObject get}
 	++ ifInstanceMethod *([[DainaExpression][DainaGeneralIdentifier]->] get) {\.ifInstanceMethod get}
+	++ ifLocalObjectAssignment *([[DainaObjectDeclaration][DainaExpression]->] get) {\.ifLocalObjectAssignment get}
+	++ ifTypeMethod *([[DainaType][DainaGeneralIdentifier]->] get) {\.ifTypeMethod get}
 
 	++ @@-+-@@ copy *([DainaExpression] other) {
 		.ifStatementGroup = other:ifStatementGroup;
@@ -654,6 +666,8 @@
 		.ifMethodExpression = other:ifMethodExpression;
 		.ifAnonymousClassObject = other:ifAnonymousClassObject;
 		.ifInstanceMethod = other:ifInstanceMethod;
+		.ifLocalObjectAssignment = other:ifLocalObjectAssignment;
+		.ifTypeMethod = other:ifTypeMethod;
 	}
 
 	++ parse *([Parser] parser) {
@@ -828,13 +842,46 @@
 			[DainaType] type = \[DainaType]:base;
 			\type:parse parser;
 			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
-				@grouped expression cast
+				\parser:gotoNextToken;
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					[DainaExpression] expr = \[DainaExpression]:base;
+					\expr:parse parser;
+					\:copy expr;
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketClose)) *{
+						\parser:gotoNextToken;
+					} *{
+						\parser:addError (\[Error]:expectingClosingBracketForCastExpression (\parser:position));
+					};
+				} *{
+					\parser:addError (\[Error]:expectingExpressionToBeCast (\parser:position));
+				};
 			} *{
 				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) *{
-					@type-method
+					\parser:gotoNextToken;
+					\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+						[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+						\identifier:parse parser;
+						.ifTypeMethod = *([[DainaType][DainaGeneralIdentifier]->] get) {\get type identifier};
+					} *{
+						\parser:addError (\[Error]:expectingIdentifierForTypeMethod (\parser:position));
+					};
 				} *{
 					\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
-						@ local object assignment-statement
+						[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+						\identifier:parse parser;
+						[DainaObjectDeclaration] localDeclaration = \[DainaObjectDeclaration]:as type identifier;
+						\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:equalsSign)) *{
+							\parser:gotoNextToken;
+							\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+								[DainaExpression] expr = \[DainaExpression]:base;
+								\expr:parse parser;
+								.ifLocalObjectAssignment = *([[DainaObjectDeclaration][DainaExpression]->] get) {\get localDeclaration expr};
+							} *{
+								\parser:addError (\[Error]:expectingExpressionToAssignLocalDeclaration (\parser:position));	
+							};
+						} *{
+							\parser:addError (\[Error]:expectingEqualsToAssignLocalDeclaration (\parser:position));	
+						};
 					} *{
 						\parser:addError (\[Error]:unexpectedTokenAfterType (\parser:position));
 					};

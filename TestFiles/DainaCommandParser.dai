@@ -14,7 +14,8 @@
 	[ValidDainaCommandsToParse] validDainaCommandsToParse
 {
 	~ newDainaCommandParser * {
-		[:[Integer]]{};
+
+		[Hello] asdf = [:[Integer]]{};
 		\::newObject;
 		.validDainaCommandsToParse = validDainaCommandsToParse
 	} 	!{
