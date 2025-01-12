@@ -71,7 +71,7 @@
 		.genericDeclarationList = \[DainaGenericDeclarationList]:base;
 		.inheritedParentTypes = \[List<[DainaType]>]:empty;
 		.instanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
-		.classMethods = \[List<[DainaClassMethod]>]:empty;
+		.classMethods = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
 		.compilerInjections = \[List<[DainaCompilerInjection]>]:empty;
 		\::new;
 	}
@@ -127,8 +127,8 @@
 					\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketOpen) *{
 						\parser:gotoNextToken;
 						\[Loops]:until *([->] stop) {
-							\[O]:ifElse (\[DainaClassMethod]:isFirstToken (\parser:token)) *{
-								[DainaClassMethod] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
+							\[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
+								[DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
 								\classMethod:parse parser;
 								\.classMethods:append classMethod;
 							} *{
@@ -622,7 +622,7 @@
 	[[[String]->]->] ifDataSegment
 	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
 	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
-	[[[List<[DainaType]>][List<[DainaExpression]>][Maybe<[DainaClassMethod]>]->]->] ifAnonymousClassObject
+	[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))))
@@ -641,7 +641,7 @@
 	++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
 	++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
 	++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
-	++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][Maybe<[DainaClassMethod]>]->] get) {\.ifAnonymousClassObject get}
+	++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get) {\.ifAnonymousClassObject get}
 
 	- copy *([DainaExpression] other) {
 		.ifStatementGroup = other:ifStatementGroup;
@@ -739,7 +739,6 @@
 					[DainaExpression] statement = \[DainaExpression]:base;
 					\statement:parse parser;
 					\statements:append statement;
-
 				} *{};
 				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:semicolon)) (parser:gotoNextToken) stop;
 			};
@@ -751,7 +750,55 @@
 		} *{};
 		\[O]:ifElse (\[Boolean]:and (\[Token]:equals token1 (\[Token]:squareBracketOpen)) (\[Token]:equals token2 (\[Token]:colon))) *{
 			@anonymous-class-object
-			@[DainaClassMethod] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:ifFirstToken);
+			\parser:gotoNextToken;
+			\parser:gotoNextToken;
+			[List<[DainaType]>] parents = \[List<[DainaType]>]:empty;
+			[List<[DainaExpression]>] constructor = \[List<[DainaExpression]>]:empty;
+			[List<[DainaClassMethod<[DainaExpression]>]>] classMethods = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
+			.ifAnonymousClassObject = *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get)  {
+				\get parents constructor classMethods;
+			};
+			\[Loops]:until *([->] stop) {
+				\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+					[DainaType] parent = \[DainaType]:base;
+					\parent:parse parser;
+					\parents:append parent;
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) (parser:gotoNextToken) stop;
+				} *{
+					\parser:addError (\[Error]:expectingParentTypeForAnonymousClassObject (\parser:position));
+					\stop;
+				}
+			};
+			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:squareBracketClose)) *{
+				\parser:gotoNextToken;
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketOpen)) *{
+					\parser:gotoNextToken;
+					\[Loops]:until *([->] stop) {
+						\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+							[DainaExpression] constructorStatement = \[DainaExpression]:base;
+							\constructorStatement:parse parser;
+							\constructor:append constructorStatement;
+						} *{};
+						\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:semicolon)) (parser:gotoNextToken) stop;
+					};
+					\[Loops]:until *([->] stop) {
+						\[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
+							[DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
+							\classMethod:parse parser;
+							\classMethods:append classMethod;
+						} stop;
+					};
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketClose)) *{
+						\parser:gotoNextToken;
+					} *{
+						\parser:addError (\[Error]:expectingClosingBracketForAnonymousClassBody (\parser:position));
+					};
+				} *{
+					\parser:addError (\[Error]:expectingAnonymousClassBody (\parser:position));
+				};
+			} *{
+				\parser:addError (\[Error]:expectingClosingSquareBracketAfterAnonymousClassHeader (\parser:position));
+			};
 		} *{};
 		\[O]:ifElse (\[Boolean]:and (\[DainaType]:isFirstToken token1) (\[Boolean]:not (\[Token]:equals token2 (\[Token]:colon)))) *{
 			@grouped expression cast
