@@ -128,7 +128,7 @@
 						\parser:gotoNextToken;
 						\[Loops]:until *([->] stop) {
 							\[O]:ifElse (\[DainaClassMethod]:isFirstToken (\parser:token)) *{
-								[DainaClassMethod] classMethod = \[DainaClassMethod]:base;
+								[DainaClassMethod] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
 								\classMethod:parse parser;
 								\.classMethods:append classMethod;
 							} *{
@@ -516,7 +516,7 @@
 @    class-method-classification: ( ( | | || )? method-visibility-indicator ) | ( ( ~ | :: ) ( | )? ( method-visibility-indicator )? )
 
 
-[DainaClassMethod :[Object]] (
+[DainaClassMethod<DainaExpression[Object]> :[Object]] (
 			Object, 
 			Parser, 
 			List,
@@ -528,24 +528,27 @@
 			Error, M, O,
 			DainaGeneralIdentifier,
 			Variable,
-			DainaExpression,
 			DainaType,
 
 			Debug
 		)
 	[Variable<[Boolean]>] unimplementedMethod
 	[DainaGeneralIdentifier] identifier
-	[DainaExpression] methodExpression
+	[&DainaExpression] methodExpression
 	[[->][->][->]->] isInstanceTypeOrConstructor
+	[[Parser][&DainaExpression]->] parseExpression
+	[[Token]->[Boolean]] isExpressionFirstToken
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> (\[Boolean]:or (\[Boolean]:or (\[Token]:isVisibilityIndicator token) (\[Token]:equals token (\[Token]:pipe))) (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleColon)) (\[Token]:equals token (\[Token]:tilde))))
 
-	~ base *{
+	~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken){
 		.isInstanceTypeOrConstructor = *([->]a,[]b,[]c){};
-		.methodExpression = \[DainaExpression]:base;
+		.methodExpression = \getBase;
 		.identifier = \[DainaGeneralIdentifier]:base;
 		.unimplementedMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+		.parseExpression = parseExpression;
+		.isExpressionFirstToken = isExpressionFirstToken;
 		\::new;
 	}
 
@@ -585,8 +588,8 @@
 				[DainaType] typeForUnimplemented = \[DainaType]:base;
 				\typeForUnimplemented:parse parser;
 			} *{
-				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
-					\.methodExpression:parse parser;
+				\[O]:ifElse (\.isExpressionFirstToken (\parser:token)) *{
+					\.parseExpression parser (.methodExpression);
 				} *{
 					\parser:addError (\[Error]:expectingClassMethodExpression (\parser:position));
 				};
@@ -611,6 +614,7 @@
 			DainaObjectDeclaration,
 			DainaType,
 			Variable,
+			DainaClassMethod,
 
 			Debug
 		)
@@ -618,15 +622,17 @@
 	[[[String]->]->] ifDataSegment
 	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
 	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
+	[[[List<[DainaType]>][List<[DainaExpression]>][Maybe<[DainaClassMethod]>]->]->] ifAnonymousClassObject
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk))))
+	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))))
 
 	~ base *{
 		.ifStatementGroup = *([[List<[DainaExpression]>]->]get){\get (\[List<[DainaExpression]>]:empty)};
 		.ifDataSegment = *([]a){};
 		.ifWithPrologueStatement = *([]a){};
 		.ifMethodExpression = *([]a){};
+		.ifAnonymousClassObject = *([]a){};
 
 		\::new;
 	}
@@ -635,12 +641,14 @@
 	++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
 	++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
 	++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
+	++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][Maybe<[DainaClassMethod]>]->] get) {\.ifAnonymousClassObject get}
 
 	- copy *([DainaExpression] other) {
 		.ifStatementGroup = other:ifStatementGroup;
 		.ifDataSegment = other:ifDataSegment;
 		.ifWithPrologueStatement = other:ifWithPrologueStatement;
 		.ifMethodExpression = other:ifMethodExpression;
+		.ifAnonymousClassObject = other:ifAnonymousClassObject;
 	}
 
 	++ parse *([Parser] parser) {
@@ -661,21 +669,22 @@
 	}
 
 	++ @@-+-@@ parseStrongBinding *([Parser] parser) {
-		\[O]:ifElse (\[Token]:isDataSegment (\parser:token)) *{
-			[Token] token1 = (\parser:token);
+		[Token] token1 = (\parser:token);
+		[Token] token2 = (\parser:peekAtNextToken);
+		\[O]:ifElse (\[Token]:isDataSegment token1) *{
 			.ifDataSegment = *([[String]->] get) {\get (\token1:content)};
 			\parser:gotoNextToken;
 		} *{};
-		\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:asterisk)) *{
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asterisk)) *{
 			\parser:gotoNextToken;
+			[List<[DainaObjectDeclaration]>] parameters = \[List<[DainaObjectDeclaration]>]:empty;
+			[DainaExpression] body = \[DainaExpression]:base;
+			[Variable<[Maybe<[DainaExpression]>]>] output = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
+			.ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {
+				\get parameters body (\output:get);
+			};
 			\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
 				\parser:gotoNextToken;
-				[List<[DainaObjectDeclaration]>] parameters = \[List<[DainaObjectDeclaration]>]:empty;
-				[DainaExpression] body = \[DainaExpression]:base;
-				[Variable<[Maybe<[DainaExpression]>]>] output = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
-				.ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {
-					\get parameters body (\output:get);
-				};
 				\[Loops]:until *([->] stop) {
 					\[O]:ifElse (\[DainaObjectDeclaration]:isFirstToken (\parser:token)) *{
 						[DainaObjectDeclaration] parameter = \[DainaObjectDeclaration]:base;
@@ -691,37 +700,37 @@
 				} *{
 					\parser:addError (\[Error]:expectingClosingBracketForMethodInputs (\parser:position));
 				};
-				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
-					\body:parse parser;
-				} *{
-					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
-						\parser:gotoNextToken;
-						\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
-							[DainaType] outputType = \[DainaType]:base;
-							\outputType:parse parser;
-							\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
-								\body:parse parser;
-							} *{
-								\parser:addError (\[Error]:expectingMethodBody (\parser:position));
-							};
-							\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
-								\parser:gotoNextToken;
-							} *{
-								\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
-							};
-						} *{};
+			} *{};
+			\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+				\body:parse parser;
+			} *{
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+					\parser:gotoNextToken;
+					\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+						[DainaType] outputType = \[DainaType]:base;
+						\outputType:parse parser;
 						\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
-							[DainaExpression] outputExpression = \[DainaExpression]:base;
-							\outputExpression:parse parser;
-							\output:set (\[Maybe<[DainaExpression]>]:as outputExpression);
+							\body:parse parser;
+						} *{
+							\parser:addError (\[Error]:expectingMethodBody (\parser:position));
+						};
+						\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+							\parser:gotoNextToken;
 						} *{
 							\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
 						};
 					} *{};
-				};
-			} *{};
+					\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+						[DainaExpression] outputExpression = \[DainaExpression]:base;
+						\outputExpression:parse parser;
+						\output:set (\[Maybe<[DainaExpression]>]:as outputExpression);
+					} *{
+						\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
+					};
+				} *{};
+			};
 		} *{};
-		\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketOpen)) *{
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:curlyBracketOpen)) *{
 			\parser:gotoNextToken;
 			[List<[DainaExpression]>] statements = \[List<[DainaExpression]>]:empty;
 			.ifStatementGroup *([[List<[DainaExpression]>]->] get) {\get statements};
@@ -740,28 +749,35 @@
 				\parser:addError (\[Error]:expectingClosingBracketForStatementGroup (\parser:position));
 			};
 		} *{};
+		\[O]:ifElse (\[Boolean]:and (\[Token]:equals token1 (\[Token]:squareBracketOpen)) (\[Token]:equals token2 (\[Token]:colon))) *{
+			@anonymous-class-object
+			@[DainaClassMethod] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:ifFirstToken);
+		} *{};
+		\[O]:ifElse (\[Boolean]:and (\[DainaType]:isFirstToken token1) (\[Boolean]:not (\[Token]:equals token2 (\[Token]:colon)))) *{
+			@grouped expression cast
+			@type-method
+			@ local object assignment-statement
+		} *{};
 	}
 }
 
 @@
 
 @ method-invocation    
-		@ assignment-statement
+		@ assignment-statement(instancemethod, instance-object)
 		@ proxy-object
-expression: ( compiler-injection | object-method | grouped-expression | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) (  )?
+expression: ( compiler-injection | object-method | grouped-expression(non-cast) | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference ) (  )?
 
    .
    id
    $
    :
    <<
-   [type]
    ()
    ^
    \
    *^
    *-
-   [:[...]]
 
 
 

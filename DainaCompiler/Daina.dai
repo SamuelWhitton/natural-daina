@@ -102,11 +102,12 @@
 			Integer,
 
 			Debug
-		)
+		) 
 	[InputStream] sourceInput
 	[List<[Error]>] errors
 	[Variable<[Maybe<[Token]>]>] currentToken
 	[Variable<[SourcePosition]>] currentTokenPosition
+	[[[Maybe<[Token]>][SourcePosition]->][->]->] ifNextTokenOrElse
 	[Maybe<[Character]>] currentCharacter
 	[SourcePosition] currentCharacterPosition
 	[List<[Character]>] buffer
@@ -120,6 +121,7 @@
 		[SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName (\:getCopyOfNextLine);
 		.currentCharacterPosition = initialPosition;
 		.currentTokenPosition = \[Variable<[SourcePosition]>]:as initialPosition;
+		.ifNextTokenOrElse = *([]a,[->]else){\else};
 		\:gotoNextCharacter;
 		\:gotoNextToken;
 	}
@@ -192,7 +194,31 @@
 
 	++ position *->[SourcePosition] {} -> \.currentTokenPosition:get
 
+	++ peekAtNextToken *->[Token] {
+		[Variable<[Token]>] token = \[Variable<[Token]>]:as (\[Token]:EOF);
+		\.ifNextTokenOrElse *([Maybe<[Token]>] t, [SourcePosition] p) {} *{
+			[Maybe<[Token]>] currT = \.currentToken:get;
+			[SourcePosition] currS = \.currentTokenPosition:get;
+			\:gotoNextToken;
+			[Maybe<[Token]>] nextT = \.currentToken:get;
+			[SourcePosition] nextS = \.currentTokenPosition:get;
+			\.currentToken:set currT;
+			\.currentTokenPosition:set currS;
+			.ifNextTokenOrElse = *([[Maybe<[Token]>][SourcePosition]->]get,[]e){
+				\get nextT nextS;
+			};
+		};
+		\.ifNextTokenOrElse *([Maybe<[Token]>] m, [SourcePosition] p) {
+			\m:ifIs *([Token] t) {\token:set t};
+		} *{};
+	} -> \token:get
+
 	++ gotoNextToken *{
+		\.ifNextTokenOrElse *([Maybe<[Token]>] m, [SourcePosition] p) {
+			\m:ifIs *([Token] t) {\setToken p t;};
+			.ifNextTokenOrElse = *([]a,[->]else){\else};
+		} *{
+
 		\.currentToken:set (\[Maybe<[Token]>]:asNothing);
 		\:eatWhitespaceCharacters;
 
@@ -390,7 +416,8 @@
 			\ifNoToken *{
 				\:addError (\[Error]:unrecognisedToken (\character1:asString) position1);
 			};
-		}};		
+		}};	
+		};	
 	} 	!{
 			[[SourcePosition][Token]->] setToken = *([SourcePosition] position, [Token] token) {
 				\.currentToken:set (\[Maybe<[Token]>]:as token);
