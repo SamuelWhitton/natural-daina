@@ -948,7 +948,30 @@
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:fullStop)) *{
 			@assignment-statement( instance-object .     internal-instance-object .
 		} *{};
-
+		\[O]:ifElse (\[Token]:isParentIdentifier token1) *{
+			@internal-instance-method $
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:backslash)) *{
+			@ method-invocation    \
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskDash)) *{
+			@ proxy-object *-
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:doubleLessThan)) *{
+			@ compiler-injection <<
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:roundBracketOpen)) *{
+			@ grouped-expression(non-cast) (
+		} *{};
+		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken token1) *{
+			@ object-identifier id
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:caret)) *{
+			@ self-reference ^
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskCaret)) *{
+			@ method-self-reference *^
+		} *{};
 
 		@@
 	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
@@ -967,16 +990,6 @@
 }
 
 @@
-internal-instance-method $
- method-invocation    \
- proxy-object *-
- compiler-injection <<
- grouped-expression(non-cast) (
- object-identifier id
- self-reference ^
- method-self-reference *^
-
-
 
 expression: ( data-segment | compiler-injection | assignment-statement | statement-group | object-method | proxy-object | method-expression | grouped-expression | method-invocation | type-method | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference | anonymous-class-object ) ( prologue-statement )?
 
