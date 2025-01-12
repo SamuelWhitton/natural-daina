@@ -801,6 +801,14 @@
 		[Integer] id = \t:id;
 	} -> (\id:equals (\[Integer]:newPositive 4))
 
+	:: isIdentifier *([Token]t) -> [Boolean] {
+		[Integer] id = \t:id;
+	} -> (\id:equals (\[Integer]:newPositive 3))
+
+	:: isParentIdentifier *([Token]t) -> [Boolean] {
+		[Integer] id = \t:id;
+	} -> (\id:equals (\[Integer]:newPositive 2))
+
 	@++ equals *([Token] t) -> [Boolean] {
 	@} -> (\[Boolean]:and (\[Boolean]:and (\.content:equals (\t:content)) (\.secondId:equals (\t:secondId))) (\.id:equals (\t:id)))
 

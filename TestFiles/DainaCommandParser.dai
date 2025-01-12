@@ -8,7 +8,7 @@
 		DainaCommandParsingAction, 
 		ValidDainaCommandsToParse, 
 		DainaCommandDescriptionStrings,
-		ControlFlow,
+		(ControlFlow),
 		Boolean
 	)
 	[ValidDainaCommandsToParse] validDainaCommandsToParse

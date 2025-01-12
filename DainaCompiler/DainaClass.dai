@@ -622,6 +622,8 @@
 			Variable,
 			DainaClassMethod,
 			DainaGeneralIdentifier,
+			Integer,
+			DainaCompilerInjection,
 
 			Debug
 		)
@@ -633,9 +635,36 @@
 	[[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
 	[[[DainaObjectDeclaration][DainaExpression]->]->] ifLocalObjectAssignment
 	[[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
+
+	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
+	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
+	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
+	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
+	[[[DainaExpression]->]->] ifProxyObject
+	[[[DainaCompilerInjection]->]->] ifCompilerInjection
+	[[[DainaGeneralIdentifier]->]->] ifLocalObject
+	[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
+	[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
+	[[->]->] ifSelfReference
+	[[->]->] ifMethodSelfReference
+	
 {
 	:: isFirstToken *([Token] token) -> [Boolean] {
-	} -> (\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk)))))
+	} ->  
+
+(\[Boolean]:or (\[Token]:equals token (\[Token]:backslash))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:fullStop))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:colon))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskCaret))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskDash))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:caret))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:doubleLessThan))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:roundBracketOpen))
+(\[Boolean]:or (\[Token]:isIdentifier token)
+(\[Boolean]:or (\[Token]:isParentIdentifier token)
+
+	(\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk))))) ))))))))))
+
 
 	~ base *{
 		.ifStatementGroup = *([[List<[DainaExpression]>]->]get){\get (\[List<[DainaExpression]>]:empty)};
@@ -646,9 +675,33 @@
 		.ifInstanceMethod = *([]a){};
 		.ifLocalObjectAssignment = *([]a){};
 		.ifTypeMethod = *([]a){};
+
+		.ifInvocation = *([]a){};
+		.ifConstructorInvocation = *([]a){};
+		.ifInstanceMethodAssignment = *([]a){};
+		.ifInstanceObjectAssignment = *([]a){};
+		.ifProxyObject = *([]a){};
+		.ifCompilerInjection = *([]a){};
+		.ifLocalObject = *([]a){};
+		.ifInternalInstanceMethod = *([]a){};
+		.ifInternalInstanceObject = *([]a){};
+		.ifSelfReference = *([]a){};
+		.ifMethodSelfReference = *([]a){};
 		
 		\::new;
 	}
+
+	++ ifInvocation *([[DainaExpression][List<[DainaExpression]>]->] get) {\.ifInvocation get}
+	++ ifConstructorInvocation *([[Integer][Boolean][List<[DainaExpression]>]->] get) {\.ifConstructorInvocation get}
+	++ ifInstanceMethodAssignment *([[DainaGeneralIdentifier][DainaExpression]->] get) {\.ifInstanceMethodAssignment get}
+	++ ifInstanceObjectAssignment *([[DainaGeneralIdentifier][DainaExpression]->] get) {\.ifInstanceObjectAssignment get}
+	++ ifProxyObject *([[DainaExpression]->] get) {\.ifProxyObject get}
+	++ ifCompilerInjection *([[DainaCompilerInjection]->] get) {\.ifCompilerInjection get}
+	++ ifLocalObject *([[DainaGeneralIdentifier]->] get) {\.ifLocalObject get}
+	++ ifInternalInstanceMethod *([[Integer][DainaGeneralIdentifier]->] get) {\.ifInternalInstanceMethod get}
+	++ ifInternalInstanceObject *([[DainaGeneralIdentifier]->] get) {\.ifInternalInstanceObject get}
+	++ ifSelfReference *([->] get) {\.ifSelfReference get}
+	++ ifMethodSelfReference *([->] get) {\.ifMethodSelfReference get}
 
 	++ ifStatementGroup *([[List<[DainaExpression]>]->] get) {\.ifStatementGroup get}
 	++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
@@ -888,26 +941,40 @@
 				};
 			};
 		} *{};
+
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:colon)) *{
+			@assignment-statement(instancemethod :  internal-instance-method :
+		} *{};
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:fullStop)) *{
+			@assignment-statement( instance-object .     internal-instance-object .
+		} *{};
+
+
+		@@
+	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
+	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
+	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
+	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
+	[[[DainaExpression]->]->] ifProxyObject
+	[[[DainaCompilerInjection]->]->] ifCompilerInjection
+	[[[DainaGeneralIdentifier]->]->] ifLocalObject
+	[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
+	[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
+	[[->]->] ifSelfReference
+	[[->]->] ifMethodSelfReference
+		@@
 	}
 }
 
 @@
-
-@ method-invocation    
-		@ assignment-statement(instancemethod, instance-object)
-		@ proxy-object
-expression: ( compiler-injection | grouped-expression(non-cast) | object-identifier | internal-instance-method | internal-instance-object | self-reference | method-self-reference ) (  )?
-
-   .
-   id
-   $
-   :
-   <<
-   ()
-   ^
-   \
-   *^
-   *-
+internal-instance-method $
+ method-invocation    \
+ proxy-object *-
+ compiler-injection <<
+ grouped-expression(non-cast) (
+ object-identifier id
+ self-reference ^
+ method-self-reference *^
 
 
 
