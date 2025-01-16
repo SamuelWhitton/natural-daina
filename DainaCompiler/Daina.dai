@@ -740,6 +740,16 @@
 		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
 	} -> (\[Error]:errorWithContext (\[String]:as "Expecting expression to assign local declaration") context)
 
+	:: expectingExpressionToAssignInstanceMethod *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting expression to assign instance method") context)
+
+	:: expectingExpressionToAssignInstanceObject *([SourcePosition] position) -> [Error] {
+		[List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+	} -> (\[Error]:errorWithContext (\[String]:as "Expecting expression to assign instance object") context)
+
+
+
 }
 
 

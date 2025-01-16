@@ -943,10 +943,48 @@
 		} *{};
 
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:colon)) *{
-			@assignment-statement(instancemethod :  internal-instance-method :
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+				[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+				\identifier:parse parser;
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:equalsSign)) *{
+					\parser:gotoNextToken;
+					\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+						[DainaExpression] expr = \[DainaExpression]:base;
+						\expr:parse parser;
+						.ifInstanceMethodAssignment = *([[DainaGeneralIdentifier][DainaExpression]->] get) {\get identifier expr};
+					} *{
+						\parser:addError (\[Error]:expectingExpressionToAssignInstanceMethod (\parser:position));	
+					};
+				} *{
+					.ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get (\[Integer]:zero) identifier};
+				};
+				@.ifTypeMethod = *([[DainaType][DainaGeneralIdentifier]->] get) {\get type identifier};
+			} *{
+				\parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
+			};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:fullStop)) *{
-			@assignment-statement( instance-object .     internal-instance-object .
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+				[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+				\identifier:parse parser;
+				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:equalsSign)) *{
+					\parser:gotoNextToken;
+					\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+						[DainaExpression] expr = \[DainaExpression]:base;
+						\expr:parse parser;
+						.ifInstanceObjectAssignment = *([[DainaGeneralIdentifier][DainaExpression]->] get) {\get identifier expr};
+					} *{
+						\parser:addError (\[Error]:expectingExpressionToAssignInstanceObject (\parser:position));	
+					};
+				} *{
+					.ifInternalInstanceObject = *([[DainaGeneralIdentifier]->] get) {\get identifier};
+				};
+				@.ifTypeMethod = *([[DainaType][DainaGeneralIdentifier]->] get) {\get type identifier};
+			} *{
+				\parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
+			};
 		} *{};
 		\[O]:ifElse (\[Token]:isParentIdentifier token1) *{
 			@internal-instance-method $
@@ -976,13 +1014,10 @@
 		@@
 	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
 	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
-	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
-	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
 	[[[DainaExpression]->]->] ifProxyObject
 	[[[DainaCompilerInjection]->]->] ifCompilerInjection
 	[[[DainaGeneralIdentifier]->]->] ifLocalObject
 	[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
-	[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
 	[[->]->] ifSelfReference
 	[[->]->] ifMethodSelfReference
 		@@
