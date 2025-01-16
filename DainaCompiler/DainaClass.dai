@@ -1038,32 +1038,49 @@
 			};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskDash)) *{
-			@ proxy-object *-
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+				[DainaExpression] expr = \[DainaExpression]:base;
+				\expr:parse parser;
+				.ifProxyObject = *([[DainaExpression]->] get) {\get expr};
+			} *{
+				\parser:addError (\[Error]:expectingProxyObject (\parser:position));	
+			};
 		} *{};
-		\[O]:ifElse (\[Token]:equals token1 (\[Token]:doubleLessThan)) *{
-			@ compiler-injection <<
+		\[O]:ifElse (\[DainaCompilerInjection]:isFirstToken token1) *{
+			[DainaCompilerInjection] inj = \[DainaCompilerInjection]:base;
+			\inj:parse parser;
+			.ifCompilerInjection = *([[DainaCompilerInjection]->] get) {\get inj};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:roundBracketOpen)) *{
-			@ grouped-expression(non-cast) (
+			\parser:gotoNextToken;
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					[DainaExpression] expr = \[DainaExpression]:base;
+					\expr:parse parser;
+					\:copy expr;
+					\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketClose)) *{
+						\parser:gotoNextToken;
+					} *{
+						\parser:addError (\[Error]:expectingClosingBracketForExpression (\parser:position));
+					};
+				} *{
+					\parser:addError (\[Error]:expectingExpression (\parser:position));
+				};
 		} *{};
 		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken token1) *{
-			@ object-identifier id
+			[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+			\identifier:parse parser;
+			.ifLocalObject = *([[DainaGeneralIdentifier]->] get) {\get identifier};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:caret)) *{
-			@ self-reference ^
+			\parser:gotoNextToken;
+			.ifSelfReference = *([->] get) {\get};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskCaret)) *{
-			@ method-self-reference *^
+			\parser:gotoNextToken;
+			.ifMethodSelfReference = *([->] get) {\get};
 		} *{};
 
-		@@
-	
-	[[[DainaExpression]->]->] ifProxyObject
-	[[[DainaCompilerInjection]->]->] ifCompilerInjection
-	[[[DainaGeneralIdentifier]->]->] ifLocalObject
-	[[->]->] ifSelfReference
-	[[->]->] ifMethodSelfReference
-		@@
 	}
 }
 
