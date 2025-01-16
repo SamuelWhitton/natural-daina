@@ -656,7 +656,7 @@
 (\[Boolean]:or (\[Token]:equals token (\[Token]:fullStop))
 (\[Boolean]:or (\[Token]:equals token (\[Token]:colon))
 (\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskCaret))
-(\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskDash))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskArrow))
 (\[Boolean]:or (\[Token]:equals token (\[Token]:caret))
 (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleLessThan))
 (\[Boolean]:or (\[Token]:equals token (\[Token]:roundBracketOpen))
@@ -1037,7 +1037,7 @@
 				};
 			};
 		} *{};
-		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskDash)) *{
+		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskArrow)) *{
 			\parser:gotoNextToken;
 			\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
 				[DainaExpression] expr = \[DainaExpression]:base;

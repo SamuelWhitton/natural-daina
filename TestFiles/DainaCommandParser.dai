@@ -30,7 +30,7 @@
 
 	++ parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider *([DainaCommandReceiver] dainaCommandReceiver, [->[String]] commandStringSegmentProvider) {
 		[String] nextCommandString = \commandStringSegmentProvider;
-		[Boolean] nextCommandStringIsEmpty = \nextCommandString:isEqualTo (\[String]:newStringFromLiteral "");
+		[Boolean] nextCommandStringIsEmpty = \nextCommandString:isEqualTo (\[String]:newStringFromLiteral ####);
 		\nextCommandStringIsEmpty:ifFalse *{
 			[Maybe<[DainaCommandParsingAction]>] maybeParsingActionForCommandString = \.validDainaCommandsToParse:maybeParsingActionForCommandStringIfValidDainaCommand nextCommandString;
 			[DainaCommandParsingAction] parsingActionForCommandString = \[ControlFlow<[DainaCommandParsingAction]>]:selectWithSelectorOrDefault maybeParsingActionForCommandString:ifJust ([DainaCommandParsingAction]:parseInvalidCommand);
@@ -38,27 +38,27 @@
 		}
 	}	
 
-	++ getUsageDescriptionOfValidDainaCommands *() ->[String]{}->\.validDainaCommandsToParse:getUsageDescriptionOfValidDainaCommands
+	++ getUsageDescriptionOfValidDainaCommands * ->[String]{}->\.validDainaCommandsToParse:getUsageDescriptionOfValidDainaCommands
 }
 
 [DainaCommandStrings] (String) -> (DainaCommandParser)
 {
-	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE *->(\[String]:newString "parse dainasource exposed")
-	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE *->(\[String]:newString "parse dainasource bridging")
-	:: PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE *->(\[String]:newString "parse dainasource private")
-	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString "synthesise")
-	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString "compileinto java")
-	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString "compileinto c")
+	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE *->(\[String]:newString ##parse dainasource exposed##)
+	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE *->(\[String]:newString ##parse dainasource bridging##)
+	:: PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE *->(\[String]:newString ##parse dainasource private##)
+	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString ##synthesise##)
+	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString ##compileinto java##)
+	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString ##compileinto c##)
 } 
 
 [DainaCommandDescriptionStrings] (String) -> (DainaCommandParser)
 {
-	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE *->(\[String]:newString "next file path input will be parsed as a Daina source file and integrated into the current syntax tree in the exposed namespace and any errors will be provided")
-	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE *->(\[String]:newString "next input will be private namespace, successive file path input will be parsed as a Daina source file and integrated into the current syntax tree in the exposed + given private namespace and any errors will be provided")
-	:: PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE *->(\[String]:newString "next input will be private namespace, successive file path input will be parsed as a Daina source file and integrated into the current syntax tree in the given private namespace and any errors will be provided")
-	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString "current syntax tree will be synthesised and any errors will be provided")
-	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString "next input is where the Java source will be constructed from the current syntax tree and any errors will be provided")
-	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString "next input is where the C source will be constructed from the current syntax tree and any errors will be provided")
+	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE *->(\[String]:newString ##next file path input will be parsed as a Daina source file and integrated into the current syntax tree in the exposed namespace and any errors will be provided##)
+	:: PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE *->(\[String]:newString ##next input will be private namespace, successive file path input will be parsed as a Daina source file and integrated into the current syntax tree in the exposed + given private namespace and any errors will be provided##)
+	:: PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE *->(\[String]:newString ##next input will be private namespace, successive file path input will be parsed as a Daina source file and integrated into the current syntax tree in the given private namespace and any errors will be provided##)
+	:: ANALYSE_AND_SYNTHESISE_SYNTAX_TREE *->(\[String]:newString ##current syntax tree will be synthesised and any errors will be provided##)
+	:: COMPILE_INTO_JAVA_WITHIN_DIRECTORY *->(\[String]:newString ##next input is where the Java source will be constructed from the current syntax tree and any errors will be provided##)
+	:: COMPILE_INTO_C_WITHIN_DIRECTORY *->(\[String]:newString ##next input is where the C source will be constructed from the current syntax tree and any errors will be provided##)
 } 
 
 [ValidDainaCommandsToParse : [Object]] (DainaCommandParsingAction, Object, Variable, String, Mapping, Maybe) -> (DainaCommandParser)
@@ -66,8 +66,8 @@
 	[Variable<[String]>] usageDescriptionOfAllValidCommands
 {
 	~ emptyListOfValidDainaCommandsToParse *{
-		\::newObject;
-		.usageDescriptionOfAllValidCommands =\[Variable<[String]>]:as (\[String]:newStringFromLiteral "valid Daina commands are:");
+		\$~newObject;
+		.usageDescriptionOfAllValidCommands =\[Variable<[String]>]:as (\[String]:newStringFromLiteral ##valid Daina commands are:##);
 		.mappingOfValidCommandStringToParsingAction = \[Mapping<[String][DainaCommandParsingAction]>]:newEmptyMapping;
 	}
 
@@ -81,8 +81,8 @@
 		\.usageDescriptionOfAllValidCommands:set (\currentDescriptionOfAllValidCommands:stringByAppendingString (\newLineAndTab:stringByAppendingString usageDescriptionOfCommand));
 	}	!{
 			[String] currentDescriptionOfAllValidCommands = \.usageDescriptionOfAllValidCommands:get; 
-			[String] newLineAndTab = \[String]:newStringFromLiteral "\n\t";
-			[String] colonAndSpace = \[String]:newStringFromLiteral ": ";
+			[String] newLineAndTab = \[String]:newStringFromLiteral ##\n\t##;
+			[String] colonAndSpace = \[String]:newStringFromLiteral ##: ##;
 			[String] usageDescriptionOfCommand = \commandString:stringByAppendingString (\colonAndSpace:stringByAppendingString descriptionOfCommand);
 		}
 }
@@ -91,7 +91,7 @@
 	[[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 {
 	~ newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver *([[->[String]][DainaCommandReceiver]->] parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver) {
-		\::newObject;
+		\$~newObject;
 		.parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver = parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 	}
 
@@ -100,7 +100,7 @@
 	}
 
 	~ parseCommandToParseDainaSourceFileInExposedNamespace *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				[DainaNamespaceReference] exposedNamespace = \[DainaNamespaceReference]:referToExposedNamespace;
 				[String] dainaSourceFilePath = (\getNextCommandStringSegment);
@@ -109,7 +109,7 @@
 	}
 
 	~ parseCommandToParseDainaSourceFileInExposedAndPrivateNamespace *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				[DainaNamespaceReference] privateAndExposedNamespace = \[DainaNamespaceReference]:referToExposedNamespaceAndPrivateNamespaceWithName (\getNextCommandStringSegment);
 				[String] dainaSourceFilePath = (\getNextCommandStringSegment);
@@ -118,7 +118,7 @@
 	}
 
 	~ parseCommandToParseDainaSourceFileInPrivateNamespace *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				[DainaNamespaceReference] privateNamespace = \[DainaNamespaceReference]:referToPrivateNamespaceWithName (\getNextCommandStringSegment);
 				[String] dainaSourceFilePath = (\getNextCommandStringSegment);
@@ -127,28 +127,28 @@
 	}
 
 	~ parseCommandToAnalyseAndSynthesiseSyntaxTree *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				\dainaCommandReceiver:receiveCommandToAnalyseAndSynthesiseSyntaxTree
 			}
 	}
 
 	~ parseCommandToCompileIntoJavaWithinDirectory *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				\dainaCommandReceiver:receiveCommandToCompileIntoJavaWithinDirectory (\getNextCommandStringSegment)
 			}
 	}
 
 	~ parseCommandToCompileIntoCWithinDirectory *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				\dainaCommandReceiver:receiveCommandToCompileIntoCWithinDirectory (\getNextCommandStringSegment)
 			}
 	}
 
 	~ parseInvalidCommand *{
-		\::newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
+		\$~newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver
 			*([->[String]] getNextCommandStringSegment, [DainaCommandReceiver] dainaCommandReceiver) {
 				\dainaCommandReceiver:receiveInvalidCommand
 			}
@@ -158,6 +158,10 @@
 
 
 
-
+::
 
 @
+
+
+
+

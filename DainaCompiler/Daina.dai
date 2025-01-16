@@ -375,7 +375,7 @@
                 	};
                 \if (character1:isAsterisk) *{
                 		\if (character2:isCaret) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskCaret)};
-                		\if (character2:isDash) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskDash)};
+                		\if (character2:isArrowBracketOpen) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskArrow)};
                 	};
                	 \if (character1:isColon) *{
                 		\if (character2:isColon) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleColon)};
@@ -882,7 +882,7 @@
 	:: arrowBracketClose *-> (\[Token]:basicToken \[Integer]:newPositive 9)
 	:: asterisk *-> (\[Token]:basicToken \[Integer]:newPositive 10)
 	:: asteriskCaret *-> (\[Token]:basicToken \[Integer]:newPositive 11)
-	:: asteriskDash *-> (\[Token]:basicToken \[Integer]:newPositive 12)
+	:: asteriskArrow *-> (\[Token]:basicToken \[Integer]:newPositive 12)
 	:: backslash *-> (\[Token]:basicToken \[Integer]:newPositive 13)
 	:: caret *-> (\[Token]:basicToken \[Integer]:newPositive 14)
 	:: colon *-> (\[Token]:basicToken \[Integer]:newPositive 15)
