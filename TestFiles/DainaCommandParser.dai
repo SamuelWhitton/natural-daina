@@ -16,7 +16,7 @@
 	~ newDainaCommandParser * {
 
 		[Hello] asdf = [:[Integer]]{};
-		\::newObject;
+		\$~newObject;
 		.validDainaCommandsToParse = validDainaCommandsToParse
 	} 	!{
 			[ValidDainaCommandsToParse] validDainaCommandsToParse = \[ValidDainaCommandsToParse]:emptyListOfValidDainaCommandsToParse;

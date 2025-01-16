@@ -959,7 +959,6 @@
 				} *{
 					.ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get (\[Integer]:zero) identifier};
 				};
-				@.ifTypeMethod = *([[DainaType][DainaGeneralIdentifier]->] get) {\get type identifier};
 			} *{
 				\parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
 			};
@@ -981,16 +980,62 @@
 				} *{
 					.ifInternalInstanceObject = *([[DainaGeneralIdentifier]->] get) {\get identifier};
 				};
-				@.ifTypeMethod = *([[DainaType][DainaGeneralIdentifier]->] get) {\get type identifier};
 			} *{
-				\parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
+				\parser:addError (\[Error]:expectingInstanceObjectIdentifier (\parser:position));
 			};
 		} *{};
 		\[O]:ifElse (\[Token]:isParentIdentifier token1) *{
-			@internal-instance-method $
+			[Integer] parentNum = \token1:secondId;
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+				[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+				\identifier:parse parser;
+				.ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get parentNum identifier};
+			} *{
+				\parser:addError (\[Error]:expectingInstanceObjectIdentifier (\parser:position));
+			};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:backslash)) *{
-			@ method-invocation    \
+			[->[List<[DainaExpression]>]] parseParameterList = *->[List<[DainaExpression]>] {
+				[List<[DainaExpression]>] paramList = \[List<[DainaExpression]>]:empty;
+				\[Loops]:while (*->(\[DainaExpression]:isFirstToken (\parser:token))) *{
+					[DainaExpression] expr = \[DainaExpression]:base;
+					\expr:parse parser;
+					\paramList:append expr;
+				};
+			} -> paramList;
+			\parser:gotoNextToken;
+			\[O]:ifElse (\[Token]:equals (\parser:peekAtNextToken) (\[Token]:tilde)) *{
+				[Token] idToken = (\parser:token);
+				[Variable<[Maybe<[Integer]>]>] parentNum = \[Variable<[Maybe<[Integer]>]>]:as (\[Maybe<[Integer]>]:nothing);
+				\[O]:ifElse (\[Token]:isParentIdentifier idToken) *{
+					\parentNum:set (\[Maybe<[Integer]>]:as (\idToken:secondId));
+				} *{
+					\[O]:ifElse (\[Token]:equals idToken (\[Token]:colon)) *{
+						\parentNum:set (\[Maybe<[Integer]>]:as (\[Integer]:zero));
+					} *{
+						\parser:addError (\[Error]:unexpectedTokenBeforeTilde (\parser:position));
+					};
+				};
+				[Maybe<[Integer]>] m = \parentNum:get;
+				\m:ifIs *([Integer] parentNumber) {
+					\parser:gotoNextToken;
+					\parser:gotoNextToken;
+					[Boolean] isPointerConstructor = (\[Token]:equals (\parser:token) (\[Token]:arrowBracketClose));
+					\[O]:ifElse isPointerConstructor (parser:gotoNextToken) *{};
+					[List<[DainaExpression]>] paramList = \parseParameterList;
+					.ifConstructorInvocation = *([[Integer][Boolean][List<[DainaExpression]>]->] get) {\get parentNumber isPointerConstructor paramList};
+				};
+			} *{
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					[DainaExpression] methodExpr = \[DainaExpression]:base;
+					\methodExpr:parse parser;
+					[List<[DainaExpression]>] paramList = \parseParameterList;
+					.ifInvocation = *([[DainaExpression][List<[DainaExpression]>]->] get) {\get methodExpr paramList};
+				} *{
+					\parser:addError (\[Error]:expectingMethodToInvoke (\parser:position));	
+				};
+			};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskDash)) *{
 			@ proxy-object *-
@@ -1012,12 +1057,10 @@
 		} *{};
 
 		@@
-	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
-	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
+	
 	[[[DainaExpression]->]->] ifProxyObject
 	[[[DainaCompilerInjection]->]->] ifCompilerInjection
 	[[[DainaGeneralIdentifier]->]->] ifLocalObject
-	[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
 	[[->]->] ifSelfReference
 	[[->]->] ifMethodSelfReference
 		@@
