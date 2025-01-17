@@ -47,7 +47,7 @@
 	|++ parseSourceFile *([String] path) {
 		\[Debug]:log (\[String]:as "parse from ");
 		\[Debug]:log path;
-		\[Debug]:log (\[String]:as "\n");
+		\[Debug]:log (\[String]:as "...\n");
 
 		[Maybe<[InputStream]>] maybeSourceInput = \.configuration:sourceFileInput path;
 		[Boolean] sourceFileSuccess = \maybeSourceInput:is *([InputStream] sourceInput) -> [Boolean] {
@@ -73,8 +73,17 @@
 	|++ compileToFile *([String] path) {
 		\[Debug]:log (\[String]:as "compile to ");
 		\[Debug]:log path;
-		\[Debug]:log (\[String]:as "\n");
+		\[Debug]:log (\[String]:as "...\n");
 
+		[Maybe<[OutputStream]>] maybeOutputFile = \.configuration:compilationFileOutput path;
+		\maybeOutputFile:ifNothing *{
+			\[Debug]:log (\[String]:as "Can't output to file.\n");
+		};
+		\maybeOutputFile:ifIs *([OutputStream] outputFile) {
+			\outputFile:writeString (\[String]:as "test\nasdfjhsadkljfhskjhd\n\n");
+
+			\[Debug]:log (\[String]:as "Done!\n");
+		};
 		
 	}
 
