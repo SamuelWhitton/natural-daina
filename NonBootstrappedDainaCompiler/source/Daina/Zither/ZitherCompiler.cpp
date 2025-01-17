@@ -180,7 +180,7 @@ namespace Daina {
 	CSOURCE_LINE("int currentAllocations = 0;");
 #endif
 	CSOURCE_LINE("#define RetainDynamicObject(_dynamicObjectInQuestion) "+MEMORY_LOG_RETAIN("_dynamicObjectInQuestion")+C_CAST(IDENTIFIER_DYNAMIC_OBJECT, "(_dynamicObjectInQuestion)")+"->references++;");
-	CSOURCE_LINE("#define ReleaseDynamicObject(_dynamicObjectInQuestion) "+MEMORY_LOG_RELEASE("_dynamicObjectInQuestion")+"if ((--"+C_CAST(IDENTIFIER_DYNAMIC_OBJECT, "(_dynamicObjectInQuestion)")+"->references) == 0) {("+C_FUNCTION_POINTER(0)+"("+C_CAST(IDENTIFIER_DYNAMIC_OBJECT, "(_dynamicObjectInQuestion)")+"->deallocator))(_dynamicObjectInQuestion); "+MEMORY_LOG_DEALLOCATE("_dynamicObjectInQuestion")+" free(_dynamicObjectInQuestion);}");
+	CSOURCE_LINE("#define ReleaseDynamicObject(_dynamicObjectInQuestion) "+MEMORY_LOG_RELEASE("_dynamicObjectInQuestion")+"if ((--"+C_CAST(IDENTIFIER_DYNAMIC_OBJECT, "(_dynamicObjectInQuestion)")+"->references) == 0) {}");
 
 	std::string deallocatorMethodForDynamicLambdaObject = IDENTIFIER_DYNAMIC_LAMBDA_DEALLOCATOR_METHOD;
 	CSOURCE_LINE(C_POINTER+" "+deallocatorMethodForDynamicLambdaObject+"("+C_POINTER+" object) {");

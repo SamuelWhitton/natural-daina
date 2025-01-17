@@ -59,6 +59,13 @@ Byte : [Object]
 			((struct Z_template_Boolean *)(Z_local_isInclusiveBetween))->Z_attribute_Boolean_internalBoolean = (void *)(0==0);
 		##;
 	} -> isInclusiveBetween
+
+	++ debugLog *{
+		<instant
+		##
+		printf("BYTE:%p\n", ((struct Z_template_Byte *)(Z_self))->Z_attribute_Byte_internalByte);
+		##;
+	}
 }
 
 

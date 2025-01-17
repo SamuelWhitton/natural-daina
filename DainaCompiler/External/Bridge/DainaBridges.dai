@@ -105,6 +105,12 @@
 
 	++ asASCIIByte *->[Byte]{} -> .asciiByte
 
+	++ debugLog *{
+		\.asciiByte:debugLog;
+	}
+
+	++ isNULL *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b00))
+
 	++ isSemicolon *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b3B))
 	++ isPlus *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b2B))
 	++ isUnderscore *->[Boolean]{}->(\.asciiByte:equals (\[Byte]:as 0b5F))

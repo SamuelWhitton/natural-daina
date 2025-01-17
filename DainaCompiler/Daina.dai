@@ -100,6 +100,7 @@
 			Loops,
 			Data,
 			Integer,
+			O,
 
 			Debug
 		) 
@@ -122,7 +123,7 @@
 		.currentCharacterPosition = initialPosition;
 		.currentTokenPosition = \[Variable<[SourcePosition]>]:as initialPosition;
 		.ifNextTokenOrElse = *([]a,[->]else){\else};
-		\:gotoNextCharacter;
+		\:gotoNextCharacterTrue;
 		\:gotoNextToken;
 	}
 
@@ -131,6 +132,7 @@
 			\[Loops]:until *([->] stop) {
 				[Maybe<[Character]>] nextChar = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
 				\nextChar:ifIs *([Character] c) {
+					@\c:debugLog;
 					\.buffer:append c;
 					[Boolean] notEndOfLine = \[Boolean]:not (\c:isNewline);
 					\notEndOfLine:ifElse *{
@@ -155,7 +157,13 @@
 				});
 			} -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
 
-	- gotoNextCharacter *{
+    - gotoNextCharacter *{
+		\.currentCharacter:ifIs *([Character] t) {
+			\[O]:ifElse (\t:isNULL) *{} *{\:gotoNextCharacterTrue;};
+		};
+    }
+
+	- gotoNextCharacterTrue *{
 		[Boolean] isNewline = \.currentCharacter:is *([Character] c) -> [Boolean] {} -> \c:isNewline;
 		\isNewline:ifElse *{
 			.currentCharacterPosition = \.currentCharacterPosition:startOfNextLine (\:getCopyOfNextLine);
@@ -164,9 +172,9 @@
 		};
 		[Maybe<[Character]>] bufferedChar = \.buffer:popFirst;
 		.currentCharacter = bufferedChar;
-		\bufferedChar:ifNothing *{
-			.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
-		};
+		@\bufferedChar:ifNothing *{
+			@.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+		@};
 	}
 
 	- eatWhitespaceCharacters *{

@@ -50,12 +50,10 @@
 			};
 		};
 
-		@@\[Loops]:while (*->[Boolean]{[Maybe<[Token]>] token = \parser:token;}->\token:is (*([]a)->\[Boolean]:true)) *{
-			[Maybe<[Token]>] maybeToken = \parser:token;
-			\maybeToken:ifIs *([Token] token) {
-				@\[Debug]:log (\token:asDebugString);
-				@\[Debug]:log (\[String]:as "\n");
-			};
+		@@\[Loops]:while (*->[Boolean]{[Token] token = \parser:token;}->\[Boolean]:not (\[Token]:equals token (\[Token]:EOF))) *{
+			[Token] token = \parser:token;
+			\[Debug]:log (\token:asDebugString);
+			\[Debug]:log (\[String]:as "\n");
 			\parser:gotoNextToken;
 		}@@
 	} -> classes
