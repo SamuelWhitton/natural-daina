@@ -1,0 +1,168 @@
+
+
+[DLangSynthesizer] (
+			Object, 
+			Parser, 
+			List,
+			Loops,
+			Token,
+			Boolean,
+			Maybe,
+			String,
+			Error, M, O,
+			DainaDependancyStructure,
+			DainaExpression,
+			Variable,
+			DainaClassIdentifier,
+			DainaGenericDeclarationList,
+			DainaType,
+			DainaObjectDeclaration,
+			DainaClassMethod,
+			DainaCompilerInjection,
+			OutputStream,
+			DainaClass,
+			Integer,
+			DainaGeneralIdentifier
+		)
+	[OutputStream] output
+	[Integer] tab
+{
+	~ to *([OutputStream] output) {
+		.tab = \[Integer]:zero;
+		.output = output;
+	}
+
+	- output *([String] string) {
+		\.output:writeString string;
+	}
+
+	- outputTabbed *([String] string) {
+		\[Loops]:repeatNTimes .tab *{
+			\.output:writeString (\[String]:as "   ");
+		};
+		\.output:writeString string;
+	}
+
+	- incrementTab *{
+		.tab = \.tab:integerByAdding (\[Integer]:one);
+	}
+
+	- decrementTab *{
+		.tab = \.tab:integerBySubtracting (\[Integer]:one);
+	}
+
+	++ synthesizeClasses *([List<[DainaClass]>] classes) {
+		\:output (\[String]:as "class OBJECT{}\n\n");
+		\classes:iterate :synthesizeClass;
+	}
+
+	- synthesizeClass *([DainaClass] class) {
+		\class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+			\:output (\[String]:as "void main() {\n"); \:incrementTab;
+			\:synthesizeMethodBodyContent entryPointMethod; 
+			\:decrementTab; \:output (\[String]:as "}\n\n");
+		} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+			\:output (\[String]:as "interface CLASSTYPE_");
+			\:output (\className:content);
+			\:output (\[String]:as " {\n"); \:incrementTab;
+			\classMethods:iterate :synthesizeClassMethodInterface;
+			\:decrementTab; \:output (\[String]:as "}\n\n");
+			\:output (\[String]:as "class CLASSIMP_");
+			\:output (\className:content);
+			\:output (\[String]:as " : OBJECT, ");
+			\:output (\[String]:as "CLASSTYPE_");
+			\:output (\className:content);
+			\inheritedParentTypes:iterate *([DainaType] parentType) {
+				\:output (\[String]:as ", ");
+				\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+					\:output (\[String]:as "CLASSTYPE_");
+					\:output (\parentTypeIdentifier:content);
+				};
+			};
+			\:output (\[String]:as " {\n"); \:incrementTab;
+			\classMethods:iterate :synthesizeClassMethodImplementation;
+			\:decrementTab; \:output (\[String]:as "}\n\n");
+		};
+
+
+		@\.output:writeString (\[String]:as "test\nasdfjhsadkljfhskjhd\n\n");
+	}
+
+	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
+
+	}
+
+	- synthesizeClassMethodInterface *([DainaClassMethod<[DainaExpression]>] classMethod) {
+		\classMethod:isInstanceTypeOrConstructor *{
+			@isUnimplementedMethod
+			@\classMethod:methodExpression
+			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+			\:outputTabbed (\[String]:as "OBJECT ");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as "(OBJECT[] parameters);\n");
+		} *{} *{};
+		
+	}
+
+	- synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
+		\classMethod:isInstanceTypeOrConstructor *{
+			@isUnimplementedMethod
+			@\classMethod:methodExpression
+			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+			\:outputTabbed (\[String]:as "override OBJECT ");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as "(OBJECT[] parameters){return parameters[0];}\n");
+		} *{} *{};
+		
+	}
+
+	
+}
+
+
+
+
+@@
+
+void main()
+{
+
+
+    B b = new B();
+    assert(b.foo() == 2);
+
+    I i = new C();    // ok since B inherits A's I implementation
+    assert(i.foo() == 3);
+
+
+    OBJECT asdf1 = OBJECT.constr();
+    OBJECT asdf = (cast(G)asdf1).PPP([OBJECT.constr()]);
+    assert((cast(G)asdf).foo() == 3);
+    
+}
+
+
+interface I
+{
+    int foo();
+}
+
+interface G
+{
+    int foo();
+    OBJECT PPP(OBJECT[] asdf);
+}
+
+class OBJECT
+{
+    private OBJECT p = null;
+    static OBJECT constr() {
+        return new class OBJECT, I, G
+        {
+            override int foo() { return 3; }
+            override OBJECT PPP(OBJECT[] asdf) { return asdf[0]; }
+        };
+    }
+}@@
+
+

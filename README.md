@@ -211,6 +211,7 @@ asdf || is no longer needed
 asdf instance objects can be partially instantiated on a private consturctor
 asdf ; is required between statements and can have an empty statmenet, and the last statement doesnt have to have ;
 asdf proxy object is ```*>``` (called asterisk arrow) now instead of ```*-``` 
+asdf anonymous class object scope, anonymous object constructor local object are not visible inside or for creating class methods
 
 ---
 

@@ -14,6 +14,7 @@
 			DainaClass,
 			List,
 			Maybe,
+			DLangSynthesizer,
 
 			Debug
 		) 
@@ -80,7 +81,8 @@
 			\[Debug]:log (\[String]:as "Can't output to file.\n");
 		};
 		\maybeOutputFile:ifIs *([OutputStream] outputFile) {
-			\outputFile:writeString (\[String]:as "test\nasdfjhsadkljfhskjhd\n\n");
+			[DLangSynthesizer] dlang = \[DLangSynthesizer]:to outputFile;
+			\dlang:synthesizeClasses .parsedClasses;
 
 			\[Debug]:log (\[String]:as "Done!\n");
 		};

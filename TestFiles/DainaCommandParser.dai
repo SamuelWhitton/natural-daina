@@ -1,3 +1,8 @@
+[] {
+*{}
+}
+
+
 
 [DainaCommandParser : [Object]] (
 		String, 
