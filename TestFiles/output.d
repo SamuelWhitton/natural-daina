@@ -18,7 +18,11 @@ interface CLASSTYPE_Object : OBJECT, LAMBDA {
 }
 class CLASSIMPL_Object : CLASSTYPE_Object {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   private LAMBDA ASSIGNIMETHOD_asdf = null;
    override OBJECT IMETHOD_asdf(OBJECT caller, OBJECT[] parameters) {
+      return ASSIGNIMETHOD_asdf.method(caller, parameters);
+   }
+   static OBJECT CMETHOD_testconstr(OBJECT caller, OBJECT[] parameters) {
       return caller;
    }
 }

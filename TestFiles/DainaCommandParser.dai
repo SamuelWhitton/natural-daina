@@ -3,8 +3,10 @@
 }
 
 [Object] {
-
-	++ asdf *{}
+	++ asdf [->]
+	~ testconstr *{
+		: asdf = *{};
+	}
 }
 
 [DainaCommandParser : [Object]] (

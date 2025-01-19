@@ -204,9 +204,12 @@
 	}
 
 	- synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
-		@TODO @isUnimplementedMethod and object
-		
 		[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+		\[O]:ifElse (\classMethod:isUnimplementedMethod) *{
+			\:outputTabbed (\[String]:as "private LAMBDA ASSIGNIMETHOD_");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as " = null;\n");
+		} *{};
 		\classMethod:isInstanceTypeOrConstructor *{
 			\:outputTabbed (\[String]:as "override OBJECT IMETHOD_");
 		} *{
@@ -217,7 +220,13 @@
 		\:output (\classMethodIdentifier:content);
 		\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
 		\:output (\[String]:as " {\n"); \:incrementTab;
-		\:synthesizeMethodBodyContent (\classMethod:methodExpression);
+		\[O]:ifElse (\classMethod:isUnimplementedMethod) *{
+			\:outputTabbed (\[String]:as "return ASSIGNIMETHOD_");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as ".method(caller, parameters);\n");
+		} *{
+			\:synthesizeMethodBodyContent (\classMethod:methodExpression);
+		};
 		\:decrementTab; \:outputTabbed (\[String]:as "}\n");
 	}
 
@@ -231,49 +240,5 @@
 }
 
 
-
-
-@@
-
-void main()
-{
-
-
-    B b = new B();
-    assert(b.foo() == 2);
-
-    I i = new C();    // ok since B inherits A's I implementation
-    assert(i.foo() == 3);
-
-
-    OBJECT asdf1 = OBJECT.constr();
-    OBJECT asdf = (cast(G)asdf1).PPP([OBJECT.constr()]);
-    assert((cast(G)asdf).foo() == 3);
-    
-}
-
-
-interface I
-{
-    int foo();
-}
-
-interface G
-{
-    int foo();
-    OBJECT PPP(OBJECT[] asdf);
-}
-
-class OBJECT
-{
-    private OBJECT p = null;
-    static OBJECT constr() {
-        return new class OBJECT, I, G
-        {
-            override int foo() { return 3; }
-            override OBJECT PPP(OBJECT[] asdf) { return asdf[0]; }
-        };
-    }
-}@@
 
 
