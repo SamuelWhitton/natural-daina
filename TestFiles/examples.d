@@ -25,7 +25,11 @@ interface I
     int foo();
 }
 
-interface G
+interface M
+{
+}
+
+interface G : M
 {
     int foo();
     OBJECT PPP(OBJECT[] asdf);
@@ -43,7 +47,7 @@ class OBJECT
     }
 }
 
-class B : OBJECT, I
+class B : I
 {
     override int foo() { return 2; }
 }

@@ -52,26 +52,25 @@
 	}
 
 	++ synthesizeClasses *([List<[DainaClass]>] classes) {
-		\:output (\[String]:as "class OBJECT{}\n\n");
+		\:output (\[String]:as "/* *** HEADER *** */\n");
+		\:output (\[String]:as "interface OBJECT {}\n");
+		\:output (\[String]:as "interface LAMBDA {\n   OBJECT method(OBJECT caller, OBJECT[] parameters);\n}\n\n");
 		\classes:iterate :synthesizeClass;
 	}
 
 	- synthesizeClass *([DainaClass] class) {
 		\class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+			\:output (\[String]:as "/* *** ENTRY POINT CLASS *** */\n");
 			\:output (\[String]:as "void main() {\n"); \:incrementTab;
 			\:synthesizeMethodBodyContent entryPointMethod; 
 			\:decrementTab; \:output (\[String]:as "}\n\n");
 		} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+			\:output (\[String]:as "/* *** CLASS: ");
+			\:output (\className:content);
+			\:output (\[String]:as " *** */\n");
 			\:output (\[String]:as "interface CLASSTYPE_");
 			\:output (\className:content);
-			\:output (\[String]:as " {\n"); \:incrementTab;
-			\classMethods:iterate :synthesizeClassMethodInterface;
-			\:decrementTab; \:output (\[String]:as "}\n\n");
-			\:output (\[String]:as "class CLASSIMP_");
-			\:output (\className:content);
-			\:output (\[String]:as " : OBJECT, ");
-			\:output (\[String]:as "CLASSTYPE_");
-			\:output (\className:content);
+			\:output (\[String]:as " : OBJECT, LAMBDA");
 			\inheritedParentTypes:iterate *([DainaType] parentType) {
 				\:output (\[String]:as ", ");
 				\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
@@ -80,6 +79,14 @@
 				};
 			};
 			\:output (\[String]:as " {\n"); \:incrementTab;
+			\classMethods:iterate :synthesizeClassMethodInterface;
+			\:decrementTab; \:output (\[String]:as "}\n");
+			\:output (\[String]:as "class CLASSIMP_");
+			\:output (\className:content);
+			\:output (\[String]:as " : CLASSTYPE_");
+			\:output (\className:content);
+			\:output (\[String]:as " {\n"); \:incrementTab;
+			\:output (\[String]:as "   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
 			\classMethods:iterate :synthesizeClassMethodImplementation;
 			\:decrementTab; \:output (\[String]:as "}\n\n");
 		};
@@ -99,7 +106,7 @@
 			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
 			\:outputTabbed (\[String]:as "OBJECT ");
 			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(OBJECT[] parameters);\n");
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 		} *{} *{};
 		
 	}
@@ -111,7 +118,7 @@
 			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
 			\:outputTabbed (\[String]:as "override OBJECT ");
 			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(OBJECT[] parameters){return parameters[0];}\n");
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters){return parameters[0];}\n");
 		} *{} *{};
 		
 	}

@@ -1,47 +1,64 @@
-class OBJECT{}
+/* *** HEADER *** */
+interface OBJECT {}
+interface LAMBDA {
+   OBJECT method(OBJECT caller, OBJECT[] parameters);
+}
 
+/* *** ENTRY POINT CLASS *** */
 void main() {
 }
 
-interface CLASSTYPE_DainaCommandParser {
-   OBJECT parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT[] parameters);
-   OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT[] parameters);
+/* *** CLASS: Object *** */
+interface CLASSTYPE_Object : OBJECT, LAMBDA {
+}
+class CLASSIMP_Object : CLASSTYPE_Object {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
 }
 
-class CLASSIMP_DainaCommandParser : OBJECT, CLASSTYPE_DainaCommandParser, CLASSTYPE_Object {
-   override OBJECT parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT[] parameters){return parameters[0];}
-   override OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT[] parameters){return parameters[0];}
+/* *** CLASS: DainaCommandParser *** */
+interface CLASSTYPE_DainaCommandParser : OBJECT, LAMBDA, CLASSTYPE_Object {
+   OBJECT parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT caller, OBJECT[] parameters);
+   OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters);
+}
+class CLASSIMP_DainaCommandParser : CLASSTYPE_DainaCommandParser {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   override OBJECT parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT caller, OBJECT[] parameters){return parameters[0];}
+   override OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters){return parameters[0];}
 }
 
-interface CLASSTYPE_DainaCommandStrings {
+/* *** CLASS: DainaCommandStrings *** */
+interface CLASSTYPE_DainaCommandStrings : OBJECT, LAMBDA {
+}
+class CLASSIMP_DainaCommandStrings : CLASSTYPE_DainaCommandStrings {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
 }
 
-class CLASSIMP_DainaCommandStrings : OBJECT, CLASSTYPE_DainaCommandStrings {
+/* *** CLASS: DainaCommandDescriptionStrings *** */
+interface CLASSTYPE_DainaCommandDescriptionStrings : OBJECT, LAMBDA {
+}
+class CLASSIMP_DainaCommandDescriptionStrings : CLASSTYPE_DainaCommandDescriptionStrings {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
 }
 
-interface CLASSTYPE_DainaCommandDescriptionStrings {
+/* *** CLASS: ValidDainaCommandsToParse *** */
+interface CLASSTYPE_ValidDainaCommandsToParse : OBJECT, LAMBDA, CLASSTYPE_Object {
+   OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters);
+   OBJECT maybeParsingActionForCommandStringIfValidDainaCommand(OBJECT caller, OBJECT[] parameters);
+   OBJECT addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand(OBJECT caller, OBJECT[] parameters);
+}
+class CLASSIMP_ValidDainaCommandsToParse : CLASSTYPE_ValidDainaCommandsToParse {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   override OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters){return parameters[0];}
+   override OBJECT maybeParsingActionForCommandStringIfValidDainaCommand(OBJECT caller, OBJECT[] parameters){return parameters[0];}
+   override OBJECT addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand(OBJECT caller, OBJECT[] parameters){return parameters[0];}
 }
 
-class CLASSIMP_DainaCommandDescriptionStrings : OBJECT, CLASSTYPE_DainaCommandDescriptionStrings {
+/* *** CLASS: DainaCommandParsingAction *** */
+interface CLASSTYPE_DainaCommandParsingAction : OBJECT, LAMBDA, CLASSTYPE_Object {
+   OBJECT performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver(OBJECT caller, OBJECT[] parameters);
 }
-
-interface CLASSTYPE_ValidDainaCommandsToParse {
-   OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT[] parameters);
-   OBJECT maybeParsingActionForCommandStringIfValidDainaCommand(OBJECT[] parameters);
-   OBJECT addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand(OBJECT[] parameters);
-}
-
-class CLASSIMP_ValidDainaCommandsToParse : OBJECT, CLASSTYPE_ValidDainaCommandsToParse, CLASSTYPE_Object {
-   override OBJECT getUsageDescriptionOfValidDainaCommands(OBJECT[] parameters){return parameters[0];}
-   override OBJECT maybeParsingActionForCommandStringIfValidDainaCommand(OBJECT[] parameters){return parameters[0];}
-   override OBJECT addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand(OBJECT[] parameters){return parameters[0];}
-}
-
-interface CLASSTYPE_DainaCommandParsingAction {
-   OBJECT performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver(OBJECT[] parameters);
-}
-
-class CLASSIMP_DainaCommandParsingAction : OBJECT, CLASSTYPE_DainaCommandParsingAction, CLASSTYPE_Object {
-   override OBJECT performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver(OBJECT[] parameters){return parameters[0];}
+class CLASSIMP_DainaCommandParsingAction : CLASSTYPE_DainaCommandParsingAction {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   override OBJECT performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver(OBJECT caller, OBJECT[] parameters){return parameters[0];}
 }
 
