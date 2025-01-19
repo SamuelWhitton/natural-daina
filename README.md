@@ -204,6 +204,7 @@ can be blank or ?
 *(q,m)->m is same as *(['Q]q,['M]m)->[?]{}->m same as *(['Q]q,['M]m)->['M]{}->m
 ```
 asdf does [:?] get copied with inheritance, no it doesnt
+asdf type method type is inherited based on instantiation of inherited parent 
 asdf Method Visibility Indicators should be Visibility Indicators
 asdf cant distinguish [%STRING] data segment types between each other when overloading
 asdf () brackets around dependancy also adds all classes in the public interface (public constructors, public type methods and public instance methods) (doesnt include reverse dependancies so it doesnt get blocked), call this derivative dependancies
@@ -212,6 +213,7 @@ asdf instance objects can be partially instantiated on a private consturctor
 asdf ; is required between statements and can have an empty statmenet, and the last statement doesnt have to have ;
 asdf proxy object is ```*>``` (called asterisk arrow) now instead of ```*-``` 
 asdf anonymous class object scope, anonymous object constructor local object are not visible inside or for creating class methods
+asdf pointer constructor only overrides instance methods for new object but doesnt copy object so old one is still affected when calling from new object. I.e. when calling old object its the same, when calling new object the overriden instance methods get called between each other internally
 
 ---
 
