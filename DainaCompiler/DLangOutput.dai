@@ -22,14 +22,19 @@
 			OutputStream,
 			DainaClass,
 			Integer,
-			DainaGeneralIdentifier
+			DainaGeneralIdentifier,
+			Mapping
 		)
 	[OutputStream] output
 	[Integer] tab
+	[Mapping<[String][DainaClass]>] mappedClasses
+	[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>] mappedClassMethods
 {
 	~ to *([OutputStream] output) {
 		.tab = \[Integer]:zero;
 		.output = output;
+		.mappedClasses = \[Mapping<[String][DainaClass]>]:empty;
+		.mappedClassMethods = \[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>]:empty;
 	}
 
 	- output *([String] string) {
@@ -51,7 +56,55 @@
 		.tab = \.tab:integerBySubtracting (\[Integer]:one);
 	}
 
+	- iterateUnoverridenInstanceMethods *([DainaClass] class, [[Integer][DainaClassMethod<[DainaExpression]>]->] get) {
+		\class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+		} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+			[Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+			\inheritedParentTypes:iterate *([DainaType] parentType) {
+				[Integer] parentNumber = \varParentNumber:get;
+				\varParentNumber:set (\parentNumber:adding (\[Integer]:one));
+				\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+					[String] parentID = (\parentTypeIdentifier:content);
+					\.mappedClasses:retriveMappedValueWithKey parentID *([DainaClass] parentClass) {
+						\:iterateUnoverridenInstanceMethods parentClass *([Integer] i, [DainaClassMethod<[DainaExpression]>]c) {
+							\getIfNotOverriden parentNumber c;
+						};
+						\parentClass:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+						} *([DainaClassIdentifier] a1, [List<[DainaType]>] a2, [List<[DainaObjectDeclaration]>] a3, [List<[DainaClassMethod<[DainaExpression]>]>] parentClassMethods, [List<[DainaCompilerInjection]>] a5) {
+							\parentClassMethods:iterate *([DainaClassMethod<[DainaExpression]>] parentClassMethod) {
+								\getIfNotOverriden parentNumber parentClassMethod;
+							};
+						};
+					}; 	
+				};
+			};
+
+		} !{
+				[[Integer][DainaClassMethod<[DainaExpression]>]->] getIfNotOverriden = *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] parentMethod) {
+					[DainaGeneralIdentifier] parentMethodIdentifier = \parentMethod:identifier;
+					\.mappedClassMethods:retriveMappedValueWithKey (\className:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] ownClassMethods) {
+						[Maybe<[DainaClassMethod<[DainaExpression]>]>] ifOverriden = \ownClassMethods:maybeRetriveMappedValueWithKey (\parentMethodIdentifier:content);
+						\ifOverriden:ifNothing *{
+							\get parentNumber parentMethod;
+						};
+					};
+				};
+		   };
+	}	
+
 	++ synthesizeClasses *([List<[DainaClass]>] classes) {
+		\classes:iterate *([DainaClass] class) {
+			\class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+			} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+				\.mappedClasses:mapKeyToValue (\className:content) class;
+				[Mapping<[String][DainaClassMethod<[DainaExpression]>]>] classMethodsMapping = \[Mapping<[String][DainaClassMethod<[DainaExpression]>]>]:empty;
+				\classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+					[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+					\classMethodsMapping:mapKeyToValue (\classMethodIdentifier:content) classMethod;
+				};
+				\.mappedClassMethods:mapKeyToValue (\className:content) classMethodsMapping;
+			};	
+		};
 		\:output (\[String]:as "/* *** HEADER *** */\n");
 		\:output (\[String]:as "interface OBJECT {}\n");
 		\:output (\[String]:as "interface LAMBDA {\n   OBJECT method(OBJECT caller, OBJECT[] parameters);\n}\n\n");
@@ -83,29 +136,55 @@
 			\:output (\[String]:as " {\n"); \:incrementTab;
 			\classMethods:iterate :synthesizeClassMethodInterface;
 			\:decrementTab; \:output (\[String]:as "}\n");
-			\:output (\[String]:as "class CLASSIMP_");
+			\:output (\[String]:as "class CLASSIMPL_");
 			\:output (\className:content);
 			\:output (\[String]:as " : CLASSTYPE_");
 			\:output (\className:content);
 			\:output (\[String]:as " {\n"); \:incrementTab;
 			\:outputTabbed (\[String]:as "override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
+			[Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+			\inheritedParentTypes:iterate *([DainaType] parentType) {
+				[Integer] curr = \parentNumber:get;
+				\:synthesizeParentObjectDeclaration curr parentType;
+				\parentNumber:set (\curr:adding (\[Integer]:one));
+			};
 			\instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
-			@TODO parent objects
-			@TODO parent methods
-
-			@private OBJECT p = null;
-
+			\:iterateUnoverridenInstanceMethods class (:synthesizeParentUnoverridenMethod);
 			\classMethods:iterate :synthesizeClassMethodImplementation;
 			\:decrementTab; \:output (\[String]:as "}\n\n");
 		};
 	}
-
 
 	- synthesizeInstanceObjectDeclaration *([DainaObjectDeclaration] instanceObject) {
 		\:outputTabbed (\[String]:as "private OBJECT IOBJECT_");
 		[DainaGeneralIdentifier] instanceObjectIdentifier = \instanceObject:identifier;
 		\:output (\instanceObjectIdentifier:content);
 		\:output (\[String]:as " = null;\n");
+	}
+
+	- synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
+		\:outputTabbed (\[String]:as "private ");
+		\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+			\:output (\[String]:as "CLASSTYPE_");
+			\:output (\parentTypeIdentifier:content);
+		};
+		\:output (\[String]:as " ");
+		\:output (\[String]:as "PARENT_");
+		\:output (\[String]:stringRepresentationOfInteger parentNumber);
+		\:output (\[String]:as " = null;\n");
+	}
+
+	- synthesizeParentUnoverridenMethod *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] unoverridenMethod) {
+		\unoverridenMethod:isInstanceTypeOrConstructor *{
+			[DainaGeneralIdentifier] unoverridenMethodIdentifier = \unoverridenMethod:identifier;
+			\:outputTabbed (\[String]:as "override OBJECT IMETHOD_");
+			\:output (\unoverridenMethodIdentifier:content);
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters) { return PARENT_");
+			\:output (\[String]:stringRepresentationOfInteger parentNumber);
+			\:output (\[String]:as ".IMETHOD_");
+			\:output (\unoverridenMethodIdentifier:content);
+			\:output (\[String]:as "(caller, parameters); }\n");
+		} *{} *{};
 	}
 
 
@@ -122,7 +201,6 @@
 			\:output (\classMethodIdentifier:content);
 			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 		} *{} *{};
-		
 	}
 
 	- synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {

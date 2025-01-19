@@ -39,6 +39,24 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 		}
 
 
+	~ empty *{
+		\::new;
+		.treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
+						:binaryTreeWithFruit initialTopLevelEmptyBucket;
+	}	!{
+			[MappingBucket<[&KEY][&VALUE]>] initialTopLevelEmptyBucket
+				= \[MappingBucket<[&KEY][&VALUE]>]
+					:newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier
+
+			!{
+				[String] arbitraryString = \[String]:newString "So Arbitrary!";
+				[Integer] initialArbitraryIntegerIdentifier = \[Integer]:newArbitraryIntegerSeededByData 
+					(\arbitraryString:provideArbitraryProxyDataForComparisonWhichIsIdenticalForEqualObjects);
+			};
+			
+		}
+
+
 
 	++ mapKeyToValue *([&KEY] key, [&VALUE] value) {
 		[Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
@@ -69,6 +87,17 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 	}	
 
 	++ maybeRetriveMappedValueWithKey *([&KEY] key) -> [Maybe<[&VALUE]>] {
+		[Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:asNothing);
+		[Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+		\:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
+			*([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
+				\bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
+					\foundValueMatchingKey:set (\[Maybe<[&VALUE]>]:asJust theValueThatWasFoundMatchingKey);
+				};
+			};
+	}	-> \foundValueMatchingKey:get
+
+	++ get *([&KEY] key) -> [Maybe<[&VALUE]>] {
 		[Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:asNothing);
 		[Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
 		\:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
