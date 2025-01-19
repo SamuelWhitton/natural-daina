@@ -515,6 +515,9 @@
 	:: isFirstToken *([Token] token) -> [Boolean] {
 	} -> (\[Boolean]:or (\[DainaType]:isFirstToken token) (\[DainaGeneralIdentifier]:isFirstToken token))
 
+	++ type*->.type
+	++ identifier*->.identifier
+
 	~ base *{
 		.type = \[DainaType]:base;
 		.identifier = \[DainaGeneralIdentifier]:base;

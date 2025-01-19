@@ -88,22 +88,37 @@
 			\:output (\[String]:as " : CLASSTYPE_");
 			\:output (\className:content);
 			\:output (\[String]:as " {\n"); \:incrementTab;
-			\:output (\[String]:as "   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
+			\:outputTabbed (\[String]:as "override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
+			\instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
+			@TODO parent objects
+			@TODO parent methods
+
+			@private OBJECT p = null;
+
 			\classMethods:iterate :synthesizeClassMethodImplementation;
 			\:decrementTab; \:output (\[String]:as "}\n\n");
 		};
+	}
 
 
-		@\.output:writeString (\[String]:as "test\nasdfjhsadkljfhskjhd\n\n");
+	- synthesizeInstanceObjectDeclaration *([DainaObjectDeclaration] instanceObject) {
+		\:outputTabbed (\[String]:as "private OBJECT IOBJECT_");
+		[DainaGeneralIdentifier] instanceObjectIdentifier = \instanceObject:identifier;
+		\:output (\instanceObjectIdentifier:content);
+		\:output (\[String]:as " = null;\n");
 	}
 
 
 	- synthesizeClassMethodInterface *([DainaClassMethod<[DainaExpression]>] classMethod) {
 		\classMethod:isInstanceTypeOrConstructor *{
-			@isUnimplementedMethod
-			@\classMethod:methodExpression
 			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
-			\:outputTabbed (\[String]:as "OBJECT ");
+			\classMethod:isInstanceTypeOrConstructor *{
+				\:outputTabbed (\[String]:as "OBJECT IMETHOD_");
+			} *{
+				\:outputTabbed (\[String]:as "OBJECT TMETHOD_");
+			} *{
+				\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+			};
 			\:output (\classMethodIdentifier:content);
 			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 		} *{} *{};
@@ -111,17 +126,16 @@
 	}
 
 	- synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
-		@TODO
+		@TODO @isUnimplementedMethod and object
+		
 		[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
 		\classMethod:isInstanceTypeOrConstructor *{
-			\:outputTabbed (\[String]:as "override");
+			\:outputTabbed (\[String]:as "override OBJECT IMETHOD_");
 		} *{
-			\:outputTabbed (\[String]:as "static");
+			\:outputTabbed (\[String]:as "static OBJECT TMETHOD_");
 		} *{
-			\:outputTabbed (\[String]:as "static");
+			\:outputTabbed (\[String]:as "static OBJECT CMETHOD_");
 		};
-		@\classMethod:methodExpression
-		\:output (\[String]:as " OBJECT ");
 		\:output (\classMethodIdentifier:content);
 		\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
 		\:output (\[String]:as " {\n"); \:incrementTab;
@@ -131,6 +145,7 @@
 
 
 	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
+		@TODO
 		\:outputTabbed (\[String]:as "return caller;\n");
 	}
 
