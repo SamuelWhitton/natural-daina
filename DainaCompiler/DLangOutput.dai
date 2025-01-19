@@ -61,9 +61,11 @@
 	- synthesizeClass *([DainaClass] class) {
 		\class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
 			\:output (\[String]:as "/* *** ENTRY POINT CLASS *** */\n");
-			\:output (\[String]:as "void main() {\n"); \:incrementTab;
+			\:output (\[String]:as "void main() { ENTRY_POINT_CLASS.entryPointMethod(null, []); }\n"); 
+			\:output (\[String]:as "class ENTRY_POINT_CLASS {\n");
+			\:output (\[String]:as "   static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {\n"); \:incrementTab; \:incrementTab;
 			\:synthesizeMethodBodyContent entryPointMethod; 
-			\:decrementTab; \:output (\[String]:as "}\n\n");
+			\:decrementTab; \:decrementTab; \:output (\[String]:as "   }\n}\n\n");
 		} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
 			\:output (\[String]:as "/* *** CLASS: ");
 			\:output (\className:content);
@@ -95,9 +97,6 @@
 		@\.output:writeString (\[String]:as "test\nasdfjhsadkljfhskjhd\n\n");
 	}
 
-	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
-
-	}
 
 	- synthesizeClassMethodInterface *([DainaClassMethod<[DainaExpression]>] classMethod) {
 		\classMethod:isInstanceTypeOrConstructor *{
@@ -112,15 +111,27 @@
 	}
 
 	- synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
+		@TODO
+		[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
 		\classMethod:isInstanceTypeOrConstructor *{
-			@isUnimplementedMethod
-			@\classMethod:methodExpression
-			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
-			\:outputTabbed (\[String]:as "override OBJECT ");
-			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters){return parameters[0];}\n");
-		} *{} *{};
-		
+			\:outputTabbed (\[String]:as "override");
+		} *{
+			\:outputTabbed (\[String]:as "static");
+		} *{
+			\:outputTabbed (\[String]:as "static");
+		};
+		@\classMethod:methodExpression
+		\:output (\[String]:as " OBJECT ");
+		\:output (\classMethodIdentifier:content);
+		\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
+		\:output (\[String]:as " {\n"); \:incrementTab;
+		\:synthesizeMethodBodyContent (\classMethod:methodExpression);
+		\:decrementTab; \:outputTabbed (\[String]:as "}\n");
+	}
+
+
+	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
+		\:outputTabbed (\[String]:as "return caller;\n");
 	}
 
 	
