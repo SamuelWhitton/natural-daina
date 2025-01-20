@@ -231,10 +231,61 @@
 	}
 
 
+	- pushScope *([List<[DainaObjectDeclaration]>] parameters) {
+
+	}
+
+	- popScope *{
+		
+	}
+
+	- pushPrologueScope *{
+
+	}
+
+	- pushPrelogueAfterPrologue *{
+
+	}
+
+	- popPrelogueAndPrologue *{
+
+	}
+
+	- addLocalObjectToScope *([DainaObjectDeclaration] localObject) {
+
+	}
+
+
 	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
 		@TODO
+
+		@\methodExpression:ifMethodExpression
 		\:outputTabbed (\[String]:as "return caller;\n");
 	}
+
+	@@
+
+    [[[List<[DainaExpression]>]->]->] ifStatementGroup
+	[[[String]->]->] ifDataSegment
+	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
+	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
+	[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
+	[[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
+	[[[DainaObjectDeclaration][DainaExpression]->]->] ifLocalObjectAssignment
+	[[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
+	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
+	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
+	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
+	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
+	[[[DainaExpression]->]->] ifProxyObject
+	[[[DainaCompilerInjection]->]->] ifCompilerInjection
+	[[[DainaGeneralIdentifier]->]->] ifLocalObject
+	[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
+	[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
+	[[->]->] ifSelfReference
+	[[->]->] ifMethodSelfReference
+
+	@@
 
 	
 }
