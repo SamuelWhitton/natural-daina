@@ -24,7 +24,7 @@ class CLASSIMPL_Object : CLASSTYPE_Object {
    }
    static OBJECT CMETHOD_testconstr(OBJECT caller, OBJECT[] parameters) {
       {
-         INTERNAL STATEMENT ERROR!!!
+         OBJECT s = <expression>;
       }
       INTERNAL STATEMENT ERROR!!!
       return null;
@@ -45,8 +45,8 @@ class CLASSIMPL_DainaCommandParser : CLASSTYPE_DainaCommandParser {
       return <expression>.method(caller, parameters);
    }
    override OBJECT IMETHOD_parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
-      INTERNAL STATEMENT ERROR!!!
+      OBJECT nextCommandString = <expression>;
+      OBJECT nextCommandStringIsEmpty = <expression>;
       INTERNAL STATEMENT ERROR!!!
       return null;
    }

@@ -306,8 +306,22 @@
 				\:synthesizeStatement prelogueStatement (baseStatement);
 				\:popPrelogueAndPrologueScope;
 			};
-			@[[[DainaObjectDeclaration][DainaExpression]->]->] \statement:ifLocalObjectAssignment
-			@[[[DainaExpression][List<[DainaExpression]>]->]->] \statement:ifInvocation
+			\statement:ifLocalObjectAssignment *([DainaObjectDeclaration] declaration, [DainaExpression] assginedExpression) {
+				\select;
+				\:addLocalObjectToScope declaration;
+				[DainaGeneralIdentifier] identifier = \declaration:identifier;
+				\:outputTabbed (\[String]:as "OBJECT ");
+				\:output (\identifier:content);
+				\:output (\[String]:as " = ");
+				\:synthesizeInPlaceExpression assginedExpression;
+				\:output (\[String]:as ";\n");
+			};
+			\statement:ifInvocation *([] a, [] b) {
+				\select;
+				\:outputTabbed (\[String]:as "");
+				\:synthesizeInPlaceExpression statement;
+				\:output (\[String]:as ";\n");
+			};
 			@[[[Integer][Boolean][List<[DainaExpression]>]->]->] \statement:ifConstructorInvocation
 			@[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
 			@[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
