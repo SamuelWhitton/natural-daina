@@ -155,11 +155,19 @@
 }
 
 
-[O] (Boolean) {
+[O] (Boolean, Variable) {
 
 	:: ifElse *([Boolean] b, [->] action, [->] else) {
 		\b:ifElse action else;
 	} 
+
+	:: selectOrDefault *([[->]->] select, [->] default) {
+		[Variable<[Boolean]>] wasSelected = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+		\select *{
+			\wasSelected:set (\[Boolean]:true);
+		};
+		\[O]:ifElse (\wasSelected:get) (*{}) default;
+	}
 }
 
 [M] (Boolean, Token, Maybe) {

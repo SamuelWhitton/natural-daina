@@ -23,7 +23,8 @@
 			DainaClass,
 			Integer,
 			DainaGeneralIdentifier,
-			Mapping
+			Mapping,
+			Debug
 		)
 	[OutputStream] output
 	[Integer] tab
@@ -243,11 +244,11 @@
 
 	}
 
-	- pushPrelogueAfterPrologue *{
+	- pushPrelogueScopeAfterPrologue *{
 
 	}
 
-	- popPrelogueAndPrologue *{
+	- popPrelogueAndPrologueScope *{
 
 	}
 
@@ -257,35 +258,79 @@
 
 
 	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
-		@TODO
-
-		@\methodExpression:ifMethodExpression
-		\:outputTabbed (\[String]:as "return caller;\n");
+		\[O]:selectOrDefault *([->] select) {
+			\methodExpression:ifMethodExpression *([List<[DainaObjectDeclaration]>] inputs, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+				\select;
+				\:pushScope inputs; 
+				\:synthesizeStatement body (\[Boolean]:true);
+				\output:ifNothing *{
+					\:outputTabbed (\[String]:as "return null;\n");
+				};
+				\output:ifIs *([DainaExpression] expression) {
+					\:outputTabbed (\[String]:as "return ");
+					\:synthesizeInPlaceExpression methodExpression;
+					\:output (\[String]:as ";\n");
+				};
+				\:popScope;
+			};
+		} *{
+			\:outputTabbed (\[String]:as "return ");
+			\:synthesizeInPlaceExpression methodExpression;
+			\:output (\[String]:as ".method(caller, parameters);\n");
+		};
 	}
 
-	@@
+	- synthesizeStatement *([DainaExpression] statement, [Boolean] baseStatement) {
+		\[O]:selectOrDefault *([->] select) {
+			\statement:ifStatementGroup *([List<[DainaExpression]>] statements) {
+				\select;
+				\[O]:ifElse baseStatement *{} *{
+					\:pushScope (\[List<[DainaObjectDeclaration]>]:empty); 
+					\:outputTabbed (\[String]:as "{\n");
+					\:incrementTab;
+				};
+				\statements:iterate *([DainaExpression] subStatement) {
+					\:synthesizeStatement subStatement (\[Boolean]:false);
+				};
+				\[O]:ifElse baseStatement *{} *{
+					\:decrementTab;
+					\:outputTabbed (\[String]:as "}\n");
+					\:popScope;
+				};
+			};
+			\statement:ifWithPrologueStatement *([DainaExpression] prelogueStatement, [DainaExpression] prologueStatement) {
+				\select;
+				\:pushPrologueScope;
+				\:synthesizeStatement prologueStatement (\[Boolean]:true);
+				\:pushPrelogueScopeAfterPrologue;
+				\:synthesizeStatement prelogueStatement (baseStatement);
+				\:popPrelogueAndPrologueScope;
+			};
+			@[[[DainaObjectDeclaration][DainaExpression]->]->] \statement:ifLocalObjectAssignment
+			@[[[DainaExpression][List<[DainaExpression]>]->]->] \statement:ifInvocation
+			@[[[Integer][Boolean][List<[DainaExpression]>]->]->] \statement:ifConstructorInvocation
+			@[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
+			@[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
+		} *{
+			\:outputTabbed (\[String]:as "INTERNAL STATEMENT ERROR!!!\n");
+		};
+	}
 
-    [[[List<[DainaExpression]>]->]->] ifStatementGroup
-	[[[String]->]->] ifDataSegment
-	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
-	[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
-	[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
-	[[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
-	[[[DainaObjectDeclaration][DainaExpression]->]->] ifLocalObjectAssignment
-	[[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
-	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
-	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
-	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
-	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
-	[[[DainaExpression]->]->] ifProxyObject
-	[[[DainaCompilerInjection]->]->] ifCompilerInjection
-	[[[DainaGeneralIdentifier]->]->] ifLocalObject
-	[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
-	[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
-	[[->]->] ifSelfReference
-	[[->]->] ifMethodSelfReference
-
-	@@
+	- synthesizeInPlaceExpression *([DainaExpression] methodExpression) {
+		\:output (\[String]:as "<expression>");
+		@[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
+		@[[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
+		@[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
+		@[[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
+		@[[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
+		@[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
+		@[[[DainaExpression]->]->] ifProxyObject
+		@[[[DainaGeneralIdentifier]->]->] ifLocalObject
+		@[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod
+		@[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
+		@[[->]->] ifSelfReference
+		@[[->]->] ifMethodSelfReference
+	}
 
 	
 }

@@ -705,7 +705,7 @@
 
 
 	~ base *{
-		.ifStatementGroup = *([[List<[DainaExpression]>]->]get){\get (\[List<[DainaExpression]>]:empty)};
+		.ifStatementGroup = *([[List<[DainaExpression]>]->]get){};
 		.ifDataSegment = *([]a){};
 		.ifWithPrologueStatement = *([]a){};
 		.ifMethodExpression = *([]a){};
@@ -862,7 +862,7 @@
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:curlyBracketOpen)) *{
 			\parser:gotoNextToken;
 			[List<[DainaExpression]>] statements = \[List<[DainaExpression]>]:empty;
-			.ifStatementGroup *([[List<[DainaExpression]>]->] get) {\get statements};
+			.ifStatementGroup = *([[List<[DainaExpression]>]->] get) {\get statements};
 			\[Loops]:until *([->] stop) {
 				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
 					[DainaExpression] statement = \[DainaExpression]:base;

@@ -216,6 +216,7 @@ asdf anonymous class object scope, anonymous object constructor local object are
 asdf pointer constructor only overrides instance methods for new object but doesnt copy object so old one is still affected when calling from new object. I.e. when calling old object its the same, when calling new object the overriden instance methods get called between each other internally
 asdf scope for output of method is base level of method statement or body (statmenet group {}) 
 asdf examples of ! on method expression (*(s)->[A]{}->a ! [?] a = \s:a) is invalid, (*(s)->[A]{}! {[?] a = \s:a} ->a ) is invalid, ```(*(s)->[A]{[?]a = l}! {[?] l = \s:a} ->a ) is valid```
+asdf statement block blocking out scope for prologue statement, regular code and method output
 
 ---
 
