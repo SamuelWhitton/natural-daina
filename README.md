@@ -175,7 +175,7 @@ d lang to compile
 
 
 
-asdf Lexical Splitter
+asdf Lexical Splitter, and even within comments the lexical splitter works
 ```
 mgiht be `  `  ` ` then ``` = 2 times
 

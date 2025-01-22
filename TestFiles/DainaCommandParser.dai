@@ -5,8 +5,7 @@
 [Object] {
 	++ asdf [->]
 	~ testconstr *{
-		{[asdf] s = s;};
-		: asdf = *{};
+		:asdf = *{};
 	}
 }
 

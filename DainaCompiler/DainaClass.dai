@@ -675,7 +675,7 @@
 	[[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
 
 	[[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
-	[[[Integer][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, ispointerconsturcotr, params
+	[[[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, identifier, ispointerconsturcotr, params
 	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
 	[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
 	[[[DainaExpression]->]->] ifProxyObject
@@ -730,7 +730,7 @@
 	}
 
 	++ ifInvocation *([[DainaExpression][List<[DainaExpression]>]->] get) {\.ifInvocation get}
-	++ ifConstructorInvocation *([[Integer][Boolean][List<[DainaExpression]>]->] get) {\.ifConstructorInvocation get}
+	++ ifConstructorInvocation *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\.ifConstructorInvocation get}
 	++ ifInstanceMethodAssignment *([[DainaGeneralIdentifier][DainaExpression]->] get) {\.ifInstanceMethodAssignment get}
 	++ ifInstanceObjectAssignment *([[DainaGeneralIdentifier][DainaExpression]->] get) {\.ifInstanceObjectAssignment get}
 	++ ifProxyObject *([[DainaExpression]->] get) {\.ifProxyObject get}
@@ -759,6 +759,19 @@
 		.ifInstanceMethod = other:ifInstanceMethod;
 		.ifLocalObjectAssignment = other:ifLocalObjectAssignment;
 		.ifTypeMethod = other:ifTypeMethod;
+
+
+		.ifInvocation = other:ifInvocation;
+		.ifConstructorInvocation = other:ifConstructorInvocation;
+		.ifInstanceMethodAssignment = other:ifInstanceMethodAssignment;
+		.ifInstanceObjectAssignment = other:ifInstanceObjectAssignment;
+		.ifProxyObject = other:ifProxyObject;
+		.ifCompilerInjection = other:ifCompilerInjection;
+		.ifLocalObject = other:ifLocalObject;
+		.ifInternalInstanceMethod = other:ifInternalInstanceMethod;
+		.ifInternalInstanceObject = other:ifInternalInstanceObject;
+		.ifSelfReference = other:ifSelfReference;
+		.ifMethodSelfReference = other:ifMethodSelfReference;
 	}
 
 	++ parse *([Parser] parser) {
@@ -1060,9 +1073,16 @@
 					\parser:gotoNextToken;
 					\parser:gotoNextToken;
 					[Boolean] isPointerConstructor = (\[Token]:equals (\parser:token) (\[Token]:arrowBracketClose));
-					\[O]:ifElse isPointerConstructor (parser:gotoNextToken) *{};
+					[DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+					\[O]:ifElse isPointerConstructor (parser:gotoNextToken) *{
+						\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+							\identifier:parse parser;
+						} *{
+							\parser:addError (\[Error]:expectingConstructorIdentifier (\parser:position));	
+						};
+					};
 					[List<[DainaExpression]>] paramList = \parseParameterList;
-					.ifConstructorInvocation = *([[Integer][Boolean][List<[DainaExpression]>]->] get) {\get parentNumber isPointerConstructor paramList};
+					.ifConstructorInvocation = *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\get parentNumber identifier isPointerConstructor paramList};
 				};
 			} *{
 				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{

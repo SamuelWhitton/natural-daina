@@ -172,7 +172,12 @@
 		\:output (\[String]:as " ");
 		\:output (\[String]:as "PARENT_");
 		\:output (\[String]:stringRepresentationOfInteger parentNumber);
-		\:output (\[String]:as " = null;\n");
+		\:output (\[String]:as " = new ");
+		\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+			\:output (\[String]:as "CLASSIMPL_");
+			\:output (\parentTypeIdentifier:content);
+		};
+		\:output (\[String]:as "();\n");
 	}
 
 	- synthesizeParentUnoverridenMethod *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] unoverridenMethod) {
@@ -322,11 +327,54 @@
 				\:synthesizeInPlaceExpression statement;
 				\:output (\[String]:as ";\n");
 			};
-			@[[[Integer][Boolean][List<[DainaExpression]>]->]->] \statement:ifConstructorInvocation
-			@[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
-			@[[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
+			\statement:ifInstanceMethodAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
+				\select;
+				\:outputTabbed (\[String]:as "ASSIGNIMETHOD_");
+				\:output (\identifier:content);
+				\:output (\[String]:as " = ");
+				\:synthesizeInPlaceExpression assignedExpression;
+				\:output (\[String]:as ";\n");
+			};
+			\statement:ifInstanceObjectAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
+				\select;
+				\:outputTabbed (\[String]:as "IOBJECT_");
+				\:output (\identifier:content);
+				\:output (\[String]:as " = ");
+				\:synthesizeInPlaceExpression assignedExpression;
+				\:output (\[String]:as ";\n");
+			};
+			\statement:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
+				\select;
+				\[O]:ifElse isPointerConstructor *{
+					\:outputTabbed (\[String]:as "PARENT_");
+					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+					\:output (\[String]:as " = ");
+					\:synthesizeMethodInputs inputs;
+					\:output (\[String]:as ";\n");
+				} *{
+					\:outputTabbed (\[String]:as "PARENT_");
+					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+					\:output (\[String]:as ".CMETHOD_");
+					\:output (\identifier:content);
+					\:output (\[String]:as "(PARENT_");
+					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+					\:output (\[String]:as ", [");
+					\:synthesizeMethodInputs inputs;
+					\:output (\[String]:as "]);\n");
+				};
+			};
 		} *{
 			\:outputTabbed (\[String]:as "INTERNAL STATEMENT ERROR!!!\n");
+		};
+	}
+
+	- synthesizeMethodInputs *([List<[DainaExpression]>] inputs) {
+		\:output (\[String]:as "<inputs>");
+		[Variable<[String]>] seperator = \[Variable<[String]>]:as (\[String]:as "");
+		\inputs:iterate *([DainaExpression] input) {
+			\:output (\seperator:get);
+			\:synthesizeInPlaceExpression input;
+			\seperator:set (\[String]:as ", ");
 		};
 	}
 
