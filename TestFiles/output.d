@@ -58,27 +58,21 @@ interface CLASSTYPE_DainaCommandStrings : OBJECT, LAMBDA {
 class CLASSIMPL_DainaCommandStrings : CLASSTYPE_DainaCommandStrings {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_ANALYSE_AND_SYNTHESISE_SYNTAX_TREE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_JAVA_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_C_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
 }
@@ -89,27 +83,21 @@ interface CLASSTYPE_DainaCommandDescriptionStrings : OBJECT, LAMBDA {
 class CLASSIMPL_DainaCommandDescriptionStrings : CLASSTYPE_DainaCommandDescriptionStrings {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_ANALYSE_AND_SYNTHESISE_SYNTAX_TREE(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_JAVA_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_C_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
 }
@@ -133,7 +121,6 @@ class CLASSIMPL_ValidDainaCommandsToParse : CLASSTYPE_ValidDainaCommandsToParse 
       return null;
    }
    override OBJECT IMETHOD_getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters) {
-      INTERNAL STATEMENT ERROR!!!
       return <expression>;
    }
    override OBJECT IMETHOD_maybeParsingActionForCommandStringIfValidDainaCommand(OBJECT caller, OBJECT[] parameters) {

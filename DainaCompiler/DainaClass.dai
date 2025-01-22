@@ -774,6 +774,8 @@
 		.ifMethodSelfReference = other:ifMethodSelfReference;
 	}
 
+	++ makeEmptyStatement *{.ifStatementGroup = *([[List<[DainaExpression]>]->] get){\get (\[List<[DainaExpression]>]:empty)}}
+
 	++ parse *([Parser] parser) {
 		[DainaExpression] left = \[DainaExpression]:base;
 		\left:parseStrongBinding parser;
@@ -820,7 +822,7 @@
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:asterisk)) *{
 			\parser:gotoNextToken;
 			[List<[DainaObjectDeclaration]>] parameters = \[List<[DainaObjectDeclaration]>]:empty;
-			[DainaExpression] body = \[DainaExpression]:base;
+			[DainaExpression] body = (\[DainaExpression]:base);
 			[Variable<[Maybe<[DainaExpression]>]>] output = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
 			.ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {
 				\get parameters body (\output:get);
@@ -861,7 +863,9 @@
 						} *{
 							\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
 						};
-					} *{};
+					} *{
+						\body:makeEmptyStatement;
+					};
 					\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
 						[DainaExpression] outputExpression = \[DainaExpression]:base;
 						\outputExpression:parseStrongBinding parser;
@@ -869,7 +873,9 @@
 					} *{
 						\parser:addError (\[Error]:expectingMethodOutput (\parser:position));
 					};
-				} *{};
+				} *{
+					\body:makeEmptyStatement;
+				};
 			};
 		} *{};
 		\[O]:ifElse (\[Token]:equals token1 (\[Token]:curlyBracketOpen)) *{
