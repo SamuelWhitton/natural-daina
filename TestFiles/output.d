@@ -23,7 +23,7 @@ class CLASSIMPL_Object : CLASSTYPE_Object {
       return ASSIGNIMETHOD_asdf.method(caller, parameters);
    }
    static OBJECT CMETHOD_testconstr(OBJECT caller, OBJECT[] parameters) {
-      ASSIGNIMETHOD_asdf = <expression>;
+      ASSIGNIMETHOD_asdf = <INTERNAL EXPRESSION ERROR!!!>;
       return null;
    }
 }
@@ -39,16 +39,26 @@ class CLASSIMPL_DainaCommandParser : CLASSTYPE_DainaCommandParser {
    private OBJECT IOBJECT_validDainaCommandsToParse = null;
    override OBJECT IMETHOD_asdf(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_asdf(caller, parameters); }
    static OBJECT CMETHOD_newDainaCommandParser(OBJECT caller, OBJECT[] parameters) {
-      return <expression>.method(caller, parameters);
+      return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_validDainaCommandsToParse = <INTERNAL EXPRESSION ERROR!!!>;
+         <INTERNAL EXPRESSION ERROR!!!>;
+         <INTERNAL EXPRESSION ERROR!!!>;
+         <INTERNAL EXPRESSION ERROR!!!>;
+         <INTERNAL EXPRESSION ERROR!!!>;
+         <INTERNAL EXPRESSION ERROR!!!>;
+         <INTERNAL EXPRESSION ERROR!!!>;
+         INTERNAL STATEMENT ERROR!!!
+         return caller;
+      } }).method(caller, parameters);
    }
    override OBJECT IMETHOD_parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT caller, OBJECT[] parameters) {
-      OBJECT nextCommandString = <expression>;
-      OBJECT nextCommandStringIsEmpty = <expression>;
-      <expression>;
+      OBJECT LOBJECT_nextCommandString = <INTERNAL EXPRESSION ERROR!!!>;
+      OBJECT LOBJECT_nextCommandStringIsEmpty = <INTERNAL EXPRESSION ERROR!!!>;
+      <INTERNAL EXPRESSION ERROR!!!>;
       return null;
    }
    override OBJECT IMETHOD_getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
 }
 
@@ -58,22 +68,22 @@ interface CLASSTYPE_DainaCommandStrings : OBJECT, LAMBDA {
 class CLASSIMPL_DainaCommandStrings : CLASSTYPE_DainaCommandStrings {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_ANALYSE_AND_SYNTHESISE_SYNTAX_TREE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_JAVA_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_C_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
 }
 
@@ -83,22 +93,22 @@ interface CLASSTYPE_DainaCommandDescriptionStrings : OBJECT, LAMBDA {
 class CLASSIMPL_DainaCommandDescriptionStrings : CLASSTYPE_DainaCommandDescriptionStrings {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_EXPOSED_AND_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_PARSE_DAINA_SOURCE_FILE_IN_PRIVATE_NAMESPACE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_ANALYSE_AND_SYNTHESISE_SYNTAX_TREE(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_JAVA_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    static OBJECT TMETHOD_COMPILE_INTO_C_WITHIN_DIRECTORY(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
 }
 
@@ -116,18 +126,25 @@ class CLASSIMPL_ValidDainaCommandsToParse : CLASSTYPE_ValidDainaCommandsToParse 
    override OBJECT IMETHOD_asdf(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_asdf(caller, parameters); }
    static OBJECT CMETHOD_emptyListOfValidDainaCommandsToParse(OBJECT caller, OBJECT[] parameters) {
       PARENT_1.CMETHOD_newObject(PARENT_1, [<inputs>]);
-      IOBJECT_usageDescriptionOfAllValidCommands = <expression>;
-      IOBJECT_mappingOfValidCommandStringToParsingAction = <expression>;
+      IOBJECT_usageDescriptionOfAllValidCommands = <INTERNAL EXPRESSION ERROR!!!>;
+      IOBJECT_mappingOfValidCommandStringToParsingAction = <INTERNAL EXPRESSION ERROR!!!>;
       return null;
    }
    override OBJECT IMETHOD_getUsageDescriptionOfValidDainaCommands(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    override OBJECT IMETHOD_maybeParsingActionForCommandStringIfValidDainaCommand(OBJECT caller, OBJECT[] parameters) {
-      return <expression>;
+      return <INTERNAL EXPRESSION ERROR!!!>;
    }
    override OBJECT IMETHOD_addValidDainaCommandForCommandStringAndParsingActionAndDescriptionOfCommand(OBJECT caller, OBJECT[] parameters) {
-      return <expression>.method(caller, parameters);
+      return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_currentDescriptionOfAllValidCommands = <INTERNAL EXPRESSION ERROR!!!>;
+         OBJECT LOBJECT_newLineAndTab = <INTERNAL EXPRESSION ERROR!!!>;
+         OBJECT LOBJECT_colonAndSpace = <INTERNAL EXPRESSION ERROR!!!>;
+         OBJECT LOBJECT_usageDescriptionOfCommand = <INTERNAL EXPRESSION ERROR!!!>;
+         INTERNAL STATEMENT ERROR!!!
+         return caller;
+      } }).method(caller, parameters);
    }
 }
 
@@ -142,39 +159,39 @@ class CLASSIMPL_DainaCommandParsingAction : CLASSTYPE_DainaCommandParsingAction 
    override OBJECT IMETHOD_asdf(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_asdf(caller, parameters); }
    static OBJECT CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(OBJECT caller, OBJECT[] parameters) {
       PARENT_1.CMETHOD_newObject(PARENT_1, [<inputs>]);
-      IOBJECT_parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver = <expression>;
+      IOBJECT_parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver = LOBJECT_parsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver;
       return null;
    }
    override OBJECT IMETHOD_performActionWithCommandStringSegmentProviderAndThenSendCommandToReceiver(OBJECT caller, OBJECT[] parameters) {
-      <expression>;
+      <INTERNAL EXPRESSION ERROR!!!>;
       return null;
    }
    static OBJECT CMETHOD_parseCommandToParseDainaSourceFileInExposedNamespace(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
    static OBJECT CMETHOD_parseCommandToParseDainaSourceFileInExposedAndPrivateNamespace(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
    static OBJECT CMETHOD_parseCommandToParseDainaSourceFileInPrivateNamespace(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
    static OBJECT CMETHOD_parseCommandToAnalyseAndSynthesiseSyntaxTree(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
    static OBJECT CMETHOD_parseCommandToCompileIntoJavaWithinDirectory(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
    static OBJECT CMETHOD_parseCommandToCompileIntoCWithinDirectory(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
    static OBJECT CMETHOD_parseInvalidCommand(OBJECT caller, OBJECT[] parameters) {
-      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><expression>]);
+      PARENT_1.CMETHOD_newParsingActionUsingParsingActionToParseCommandWithCommandStringSegmentProviderAndThenSendCommandToReceiver(PARENT_1, [<inputs><INTERNAL EXPRESSION ERROR!!!>]);
       return null;
    }
 }
