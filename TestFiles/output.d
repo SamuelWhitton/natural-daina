@@ -8,17 +8,17 @@ interface LAMBDA {
 void main() { ENTRY_POINT_CLASS.entryPointMethod(null, []); }
 class ENTRY_POINT_CLASS {
    static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {
-      OBJECT LOBJECT_two = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      OBJECT LOBJECT_two = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return CLASSIMPL_Integer.TMETHOD_add(caller, parameters);
-      } }).method(caller, [(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      } })).method(caller, [(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-      } }).method(caller, []), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      } })).method(caller, []), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-      } }).method(caller, [])]);
-      (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      } })).method(caller, [])]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_two;
-         return instance.IMETHOD_debugPrint(instance, parameters);
-      } }).method(caller, []);
+         return (cast(CLASSTYPE_Integer)instance).IMETHOD_debugPrint(instance, parameters);
+      } })).method(caller, []);
       return null;
    }
 }
@@ -37,22 +37,32 @@ class CLASSIMPL_Integer : CLASSTYPE_Integer {
    }
    static OBJECT TMETHOD_one(OBJECT caller, OBJECT[] parameters) { OBJECT newInstance = new CLASSIMPL_Integer(); CMETHOD_one(newInstance, parameters); return newInstance; }
    static OBJECT CMETHOD_one(OBJECT caller, OBJECT[] parameters) {
-      (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      OBJECT LOBJECT_a = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         return null;
+      } });
+      (cast(LAMBDA)LOBJECT_a).method(caller, []);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
          OBJECT instance = self;
          return self.IMETHOD_debugPrint(instance, parameters);
-      } }).method(caller, []);
-      (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      } })).method(caller, []);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
          OBJECT instance = self.PARENT_1;
          return self.PARENT_1.IMETHOD_asdf(instance, parameters);
-      } }).method(caller, []);
+      } })).method(caller, []);
       return null;
    }
    static OBJECT TMETHOD_add(OBJECT caller, OBJECT[] parameters) {
-      return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      OBJECT LOBJECT_i1 = parameters[0];
+      OBJECT LOBJECT_i2 = parameters[1];
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_i1;
+         return (cast(CLASSTYPE_Integer)instance).IMETHOD_debugPrint(instance, parameters);
+      } })).method(caller, []);
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-      } }).method(caller, []);
+      } })).method(caller, []);
    }
    override OBJECT IMETHOD_debugPrint(OBJECT caller, OBJECT[] parameters) {
       return null;

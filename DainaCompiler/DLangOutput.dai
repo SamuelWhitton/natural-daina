@@ -31,7 +31,10 @@
 	[Mapping<[String][DainaClass]>] mappedClasses
 	[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>] mappedClassMethods
 	[DainaClassIdentifier] selfClassName
+	[List<[DainaObjectDeclaration]>] selfInstanceObjects
 	[Integer] temporaryNumber
+	[DainaType] synthesizedExpressionType
+	[Mapping<[String][DainaType]>] localObjectScope
 {
 	~ to *([OutputStream] output) {
 		.tab = \[Integer]:zero;
@@ -40,6 +43,9 @@
 		.mappedClassMethods = \[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>]:empty;
 		.temporaryNumber = \[Integer]:zero;
 		.selfClassName = \[DainaClassIdentifier]:base;
+		.synthesizedExpressionType = \[DainaType]:base;
+		.selfInstanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
+		.localObjectScope = \[Mapping<[String][DainaType]>]:empty;
 	}
 
 	- outputNextTemporaryVariableName *{
@@ -132,6 +138,7 @@
 			\:decrementTab; \:decrementTab; \:output (\[String]:as "   }\n}\n\n");
 		} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
 			.selfClassName = className;
+			.selfInstanceObjects = instanceObjects;
 			\:output (\[String]:as "/* *** CLASS: ");
 			\:output (\className:content);
 			\:output (\[String]:as " *** */\n");
@@ -261,6 +268,18 @@
 
 	- pushScope *([List<[DainaObjectDeclaration]>] parameters) {
 		@ params are LOBJECT_
+		[Variable<[Integer]>] paramNumber = \[Variable<[Integer]>]:as (\[Integer]:zero);
+		[Integer] one = \[Integer]:one;
+		\parameters:iterate *([DainaObjectDeclaration] parameter) {
+			\:addLocalObjectToScope parameter;
+			[DainaGeneralIdentifier] id = \parameter:identifier;
+			\:outputTabbed (\[String]:as "OBJECT LOBJECT_");
+			\:output (\id:content);
+			\:output (\[String]:as " = parameters[");
+			\:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
+			\:output (\[String]:as "];\n");
+			\paramNumber:set (\one:adding (\paramNumber:get));
+		};
 	}
 
 	- popScope *{
@@ -280,8 +299,14 @@
 	}
 
 	- addLocalObjectToScope *([DainaObjectDeclaration] localObject) {
-
+		[DainaGeneralIdentifier] id = \localObject:identifier;
+		\.localObjectScope:mapKeyToValue (\id:content) (\localObject:type);
 	}
+
+	- getLocalObjectType *([DainaGeneralIdentifier] localObjectIdentifier) -> [DainaType] {
+		[Variable<[DainaType]>] ret = \[Variable<[DainaType]>]:as (\[DainaType]:base);
+		\.localObjectScope:retriveMappedValueWithKey (\localObjectIdentifier:content) (ret:set);
+	} -> \ret:get
 
 
 	- synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
@@ -400,6 +425,7 @@
 	}
 
 	- synthesizeInPlaceExpression *([DainaExpression] expression) {
+		.synthesizedExpressionType = \[DainaType]:base;
 		\[O]:selectOrDefault *([->] select) {
 			\expression:ifWithPrologueStatement *([DainaExpression] prelogue, [DainaExpression] prologue) {
 				\select;
@@ -424,6 +450,7 @@
 				\select;
 				\:output (\[String]:as "LOBJECT_");
 				\:output (\identifier:content);
+				.synthesizedExpressionType = \:getLocalObjectType identifier;
 			};
 			\expression:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
 				\select;
@@ -432,6 +459,9 @@
 				\:synthesizeMethodBodyContent expression;
 				\:decrementTab;
 				\:outputTabbed (\[String]:as "} })");
+				[DainaType] outputType = .synthesizedExpressionType;
+				.synthesizedExpressionType = \[DainaType]:base;
+				\.synthesizedExpressionType:setAsMethodWithOutputType (\expression:outputType);
 			};
 			\expression:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
 				\select;
@@ -440,11 +470,26 @@
 				\:outputTabbed (\[String]:as "OBJECT instance = ");
 				\:synthesizeInPlaceExpression instanceExpression;
 				\:output (\[String]:as ";\n");
-				\:outputTabbed (\[String]:as "return instance.IMETHOD_");
+				\:outputTabbed (\[String]:as "return (cast(");
+				\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+					\:output (\[String]:as "CLASSTYPE_");
+					\:output (\instanceExpressionClassName:content);
+				};
+				\:output (\[String]:as ")instance).IMETHOD_");
 				\:output (\identifier:content);
 				\:output (\[String]:as "(instance, parameters);\n");
 				\:decrementTab;
 				\:outputTabbed (\[String]:as "} })");
+				\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+					\.mappedClassMethods:retriveMappedValueWithKey (\instanceExpressionClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] instanceExpressionClassMethods) {
+						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \instanceExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
+						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+							[DainaExpression] methodExpression = \invokedMethod:methodExpression;
+							.synthesizedExpressionType = \[DainaType]:base;
+							\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+						};
+					};
+				};
 			};
 			\expression:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
 				\select;
@@ -454,6 +499,14 @@
 				\type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
 					\:output (\[String]:as "CLASSIMPL_");
 					\:output (\typeIdentifier:content);
+					\.mappedClassMethods:retriveMappedValueWithKey (\typeIdentifier:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
+						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
+						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+							[DainaExpression] methodExpression = \invokedMethod:methodExpression;
+							.synthesizedExpressionType = \[DainaType]:base;
+							\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+						};
+					};
 				};
 				\:output (\[String]:as ".TMETHOD_");
 				\:output (\identifier:content);
@@ -463,10 +516,16 @@
 			};
 			\expression:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
 				\select;
+				\:output (\[String]:as "(cast(LAMBDA)");
 				\:synthesizeInPlaceExpression method;
-				\:output (\[String]:as ".method(caller, [");
+				\:output (\[String]:as ").method(caller, [");
 				\:synthesizeMethodInputs params;
 				\:output (\[String]:as "])");
+				\.synthesizedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
+					\MoutputType:ifIs *([DainaType] outputType) {
+						.synthesizedExpressionType = outputType;
+					};
+				};
 			};
 			\expression:ifProxyObject *([DainaExpression] object) {
 				\select;
@@ -499,11 +558,26 @@
 				\:output (\[String]:as "(instance, parameters);\n");
 				\:decrementTab;
 				\:outputTabbed (\[String]:as "} })");
+				\.mappedClassMethods:retriveMappedValueWithKey (\.selfClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
+						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
+						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+							[DainaExpression] methodExpression = \invokedMethod:methodExpression;
+							.synthesizedExpressionType = \[DainaType]:base;
+							\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+						};
+					};
 			};
 			\expression:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
 				\select;
 				\:output (\[String]:as "IOBJECT_");
 				\:output (\instanceObjectIdentifier:content);
+				[String] instanceObjectIdentifierString = \instanceObjectIdentifier:content;
+				\.selfInstanceObjects:iterate *([DainaObjectDeclaration] decl) {
+					[DainaGeneralIdentifier] thisId = \decl:identifier;
+					\[O]:ifElse (\instanceObjectIdentifierString:equals (\thisId:content)) *{
+						.synthesizedExpressionType = \decl:type;
+					} *{};
+				};
 			};
 			\expression:ifSelfReference * {
 				\select;

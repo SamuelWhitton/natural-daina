@@ -437,6 +437,10 @@
 		\::new;
 	}
 
+	++ setAsMethodWithOutputType *([DainaType] outputType) {
+		.ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
+	}
+
 	++ parse *([Parser] parser) {
 		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
 			\parser:gotoNextToken;
@@ -665,6 +669,7 @@
 
 			Debug
 		)
+	[DainaType] outputType
 	[[[List<[DainaExpression]>]->]->] ifStatementGroup
 	[[[String]->]->] ifDataSegment
 	[[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
@@ -713,6 +718,7 @@
 		.ifInstanceMethod = *([]a){};
 		.ifLocalObjectAssignment = *([]a){};
 		.ifTypeMethod = *([]a){};
+		.outputType = \[DainaType]:base;
 
 		.ifInvocation = *([]a){};
 		.ifConstructorInvocation = *([]a){};
@@ -728,6 +734,8 @@
 		
 		\::new;
 	}
+
+	++ outputType *->[DainaType]{}->.outputType
 
 	++ ifInvocation *([[DainaExpression][List<[DainaExpression]>]->] get) {\.ifInvocation get}
 	++ ifConstructorInvocation *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\.ifConstructorInvocation get}
@@ -759,7 +767,7 @@
 		.ifInstanceMethod = other:ifInstanceMethod;
 		.ifLocalObjectAssignment = other:ifLocalObjectAssignment;
 		.ifTypeMethod = other:ifTypeMethod;
-
+		.outputType = \other:outputType;
 
 		.ifInvocation = other:ifInvocation;
 		.ifConstructorInvocation = other:ifConstructorInvocation;
@@ -853,6 +861,7 @@
 					\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
 						[DainaType] outputType = \[DainaType]:base;
 						\outputType:parse parser;
+						.outputType = outputType;
 						\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
 							\body:parseStrongBinding parser;
 						} *{

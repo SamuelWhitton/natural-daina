@@ -8,11 +8,15 @@
 [Integer : [Object]] (Object) {
    ~ zero *{}
    ~ one *{
+      [->] a = *{};
+      \a;
       \:debugPrint;
       \$asdf;
    }
 
-   :: add *([Integer] i1, [Integer] i2) -> \[Integer]:one
+   :: add *([Integer] i1, [Integer] i2) -> [Integer]  {
+         \i1:debugPrint;
+      }->\[Integer]:one
 
    ++ debugPrint *{}
 }
