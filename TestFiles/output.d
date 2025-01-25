@@ -105,8 +105,12 @@ class CLASSIMPL_DainaCommandParser : CLASSTYPE_DainaCommandParser {
          } }).method(caller, []), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             return CLASSIMPL_DainaCommandDescriptionStrings.TMETHOD_COMPILE_INTO_C_WITHIN_DIRECTORY(caller, parameters);
          } }).method(caller, [])]);
-         INTERNAL STATEMENT ERROR!!!
-         return caller;
+         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_asdf = <INTERNAL EXPRESSION ERROR!!!>;
+            PARENT_1.CMETHOD_newObject(PARENT_1, []);
+            IOBJECT_validDainaCommandsToParse = LOBJECT_validDainaCommandsToParse;
+            return null;
+         } });
       } }).method(caller, []);
    }
    override OBJECT IMETHOD_parseNextCommandAndSendToReceiverWithCommandStringSegmentProvider(OBJECT caller, OBJECT[] parameters) {
@@ -278,8 +282,23 @@ class CLASSIMPL_ValidDainaCommandsToParse : CLASSTYPE_ValidDainaCommandsToParse 
             OBJECT instance = LOBJECT_colonAndSpace;
             return instance.IMETHOD_stringByAppendingString(instance, parameters);
          } }).method(caller, [LOBJECT_descriptionOfCommand])]);
-         INTERNAL STATEMENT ERROR!!!
-         return caller;
+         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_mappingOfValidCommandStringToParsingAction;
+               return instance.IMETHOD_mapKeyToValue(instance, parameters);
+            } }).method(caller, [LOBJECT_commandString, LOBJECT_parsingAction]);
+            (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_usageDescriptionOfAllValidCommands;
+               return instance.IMETHOD_set(instance, parameters);
+            } }).method(caller, [(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_currentDescriptionOfAllValidCommands;
+               return instance.IMETHOD_stringByAppendingString(instance, parameters);
+            } }).method(caller, [(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_newLineAndTab;
+               return instance.IMETHOD_stringByAppendingString(instance, parameters);
+            } }).method(caller, [LOBJECT_usageDescriptionOfCommand])])]);
+            return null;
+         } });
       } }).method(caller, []);
    }
 }

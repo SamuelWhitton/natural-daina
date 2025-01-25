@@ -395,13 +395,13 @@
 				\[O]:selectOrDefault *([->] selectInner) {
 					\prelogue:ifStatementGroup *([] a) {
 						\selectInner;
-						\:outputTabbed (\[String]:as "return ");
-						\:synthesizeInPlaceExpression prelogue;
-						\:output (\[String]:as ";\n");
+						\:synthesizeStatement prelogue (\[Boolean]:true);
+						\:outputTabbed (\[String]:as "return caller;\n");
 					};
 				} *{
-					\:synthesizeStatement prelogue (\[Boolean]:true);
-					\:outputTabbed (\[String]:as "return caller;\n");
+					\:outputTabbed (\[String]:as "return ");
+					\:synthesizeInPlaceExpression prelogue;
+					\:output (\[String]:as ";\n");
 				};
 				\:decrementTab;
 				\:outputTabbed (\[String]:as "} }).method(caller, [])");
