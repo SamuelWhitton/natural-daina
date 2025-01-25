@@ -30,6 +30,7 @@
 	[Integer] tab
 	[Mapping<[String][DainaClass]>] mappedClasses
 	[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>] mappedClassMethods
+	[DainaClassIdentifier] selfClassName
 	[Integer] temporaryNumber
 {
 	~ to *([OutputStream] output) {
@@ -38,6 +39,7 @@
 		.mappedClasses = \[Mapping<[String][DainaClass]>]:empty;
 		.mappedClassMethods = \[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>]:empty;
 		.temporaryNumber = \[Integer]:zero;
+		.selfClassName = \[DainaClassIdentifier]:base;
 	}
 
 	- outputNextTemporaryVariableName *{
@@ -129,6 +131,7 @@
 			\:synthesizeMethodBodyContent entryPointMethod; 
 			\:decrementTab; \:decrementTab; \:output (\[String]:as "   }\n}\n\n");
 		} *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+			.selfClassName = className;
 			\:output (\[String]:as "/* *** CLASS: ");
 			\:output (\className:content);
 			\:output (\[String]:as " *** */\n");
@@ -211,6 +214,9 @@
 				\:outputTabbed (\[String]:as "OBJECT TMETHOD_");
 			} *{
 				\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+				\:output (\classMethodIdentifier:content);
+				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
+				\:outputTabbed (\[String]:as "OBJECT TMETHOD_");
 			};
 			\:output (\classMethodIdentifier:content);
 			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
@@ -229,6 +235,14 @@
 		} *{
 			\:outputTabbed (\[String]:as "static OBJECT TMETHOD_");
 		} *{
+			\:outputTabbed (\[String]:as "static OBJECT TMETHOD_");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters) { OBJECT newInstance = new ");
+			\:output (\[String]:as "CLASSIMPL_");
+			\:output (\.selfClassName:content);
+			\:output (\[String]:as "(); CMETHOD_");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as "(newInstance, parameters); return newInstance; }\n");
 			\:outputTabbed (\[String]:as "static OBJECT CMETHOD_");
 		};
 		\:output (\classMethodIdentifier:content);
@@ -462,15 +476,25 @@
 				\select;
 				\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
 				\:incrementTab;
-				\:outputTabbed (\[String]:as "OBJECT instance = ");
-				\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
-					\:output (\[String]:as "caller");
-				} *{
-					\:output (\[String]:as "PARENT_");
-					\:output (\[String]:stringRepresentationOfInteger parentNumber);
-				};
+				\:outputTabbed (\[String]:as "CLASSIMPL_");
+				\:output (\.selfClassName:content);
+				\:output (\[String]:as " self = ");
+				\:output (\[String]:as "cast(");
+				\:output (\[String]:as "CLASSIMPL_");
+				\:output (\.selfClassName:content);
+				\:output (\[String]:as ")caller");
 				\:output (\[String]:as ";\n");
-				\:outputTabbed (\[String]:as "return instance.IMETHOD_");
+				\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+					\:outputTabbed (\[String]:as "OBJECT instance = self;\n");
+					\:outputTabbed (\[String]:as "return self.IMETHOD_");
+				} *{
+					\:outputTabbed (\[String]:as "OBJECT instance = self.PARENT_");
+					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+					\:output (\[String]:as ";\n");
+					\:outputTabbed (\[String]:as "return self.PARENT_");
+					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+					\:output (\[String]:as ".IMETHOD_");
+				};
 				\:output (\identifier:content);
 				\:output (\[String]:as "(instance, parameters);\n");
 				\:decrementTab;

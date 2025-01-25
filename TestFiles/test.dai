@@ -1,0 +1,30 @@
+[] (Integer) {
+   *{
+      [Integer] two = \[Integer]:add (\[Integer]:one) (\[Integer]:one);
+      \two:debugPrint;
+   }
+}
+
+[Integer : [Object]] (Object) {
+   ~ zero *{}
+   ~ one *{
+      \:debugPrint;
+      \$asdf;
+   }
+
+   :: add *([Integer] i1, [Integer] i2) -> \[Integer]:one
+
+   ++ debugPrint *{}
+}
+
+[Object] {
+   ++ asdf *{}
+}
+
+
+
+
+
+
+
+
