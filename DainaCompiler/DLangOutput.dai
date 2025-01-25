@@ -423,7 +423,7 @@
 				\select;
 				\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
 				\:incrementTab;
-				\:outputTabbed (\[String]:as "LAMBDA instance = ");
+				\:outputTabbed (\[String]:as "OBJECT instance = ");
 				\:synthesizeInPlaceExpression instanceExpression;
 				\:output (\[String]:as ";\n");
 				\:outputTabbed (\[String]:as "return instance.IMETHOD_");
@@ -454,25 +454,42 @@
 				\:synthesizeMethodInputs params;
 				\:output (\[String]:as "])");
 			};
-			@@\expression:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
+			\expression:ifProxyObject *([DainaExpression] object) {
 				\select;
-				\:synthesizeInPlaceExpression method;
-				\:output (\[String]:as ".(caller, [");
-				\:synthesizeMethodInputs params
-				\:output (\[String]:as "])");
-			};@@
+				\:synthesizeInPlaceExpression object;
+			};
+			\expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
+				\select;
+				\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+				\:incrementTab;
+				\:outputTabbed (\[String]:as "OBJECT instance = ");
+				\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+					\:output (\[String]:as "caller");
+				} *{
+					\:output (\[String]:as "PARENT_");
+					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+				};
+				\:output (\[String]:as ";\n");
+				\:outputTabbed (\[String]:as "return instance.IMETHOD_");
+				\:output (\identifier:content);
+				\:output (\[String]:as "(instance, parameters);\n");
+				\:decrementTab;
+				\:outputTabbed (\[String]:as "} })");
+			};
+			\expression:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
+				\select;
+				\:output (\[String]:as "IOBJECT_");
+				\:output (\instanceObjectIdentifier:content);
+			};
+			\expression:ifSelfReference * {
+				\select;
+				\:output (\[String]:as "caller");
+			};
 		} *{
 			\:output (\[String]:as "<INTERNAL EXPRESSION ERROR!!!>");
 		};
 
-
-		
-		@[[[DainaExpression]->]->] ifProxyObject
-		@[[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod
-		@[[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
-		@[[->]->] ifSelfReference
 		@[[->]->] ifMethodSelfReference
-
 		@[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
 	}
 
