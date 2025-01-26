@@ -1241,6 +1241,10 @@ A construct will bind stronger then a preceeding construct at the same binding l
 		\::new;
 	}
 
+	++ identifierString *->\.identifier:content
+
+	++ dataSegment *->.dataSegment
+
 	++ parse *([Parser] parser) {
 		\parser:gotoNextToken;
 		\[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
@@ -1257,6 +1261,8 @@ A construct will bind stronger then a preceeding construct at the same binding l
 		};
 	}
 }
+
+
 
 
 

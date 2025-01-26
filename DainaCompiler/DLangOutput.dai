@@ -124,6 +124,7 @@
 		};
 		\:output (\[String]:as "/* *** HEADER *** */\n");
 		\:output (\[String]:as "interface OBJECT {}\n");
+		\:output (\[String]:as "class LITERAL_STRING : OBJECT { string it; this(string s) {this.it = s;} }\n");
 		\:output (\[String]:as "interface LAMBDA {\n   OBJECT method(OBJECT caller, OBJECT[] parameters);\n}\n\n");
 		\classes:iterate :synthesizeClass;
 	}
@@ -160,6 +161,16 @@
 			\:output (\[String]:as " : CLASSTYPE_");
 			\:output (\className:content);
 			\:output (\[String]:as " {\n"); \:incrementTab;
+			\compilerInjections:iterate *([DainaCompilerInjection] compilerInjection) {
+				[String] dlang = \[String]:as "dlang";
+				\[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+					\:output (\[String]:as "/* dlang injection start */");
+					\:output (\compilerInjection:dataSegment);
+					\:output (\[String]:as "/* dlang injection end */\n");
+				} *{
+					\:outputTabbed (\[String]:as "ERROR UNKNOWN INJECTION!!!\n");
+				};
+			};
 			\:outputTabbed (\[String]:as "override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
 			[Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
 			\inheritedParentTypes:iterate *([DainaType] parentType) {
@@ -184,7 +195,7 @@
 	- synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
 		\:outputTabbed (\[String]:as "private ");
 		\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
-			\:output (\[String]:as "CLASSTYPE_");
+			\:output (\[String]:as "CLASSIMPL_");
 			\:output (\parentTypeIdentifier:content);
 		};
 		\:output (\[String]:as " ");
@@ -217,16 +228,17 @@
 			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
 			\classMethod:isInstanceTypeOrConstructor *{
 				\:outputTabbed (\[String]:as "OBJECT IMETHOD_");
+				\:output (\classMethodIdentifier:content);
+				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 			} *{
-				\:outputTabbed (\[String]:as "OBJECT TMETHOD_");
 			} *{
-				\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+				@@\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
 				\:output (\classMethodIdentifier:content);
 				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 				\:outputTabbed (\[String]:as "OBJECT TMETHOD_");
+				\:output (\classMethodIdentifier:content);
+				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");@@
 			};
-			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 		} *{} *{};
 	}
 
@@ -244,13 +256,16 @@
 		} *{
 			\:outputTabbed (\[String]:as "static OBJECT TMETHOD_");
 			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters) { OBJECT newInstance = new ");
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters) { ");
 			\:output (\[String]:as "CLASSIMPL_");
 			\:output (\.selfClassName:content);
-			\:output (\[String]:as "(); CMETHOD_");
+			\:output (\[String]:as " newInstance = new ");
+			\:output (\[String]:as "CLASSIMPL_");
+			\:output (\.selfClassName:content);
+			\:output (\[String]:as "(); return newInstance.CMETHOD_");
 			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(newInstance, parameters); return newInstance; }\n");
-			\:outputTabbed (\[String]:as "static OBJECT CMETHOD_");
+			\:output (\[String]:as "(newInstance, parameters); }\n");
+			\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
 		};
 		\:output (\classMethodIdentifier:content);
 		\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
@@ -267,7 +282,6 @@
 
 
 	- pushScope *([List<[DainaObjectDeclaration]>] parameters) {
-		@ params are LOBJECT_
 		[Variable<[Integer]>] paramNumber = \[Variable<[Integer]>]:as (\[Integer]:zero);
 		[Integer] one = \[Integer]:one;
 		\parameters:iterate *([DainaObjectDeclaration] parameter) {
@@ -316,7 +330,7 @@
 				\:pushScope inputs; 
 				\:synthesizeStatement body (\[Boolean]:true);
 				\output:ifNothing *{
-					\:outputTabbed (\[String]:as "return null;\n");
+					\:outputTabbed (\[String]:as "return caller;\n");
 				};
 				\output:ifIs *([DainaExpression] outputExpression) {
 					\:outputTabbed (\[String]:as "return ");
@@ -392,22 +406,46 @@
 			};
 			\statement:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
 				\select;
-				\[O]:ifElse isPointerConstructor *{
-					\:outputTabbed (\[String]:as "PARENT_");
-					\:output (\[String]:stringRepresentationOfInteger parentNumber);
-					\:output (\[String]:as " = ");
-					\:synthesizeMethodInputs inputs;
-					\:output (\[String]:as ";\n");
+				\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+					\[O]:ifElse isPointerConstructor *{
+						\:output (\[String]:as "caller = ");
+						\:synthesizeMethodInputs inputs;
+						\:output (\[String]:as ";\n");
+					} *{
+						\:output (\[String]:as "this.CMETHOD_");
+						\:output (\identifier:content);
+						\:output (\[String]:as "(this");
+						\:output (\[String]:as ", [");
+						\:synthesizeMethodInputs inputs;
+						\:output (\[String]:as "]);\n");
+					};
 				} *{
 					\:outputTabbed (\[String]:as "PARENT_");
 					\:output (\[String]:stringRepresentationOfInteger parentNumber);
-					\:output (\[String]:as ".CMETHOD_");
-					\:output (\identifier:content);
-					\:output (\[String]:as "(PARENT_");
-					\:output (\[String]:stringRepresentationOfInteger parentNumber);
-					\:output (\[String]:as ", [");
-					\:synthesizeMethodInputs inputs;
-					\:output (\[String]:as "]);\n");
+					\[O]:ifElse isPointerConstructor *{
+						\:output (\[String]:as " = ");
+						\:synthesizeMethodInputs inputs;
+						\:output (\[String]:as ";\n");
+					} *{
+						\:output (\[String]:as ".CMETHOD_");
+						\:output (\identifier:content);
+						\:output (\[String]:as "(PARENT_");
+						\:output (\[String]:stringRepresentationOfInteger parentNumber);
+						\:output (\[String]:as ", [");
+						\:synthesizeMethodInputs inputs;
+						\:output (\[String]:as "]);\n");
+					};
+				};
+			};
+			\statement:ifCompilerInjection *([DainaCompilerInjection] compilerInjection) {
+				\select;
+				[String] dlang = \[String]:as "dlang";
+				\[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+					\:output (\[String]:as "/* dlang injection start */");
+					\:output (\compilerInjection:dataSegment);
+					\:output (\[String]:as "/* dlang injection end */\n");
+				} *{
+					\:outputTabbed (\[String]:as "ERROR UNKNOWN INJECTION!!!\n");
 				};
 			};
 		} *{
@@ -582,6 +620,12 @@
 			\expression:ifSelfReference * {
 				\select;
 				\:output (\[String]:as "caller");
+			};
+			\expression:ifDataSegment *([String] dataSegmentContent) {
+				\select;
+				\:output (\[String]:as "new LITERAL_STRING(\"");
+				\:output (dataSegmentContent);
+				\:output (\[String]:as "\")");
 			};
 		} *{
 			\:output (\[String]:as "<INTERNAL EXPRESSION ERROR!!!>");

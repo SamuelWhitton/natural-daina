@@ -1,24 +1,42 @@
 [] (Integer) {
    *{
-      [Integer] two = \[Integer]:add (\[Integer]:one) (\[Integer]:one);
-      \two:debugPrint;
+      \(\[Integer]:one):debugPrint;
+      @\(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
    }
 }
 
 [Integer : [Object]] (Object) {
-   ~ zero *{}
+   <<dlang ##
+            import std.conv;
+            import std.stdio;
+            int value;
+         ##
+
+   ~ as *([%INTEGER] literal) {
+      <<dlang ##
+            this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
+         ##;
+   }
+
+   ~ zero *{
+      \:~as ##0##;
+   }
    ~ one *{
-      [->] a = *{};
-      \a;
-      \:debugPrint;
-      \$asdf;
+      \:~as ##1##;
    }
 
    :: add *([Integer] i1, [Integer] i2) -> [Integer]  {
-         \i1:debugPrint;
-      }->\[Integer]:one
+         [Integer] result = \[Integer]:zero;
+         <<dlang ##
+            (cast(CLASSIMPL_Integer)LOBJECT_result).value = (cast(CLASSIMPL_Integer)LOBJECT_i1).value + (cast(CLASSIMPL_Integer)LOBJECT_i2).value;
+         ##;
+      }->result
 
-   ++ debugPrint *{}
+   ++ debugPrint *{
+      <<dlang ##
+            writeln(this.value);
+         ##;
+   }
 }
 
 [Object] {
