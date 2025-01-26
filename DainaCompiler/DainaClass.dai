@@ -136,6 +136,12 @@
 							\[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
 								[DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
 								\classMethod:parse parser;
+								\classMethod:isInstanceTypeOrConstructor *{} *{} *{
+									[DainaType] classType = \[DainaType]:base;
+									\classType:setAsClassName .className;
+									[DainaExpression] methodExpression = \classMethod:methodExpression;
+									\methodExpression:setOutputType classType;
+								};
 								\.classMethods:append classMethod;
 							} *{
 								\[O]:ifElse (\[DainaCompilerInjection]:isFirstToken (\parser:token)) *{
@@ -441,6 +447,10 @@
 		.ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
 	}
 
+	++ setAsClassName *([DainaClassIdentifier] className) {
+		.ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->]get){\get className (\[List<[DainaType]>]:empty)};
+	}
+
 	++ parse *([Parser] parser) {
 		\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
 			\parser:gotoNextToken;
@@ -736,6 +746,7 @@
 	}
 
 	++ outputType *->[DainaType]{}->.outputType
+	++ setOutputType *([DainaType] outputType) {.outputType = outputType}
 
 	++ ifInvocation *([[DainaExpression][List<[DainaExpression]>]->] get) {\.ifInvocation get}
 	++ ifConstructorInvocation *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\.ifConstructorInvocation get}

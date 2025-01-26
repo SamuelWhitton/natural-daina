@@ -213,6 +213,7 @@ asdf instance objects can be partially instantiated on a private consturctor
 asdf ; is required between statements and can have an empty statmenet, and the last statement doesnt have to have ;
 asdf proxy object is ```*>``` (called asterisk arrow) now instead of ```*-``` 
 asdf anonymous class object scope, anonymous object constructor local object are not visible inside or for creating class methods
+asdf anonymous class object cannot have any constructors or type methods defined within (might already be written somewhere)
 asdf pointer constructor only overrides instance methods for new object but doesnt copy object so old one is still affected when calling from new object. I.e. when calling old object its the same, when calling new object the overriden instance methods get called between each other internally
 asdf scope for output of method is base level of method statement or body (statmenet group {}) 
 asdf examples of ! on method expression (*(s)->[A]{}->a ! [?] a = \s:a) is invalid, (*(s)->[A]{}! {[?] a = \s:a} ->a ) is invalid, ```(*(s)->[A]{[?]a = l}! {[?] l = \s:a} ->a ) is valid```

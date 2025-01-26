@@ -11,9 +11,17 @@ class ENTRY_POINT_CLASS {
    static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return CLASSIMPL_Integer.TMETHOD_add(caller, parameters);
+         } })).method(caller, [(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return CLASSIMPL_Integer.TMETHOD_add(caller, parameters);
+         } })).method(caller, [(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-         } })).method(caller, []);
-         return (cast()instance).IMETHOD_debugPrint(instance, parameters);
+         } })).method(caller, []), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
+         } })).method(caller, [])]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
+         } })).method(caller, [])]);
+         return (cast(CLASSTYPE_Integer)instance).IMETHOD_debugPrint(instance, parameters);
       } })).method(caller, []);
       return caller;
    }

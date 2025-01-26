@@ -1,7 +1,7 @@
 [] (Integer) {
    *{
-      \(\[Integer]:one):debugPrint;
-      @\(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
+    @  \(\[Integer]:one):debugPrint;
+      \(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
    }
 }
 
