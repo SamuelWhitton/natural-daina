@@ -484,6 +484,9 @@
 					\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
 						[DainaType] subtype = \[DainaType]:base;
 						\subtype:parse parser;
+						\.ifMethodInputsAndOutput *([List<[DainaType]>] a, [Maybe<[DainaType]>]b) {
+							.ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as subtype)};
+						};
 					} *{
 						\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow) *{
 							\parser:gotoNextToken;
@@ -586,12 +589,15 @@
 	[[->][->][->]->] isInstanceTypeOrConstructor
 	[[Parser][&DainaExpression]->] parseExpression
 	[[Token]->[Boolean]] isExpressionFirstToken
+	[DainaType] unimplementedType
 {
 	++ isInstanceTypeOrConstructor *([->] isInstance,[->] isType,[->] isConstructor) {
 		\.isInstanceTypeOrConstructor isInstance isType isConstructor;
 	}
 
 	++ isUnimplementedMethod *->(\.unimplementedMethod:get)
+
+	++ unimplementedType *->(.unimplementedType)
 
 	++ methodExpression *->.methodExpression
 
@@ -607,6 +613,7 @@
 		.unimplementedMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
 		.parseExpression = parseExpression;
 		.isExpressionFirstToken = isExpressionFirstToken;
+		.unimplementedType = \[DainaType]:base;
 		\::new;
 	}
 
@@ -644,7 +651,7 @@
 			\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
 				\.unimplementedMethod:set (\[Boolean]:true); 
 				[DainaType] typeForUnimplemented = \[DainaType]:base;
-				\typeForUnimplemented:parse parser;
+				\.unimplementedType:parse parser;
 			} *{
 				\[O]:ifElse (\.isExpressionFirstToken (\parser:token)) *{
 					\.parseExpression parser (.methodExpression);

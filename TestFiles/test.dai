@@ -1,10 +1,50 @@
-[] (Integer) {
+[] (Integer, DebugLogHelloWorld) {
    *{
+      \(\[DebugLogHelloWorld]:new):log;
     @  \(\[Integer]:one):debugPrint;
-      \(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
+      @\(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
    }
 }
 
+[DebugLogHelloWorld :[DebugLog]] (String, DebugLog) {
+   ~ new *{}
+
+   |++ toString *->[String] {
+   } -> \[String]:as ##Hello World!##
+}
+
+
+[DebugLog] (String) {
+   @++ toString *->[String] {
+   @} -> \[String]:as ##Hello World!##
+   ++ toString [->[String]]
+   ++ log *{
+      \(\:toString):debugPrint;
+   }
+}
+
+[String] {
+   <<dlang ##
+            import std.conv;
+            import std.stdio;
+            string value;
+         ##
+
+   ~ as *([%STRING] literal) {
+      <<dlang ##
+            this.value = (cast(LITERAL_STRING)LOBJECT_literal).it;
+         ##;
+   }
+
+   ++ debugPrint *{
+      <<dlang ##
+            writeln(this.value);
+         ##;
+   }
+}
+
+
+@@
 [Integer : [Object]] (Object) {
    <<dlang ##
             import std.conv;
@@ -45,7 +85,7 @@
 
 
 
-
+@@
 
 
 

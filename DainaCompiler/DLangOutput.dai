@@ -230,22 +230,17 @@
 
 
 	- synthesizeClassMethodInterface *([DainaClassMethod<[DainaExpression]>] classMethod) {
+		[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
 		\classMethod:isInstanceTypeOrConstructor *{
-			[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
-			\classMethod:isInstanceTypeOrConstructor *{
-				\:outputTabbed (\[String]:as "OBJECT IMETHOD_");
-				\:output (\classMethodIdentifier:content);
-				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
-			} *{
-			} *{
-				@@\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
-				\:output (\classMethodIdentifier:content);
-				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
-				\:outputTabbed (\[String]:as "OBJECT TMETHOD_");
-				\:output (\classMethodIdentifier:content);
-				\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");@@
-			};
-		} *{} *{};
+			\:outputTabbed (\[String]:as "OBJECT IMETHOD_");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
+		} *{
+		} *{
+			\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+			\:output (\classMethodIdentifier:content);
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
+		};
 	}
 
 	- synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
@@ -276,11 +271,11 @@
 		\:output (\classMethodIdentifier:content);
 		\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
 		\:output (\[String]:as " {\n"); \:incrementTab;
-		\:outputTabbed (\[String]:as "CLASSIMPL_");
+		\:outputTabbed (\[String]:as "CLASSTYPE_");
 		\:output (\.selfClassName:content);
 		\:output (\[String]:as " self = ");
 		\:output (\[String]:as "cast(");
-		\:output (\[String]:as "CLASSIMPL_");
+		\:output (\[String]:as "CLASSTYPE_");
 		\:output (\.selfClassName:content);
 		\:output (\[String]:as ")caller");
 		\:output (\[String]:as ";\n");
@@ -518,7 +513,7 @@
 			\expression:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
 				\select;
 				\[O]:ifElse (usedAsInstantMethod) *{
-					\:outputTabbed (\[String]:as "(cast(");
+					\:output (\[String]:as "(cast(");
 					.blockOutput = \[Boolean]:true;
 					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
 					.blockOutput = \[Boolean]:false;
@@ -551,9 +546,13 @@
 					\.mappedClassMethods:retriveMappedValueWithKey (\instanceExpressionClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] instanceExpressionClassMethods) {
 						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \instanceExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
 						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
-							[DainaExpression] methodExpression = \invokedMethod:methodExpression;
-							.synthesizedExpressionType = \[DainaType]:base;
-							\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+							\[O]:ifElse (\invokedMethod:isUnimplementedMethod) *{
+								.synthesizedExpressionType = \invokedMethod:unimplementedType;
+							} *{
+								[DainaExpression] methodExpression = \invokedMethod:methodExpression;
+								.synthesizedExpressionType = \[DainaType]:base;
+								\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+							};
 						};
 					};
 				};
@@ -597,20 +596,24 @@
 				[Variable<[Boolean]>] isInstantMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
 				\method:ifTypeMethod *([DainaType] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
 				\method:ifInternalInstanceMethod *([Integer] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
-				\method:ifInstanceMethod *([DainaExpression] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+				@\method:ifInstanceMethod *([DainaExpression] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+				[Variable<[DainaType]>] invokedExpressionType = \[Variable<[DainaType]>]:as .synthesizedExpressionType;
 				\[O]:ifElse (\isInstantMethod:get) *{
 					\:synthesizeInPlaceExpression (\[Boolean]:true) method;
+					\invokedExpressionType:set .synthesizedExpressionType;
 					\:output (\[String]:as "(caller, [");
 					\:synthesizeMethodInputs params;
 					\:output (\[String]:as "])");
 				} *{
 					\:output (\[String]:as "(cast(LAMBDA)");
 					\:synthesizeInPlaceExpression (\[Boolean]:false) method;
+					\invokedExpressionType:set .synthesizedExpressionType;
 					\:output (\[String]:as ").method(caller, [");
 					\:synthesizeMethodInputs params;
 					\:output (\[String]:as "])");
 				};
-				\.synthesizedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
+				[DainaType] _invokedExpressionType = \invokedExpressionType:get;
+				\_invokedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
 					\MoutputType:ifIs *([DainaType] outputType) {
 						.synthesizedExpressionType = outputType;
 					};
@@ -623,11 +626,10 @@
 			\expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
 				\select;
 				\[O]:ifElse (usedAsInstantMethod) *{
-					\:output (\[String]:as "self");
 					\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
-						\:outputTabbed (\[String]:as ".IMETHOD_");
+						\:output (\[String]:as "self.IMETHOD_");
 					} *{
-						\:outputTabbed (\[String]:as ".PARENT_");
+						\:output (\[String]:as "PARENT_");
 						\:output (\[String]:stringRepresentationOfInteger parentNumber);
 						\:output (\[String]:as ".IMETHOD_");
 					};
@@ -639,10 +641,10 @@
 						\:outputTabbed (\[String]:as "OBJECT instance = self;\n");
 						\:outputTabbed (\[String]:as "return self.IMETHOD_");
 					} *{
-						\:outputTabbed (\[String]:as "OBJECT instance = self.PARENT_");
+						\:outputTabbed (\[String]:as "OBJECT instance = PARENT_");
 						\:output (\[String]:stringRepresentationOfInteger parentNumber);
 						\:output (\[String]:as ";\n");
-						\:outputTabbed (\[String]:as "return self.PARENT_");
+						\:outputTabbed (\[String]:as "return PARENT_");
 						\:output (\[String]:stringRepresentationOfInteger parentNumber);
 						\:output (\[String]:as ".IMETHOD_");
 					};
@@ -654,9 +656,13 @@
 				\.mappedClassMethods:retriveMappedValueWithKey (\.selfClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
 						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
 						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
-							[DainaExpression] methodExpression = \invokedMethod:methodExpression;
-							.synthesizedExpressionType = \[DainaType]:base;
-							\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+							\[O]:ifElse (\invokedMethod:isUnimplementedMethod) *{
+								.synthesizedExpressionType = \invokedMethod:unimplementedType;
+							} *{
+								[DainaExpression] methodExpression = \invokedMethod:methodExpression;
+								.synthesizedExpressionType = \[DainaType]:base;
+								\.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+							};
 						};
 					};
 			};
