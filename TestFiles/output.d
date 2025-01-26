@@ -29,6 +29,7 @@ class CLASSIMPL_Integer : CLASSTYPE_Integer {
    override OBJECT IMETHOD_asdf(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_asdf(caller, parameters); }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Integer newInstance = new CLASSIMPL_Integer(); return newInstance.CMETHOD_as(newInstance, parameters); }
    OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+      CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
       OBJECT LOBJECT_literal = parameters[0];
 /* dlang injection start */
             this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
@@ -37,15 +38,18 @@ class CLASSIMPL_Integer : CLASSTYPE_Integer {
    }
    static OBJECT TMETHOD_zero(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Integer newInstance = new CLASSIMPL_Integer(); return newInstance.CMETHOD_zero(newInstance, parameters); }
    OBJECT CMETHOD_zero(OBJECT caller, OBJECT[] parameters) {
-this.CMETHOD_as(this, [new LITERAL_STRING("0")]);
+      CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
+      self.CMETHOD_as(this, [new LITERAL_STRING("0")]);
       return caller;
    }
    static OBJECT TMETHOD_one(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Integer newInstance = new CLASSIMPL_Integer(); return newInstance.CMETHOD_one(newInstance, parameters); }
    OBJECT CMETHOD_one(OBJECT caller, OBJECT[] parameters) {
-this.CMETHOD_as(this, [new LITERAL_STRING("1")]);
+      CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
+      self.CMETHOD_as(this, [new LITERAL_STRING("1")]);
       return caller;
    }
    static OBJECT TMETHOD_add(OBJECT caller, OBJECT[] parameters) {
+      CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
       OBJECT LOBJECT_i1 = parameters[0];
       OBJECT LOBJECT_i2 = parameters[1];
       OBJECT LOBJECT_result = CLASSIMPL_Integer.TMETHOD_zero(caller, []);
@@ -55,6 +59,7 @@ this.CMETHOD_as(this, [new LITERAL_STRING("1")]);
       return LOBJECT_result;
    }
    override OBJECT IMETHOD_debugPrint(OBJECT caller, OBJECT[] parameters) {
+      CLASSIMPL_Integer self = cast(CLASSIMPL_Integer)caller;
 /* dlang injection start */
             writeln(this.value);
          /* dlang injection end */
@@ -69,6 +74,7 @@ interface CLASSTYPE_Object : OBJECT, LAMBDA {
 class CLASSIMPL_Object : CLASSTYPE_Object {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
    override OBJECT IMETHOD_asdf(OBJECT caller, OBJECT[] parameters) {
+      CLASSIMPL_Object self = cast(CLASSIMPL_Object)caller;
       return caller;
    }
 }

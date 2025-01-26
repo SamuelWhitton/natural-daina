@@ -276,6 +276,14 @@
 		\:output (\classMethodIdentifier:content);
 		\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
 		\:output (\[String]:as " {\n"); \:incrementTab;
+		\:outputTabbed (\[String]:as "CLASSIMPL_");
+		\:output (\.selfClassName:content);
+		\:output (\[String]:as " self = ");
+		\:output (\[String]:as "cast(");
+		\:output (\[String]:as "CLASSIMPL_");
+		\:output (\.selfClassName:content);
+		\:output (\[String]:as ")caller");
+		\:output (\[String]:as ";\n");
 		\[O]:ifElse (\classMethod:isUnimplementedMethod) *{
 			\:outputTabbed (\[String]:as "return ASSIGNIMETHOD_");
 			\:output (\classMethodIdentifier:content);
@@ -414,11 +422,11 @@
 				\select;
 				\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
 					\[O]:ifElse isPointerConstructor *{
-						\:output (\[String]:as "caller = ");
+						\:outputTabbed (\[String]:as "caller = ");
 						\:synthesizeMethodInputs inputs;
 						\:output (\[String]:as ";\n");
 					} *{
-						\:output (\[String]:as "this.CMETHOD_");
+						\:outputTabbed (\[String]:as "self.CMETHOD_");
 						\:output (\identifier:content);
 						\:output (\[String]:as "(this");
 						\:output (\[String]:as ", [");
@@ -615,10 +623,7 @@
 			\expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
 				\select;
 				\[O]:ifElse (usedAsInstantMethod) *{
-					\:output (\[String]:as "(cast(");
-					\:output (\[String]:as "CLASSIMPL_");
-					\:output (\.selfClassName:content);
-					\:output (\[String]:as ")caller)");
+					\:output (\[String]:as "self");
 					\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
 						\:outputTabbed (\[String]:as ".IMETHOD_");
 					} *{
@@ -630,14 +635,6 @@
 				} *{
 					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
 					\:incrementTab;
-					\:outputTabbed (\[String]:as "CLASSIMPL_");
-					\:output (\.selfClassName:content);
-					\:output (\[String]:as " self = ");
-					\:output (\[String]:as "cast(");
-					\:output (\[String]:as "CLASSIMPL_");
-					\:output (\.selfClassName:content);
-					\:output (\[String]:as ")caller");
-					\:output (\[String]:as ";\n");
 					\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
 						\:outputTabbed (\[String]:as "OBJECT instance = self;\n");
 						\:outputTabbed (\[String]:as "return self.IMETHOD_");
@@ -684,6 +681,9 @@
 				\:output (\[String]:as "new LITERAL_STRING(\"");
 				\:output (dataSegmentContent);
 				\:output (\[String]:as "\")");
+			};
+			\expression:ifAnonymousClassObject *([List<[DainaType]>] parents, [List<[DainaExpression]>] constructor, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods) {
+				@\select;
 			};
 		} *{
 			\:output (\[String]:as "<INTERNAL EXPRESSION ERROR!!!>");
