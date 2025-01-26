@@ -28,6 +28,7 @@
 		)
 	[OutputStream] output
 	[Integer] tab
+	[Boolean] blockOutput
 	[Mapping<[String][DainaClass]>] mappedClasses
 	[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>] mappedClassMethods
 	[DainaClassIdentifier] selfClassName
@@ -46,6 +47,7 @@
 		.synthesizedExpressionType = \[DainaType]:base;
 		.selfInstanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
 		.localObjectScope = \[Mapping<[String][DainaType]>]:empty;
+		.blockOutput = \[Boolean]:false;
 	}
 
 	- outputNextTemporaryVariableName *{
@@ -55,14 +57,18 @@
 	}
 
 	- output *([String] string) {
-		\.output:writeString string;
+		\[O]:ifElse .blockOutput *{} *{
+			\.output:writeString string;
+		};
 	}
 
 	- outputTabbed *([String] string) {
-		\[Loops]:repeatNTimes .tab *{
-			\.output:writeString (\[String]:as "   ");
+		\[O]:ifElse .blockOutput *{} *{
+			\[Loops]:repeatNTimes .tab *{
+				\.output:writeString (\[String]:as "   ");
+			};
+			\.output:writeString string;
 		};
-		\.output:writeString string;
 	}
 
 	- incrementTab *{
@@ -334,14 +340,14 @@
 				};
 				\output:ifIs *([DainaExpression] outputExpression) {
 					\:outputTabbed (\[String]:as "return ");
-					\:synthesizeInPlaceExpression outputExpression;
+					\:synthesizeInPlaceExpression (\[Boolean]:false)  outputExpression;
 					\:output (\[String]:as ";\n");
 				};
 				\:popScope;
 			};
 		} *{
 			\:outputTabbed (\[String]:as "return ");
-			\:synthesizeInPlaceExpression methodExpression;
+			\:synthesizeInPlaceExpression (\[Boolean]:false)  methodExpression;
 			\:output (\[String]:as ";\n");
 		};
 	}
@@ -379,13 +385,13 @@
 				\:outputTabbed (\[String]:as "OBJECT LOBJECT_");
 				\:output (\identifier:content);
 				\:output (\[String]:as " = ");
-				\:synthesizeInPlaceExpression assginedExpression;
+				\:synthesizeInPlaceExpression (\[Boolean]:false)  assginedExpression;
 				\:output (\[String]:as ";\n");
 			};
 			\statement:ifInvocation *([] a, [] b) {
 				\select;
 				\:outputTabbed (\[String]:as "");
-				\:synthesizeInPlaceExpression statement;
+				\:synthesizeInPlaceExpression (\[Boolean]:false)  statement;
 				\:output (\[String]:as ";\n");
 			};
 			\statement:ifInstanceMethodAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
@@ -393,7 +399,7 @@
 				\:outputTabbed (\[String]:as "ASSIGNIMETHOD_");
 				\:output (\identifier:content);
 				\:output (\[String]:as " = ");
-				\:synthesizeInPlaceExpression assignedExpression;
+				\:synthesizeInPlaceExpression (\[Boolean]:false)  assignedExpression;
 				\:output (\[String]:as ";\n");
 			};
 			\statement:ifInstanceObjectAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
@@ -401,7 +407,7 @@
 				\:outputTabbed (\[String]:as "IOBJECT_");
 				\:output (\identifier:content);
 				\:output (\[String]:as " = ");
-				\:synthesizeInPlaceExpression assignedExpression;
+				\:synthesizeInPlaceExpression (\[Boolean]:false)  assignedExpression;
 				\:output (\[String]:as ";\n");
 			};
 			\statement:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
@@ -457,12 +463,12 @@
 		[Variable<[String]>] seperator = \[Variable<[String]>]:as (\[String]:as "");
 		\inputs:iterate *([DainaExpression] input) {
 			\:output (\seperator:get);
-			\:synthesizeInPlaceExpression input;
+			\:synthesizeInPlaceExpression (\[Boolean]:false)  input;
 			\seperator:set (\[String]:as ", ");
 		};
 	}
 
-	- synthesizeInPlaceExpression *([DainaExpression] expression) {
+	- synthesizeInPlaceExpression *([Boolean] usedAsInstantMethod, [DainaExpression] expression) {
 		.synthesizedExpressionType = \[DainaType]:base;
 		\[O]:selectOrDefault *([->] select) {
 			\expression:ifWithPrologueStatement *([DainaExpression] prelogue, [DainaExpression] prologue) {
@@ -478,7 +484,7 @@
 					};
 				} *{
 					\:outputTabbed (\[String]:as "return ");
-					\:synthesizeInPlaceExpression prelogue;
+					\:synthesizeInPlaceExpression (\[Boolean]:false)  prelogue;
 					\:output (\[String]:as ";\n");
 				};
 				\:decrementTab;
@@ -503,21 +509,36 @@
 			};
 			\expression:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
 				\select;
-				\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
-				\:incrementTab;
-				\:outputTabbed (\[String]:as "OBJECT instance = ");
-				\:synthesizeInPlaceExpression instanceExpression;
-				\:output (\[String]:as ";\n");
-				\:outputTabbed (\[String]:as "return (cast(");
-				\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
-					\:output (\[String]:as "CLASSTYPE_");
-					\:output (\instanceExpressionClassName:content);
+				\[O]:ifElse (usedAsInstantMethod) *{
+					\:outputTabbed (\[String]:as "(cast(");
+					.blockOutput = \[Boolean]:true;
+					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
+					.blockOutput = \[Boolean]:false;
+					\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+						\:output (\[String]:as "CLASSTYPE_");
+						\:output (\instanceExpressionClassName:content);
+					};
+					\:output (\[String]:as ")");
+					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
+					\:output (\[String]:as ").IMETHOD_");
+					\:output (\identifier:content);
+				} *{
+					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+					\:incrementTab;
+					\:outputTabbed (\[String]:as "OBJECT instance = ");
+					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
+					\:output (\[String]:as ";\n");
+					\:outputTabbed (\[String]:as "return (cast(");
+					\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+						\:output (\[String]:as "CLASSTYPE_");
+						\:output (\instanceExpressionClassName:content);
+					};
+					\:output (\[String]:as ")instance).IMETHOD_");
+					\:output (\identifier:content);
+					\:output (\[String]:as "(instance, parameters);\n");
+					\:decrementTab;
+					\:outputTabbed (\[String]:as "} })");
 				};
-				\:output (\[String]:as ")instance).IMETHOD_");
-				\:output (\identifier:content);
-				\:output (\[String]:as "(instance, parameters);\n");
-				\:decrementTab;
-				\:outputTabbed (\[String]:as "} })");
 				\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
 					\.mappedClassMethods:retriveMappedValueWithKey (\instanceExpressionClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] instanceExpressionClassMethods) {
 						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \instanceExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
@@ -531,12 +552,28 @@
 			};
 			\expression:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
 				\select;
-				\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
-				\:incrementTab;
-				\:outputTabbed (\[String]:as "return ");
+				\[O]:ifElse (usedAsInstantMethod) *{
+					\type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
+						\:output (\[String]:as "CLASSIMPL_");
+						\:output (\typeIdentifier:content);
+					};
+					\:output (\[String]:as ".TMETHOD_");
+					\:output (\identifier:content);
+				} *{
+					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+					\:incrementTab;
+					\:outputTabbed (\[String]:as "return ");
+					\type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
+						\:output (\[String]:as "CLASSIMPL_");
+						\:output (\typeIdentifier:content);
+					};
+					\:output (\[String]:as ".TMETHOD_");
+					\:output (\identifier:content);
+					\:output (\[String]:as "(caller, parameters);\n");
+					\:decrementTab;
+					\:outputTabbed (\[String]:as "} })");
+				};
 				\type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
-					\:output (\[String]:as "CLASSIMPL_");
-					\:output (\typeIdentifier:content);
 					\.mappedClassMethods:retriveMappedValueWithKey (\typeIdentifier:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
 						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
 						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
@@ -546,19 +583,25 @@
 						};
 					};
 				};
-				\:output (\[String]:as ".TMETHOD_");
-				\:output (\identifier:content);
-				\:output (\[String]:as "(caller, parameters);\n");
-				\:decrementTab;
-				\:outputTabbed (\[String]:as "} })");
 			};
 			\expression:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
 				\select;
-				\:output (\[String]:as "(cast(LAMBDA)");
-				\:synthesizeInPlaceExpression method;
-				\:output (\[String]:as ").method(caller, [");
-				\:synthesizeMethodInputs params;
-				\:output (\[String]:as "])");
+				[Variable<[Boolean]>] isInstantMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+				\method:ifTypeMethod *([DainaType] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+				\method:ifInternalInstanceMethod *([Integer] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+				\method:ifInstanceMethod *([DainaExpression] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+				\[O]:ifElse (\isInstantMethod:get) *{
+					\:synthesizeInPlaceExpression (\[Boolean]:true) method;
+					\:output (\[String]:as "(caller, [");
+					\:synthesizeMethodInputs params;
+					\:output (\[String]:as "])");
+				} *{
+					\:output (\[String]:as "(cast(LAMBDA)");
+					\:synthesizeInPlaceExpression (\[Boolean]:false) method;
+					\:output (\[String]:as ").method(caller, [");
+					\:synthesizeMethodInputs params;
+					\:output (\[String]:as "])");
+				};
 				\.synthesizedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
 					\MoutputType:ifIs *([DainaType] outputType) {
 						.synthesizedExpressionType = outputType;
@@ -567,35 +610,50 @@
 			};
 			\expression:ifProxyObject *([DainaExpression] object) {
 				\select;
-				\:synthesizeInPlaceExpression object;
+				\:synthesizeInPlaceExpression (\[Boolean]:false)  object;
 			};
 			\expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
 				\select;
-				\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
-				\:incrementTab;
-				\:outputTabbed (\[String]:as "CLASSIMPL_");
-				\:output (\.selfClassName:content);
-				\:output (\[String]:as " self = ");
-				\:output (\[String]:as "cast(");
-				\:output (\[String]:as "CLASSIMPL_");
-				\:output (\.selfClassName:content);
-				\:output (\[String]:as ")caller");
-				\:output (\[String]:as ";\n");
-				\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
-					\:outputTabbed (\[String]:as "OBJECT instance = self;\n");
-					\:outputTabbed (\[String]:as "return self.IMETHOD_");
+				\[O]:ifElse (usedAsInstantMethod) *{
+					\:output (\[String]:as "(cast(");
+					\:output (\[String]:as "CLASSIMPL_");
+					\:output (\.selfClassName:content);
+					\:output (\[String]:as ")caller)");
+					\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+						\:outputTabbed (\[String]:as ".IMETHOD_");
+					} *{
+						\:outputTabbed (\[String]:as ".PARENT_");
+						\:output (\[String]:stringRepresentationOfInteger parentNumber);
+						\:output (\[String]:as ".IMETHOD_");
+					};
+					\:output (\identifier:content);
 				} *{
-					\:outputTabbed (\[String]:as "OBJECT instance = self.PARENT_");
-					\:output (\[String]:stringRepresentationOfInteger parentNumber);
+					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+					\:incrementTab;
+					\:outputTabbed (\[String]:as "CLASSIMPL_");
+					\:output (\.selfClassName:content);
+					\:output (\[String]:as " self = ");
+					\:output (\[String]:as "cast(");
+					\:output (\[String]:as "CLASSIMPL_");
+					\:output (\.selfClassName:content);
+					\:output (\[String]:as ")caller");
 					\:output (\[String]:as ";\n");
-					\:outputTabbed (\[String]:as "return self.PARENT_");
-					\:output (\[String]:stringRepresentationOfInteger parentNumber);
-					\:output (\[String]:as ".IMETHOD_");
+					\[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+						\:outputTabbed (\[String]:as "OBJECT instance = self;\n");
+						\:outputTabbed (\[String]:as "return self.IMETHOD_");
+					} *{
+						\:outputTabbed (\[String]:as "OBJECT instance = self.PARENT_");
+						\:output (\[String]:stringRepresentationOfInteger parentNumber);
+						\:output (\[String]:as ";\n");
+						\:outputTabbed (\[String]:as "return self.PARENT_");
+						\:output (\[String]:stringRepresentationOfInteger parentNumber);
+						\:output (\[String]:as ".IMETHOD_");
+					};
+					\:output (\identifier:content);
+					\:output (\[String]:as "(instance, parameters);\n");
+					\:decrementTab;
+					\:outputTabbed (\[String]:as "} })");
 				};
-				\:output (\identifier:content);
-				\:output (\[String]:as "(instance, parameters);\n");
-				\:decrementTab;
-				\:outputTabbed (\[String]:as "} })");
 				\.mappedClassMethods:retriveMappedValueWithKey (\.selfClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
 						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
 						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {

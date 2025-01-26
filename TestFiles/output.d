@@ -9,20 +9,7 @@ interface LAMBDA {
 void main() { ENTRY_POINT_CLASS.entryPointMethod(null, []); }
 class ENTRY_POINT_CLASS {
    static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {
-      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            return CLASSIMPL_Integer.TMETHOD_add(caller, parameters);
-         } })).method(caller, [(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            return CLASSIMPL_Integer.TMETHOD_add(caller, parameters);
-         } })).method(caller, [(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-         } })).method(caller, []), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-         } })).method(caller, [])]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            return CLASSIMPL_Integer.TMETHOD_one(caller, parameters);
-         } })).method(caller, [])]);
-         return (cast(CLASSTYPE_Integer)instance).IMETHOD_debugPrint(instance, parameters);
-      } })).method(caller, []);
+            (cast(CLASSTYPE_Integer)CLASSIMPL_Integer.TMETHOD_add(caller, [CLASSIMPL_Integer.TMETHOD_add(caller, [CLASSIMPL_Integer.TMETHOD_one(caller, []), CLASSIMPL_Integer.TMETHOD_one(caller, [])]), CLASSIMPL_Integer.TMETHOD_one(caller, [])])).IMETHOD_debugPrint(caller, []);
       return caller;
    }
 }
@@ -61,9 +48,7 @@ this.CMETHOD_as(this, [new LITERAL_STRING("1")]);
    static OBJECT TMETHOD_add(OBJECT caller, OBJECT[] parameters) {
       OBJECT LOBJECT_i1 = parameters[0];
       OBJECT LOBJECT_i2 = parameters[1];
-      OBJECT LOBJECT_result = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         return CLASSIMPL_Integer.TMETHOD_zero(caller, parameters);
-      } })).method(caller, []);
+      OBJECT LOBJECT_result = CLASSIMPL_Integer.TMETHOD_zero(caller, []);
 /* dlang injection start */
             (cast(CLASSIMPL_Integer)LOBJECT_result).value = (cast(CLASSIMPL_Integer)LOBJECT_i1).value + (cast(CLASSIMPL_Integer)LOBJECT_i2).value;
          /* dlang injection end */
