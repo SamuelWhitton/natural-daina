@@ -64,7 +64,7 @@
 {
    :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
       [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
-      \[:?]:while (*->\(\currentIndex:get):isLessThan \sequence:length) (*{
+      \[?:]:while (*->\(\currentIndex:get):isLessThan \sequence:length) (*{
          \getNext index element;
          \currentIndex:set \index:adding (\[Natural]:as ##1##);
       } !{
@@ -74,7 +74,7 @@
    }
 
    :: while *([->[Boolean]] condition, [->] action) {
-      \[:?]:until *([->] stop) {
+      \[?:]:until *([->] stop) {
          \(\condition):ifOrElse action stop
       }
    }

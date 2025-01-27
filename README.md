@@ -203,7 +203,7 @@ can be blank or ?
 
 *(q,m)->m is same as *(['Q]q,['M]m)->[?]{}->m same as *(['Q]q,['M]m)->['M]{}->m
 ```
-asdf does [:?] get copied with inheritance, no it doesnt
+asdf does [?:] get copied with type or instance method inheritance, no it doesnt
 asdf type method type is inherited based on instantiation of inherited parent 
 asdf Method Visibility Indicators should be Visibility Indicators
 asdf cant distinguish [%STRING] data segment types between each other when overloading
@@ -220,6 +220,7 @@ asdf examples of ! on method expression (*(s)->[A]{}->a ! [?] a = \s:a) is inval
 asdf statement block blocking out scope for prologue statement, regular code and method output
 asdf can only call one self constructor (might already be written somewhere)
 asdf no brackets () around non value expression, i.e. statement
+asdf change ```[:?] [*?] [$$?]``` to ```[?:] [?*] [?$$]```
 
 ---
 
