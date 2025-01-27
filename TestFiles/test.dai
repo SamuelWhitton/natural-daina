@@ -45,7 +45,9 @@
       :length = *>length;
       :atIndex = *->\[Maybe<[&E]>]:nothing;
       \[Loops]:iterate bytes *([Natural] index, [Byte] byte) {
-
+<<dlang ##
+            //asdf
+         ##;
       }
    }
 
@@ -58,9 +60,43 @@
 
 }
 
-[Loops]
+[Loops] (Sequence, Natural, Variable, Boolean)
 {
-   @:: iterate
+   :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
+      [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
+      \[:?]:while (*->\(\currentIndex:get):isLessThan \sequence:length) (*{
+         \getNext index element;
+         \currentIndex:set \index:adding (\[Natural]:as ##1##);
+      } !{
+            [?] index = \currentIndex:get;
+            [?] element = \sequence:asIndex index;
+         })
+   }
+
+   :: while *([->[Boolean]] condition, [->] action) {
+      \[:?]:until *([->] stop) {
+         \(\condition):ifOrElse action stop
+      }
+   }
+
+   :: until *([[->]->] actionWithStop) {
+      <<dlang ##
+         bool continue = true;
+      ##;
+      <<dlang
+      ##
+         if (continue) {
+      ##;
+      \actionWithStop *{
+         <<dlang ##
+            continue = false;
+         ##
+      };
+      <<dlang
+      ##
+         }
+      ##;
+   }
 }
 
 [Sequence<E>] (Maybe, Natural)
@@ -74,7 +110,7 @@
    @} -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\this:iterate getNext; \other:iterate getNext} }
 
    :: empty *-> [:[Sequence<[&E]>]] { 
-         |++ length *->\[Natural]:##0##
+         |++ length *->\[Natural]:as ##0##
          |++ atIndex *->\[Maybe<[&E]>]:nothing
       }
 
@@ -107,7 +143,7 @@ Natural
 }
 
 @@
-[Integer] 
+[Integer] BigInt
 {
    <<dlang ##
             import std.conv;
@@ -164,7 +200,7 @@ Natural
          ##;
    }
 
-   ++ ascii *->[Data]
+   @++ ascii *->[Data]
 
    - internalString *{
       <<dlang ##
