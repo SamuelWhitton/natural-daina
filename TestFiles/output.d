@@ -9,20 +9,32 @@ interface LAMBDA {
 void main() { ENTRY_POINT_CLASS.entryPointMethod(null, []); }
 class ENTRY_POINT_CLASS {
    static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {
-      OBJECT LOBJECT_y1 = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
-      OBJECT LOBJECT_y2 = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new LITERAL_STRING("Hello Worl!")])]);
-      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_y1;
-         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_s = parameters[0];
-         CLASSIMPL_SystemIO.TMETHOD_log(caller, cast(OBJECT[])[LOBJECT_s]);
-         return caller;
-      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         CLASSIMPL_SystemIO.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new LITERAL_STRING("<NOTHING>")])]);
-         return caller;
-      } })]);
-      return caller;
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_nothingStr = CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new LITERAL_STRING("<NOTHING>")]);
+         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_y1 = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+            OBJECT LOBJECT_y2 = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new LITERAL_STRING("Hello Worl!")])]);
+            CLASSIMPL_SystemIO.TMETHOD_log(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_y1;
+               return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT LOBJECT_s = parameters[0];
+               return LOBJECT_s;
+            } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               return LOBJECT_nothingStr;
+            } })])]);
+            CLASSIMPL_SystemIO.TMETHOD_log(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_y2;
+               return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT LOBJECT_s = parameters[0];
+               return LOBJECT_s;
+            } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               return LOBJECT_nothingStr;
+            } })])]);
+            return caller;
+         } });
+      } }).method(caller, [])).method(caller, []);
    }
 }
 
@@ -56,8 +68,7 @@ class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
       ASSIGNIMETHOD_isOrElse = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_is = parameters[0];
          OBJECT LOBJECT_else = parameters[1];
-         (cast(LAMBDA)LOBJECT_else).method(caller, cast(OBJECT[])[]);
-         return caller;
+         return (cast(LAMBDA)LOBJECT_else).method(caller, cast(OBJECT[])[]);
       } });
       return caller;
    }
@@ -68,8 +79,7 @@ class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
       ASSIGNIMETHOD_isOrElse = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_is = parameters[0];
          OBJECT LOBJECT_else = parameters[1];
-         (cast(LAMBDA)LOBJECT_is).method(caller, cast(OBJECT[])[LOBJECT_it]);
-         return caller;
+         return (cast(LAMBDA)LOBJECT_is).method(caller, cast(OBJECT[])[LOBJECT_it]);
       } });
       return caller;
    }

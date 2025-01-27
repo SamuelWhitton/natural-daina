@@ -390,9 +390,9 @@
 				\:popScope;
 			};
 		} *{
-			\:outputTabbed (\[String]:as "return ");
+			\:outputTabbed (\[String]:as "return (cast(LAMBDA)");
 			\:synthesizeInPlaceExpression (\[Boolean]:false)  methodExpression;
-			\:output (\[String]:as ";\n");
+			\:output (\[String]:as ").method(caller, []);\n");
 		};
 	}
 

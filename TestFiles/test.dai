@@ -1,36 +1,20 @@
+
+
+
 [] (SystemIO, String, Byte, Data, List, Integer, Natural, Boolean, Loops, Variable, Mapping, Maybe) {
    *{
 
       [Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
       [Maybe<[String]>] y2 = \[Maybe<[String]>]:as \[String]:as ##Hello Worl!##;
-      @
-      \y1:isOrElse *([String] s) {
-         \[SystemIO]:log s
-      } *{
-         \[SystemIO]:log \[String]:as ##<NOTHING>##
-      };
+      
+      \[SystemIO]:log \y1:isOrElse (*([String] s)->s) (*->nothingStr);
+      \[SystemIO]:log \y2:isOrElse (*([String] s)->s) (*->nothingStr);
 
-@@
 
-      [:[Maybe<[]>]] {
-         |++ nothing *{\[SystemIO]:log \[String]:as ##<NOTHING>##}
-         |++ as *([String] s){\[SystemIO]:log s}
-      };
-@@
-      @\[SystemIO]:log s;
 
-      @@\(\[DebugLogHelloWorld]:new):log;
 
-      [DebugLog] helloWorldAnonymous = [:[DebugLogHelloWorld]] {
-         \$~new;
-         |++ toString *->[String] {
-         } -> \[String]:as ##Hello World! from Anonymous Class##
-      };
-@@
-      @\helloWorldAnonymous:log;
-    @  \(\[Integer]:one):debugPrint;
-      @\(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
-   }
+
+   } !{[String] nothingStr = \[String]:as ##<NOTHING>##}
 }
 
 [SystemIO] (String) {
@@ -58,14 +42,14 @@ Maybe
 [Maybe<E>] 
 {
    ~ nothing *{
-      :isOrElse = *([[&E]->['O]] is, [->['O]] else) {\else}
+      :isOrElse = *([[&E]->['O]] is, [->['O]] else) -> \else
    }
 
    ~ as *([&E] it) {
-      :isOrElse = *([[&E]->['O]] is, [->['O]] else) {\is it}
+      :isOrElse = *([[&E]->['O]] is, [->['O]] else) -> \is it
    }
 
-   ++ isOrElse [[[&E]->['O]][->['O]]->]
+   ++ isOrElse [[[&E]->['O]][->['O]]->['O]]
 }
 
 @[SelectMaybe]
