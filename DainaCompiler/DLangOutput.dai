@@ -113,7 +113,48 @@
 					};
 				};
 		   };
-	}	
+	}
+
+	- iterateUnoverridenInstanceMethodsAnon *([List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaType]>] inheritedParentTypes, [[Integer][DainaClassMethod<[DainaExpression]>]->] get) {
+		
+			[Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+			\inheritedParentTypes:iterate *([DainaType] parentType) {
+				[Integer] parentNumber = \varParentNumber:get;
+				\varParentNumber:set (\parentNumber:adding (\[Integer]:one));
+				\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+					[String] parentID = (\parentTypeIdentifier:content);
+					\.mappedClasses:retriveMappedValueWithKey parentID *([DainaClass] parentClass) {
+						\:iterateUnoverridenInstanceMethods parentClass *([Integer] i, [DainaClassMethod<[DainaExpression]>]c) {
+							\getIfNotOverriden parentNumber c;
+						};
+						\parentClass:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+						} *([DainaClassIdentifier] a1, [List<[DainaType]>] a2, [List<[DainaObjectDeclaration]>] a3, [List<[DainaClassMethod<[DainaExpression]>]>] parentClassMethods, [List<[DainaCompilerInjection]>] a5) {
+							\parentClassMethods:iterate *([DainaClassMethod<[DainaExpression]>] parentClassMethod) {
+								\getIfNotOverriden parentNumber parentClassMethod;
+							};
+						};
+					}; 	
+				};
+			};
+
+		
+	}	!{
+				[Mapping<[String][DainaClassMethod<[DainaExpression]>]>] ownClassMethods = \[Mapping<[String][DainaClassMethod<[DainaExpression]>]>]:empty;
+				\classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+					[DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+					\ownClassMethods:mapKeyToValue (\classMethodIdentifier:content) classMethod;
+				};
+				[[Integer][DainaClassMethod<[DainaExpression]>]->] getIfNotOverriden = *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] parentMethod) {
+					[DainaGeneralIdentifier] parentMethodIdentifier = \parentMethod:identifier;
+					[Maybe<[DainaClassMethod<[DainaExpression]>]>] ifOverriden = \ownClassMethods:maybeRetriveMappedValueWithKey (\parentMethodIdentifier:content);
+					\ifOverriden:ifNothing *{
+						\get parentNumber parentMethod;
+					};
+				};
+		   }	
+
+
+	
 
 	++ synthesizeClasses *([List<[DainaClass]>] classes) {
 		\classes:iterate *([DainaClass] class) {
@@ -199,7 +240,7 @@
 	}
 
 	- synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
-		\:outputTabbed (\[String]:as "private ");
+		\:outputTabbed (\[String]:as "");
 		\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
 			\:output (\[String]:as "CLASSIMPL_");
 			\:output (\parentTypeIdentifier:content);
@@ -237,9 +278,9 @@
 			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
 		} *{
 		} *{
-			\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+			@@\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
 			\:output (\classMethodIdentifier:content);
-			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
+			\:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");@@
 		};
 	}
 
@@ -689,14 +730,59 @@
 				\:output (\[String]:as "\")");
 			};
 			\expression:ifAnonymousClassObject *([List<[DainaType]>] parents, [List<[DainaExpression]>] constructor, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods) {
-				@\select;
+				\select;
+				[DainaClassIdentifier] originalClassName = .selfClassName;
+				\:output (\[String]:as "((){\n");
+				\:incrementTab;
+				[Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+				\parents:iterate *([DainaType] parentType) {
+					[Integer] curr = \parentNumber:get;
+					\:synthesizeParentObjectDeclaration curr parentType;
+					\parentNumber:set (\curr:adding (\[Integer]:one));
+					\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] a) {
+						.selfClassName = parentTypeIdentifier;
+					};
+				};
+
+				\:outputTabbed (\[String]:as "OBJECT caller;\n");
+				\:outputTabbed (\[String]:as "OBJECT anonymousClassObject = ");
+				\:output (\[String]:as "new class OBJECT, LAMBDA");
+				\parents:iterate *([DainaType] parentType) {
+					\:output (\[String]:as ", ");
+					\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+						\:output (\[String]:as "CLASSTYPE_");
+						\:output (\parentTypeIdentifier:content);
+					};
+				};
+				\:output (\[String]:as " {\n"); \:incrementTab;
+				\:outputTabbed (\[String]:as "override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
+				\:iterateUnoverridenInstanceMethodsAnon classMethods parents (:synthesizeParentUnoverridenMethod);
+				\classMethods:iterate :synthesizeClassMethodImplementation;
+				\:decrementTab; \:outputTabbed (\[String]:as "};\n");
+
+				
+				\:outputTabbed (\[String]:as "caller = anonymousClassObject;\n");
+				\:outputTabbed (\[String]:as "CLASSTYPE_");
+				\:output (\.selfClassName:content);
+				\:output (\[String]:as " self = ");
+				\:output (\[String]:as "cast(");
+				\:output (\[String]:as "CLASSTYPE_");
+				\:output (\.selfClassName:content);
+				\:output (\[String]:as ")caller");
+				\:output (\[String]:as ";\n");
+				\constructor:iterate *([DainaExpression] constructorStatement) {
+					\:synthesizeStatement constructorStatement (\[Boolean]:false);
+				};
+				\:outputTabbed (\[String]:as "return anonymousClassObject;\n");
+				\:decrementTab;
+				\:outputTabbed (\[String]:as "})()");
+				.selfClassName = originalClassName;
 			};
 		} *{
 			\:output (\[String]:as "<INTERNAL EXPRESSION ERROR!!!>");
 		};
 
 		@[[->]->] ifMethodSelfReference
-		@[[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
 	}
 
 	

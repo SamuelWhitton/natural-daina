@@ -13,18 +13,37 @@ class ENTRY_POINT_CLASS {
          OBJECT instance = CLASSIMPL_DebugLogHelloWorld.TMETHOD_new(caller, []);
          return (cast(CLASSTYPE_DebugLogHelloWorld)instance).IMETHOD_log(instance, parameters);
       } })).method(caller, []);
+      OBJECT LOBJECT_helloWorldAnonymous = ((){
+         CLASSIMPL_DebugLogHelloWorld PARENT_1 = new CLASSIMPL_DebugLogHelloWorld();
+         OBJECT caller;
+         OBJECT anonymousClassObject = new class OBJECT, LAMBDA, CLASSTYPE_DebugLogHelloWorld {
+            override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+            override OBJECT IMETHOD_log(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_log(caller, parameters); }
+            override OBJECT IMETHOD_toString(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DebugLogHelloWorld self = cast(CLASSTYPE_DebugLogHelloWorld)caller;
+               return CLASSIMPL_String.TMETHOD_as(caller, [new LITERAL_STRING("Hello World! from Anonymous Class")]);
+            }
+         };
+         caller = anonymousClassObject;
+         CLASSTYPE_DebugLogHelloWorld self = cast(CLASSTYPE_DebugLogHelloWorld)caller;
+         PARENT_1.CMETHOD_new(PARENT_1, []);
+         return anonymousClassObject;
+      })();
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_helloWorldAnonymous;
+         return (cast(CLASSTYPE_DebugLog)instance).IMETHOD_log(instance, parameters);
+      } })).method(caller, []);
       return caller;
    }
 }
 
 /* *** CLASS: DebugLogHelloWorld *** */
 interface CLASSTYPE_DebugLogHelloWorld : OBJECT, LAMBDA, CLASSTYPE_DebugLog {
-   OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_toString(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DebugLogHelloWorld : CLASSTYPE_DebugLogHelloWorld {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
-   private CLASSIMPL_DebugLog PARENT_1 = new CLASSIMPL_DebugLog();
+   CLASSIMPL_DebugLog PARENT_1 = new CLASSIMPL_DebugLog();
    override OBJECT IMETHOD_log(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_log(caller, parameters); }
    static OBJECT TMETHOD_new(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DebugLogHelloWorld newInstance = new CLASSIMPL_DebugLogHelloWorld(); return newInstance.CMETHOD_new(newInstance, parameters); }
    OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters) {
@@ -61,7 +80,6 @@ class CLASSIMPL_DebugLog : CLASSTYPE_DebugLog {
 
 /* *** CLASS: String *** */
 interface CLASSTYPE_String : OBJECT, LAMBDA {
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_debugPrint(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_String : CLASSTYPE_String {

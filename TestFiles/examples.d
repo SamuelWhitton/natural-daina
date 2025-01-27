@@ -13,9 +13,27 @@ void main()
     assert(i.foo() == 3);
 
 
-    OBJECT asdf1 = OBJECT.constr();
+    OBJECT asdf1 = ((){
+        OBJECT P;
+
+        OBJECT adsfwerq = OBJECT.constr();
+
+        return adsfwerq;
+
+
+        })();
     OBJECT asdf = (cast(G)asdf1).PPP([OBJECT.constr()]);
     assert((cast(G)asdf).foo() == 3);
+
+    int k = 5;
+    I iw = new class OBJECT, I, G
+        {
+             int foo() { return k; }
+             OBJECT PPP(OBJECT[] asdf) { return asdf[0]; }
+        };
+        writeln(iw.foo());
+        k = 2;
+         writeln(iw.foo());
     
 }
 
@@ -39,11 +57,17 @@ class OBJECT
 {
     private OBJECT p = null;
     static OBJECT constr() {
+        new class I, G
+        {
+             int foo() { return 3; }
+             OBJECT PPP(OBJECT[] asdf) { return asdf[0]; }
+        };
         return new class OBJECT, I, G
         {
-            override int foo() { return 3; }
-            override OBJECT PPP(OBJECT[] asdf) { return asdf[0]; }
+             int foo() { return 3; }
+             OBJECT PPP(OBJECT[] asdf) { return asdf[0]; }
         };
+
     }
 }
 

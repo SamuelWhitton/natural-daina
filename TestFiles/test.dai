@@ -1,6 +1,14 @@
 [] (Integer, DebugLogHelloWorld) {
    *{
       \(\[DebugLogHelloWorld]:new):log;
+
+      [DebugLog] helloWorldAnonymous = [:[DebugLogHelloWorld]] {
+         \$~new;
+         |++ toString *->[String] {
+         } -> \[String]:as ##Hello World! from Anonymous Class##
+      };
+
+      \helloWorldAnonymous:log;
     @  \(\[Integer]:one):debugPrint;
       @\(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
    }
