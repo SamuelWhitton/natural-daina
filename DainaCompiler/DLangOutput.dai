@@ -171,7 +171,7 @@
 		};
 		\:output (\[String]:as "/* *** HEADER *** */\n");
 		\:output (\[String]:as "interface OBJECT {}\n");
-		\:output (\[String]:as "class LITERAL_STRING : OBJECT { string it; this(string s) {this.it = s;} }\n");
+		\:output (\[String]:as "class WRAP(E) : OBJECT { E it; this(E v) {this.it = v;} }\n");
 		\:output (\[String]:as "interface LAMBDA {\n   OBJECT method(OBJECT caller, OBJECT[] parameters);\n}\n\n");
 		\classes:iterate :synthesizeClass;
 	}
@@ -725,7 +725,7 @@
 			};
 			\expression:ifDataSegment *([String] dataSegmentContent) {
 				\select;
-				\:output (\[String]:as "new LITERAL_STRING(\"");
+				\:output (\[String]:as "new WRAP!(string)(\"");
 				\:output (dataSegmentContent);
 				\:output (\[String]:as "\")");
 			};

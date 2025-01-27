@@ -218,6 +218,7 @@ asdf pointer constructor only overrides instance methods for new object but does
 asdf scope for output of method is base level of method statement or body (statmenet group {}) 
 asdf examples of ! on method expression (*(s)->[A]{}->a ! [?] a = \s:a) is invalid, (*(s)->[A]{}! {[?] a = \s:a} ->a ) is invalid, ```(*(s)->[A]{[?]a = l}! {[?] l = \s:a} ->a ) is valid```
 asdf statement block blocking out scope for prologue statement, regular code and method output
+asdf can only call one self constructor (might already be written somewhere)
 
 ---
 

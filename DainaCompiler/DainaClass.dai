@@ -876,7 +876,7 @@
 			} *{
 				\[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
 					\parser:gotoNextToken;
-					\[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+					\[O]:ifElse (\[Boolean]:and (\[DainaType]:isFirstToken (\parser:token)) (\[Boolean]:not (\[Token]:equals (\parser:peekAtNextToken) (\[Token]:colon)))) *{
 						[DainaType] outputType = \[DainaType]:base;
 						\outputType:parse parser;
 						.outputType = outputType;

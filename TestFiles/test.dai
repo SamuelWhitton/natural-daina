@@ -1,7 +1,7 @@
 
 
 
-[] (SystemIO, String, Byte, Data, List, Integer, Natural, Boolean, Loops, Variable, Mapping, Maybe) {
+[] (SystemIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe) {
    *{
 
       [Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
@@ -22,20 +22,60 @@
             import std.stdio;
          ##
 
+   :: stdout *([Data] data) {
+
+   }
+
+   :: stdin *([Natural] bytesToRead) -> [Data] {
+@chunks(stdin, 4096)
+   } -> \[Data]:copy \[Sequence<[Byte]>]:empty
+
    :: log *([String] s) {
       <<dlang ##
-            writeln((cast(CLASSIMPL_String)LOBJECT_s).value);
+            writeln((cast(WRAP!(string))((cast(CLASSTYPE_String)LOBJECT_s).IMETHOD_internalString(null, []))).it);
          ##;
    }
 }
 
+
+[Data :[Sequence<[Byte]>]] (Byte, Sequence)
+{
+   ~ copy *([Sequence<[Byte]>] bytes) {
+
+   }
+
+   |++ iterate *([[Byte]->] getNext) {
+
+   }
+}
+
+[Byte]
+{
+
+}
+
+[Sequence<E>]
+{
+   ++ iterate [[[&E]->]->]
+
+   ++ appending *([Sequence<[&E]>] other) -> [Sequence<[&E]>] {
+      [Sequence<[&E]>] this = ^
+   } -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\this:iterate getNext; \other:iterate getNext} }
+
+   :: empty *-> [:[Sequence<[&E]>]]{ |++ iterate *([] _) {} }
+
+   :: single *([&E] e) -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\getNext e} }
+}
+
+
 @@
 Integer
 Byte
-List
 Boolean
 Variable
 Maybe
+Sequence
+Natural
 @@
 
 
@@ -52,32 +92,9 @@ Maybe
    ++ isOrElse [[[&E]->['O]][->['O]]->['O]]
 }
 
-@[SelectMaybe]
 @@
-
-[MaybeEnum<O>] {
-   ++ nothing [->[&O]]
-   ++ just [['E]->[&O]]
-}
-@@
-
-[String] {
-   <<dlang ##
-            string value;
-         ##
-
-   ~ as *([%STRING] literal) {
-      <<dlang ##
-            this.value = (cast(LITERAL_STRING)LOBJECT_literal).it;
-         ##;
-   }
-}
-
-
-
-
-@@
-[Integer : [Object]] (Object) {
+[Integer] 
+{
    <<dlang ##
             import std.conv;
             import std.stdio;
@@ -109,7 +126,44 @@ Maybe
             writeln(this.value);
          ##;
    }
+}@@
+
+@[SelectMaybe]
+@@
+
+[MaybeEnum<O>] {
+   ++ nothing [->[&O]]
+   ++ just [['E]->[&O]]
 }
+@@
+
+
+[String] (Data) 
+{
+   <<dlang ##
+            WRAP!(string) value;
+         ##
+
+   ~ as *([%STRING] literal) {
+      <<dlang ##
+            this.value = cast(WRAP!(string))LOBJECT_literal;
+         ##;
+   }
+
+   ++ ascii *->[Data]
+
+   - internalString *{
+      <<dlang ##
+            return this.value;
+         ##;
+   }
+}
+
+
+
+
+@@
+
 
 [Object] {
    ++ asdf *{}
