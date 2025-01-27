@@ -26,7 +26,7 @@ contexts:
       push: inside_block
 
   operators:
-    - match: '\*|\\|(->)|\+|\-|\~|\||!'
+    - match: '(\*>)|\*|\\|(->)||\+|\-|\~|\||!'
       scope: variable.parameter.dai
 
   identifiers:

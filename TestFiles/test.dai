@@ -38,15 +38,19 @@
 }
 
 
-[Data :[Sequence<[Byte]>]] (Byte, Sequence)
+[Data :[Sequence<[Byte]>]] (Byte, Sequence, Loops, Natural)
 {
    ~ copy *([Sequence<[Byte]>] bytes) {
+      [Natural] length = \bytes:length;
+      :length = *>length;
+      :atIndex = *->\[Maybe<[&E]>]:nothing;
+      \[Loops]:iterate bytes *([Natural] index, [Byte] byte) {
 
+      }
    }
 
-   |++ iterate *([[Byte]->] getNext) {
-
-   }
+   |++ length [->[Natural]]
+   |++ atIndex [[Natural]->[Maybe<[&E]>]]
 }
 
 [Byte]
@@ -54,17 +58,27 @@
 
 }
 
-[Sequence<E>]
+[Loops]
 {
-   ++ iterate [[[&E]->]->]
+   @:: iterate
+}
 
-   ++ appending *([Sequence<[&E]>] other) -> [Sequence<[&E]>] {
-      [Sequence<[&E]>] this = ^
-   } -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\this:iterate getNext; \other:iterate getNext} }
+[Sequence<E>] (Maybe, Natural)
+{
+   @++ iterate [[[&E]->]->]
+   ++ length [->[Natural]]
+   ++ atIndex [[Natural]->[Maybe<[&E]>]]
 
-   :: empty *-> [:[Sequence<[&E]>]]{ |++ iterate *([] _) {} }
+   @++ appending *([Sequence<[&E]>] other) -> [Sequence<[&E]>] {
+   @   [Sequence<[&E]>] this = ^
+   @} -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\this:iterate getNext; \other:iterate getNext} }
 
-   :: single *([&E] e) -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\getNext e} }
+   :: empty *-> [:[Sequence<[&E]>]] { 
+         |++ length *->\[Natural]:##0##
+         |++ atIndex *->\[Maybe<[&E]>]:nothing
+      }
+
+   @:: single *([&E] e) -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\getNext e} }
 }
 
 

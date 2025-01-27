@@ -394,7 +394,7 @@
                 	};
                 \if (character1:isAsterisk) *{
                 		\if (character2:isCaret) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskCaret)};
-                		\if (character2:isArrowBracketOpen) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskArrow)};
+                		\if (character2:isArrowBracketClose) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskArrow)};
                 	};
                	 \if (character1:isColon) *{
                 		\if (character2:isColon) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleColon)};
