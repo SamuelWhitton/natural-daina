@@ -642,14 +642,14 @@
 				\[O]:ifElse (\isInstantMethod:get) *{
 					\:synthesizeInPlaceExpression (\[Boolean]:true) method;
 					\invokedExpressionType:set .synthesizedExpressionType;
-					\:output (\[String]:as "(caller, [");
+					\:output (\[String]:as "(caller, cast(OBJECT[])[");
 					\:synthesizeMethodInputs params;
 					\:output (\[String]:as "])");
 				} *{
 					\:output (\[String]:as "(cast(LAMBDA)");
 					\:synthesizeInPlaceExpression (\[Boolean]:false) method;
 					\invokedExpressionType:set .synthesizedExpressionType;
-					\:output (\[String]:as ").method(caller, [");
+					\:output (\[String]:as ").method(caller, cast(OBJECT[])[");
 					\:synthesizeMethodInputs params;
 					\:output (\[String]:as "])");
 				};

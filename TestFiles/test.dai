@@ -1,40 +1,84 @@
-[] (Integer, DebugLogHelloWorld) {
+[] (SystemIO, String, Byte, Data, List, Integer, Natural, Boolean, Loops, Variable, Mapping, Maybe) {
    *{
-      \(\[DebugLogHelloWorld]:new):log;
+
+      [Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
+      [Maybe<[String]>] y2 = \[Maybe<[String]>]:as \[String]:as ##Hello Worl!##;
+      @
+      \y1:isOrElse *([String] s) {
+         \[SystemIO]:log s
+      } *{
+         \[SystemIO]:log \[String]:as ##<NOTHING>##
+      };
+
+@@
+
+      [:[Maybe<[]>]] {
+         |++ nothing *{\[SystemIO]:log \[String]:as ##<NOTHING>##}
+         |++ as *([String] s){\[SystemIO]:log s}
+      };
+@@
+      @\[SystemIO]:log s;
+
+      @@\(\[DebugLogHelloWorld]:new):log;
 
       [DebugLog] helloWorldAnonymous = [:[DebugLogHelloWorld]] {
          \$~new;
          |++ toString *->[String] {
          } -> \[String]:as ##Hello World! from Anonymous Class##
       };
-
-      \helloWorldAnonymous:log;
+@@
+      @\helloWorldAnonymous:log;
     @  \(\[Integer]:one):debugPrint;
       @\(\[Integer]:add (\[Integer]:add (\[Integer]:one) (\[Integer]:one)) (\[Integer]:one)):debugPrint;
    }
 }
 
-[DebugLogHelloWorld :[DebugLog]] (String, DebugLog) {
-   ~ new *{}
+[SystemIO] (String) {
+      <<dlang ##
+            import std.stdio;
+         ##
 
-   |++ toString *->[String] {
-   } -> \[String]:as ##Hello World!##
-}
-
-
-[DebugLog] (String) {
-   @++ toString *->[String] {
-   @} -> \[String]:as ##Hello World!##
-   ++ toString [->[String]]
-   ++ log *{
-      \(\:toString):debugPrint;
+   :: log *([String] s) {
+      <<dlang ##
+            writeln((cast(CLASSIMPL_String)LOBJECT_s).value);
+         ##;
    }
 }
 
+@@
+Integer
+Byte
+List
+Boolean
+Variable
+Maybe
+@@
+
+
+[Maybe<E>] 
+{
+   ~ nothing *{
+      :isOrElse = *([[&E]->['O]] is, [->['O]] else) {\else}
+   }
+
+   ~ as *([&E] it) {
+      :isOrElse = *([[&E]->['O]] is, [->['O]] else) {\is it}
+   }
+
+   ++ isOrElse [[[&E]->['O]][->['O]]->]
+}
+
+@[SelectMaybe]
+@@
+
+[MaybeEnum<O>] {
+   ++ nothing [->[&O]]
+   ++ just [['E]->[&O]]
+}
+@@
+
 [String] {
    <<dlang ##
-            import std.conv;
-            import std.stdio;
             string value;
          ##
 
@@ -43,13 +87,9 @@
             this.value = (cast(LITERAL_STRING)LOBJECT_literal).it;
          ##;
    }
-
-   ++ debugPrint *{
-      <<dlang ##
-            writeln(this.value);
-         ##;
-   }
 }
+
+
 
 
 @@
