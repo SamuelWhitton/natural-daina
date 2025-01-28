@@ -221,6 +221,7 @@ asdf statement block blocking out scope for prologue statement, regular code and
 asdf can only call one self constructor (might already be written somewhere)
 asdf no brackets () around non value expression, i.e. statement
 asdf change ```[:?] [*?] [$$?]``` to ```[?:] [?*] [?$$]```
+asdf ! binds strongly to the left, still weak on the right
 
 ---
 
