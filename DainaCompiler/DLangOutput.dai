@@ -442,7 +442,7 @@
 				\select;
 				\:outputTabbed (\[String]:as "ASSIGNIMETHOD_");
 				\:output (\identifier:content);
-				\:output (\[String]:as " = ");
+				\:output (\[String]:as " = cast(LAMBDA)");
 				\:synthesizeInPlaceExpression (\[Boolean]:false)  assignedExpression;
 				\:output (\[String]:as ";\n");
 			};
@@ -462,7 +462,11 @@
 						\:synthesizeMethodInputs inputs;
 						\:output (\[String]:as ";\n");
 					} *{
-						\:outputTabbed (\[String]:as "self.CMETHOD_");
+						\:outputTabbed (\[String]:as "(cast(");
+						\:output (\[String]:as "CLASSIMPL_");
+						\:output (\.selfClassName:content);
+						\:output (\[String]:as ")");
+						\:output (\[String]:as "self).CMETHOD_");
 						\:output (\identifier:content);
 						\:output (\[String]:as "(this");
 						\:output (\[String]:as ", [");
@@ -604,8 +608,9 @@
 					\type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
 						\:output (\[String]:as "CLASSIMPL_");
 						\:output (\typeIdentifier:content);
+						\:output (\[String]:as ".");
 					};
-					\:output (\[String]:as ".TMETHOD_");
+					\:output (\[String]:as "TMETHOD_");
 					\:output (\identifier:content);
 				} *{
 					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
@@ -614,8 +619,9 @@
 					\type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
 						\:output (\[String]:as "CLASSIMPL_");
 						\:output (\typeIdentifier:content);
+						\:output (\[String]:as ".");
 					};
-					\:output (\[String]:as ".TMETHOD_");
+					\:output (\[String]:as "TMETHOD_");
 					\:output (\identifier:content);
 					\:output (\[String]:as "(caller, parameters);\n");
 					\:decrementTab;

@@ -1,20 +1,19 @@
 
 
-
 [] (SystemIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe) {
    *{
 
-      [Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
-      [Maybe<[String]>] y2 = \[Maybe<[String]>]:as \[String]:as ##Hello Worl!##;
+      @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
+      @[Maybe<[String]>] y2 = \[Maybe<[String]>]:as \[String]:as ##Hello Worl!##;
       
-      \[SystemIO]:log \y1:isOrElse (*([String] s)->s) (*->nothingStr);
-      \[SystemIO]:log \y2:isOrElse (*([String] s)->s) (*->nothingStr);
+      @\[SystemIO]:log \y1:isOrElse (*([String] s)->s) (*->nothingStr);
+      @\[SystemIO]:log \y2:isOrElse (*([String] s)->s) (*->nothingStr);
 
 
+      \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
 
 
-
-   } !{[String] nothingStr = \[String]:as ##<NOTHING>##}
+   } @!{[String] nothingStr = \[String]:as ##<NOTHING>##}
 }
 
 [SystemIO] (String) {
@@ -23,36 +22,55 @@
          ##
 
    :: stdout *([Data] data) {
-
+      <<dlang ##
+            write(cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it));
+         ##;
    }
 
    :: stdin *([Natural] bytesToRead) -> [Data] {
 @chunks(stdin, 4096)
+@@
+foreach (ubyte[] buffer; chunks(stdin, 4096))
+    {
+        ... use buffer ...
+    }
+@@
    } -> \[Data]:copy \[Sequence<[Byte]>]:empty
 
-   :: log *([String] s) {
+   @@:: log *([String] s) {
       <<dlang ##
             writeln((cast(WRAP!(string))((cast(CLASSTYPE_String)LOBJECT_s).IMETHOD_internalString(null, []))).it);
          ##;
-   }
+   }@@
 }
 
 
 [Data :[Sequence<[Byte]>]] (Byte, Sequence, Loops, Natural)
 {
+   <<dlang ##
+         WRAP!(ubyte[]) value;
+      ##
+
    ~ copy *([Sequence<[Byte]>] bytes) {
       [Natural] length = \bytes:length;
       :length = *>length;
       :atIndex = *->\[Maybe<[&E]>]:nothing;
       \[Loops]:iterate bytes *([Natural] index, [Byte] byte) {
 <<dlang ##
-            //asdf
+            
          ##;
       }
    }
 
    |++ length [->[Natural]]
    |++ atIndex [[Natural]->[Maybe<[&E]>]]
+
+
+   - internalData *{
+      <<dlang ##
+            return this.value;
+         ##;
+   }
 }
 
 [Byte]
@@ -60,17 +78,31 @@
 
 }
 
+[String] (Data) 
+   [Data] ascii
+{
+   ~ as *([%STRING] literal) {
+      .ascii = \[Data]:copy \[Sequence<[Byte]>]:empty;
+      <<dlang ##
+         ubyte[] literalBytes = cast(ubyte[])((cast(WRAP!(string))LOBJECT_literal).it);
+         (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(literalBytes);
+      ##;
+   }
+
+   ++ ascii *->.ascii
+}
+
 [Loops] (Sequence, Natural, Variable, Boolean)
 {
    :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
       [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
-      \[?:]:while (*->\(\currentIndex:get):isLessThan \sequence:length) (*{
+      \[?:]:while ((*->\index:isLessThan \sequence:length)![Integer] index = \currentIndex:get) (*{
          \getNext index element;
          \currentIndex:set \index:adding (\[Natural]:as ##1##);
       } !{
-            [?] index = \currentIndex:get;
-            [?] element = \sequence:asIndex index;
-         })
+            [Integer] index = \currentIndex:get;
+            [?] element = \sequence:atIndex index;
+         })@asdf ! binding
    }
 
    :: while *([->[Boolean]] condition, [->] action) {
@@ -81,15 +113,12 @@
 
    :: until *([[->]->] actionWithStop) {
       <<dlang ##
-         bool continue = true;
-      ##;
-      <<dlang
-      ##
-         if (continue) {
+         bool continueActions = true;
+         while (continueActions) {
       ##;
       \actionWithStop *{
          <<dlang ##
-            continue = false;
+            continueActions = false;
          ##
       };
       <<dlang
@@ -98,6 +127,36 @@
       ##;
    }
 }
+
+[Variable<E>]
+   [&E] variableObject
+{
+
+@@
+   ~ newWithInstance *([&E] initialInstantiation) {
+      \::new;
+      .variableObject = initialInstantiation;
+   }
+
+   ++ getInstance *->.variableObject
+
+   ++ setInstance *([&E] newInstantiation) {
+      .variableObject = newInstantiation;
+   }@@
+
+   ~ as *([&E] initialInstantiation) {
+      .variableObject = initialInstantiation;
+   }
+
+
+
+   ++ get *->.variableObject
+
+   ++ set *([&E] newInstantiation) {
+      .variableObject = newInstantiation;
+   }
+}
+
 
 [Sequence<E>] (Maybe, Natural)
 {
@@ -128,6 +187,21 @@ Sequence
 Natural
 @@
 
+[Natural :[Integer]] (Integer)
+{
+   <<dlang ##
+            import std.conv;
+            import std.stdio;
+            int value;
+         ##
+
+   ~ as *([%NATURAL] literal) {
+      <<dlang ##
+            //this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
+         ##;
+   }
+}
+
 
 [Maybe<E>] 
 {
@@ -142,8 +216,21 @@ Natural
    ++ isOrElse [[[&E]->['O]][->['O]]->['O]]
 }
 
-@@
-[Integer] BigInt
+[Boolean] 
+{
+   ~ false *{
+      :ifOrElse = *([->['O]] if, [->['O]] else) -> \else
+   }
+
+   ~ true *{
+      :ifOrElse = *([->['O]] if, [->['O]] else) -> \if
+   }
+
+   ++ ifOrElse [[->['O]][->['O]]->['O]]
+}
+
+
+[Integer] (Boolean)
 {
    <<dlang ##
             import std.conv;
@@ -153,7 +240,7 @@ Natural
 
    ~ as *([%INTEGER] literal) {
       <<dlang ##
-            this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
+            //this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
          ##;
    }
 
@@ -164,7 +251,12 @@ Natural
       \:~as ##1##;
    }
 
-   :: add *([Integer] i1, [Integer] i2) -> [Integer]  {
+   ++ isLessThan *->\[Boolean]:false
+
+   ++ adding *->\[Integer]:as ##0##
+
+
+   @@:: add *([Integer] i1, [Integer] i2) -> [Integer]  {
          [Integer] result = \[Integer]:zero;
          <<dlang ##
             (cast(CLASSIMPL_Integer)LOBJECT_result).value = (cast(CLASSIMPL_Integer)LOBJECT_i1).value + (cast(CLASSIMPL_Integer)LOBJECT_i2).value;
@@ -175,8 +267,8 @@ Natural
       <<dlang ##
             writeln(this.value);
          ##;
-   }
-}@@
+   }@@
+}
 
 @[SelectMaybe]
 @@
@@ -188,40 +280,11 @@ Natural
 @@
 
 
-[String] (Data) 
-{
-   <<dlang ##
-            WRAP!(string) value;
-         ##
-
-   ~ as *([%STRING] literal) {
-      <<dlang ##
-            this.value = cast(WRAP!(string))LOBJECT_literal;
-         ##;
-   }
-
-   @++ ascii *->[Data]
-
-   - internalString *{
-      <<dlang ##
-            return this.value;
-         ##;
-   }
-}
 
 
 
 
-@@
 
-
-[Object] {
-   ++ asdf *{}
-}
-
-
-
-@@
 
 
 
