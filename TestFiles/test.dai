@@ -10,6 +10,7 @@
       @\[SystemIO]:log \y2:isOrElse (*([String] s)->s) (*->nothingStr);
 
 
+      @[Sequence<[Number]>]
       \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
 
 
@@ -111,7 +112,7 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
       }
    }
 
-   :: until *([[->]->] actionWithStop) {
+   :: until *([[['E]->]->['E]] actionWithStop) { @add
       <<dlang ##
          bool continueActions = true;
          while (continueActions) {
@@ -190,14 +191,14 @@ Natural
 [Natural :[Integer]] (Integer)
 {
    <<dlang ##
-            import std.conv;
-            import std.stdio;
-            int value;
-         ##
+         import std.conv;
+         import std.bigint;
+      ##
+   
 
    ~ as *([%NATURAL] literal) {
       <<dlang ##
-            //this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
+            PARENT_1.value = BigInt((cast(WRAP!(string))LOBJECT_literal).it);
          ##;
    }
 }
@@ -234,24 +235,21 @@ Natural
 {
    <<dlang ##
             import std.conv;
-            import std.stdio;
-            int value;
+            import std.bigint;
+            BigInt value;
          ##
 
    ~ as *([%INTEGER] literal) {
       <<dlang ##
-            //this.value = to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
+            //this.value = BigInt("56783581982794522489042432639320434378739200") to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
          ##;
    }
 
-   ~ zero *{
-      \:~as ##0##;
-   }
-   ~ one *{
-      \:~as ##1##;
-   }
-
-   ++ isLessThan *->\[Boolean]:false
+   ++ isLessThan *-> [Boolean] {
+      [Boolean] isLessThan = << dlang ## 
+         OBJECT LOBJECT_isLessThan = CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isLessThan
 
    ++ adding *->\[Integer]:as ##0##
 

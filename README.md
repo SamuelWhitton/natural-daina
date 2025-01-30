@@ -142,6 +142,8 @@ Goals
 - launguage/localisation independant
 - complexity in system and interactions rather then the syntax
 - to elimate variation that is not needed because of context, easier to remember whole language that way
+- no reserve keywords
+- low footprint language
 
 ```
 
@@ -222,6 +224,7 @@ asdf can only call one self constructor (might already be written somewhere)
 asdf no brackets () around non value expression, i.e. statement
 asdf change ```[:?] [*?] [$$?]``` to ```[?:] [?*] [?$$]```
 asdf ! binds strongly to the left, still weak on the right
+asdf << compiler injection for assignment instead of general statement compiler, if valid; compiler determines what the object's expression result is
 
 ---
 
