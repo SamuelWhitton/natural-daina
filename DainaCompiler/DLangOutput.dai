@@ -424,13 +424,31 @@
 			};
 			\statement:ifLocalObjectAssignment *([DainaObjectDeclaration] declaration, [DainaExpression] assginedExpression) {
 				\select;
-				\:addLocalObjectToScope declaration;
-				[DainaGeneralIdentifier] identifier = \declaration:identifier;
-				\:outputTabbed (\[String]:as "OBJECT LOBJECT_");
-				\:output (\identifier:content);
-				\:output (\[String]:as " = ");
-				\:synthesizeInPlaceExpression (\[Boolean]:false)  assginedExpression;
-				\:output (\[String]:as ";\n");
+				\[O]:selectOrDefault *([->] _select) {
+					\assginedExpression:ifCompilerInjection *([DainaCompilerInjection] compilerInjection) {
+						\_select;
+						[String] dlang = \[String]:as "dlang";
+						\[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+							\:output (\[String]:as "/* dlang injection start */");
+							\:output (\compilerInjection:dataSegment);
+							\:output (\[String]:as "/* dlang injection end */\n");
+						} *{
+							\:outputTabbed (\[String]:as "ERROR UNKNOWN INJECTION!!!\n");
+						};
+					};
+				} *{
+					[String] nothing = \[String]:as "";
+					[DainaGeneralIdentifier] identifier = \declaration:identifier;
+					\:outputTabbed (\[String]:as "");
+					\[O]:ifElse (\nothing:equals (\identifier:content)) *{} *{
+						\:addLocalObjectToScope declaration;
+						\:output (\[String]:as "OBJECT LOBJECT_");
+						\:output (\identifier:content);
+						\:output (\[String]:as " = ");
+					};
+					\:synthesizeInPlaceExpression (\[Boolean]:false)  assginedExpression;
+					\:output (\[String]:as ";\n");
+				};
 			};
 			\statement:ifInvocation *([] a, [] b) {
 				\select;
@@ -489,17 +507,6 @@
 						\:synthesizeMethodInputs inputs;
 						\:output (\[String]:as "]);\n");
 					};
-				};
-			};
-			\statement:ifCompilerInjection *([DainaCompilerInjection] compilerInjection) {
-				\select;
-				[String] dlang = \[String]:as "dlang";
-				\[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
-					\:output (\[String]:as "/* dlang injection start */");
-					\:output (\compilerInjection:dataSegment);
-					\:output (\[String]:as "/* dlang injection end */\n");
-				} *{
-					\:outputTabbed (\[String]:as "ERROR UNKNOWN INJECTION!!!\n");
 				};
 			};
 		} *{

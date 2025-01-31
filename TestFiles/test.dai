@@ -10,8 +10,14 @@
       @\[SystemIO]:log \y2:isOrElse (*([String] s)->s) (*->nothingStr);
 
 
-      @[Sequence<[Number]>]
-      \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
+      [Sequence<[Number]>] 5Times = [:[Sequence<[Number]>]] {
+         |++ length *->\[Natural]:as ##5##
+         |++ atIndex *(n)->\[Maybe<[?]>]:as n
+      };
+      \[Loops]:iterate 5Times *{
+         \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
+      };
+      
 
 
    } @!{[String] nothingStr = \[String]:as ##<NOTHING>##}
@@ -23,7 +29,7 @@
          ##
 
    :: stdout *([Data] data) {
-      <<dlang ##
+      [] _ = <<dlang ##
             write(cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it));
          ##;
    }
@@ -57,7 +63,7 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
       :length = *>length;
       :atIndex = *->\[Maybe<[&E]>]:nothing;
       \[Loops]:iterate bytes *([Natural] index, [Byte] byte) {
-<<dlang ##
+         [] _ = <<dlang ##
             
          ##;
       }
@@ -68,7 +74,7 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
 
 
    - internalData *{
-      <<dlang ##
+      [] _ = <<dlang ##
             return this.value;
          ##;
    }
@@ -84,7 +90,7 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
 {
    ~ as *([%STRING] literal) {
       .ascii = \[Data]:copy \[Sequence<[Byte]>]:empty;
-      <<dlang ##
+      [] _ = <<dlang ##
          ubyte[] literalBytes = cast(ubyte[])((cast(WRAP!(string))LOBJECT_literal).it);
          (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(literalBytes);
       ##;
@@ -97,13 +103,14 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
 {
    :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
       [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
-      \[?:]:while ((*->\index:isLessThan \sequence:length)![Integer] index = \currentIndex:get) (*{
+      \[?:]:while ((*->((\index:isLessThan \sequence:length)!{[Natural] index = \currentIndex:get}))) *{
+         
          \getNext index element;
          \currentIndex:set \index:adding (\[Natural]:as ##1##);
       } !{
-            [Integer] index = \currentIndex:get;
+            [Natural] index = \currentIndex:get;
             [?] element = \sequence:atIndex index;
-         })@asdf ! binding
+         }@asdf ! binding
    }
 
    :: while *([->[Boolean]] condition, [->] action) {
@@ -113,16 +120,16 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
    }
 
    :: until *([[['E]->]->['E]] actionWithStop) { @add
-      <<dlang ##
+      [] _ = <<dlang ##
          bool continueActions = true;
          while (continueActions) {
       ##;
       \actionWithStop *{
-         <<dlang ##
+         [] _ = <<dlang ##
             continueActions = false;
          ##
       };
-      <<dlang
+      [] _ = <<dlang
       ##
          }
       ##;
@@ -191,16 +198,27 @@ Natural
 [Natural :[Integer]] (Integer)
 {
    <<dlang ##
+         import std.format;
          import std.conv;
          import std.bigint;
       ##
    
 
    ~ as *([%NATURAL] literal) {
-      <<dlang ##
-            PARENT_1.value = BigInt((cast(WRAP!(string))LOBJECT_literal).it);
-         ##;
+      [Integer] integerRepresentation = <<dlang ##
+         CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_literal]);
+      ##;
+      \$~>integerRepresentation;
    }
+
+   ++ adding *([Natural] toAdd) -> [Natural] {
+      [Natural] result = << dlang ##
+         BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
+         BigInt toAddBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         BigInt bigIntResult = thisBigInt + toAddBigInt;
+         OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
+      ##;
+   } -> result
 }
 
 
@@ -236,22 +254,29 @@ Natural
    <<dlang ##
             import std.conv;
             import std.bigint;
-            BigInt value;
+            WRAP!(BigInt) value;
          ##
 
    ~ as *([%INTEGER] literal) {
-      <<dlang ##
-            //this.value = BigInt("56783581982794522489042432639320434378739200") to!int((cast(LITERAL_STRING)LOBJECT_literal).it);
-         ##;
+      [] _ = <<dlang ##
+         this.value = new WRAP!(BigInt)(BigInt((cast(WRAP!(string))LOBJECT_literal).it));
+      ##;
    }
 
-   ++ isLessThan *-> [Boolean] {
+   ++ isLessThan *([Integer] otherInteger)-> [Boolean] {
       [Boolean] isLessThan = << dlang ## 
-         OBJECT LOBJECT_isLessThan = CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+         bool isLessThan = this.value.it < (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_otherInteger).IMETHOD_internalInteger(null, []))).it;
+         OBJECT LOBJECT_isLessThan = isLessThan ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
       ##;
    } -> isLessThan
 
-   ++ adding *->\[Integer]:as ##0##
+   
+
+   - internalInteger *{
+      [] _ = <<dlang ##
+            return this.value;
+         ##;
+   }
 
 
    @@:: add *([Integer] i1, [Integer] i2) -> [Integer]  {
