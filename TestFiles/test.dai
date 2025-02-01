@@ -102,6 +102,11 @@
 [String] (Data, Sequence) 
    [Data] ascii
 {
+   <<dlang ##
+         import std.bigint;
+         import std.format;
+      ##
+
    ~ as *([%STRING] literal) {
       .ascii = \[Data]:copy \[Sequence<[Byte]>]:empty;
       [] _ = <<dlang ##
@@ -120,6 +125,15 @@
          |++ atIndex *([Natural] i)->\(\strings:atIndex i):isOrElse (*([String] s)->\s:ascii) [Maybe<[?]>]:nothing
       };
       \:~asASCII \[Data]:concatenating asciis
+   }
+
+   ~ stringFormatOf *([Integer] integer) {
+      .ascii = \[Data]:copy \[Sequence<[Byte]>]:empty;
+      [] _ = << dlang ##
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
+         ubyte[] bytes = cast(ubyte[])(format("%d", integer));
+         (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(bytes);
+      ##;
    }
 
    ++ ascii *->.ascii
@@ -381,18 +395,18 @@ Analysis: analysing class - Daina...
    }
 
    ++ asString *-> [String] {
-      [String] colon = \[String]:as ":";
-      [String] pos = \[String]:as " pos ";
-      [String] line = \[String]:stringRepresentationOfInteger (\.line:adding (\[Natural]:as ##1##));
-      [String] column = \[String]:stringRepresentationOfInteger (\.column:adding (\[Natural]:as ##1##));
-      [String] tabulation = \[String]:as "\n    ";
-      [Variable<[String]>] linePositionArrow = \[Variable<[String]>]:as (\[String]:as "");
+      [String] colon = \[String]:as ##:##;
+      [String] pos = \[String]:as ## pos ##;
+      [String] line = \[String]:stringFormatOf (\.line:adding (\[Natural]:as ##1##));
+      [String] column = \[String]:stringFormatOf (\.column:adding (\[Natural]:as ##1##));
+      [String] tabulation = \[String]:as ##\n    ##;
+      [Variable<[String]>] linePositionArrow = \[Variable<[String]>]:as (\[String]:as ####);
       \[Loops]:repeatNTimes .column *{
          [String] curr = \linePositionArrow:get;
-         \linePositionArrow:set (\curr:appending (\[String]:as " "));
+         \linePositionArrow:set (\curr:appending (\[String]:as ## ##));
       };
       [String] curr = \linePositionArrow:get;
-      \linePositionArrow:set (\curr:appending (\[String]:as "^"));
+      \linePositionArrow:set (\curr:appending (\[String]:as ##^##));
    } -> (\.sourceName:appending (\colon:appending (\line:appending (\pos:appending (\column:appending (\tabulation:appending (\.lineContent:appending (\tabulation:appending (\linePositionArrow:get)))))))))
 
    ++ nextColumn *-> [SourcePosition] {
