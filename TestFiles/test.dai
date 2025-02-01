@@ -16,7 +16,10 @@
       };
       \[Loops]:iterate 5Times *{
          \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
+         \[SystemIO]:stdout \(\[String]:asASCII \[SystemIO]:stdin):ascii;
       };
+
+      
       
 
 
@@ -26,6 +29,7 @@
 [SystemIO] (String) {
       <<dlang ##
             import std.stdio;
+            import std.bigint;
          ##
 
    :: stdout *([Data] data) {
@@ -34,7 +38,17 @@
          ##;
    }
 
-   :: stdin *([Natural] bytesToRead) -> [Data] {
+   :: stdin *-> [Data] {
+      [Data] readedData = \[Data]:copy \[Sequence<[Byte]>]:empty;
+      [] _ = << dlang ##
+         //BigInt bytesToRead = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_bytesToRead).IMETHOD_internalInteger(null, []))).it;
+         string rawLine = readln();
+         if (rawLine == null) {
+            rawLine = "";
+         }
+         ubyte[] line = cast(ubyte[])(rawLine);
+         (cast(CLASSIMPL_Data)LOBJECT_readedData).value = new WRAP!(ubyte[])(line);
+      ##;
 @chunks(stdin, 4096)
 @
 @foreach (ubyte[] buffer; chunks(stdin, 4096))
@@ -42,7 +56,7 @@
   @      ... use buffer ...
   @  }
 @
-   } -> \[Data]:copy \[Sequence<[Byte]>]:empty
+   } -> readedData
 
 
 }
@@ -90,6 +104,10 @@
          ubyte[] literalBytes = cast(ubyte[])((cast(WRAP!(string))LOBJECT_literal).it);
          (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(literalBytes);
       ##;
+   }
+
+   ~ asASCII *([Data] ascii) {
+      .ascii = ascii
    }
 
    ++ ascii *->.ascii

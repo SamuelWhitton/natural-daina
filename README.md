@@ -224,7 +224,7 @@ asdf can only call one self constructor (might already be written somewhere)
 asdf no brackets () around non value expression, i.e. statement
 asdf change ```[:?] [*?] [$$?]``` to ```[?:] [?*] [?$$]```
 asdf ! binds strongly to the left, still weak on the right
-asdf << compiler injection for assignment instead of general statement compiler, if valid; compiler determines what the object's expression result is
+asdf << compiler injection for local assignment instead of general statement compiler, if valid; compiler determines what the object's expression result is
 
 ---
 
