@@ -12,6 +12,7 @@ contexts:
   prototype:
     - include: comments
     - include: injected
+    - include: compiler_injection_id
 
   main:
     # The main context is the initial starting point of our syntax.
@@ -124,4 +125,11 @@ contexts:
         - match: '##'
           pop: true    
 
+  compiler_injection_id:
+    - match: '<<'
+      scope: invalid.illegal.dai
+      push:
+        - meta_scope: invalid.illegal.dai
+        - match: '([_a-zA-Z0-9][_a-zA-Z0-9]*)'
+          pop: true   
 
