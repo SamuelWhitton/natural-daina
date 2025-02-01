@@ -36,19 +36,15 @@
 
    :: stdin *([Natural] bytesToRead) -> [Data] {
 @chunks(stdin, 4096)
-@@
-foreach (ubyte[] buffer; chunks(stdin, 4096))
-    {
-        ... use buffer ...
-    }
-@@
+@
+@foreach (ubyte[] buffer; chunks(stdin, 4096))
+ @   {
+  @      ... use buffer ...
+  @  }
+@
    } -> \[Data]:copy \[Sequence<[Byte]>]:empty
 
-   @@:: log *([String] s) {
-      <<dlang ##
-            writeln((cast(WRAP!(string))((cast(CLASSTYPE_String)LOBJECT_s).IMETHOD_internalString(null, []))).it);
-         ##;
-   }@@
+
 }
 
 
@@ -104,13 +100,14 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
    :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
       [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
       \[?:]:while ((*->((\index:isLessThan \sequence:length)!{[Natural] index = \currentIndex:get}))) *{
-         
-         \getNext index element;
-         \currentIndex:set \index:adding (\[Natural]:as ##1##);
-      } !{
+         {
+            \getNext index element;
+            \currentIndex:set \index:adding (\[Natural]:as ##1##);
+         }!{
             [Natural] index = \currentIndex:get;
             [?] element = \sequence:atIndex index;
-         }@asdf ! binding
+         }
+      }
    }
 
    :: while *([->[Boolean]] condition, [->] action) {
@@ -140,23 +137,9 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
    [&E] variableObject
 {
 
-@@
-   ~ newWithInstance *([&E] initialInstantiation) {
-      \::new;
-      .variableObject = initialInstantiation;
-   }
-
-   ++ getInstance *->.variableObject
-
-   ++ setInstance *([&E] newInstantiation) {
-      .variableObject = newInstantiation;
-   }@@
-
    ~ as *([&E] initialInstantiation) {
       .variableObject = initialInstantiation;
    }
-
-
 
    ++ get *->.variableObject
 
@@ -168,32 +151,16 @@ foreach (ubyte[] buffer; chunks(stdin, 4096))
 
 [Sequence<E>] (Maybe, Natural)
 {
-   @++ iterate [[[&E]->]->]
    ++ length [->[Natural]]
    ++ atIndex [[Natural]->[Maybe<[&E]>]]
-
-   @++ appending *([Sequence<[&E]>] other) -> [Sequence<[&E]>] {
-   @   [Sequence<[&E]>] this = ^
-   @} -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\this:iterate getNext; \other:iterate getNext} }
 
    :: empty *-> [:[Sequence<[&E]>]] { 
          |++ length *->\[Natural]:as ##0##
          |++ atIndex *->\[Maybe<[&E]>]:nothing
       }
 
-   @:: single *([&E] e) -> [:[Sequence<[&E]>]]{ |++ iterate *([[&E]->] getNext) {\getNext e} }
 }
 
-
-@@
-Integer
-Byte
-Boolean
-Variable
-Maybe
-Sequence
-Natural
-@@
 
 [Natural :[Integer]] (Integer)
 {
@@ -278,29 +245,8 @@ Natural
          ##;
    }
 
-
-   @@:: add *([Integer] i1, [Integer] i2) -> [Integer]  {
-         [Integer] result = \[Integer]:zero;
-         <<dlang ##
-            (cast(CLASSIMPL_Integer)LOBJECT_result).value = (cast(CLASSIMPL_Integer)LOBJECT_i1).value + (cast(CLASSIMPL_Integer)LOBJECT_i2).value;
-         ##;
-      }->result
-
-   ++ debugPrint *{
-      <<dlang ##
-            writeln(this.value);
-         ##;
-   }@@
 }
 
-@[SelectMaybe]
-@@
-
-[MaybeEnum<O>] {
-   ++ nothing [->[&O]]
-   ++ just [['E]->[&O]]
-}
-@@
 
 
 

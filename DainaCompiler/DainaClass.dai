@@ -752,6 +752,30 @@
 		\::new;
 	}
 
+	++ toBase *{
+		.ifStatementGroup = *([[List<[DainaExpression]>]->]get){};
+		.ifDataSegment = *([]a){};
+		.ifWithPrologueStatement = *([]a){};
+		.ifMethodExpression = *([]a){};
+		.ifAnonymousClassObject = *([]a){};
+		.ifInstanceMethod = *([]a){};
+		.ifLocalObjectAssignment = *([]a){};
+		.ifTypeMethod = *([]a){};
+		.outputType = \[DainaType]:base;
+
+		.ifInvocation = *([]a){};
+		.ifConstructorInvocation = *([]a){};
+		.ifInstanceMethodAssignment = *([]a){};
+		.ifInstanceObjectAssignment = *([]a){};
+		.ifProxyObject = *([]a){};
+		.ifCompilerInjection = *([]a){};
+		.ifLocalObject = *([]a){};
+		.ifInternalInstanceMethod = *([]a){};
+		.ifInternalInstanceObject = *([]a){};
+		.ifSelfReference = *([]a){};
+		.ifMethodSelfReference = *([]a){};
+	}
+
 	++ outputType *->[DainaType]{}->.outputType
 	++ setOutputType *([DainaType] outputType) {.outputType = outputType}
 
@@ -798,6 +822,32 @@
 		.ifInternalInstanceObject = other:ifInternalInstanceObject;
 		.ifSelfReference = other:ifSelfReference;
 		.ifMethodSelfReference = other:ifMethodSelfReference;
+	}
+
+	- copyTo *([DainaExpression] it) {
+		@[DainaExpression] me = \[DainaExpression]:base;
+		<instant
+		##
+			//Z_local_me = Z_self;asdf
+		##;
+		@\it:copy me;
+		<instant
+		##
+
+		void* Z_temporary_9 = ((void *)(0));
+           //ASSIGN temporary_9 = Z_self
+/*C*/      Z_temporary_9 = Z_self;
+           //CREATE STATIC_OBJECT temporary_11 WITH METHOD classmethod_DainaExpression_copy
+/*C*/      void* Z_temporary_11 = &Z_classmethod_DainaExpression_copy;
+           //CREATE DYNAMIC_OBJECT temporary_10 WITH METHOD[STATIC_OBJECT] temporary_11 FRAME{STATIC(),DYNAMIC(local_it)}
+/*C*/      void* Z_temporary_10 = allocateDynamicLambda(1,1,Z_temporary_11);
+/*C*/      *(((void* *)(Z_temporary_10+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_it;
+           //CREATE OBJECT temporary_8 = INVOKE temporary_10(temporary_9)
+/*C*/      void* Z_temporary_8 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_10))->method))(Z_temporary_10+sizeof(DynamicLambda), Z_temporary_9);
+
+
+			//Z_local_me = Z_self;
+		##;
 	}
 
 	++ makeEmptyStatement *{.ifStatementGroup = *([[List<[DainaExpression]>]->] get){\get (\[List<[DainaExpression]>]:empty)}}
@@ -1172,6 +1222,21 @@
 			.ifMethodSelfReference = *([->] get) {\get};
 		} *{};
 
+		@@\[O]:ifElse (\parser:hasErrors) *{} *{
+			\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:exclamationMark) *{
+				\parser:gotoNextToken;
+				\[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+					[DainaExpression] left = \[DainaExpression]:base;
+					\:copyTo left;
+					[DainaExpression] right = \[DainaExpression]:base;
+					\right:parse parser;
+					\:toBase;
+					.ifWithPrologueStatement = *([[DainaExpression][DainaExpression]->] get) {\get left right};
+				} *{
+					\parser:addError (\[Error]:expectingPrologueStatement (\parser:position));
+				};
+			} *{};
+		};@@
 	}
 }
 
