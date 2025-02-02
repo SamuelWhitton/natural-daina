@@ -330,6 +330,7 @@
    <<dlang ##
             import std.conv;
             import std.bigint;
+            import std.format;
             WRAP!(BigInt) value;
          ##
 
@@ -422,8 +423,10 @@
       [ListNode<[&E]>] newNode = \[ListNode<[&E]>]:withValue value;
       [Maybe<[ListNode<[&E]>]>] first = \.first:get;
       \first:isOrElse *([ListNode<[&E]>] firstNode) {
-         \newNodeNext:set .first ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] newNodeNext = \newNode:next};
-         \firstNodePrevious:set \[Maybe<[?]>]:as newNode ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] firstNodePrevious = \firstNode:previous};
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] firstNodePrevious = \firstNode:previous;
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodeNext = \newNode:next;
+         \newNodeNext:set .first;
+         \firstNodePrevious:set \[Maybe<[?]>]:as newNode;
       } *{};
       \.first:set \[Maybe<[?]>]:as newNode;
    }
@@ -442,8 +445,10 @@
       [ListNode<[&E]>] newNode = \[ListNode<[&E]>]:withValue value;
       [Maybe<[ListNode<[&E]>]>] last = \.last:get;
       \last:isOrElse *([ListNode<[&E]>] lastNode) {
-         \newNodePrevious:set .last ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] newNodePrevious = \newNode:previous};
-         \lastNodeNext:set \[Maybe<[?]>]:as newNode ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] lastNodeNext = \lastNode:next};
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodePrevious = \newNode:previous;
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] lastNodeNext = \lastNode:next;
+         \newNodePrevious:set .last;
+         \lastNodeNext:set \[Maybe<[?]>]:as newNode;
       } *{};
       \.last:set \[Maybe<[?]>]:as newNode;
    }
@@ -592,7 +597,7 @@ Analysis: analysing class - Daina...
 
    ~ -+- errorWithContext *([String] errorString, [List<[SourcePosition]>] context) {
       [Variable<[String]>] errorWithContext = \[Variable<[String]>]:as errorString;
-      \context:iterate *([SourcePosition] sourcePosition) {
+      \[Loops]:iterate context *([SourcePosition] sourcePosition) {
          [String] addedContext = (\prefix:appending (\sourcePosition:description)) !{
                [String] prefix = \[String]:as ## - ##;
             };
