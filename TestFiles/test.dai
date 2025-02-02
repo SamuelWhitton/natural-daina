@@ -267,7 +267,7 @@
 
    ~ clampTo0 *([Integer] integer) {
       [Integer] integerRepresentation = <<dlang ##
-         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
          if (integer < BigInt("0")) {
             integer = BigInt("0");
          }
@@ -278,7 +278,7 @@
 
    ~ magnitudeOf *([Integer] integer) {
       [Integer] integerRepresentation = <<dlang ##
-         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
          if (integer < BigInt("0")) {
             integer = integer*BigInt("-1");
          }
@@ -353,6 +353,14 @@
       ##;
    } -> isEqualTo
 
+   ++ subtracting *([Integer] toSubtract) -> [Integer] {
+      [Integer] result = << dlang ##
+         BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
+         BigInt toSubtractBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toSubtract).IMETHOD_internalInteger(null, []))).it;
+         BigInt bigIntResult = thisBigInt - toSubtractBigInt;
+         OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
+      ##;
+   } -> result
    
 
    - internalInteger *{
@@ -364,9 +372,17 @@
 }
 
 
-[ListNode] () -> (List)
+[ListNode<E>] () -> (List)
 {
+   ~ withValue *([&E] value) {
+      :value = *> value;
+      :next = *> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      :previous = *> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+   }
 
+   ++ value [->[&E]]
+   ++ next [->[Variable<[Maybe<[ListNode<[&E]>]>]>]]
+   ++ previous [->[Variable<[Maybe<[ListNode<[&E]>]>]>]]
 }
 
 [List<E> : [Sequence<[&E]>]] (ListNode, Boolean, Maybe, Variable, Sequence, Natural, Loops)
@@ -387,228 +403,50 @@
    ++ atIndex *([Natural] index) -> [Maybe<[&E]>] {
       [Variable<[Maybe<[&E]>]>] atIndex = \[Variable<[?]>]:as \[Maybe<[&E]>]:nothing;
       \[Loops]:iterate ^ *([Natural] thisIndex, [&E] this) {
-         \(\thisIndex:isEqualTo index):ifOrElse *{\atIndex:set \[Maybe<[&E]>]:as this} *{};
+         [Boolean] sameIndex = (\thisIndex:isEqualTo index);
+         \sameIndex:ifOrElse *{\atIndex:set \[Maybe<[&E]>]:as this} *{};
       };
    } -> \atIndex:get
 
-   ++ popFirst
-   ++ pushFirst
-
-   ++ popLast
-   ++ pushLast
-
-
-
-   *([[&E]->] cargoReceiver) {
-         \.frontCarriage:retriveCargoWithReceiver cargoReceiver;
-      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
-      \dropFrontCarriageIfItIsNotTheLastCarriage;
+   ++ removeFirst *-> [Maybe<[&E]>] {
+      [Maybe<[ListNode<[&E]>]>] first = \.first:get;
+   } -> \first:isOrElse (*([ListNode<[&E]>] node) -> [Maybe<[&E]>] {
+         \.first:set \node:next;
+         [Natural] length = \.length:get;
+         \.length:set \[Natural]:clampTo0 \length:subtracting \[Natural]:as ##1##;
+      } -> \[Maybe<[?]>]:as \node:value) (*->\[Maybe<[&E]>]:nothing)
    
-   }  !{
-         [->] dropFrontCarriageIfItIsNotTheLastCarriage = *{
-            \.frontCarriage:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
-               .frontCarriage = carriageCoupledToBack;
-               \.frontCarriage:disconnectFrontCoupler;
-            };
-         };
-      }
-
-   ++ popFirst *->[Maybe<[&E]>] {
-      [Variable<[Maybe<[&E]>]>] m = \[Variable<[Maybe<[&E]>]>]:as (\[Maybe<[&E]>]:nothing);
-      \:popFromFront *([&E] e) {
-         \m:set (\[Maybe<[&E]>]:as e);
-      };
-   } -> \m:get
-
-
-   ++ popFromBack *([[&E]->] cargoReceiver) {
-         \.backCarriage:retriveCargoWithReceiver cargoReceiver;
-      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
-      \dropBackCarriageIfItIsNotTheLastCarriage;
-      
-
-   }  !{
-         [->] dropBackCarriageIfItIsNotTheLastCarriage = *{
-            \.backCarriage:retriveCarriageCoupledToFront *([TrainCarriage<[&E]>] carriageCoupledToFront) {
-               .backCarriage = carriageCoupledToFront;
-               \.backCarriage:disconnectBackCoupler;
-            };
-         };
-      }
-
-
-
-   ++ pushToFront *([&E] cargo) {
-      \getFrontCarriageReadyForNewCargo;
-      \.frontCarriage:store cargo;
-      
-   }  !{
-         [->] getFrontCarriageReadyForNewCargo = *{
-            \.frontCarriage:performActionIfCarriageIsFull *{
-               [TrainCarriage<[&E]>] newFrontCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
-               \:coupleCarriagesWithFrontAndBackCarriage newFrontCarriage .frontCarriage;
-               .frontCarriage = newFrontCarriage;
-            };
-         };
-      }
-
-
-   ++ pushToBack *([&E] cargo) {
-      \getBackCarriageReadyForNewCargo;
-      \.backCarriage:store cargo;
-   
-   }  !{
-         [->] getBackCarriageReadyForNewCargo = *{
-            \.backCarriage:performActionIfCarriageIsFull *{
-               [TrainCarriage<[&E]>] newBackCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
-               \:coupleCarriagesWithFrontAndBackCarriage .backCarriage newBackCarriage;
-               .backCarriage = newBackCarriage;
-            };
-         };
-      }
-
-   ++ append *([&E] cargo) {
-      \getBackCarriageReadyForNewCargo;
-      \.backCarriage:store cargo;
-   
-   }  !{
-         [->] getBackCarriageReadyForNewCargo = *{
-            \.backCarriage:performActionIfCarriageIsFull *{
-               [TrainCarriage<[&E]>] newBackCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
-               \:coupleCarriagesWithFrontAndBackCarriage .backCarriage newBackCarriage;
-               .backCarriage = newBackCarriage;
-            };
-         };
-      }
-
-
-   - coupleCarriagesWithFrontAndBackCarriage *([TrainCarriage<[&E]>] frontCarriage, [TrainCarriage<[&E]>] backCarriage) {
-      \frontCarriage:connectBackCouplerToCarriage backCarriage;
-      \backCarriage:connectFrontCouplerToCarriage frontCarriage;
+   ++ prepend *([&E] value) {
+      [Natural] length = \.length:get;
+      \.length:set \length:adding \[Natural]:as ##1##;
+      [ListNode<[&E]>] newNode = \[ListNode<[&E]>]:withValue value;
+      [Maybe<[ListNode<[&E]>]>] first = \.first:get;
+      \first:isOrElse *([ListNode<[&E]>] firstNode) {
+         \newNodeNext:set .first ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] newNodeNext = \newNode:next};
+         \firstNodePrevious:set \[Maybe<[?]>]:as newNode ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] firstNodePrevious = \firstNode:previous};
+      } *{};
+      \.first:set \[Maybe<[?]>]:as newNode;
    }
 
-   - iterateThroughCarriages *([[TrainCarriage<[&E]>]->] carriageReceiver) {
-      \[CoreFlow]:repeatUntilStopped *([->] stop) {
-         \carriageReceiver currentCarriageWeAreLookingAt;
-         [Boolean] moreCarrigesToLookInside = \checkIfThereAreMoreCarriagesToLookInside;
-         \moreCarrigesToLookInside:ifTrue moveToNextCarriage;
-         \moreCarrigesToLookInside:ifFalse stop;
-         
-      }  !{
-            [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
-            [->] moveToNextCarriage = *{
-               \currentCarriageWeAreLookingAt:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
-                  \wrappedCurrentCarriage:store carriageCoupledToBack;
-               };
-            };
-         };
-   }  !{
-         [Wrapper<[TrainCarriage<[&E]>]>] wrappedCurrentCarriage = \[Wrapper<[TrainCarriage<[&E]>]>]:wrapperWithObject .frontCarriage;
-         [->[TrainCarriage<[&E]>]] getCurrentCarriageWeAreLookingAt = wrappedCurrentCarriage:unwrap;
-         [->[Boolean]] checkIfThereAreMoreCarriagesToLookInside = *-> [Boolean] {
-            [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
-         } -> \currentCarriageWeAreLookingAt:backCouplingIsConnectedToACarriage;
-      }
+   ++ removeLast *-> [Maybe<[&E]>] {
+      [Maybe<[ListNode<[&E]>]>] last = \.last:get;
+   } -> \last:isOrElse (*([ListNode<[&E]>] node) -> [Maybe<[&E]>] {
+         \.last:set \node:previous;
+         [Natural] length = \.length:get;
+         \.length:set \[Natural]:clampTo0 \length:subtracting \[Natural]:as ##1##;
+      } -> \[Maybe<[?]>]:as \node:value) (*->\[Maybe<[&E]>]:nothing)
 
-
-   ++ iterateThroughObjectsOnTrain *([[&E]->] cargoReceiver) {
-      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
-         \carriage:retriveCargoWithReceiver cargoReceiver;
-      };
+   ++ append *([&E] value) {
+      [Natural] length = \.length:get;
+      \.length:set \length:adding \[Natural]:as ##1##;
+      [ListNode<[&E]>] newNode = \[ListNode<[&E]>]:withValue value;
+      [Maybe<[ListNode<[&E]>]>] last = \.last:get;
+      \last:isOrElse *([ListNode<[&E]>] lastNode) {
+         \newNodePrevious:set .last ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] newNodePrevious = \newNode:previous};
+         \lastNodeNext:set \[Maybe<[?]>]:as newNode ! {[Variable<[Maybe<[ListNode<[&E]>]>]>] lastNodeNext = \lastNode:next};
+      } *{};
+      \.last:set \[Maybe<[?]>]:as newNode;
    }
-
-   ++ iterate *([[&E]->] cargoReceiver) {
-      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
-         \carriage:retriveCargoWithReceiver cargoReceiver;
-      };
-   }
-   
-   ++ deleteObjectsOnTrainWhenPrediateIsTrue *([[&E]->[Boolean]] determineIfWeShouldRemoveCargoFromTrain) {
-      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
-         \carriage:retriveCargoWithReceiver *([&E] cargo) {
-            [Boolean] weShouldDeleteThisCargo = \determineIfWeShouldRemoveCargoFromTrain cargo;
-            \weShouldDeleteThisCargo:ifTrue *{
-               \removeCargoFromTrainWithCarriage carriage;
-            };
-            
-         }; 
-      };
-
-   }  !{
-         [[TrainCarriage<[&E]>]->] removeCargoFromTrainWithCarriage = *([TrainCarriage<[&E]>] carriageToRemoveCargo) {
-            \:emptyTrainIfThereIsOnlyOneCarriageLeft;
-            [Boolean] trainIsCompletelyEmptyNow = \:isEmpty;
-            \trainIsCompletelyEmptyNow:ifFalse pullCarriageAwayFromTrainAndReconnectTrain;
-
-         }  !{
-               [->] pullCarriageAwayFromTrainAndReconnectTrain = *{
-                  [Boolean] carriageIsConnectedAtFront = \carriageToRemoveCargo:frontCouplingIsConnectedToACarriage;
-                  [Boolean] carriageIsConnectedAtBack = \carriageToRemoveCargo:backCouplingIsConnectedToACarriage;
-                  [Boolean] carriageIsInTheMiddleOfTheTrain = \[Boolean]:and carriageIsConnectedAtFront carriageIsConnectedAtBack;
-                  \carriageIsInTheMiddleOfTheTrain:ifTrue removeCarriageFromMiddleOfTrain;
-                  \carriageIsInTheMiddleOfTheTrain:ifFalse *{
-                     \carriageIsConnectedAtFront:ifTrue removeCarriageFromBackOfTrain;
-                     \carriageIsConnectedAtFront:ifFalse removeCarriageFromFrontOfTrain;
-                  };
-   
-               }  !{
-                     [TrainCarriage<[&E]>] theCarriageInQuestion = carriageToRemoveCargo;
-                     [->] removeCarriageFromMiddleOfTrain = *{
-                        \theCarriageInQuestion:retriveCarriageCoupledToFront *([TrainCarriage<[&E]>] frontCoupledCarriage) {
-                           \theCarriageInQuestion:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] backCoupledCarriage) {
-                              \:coupleCarriagesWithFrontAndBackCarriage frontCoupledCarriage backCoupledCarriage;
-                           };
-                        };
-                     };
-
-                     [->] removeCarriageFromBackOfTrain = *{ \:popFromBack *([]poppedObject){}; };
-                     [->] removeCarriageFromFrontOfTrain = *{ \:popFromFront *([]poppedObject){}; };
-                  };
-            };
-      }
-
-
-   ++ transformObjectsOnTrain *([[&E]->[&E]] cargoTransformer) {
-      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
-         \carriage:retriveCargoWithReceiver *([&E] cargoNotYetTransformed) {
-            [&E] transformedCargo = \cargoTransformer cargoNotYetTransformed;
-            \carriage:store transformedCargo;
-         };
-      };
-   }
-
-   ++ newTrainBySelectingObjectsWhenPrediateIsTrue *([[&E]->[Boolean]] determineIfCargoShouldBeOnNewTrain) -> [List<[&E]>] {
-      [List<[&E]>] newTrain = \[List<[&E]>]:newEmptyTrain;
-      \:iterateThroughObjectsOnTrain *([&E] cargo) {
-         [Boolean] cargoShouldBeOnNewTrain = \determineIfCargoShouldBeOnNewTrain cargo;
-         \cargoShouldBeOnNewTrain:ifTrue *{\newTrain:pushToBack cargo;};
-      };
-   } -> newTrain
-
-
-
-   ++ fuseTrainObjectsWithFushionRuleAndDefaultOnEmptyTrain *([[&E] [&E]->[&E]] fuseTwoObjects, [&E] defaultForEmptyTrain) -> [&E] {
-      [Container<[&E]>] containerOfCurrentFusedObject = \[Container<[&E]>]:newEmptyContainer;
-
-      \:iterateThroughObjectsOnTrain *([&E] objectOnTrain) {
-         [Boolean] theContainerHasNoObject = \containerOfCurrentFusedObject:isEmpty;
-         \theContainerHasNoObject:ifTrue insertObjectOnTrainIntoContainer; 
-         \theContainerHasNoObject:ifFalse fuseObjectOnTrainWithObjectInContainer;
-
-      }  !{
-            [->] insertObjectOnTrainIntoContainer = *{\containerOfCurrentFusedObject:store objectOnTrain;};
-
-            [->] fuseObjectOnTrainWithObjectInContainer = *{
-               \containerOfCurrentFusedObject:retrive *([&E] objectInContainer) {
-                  \containerOfCurrentFusedObject:store (\fuseTwoObjects objectInContainer objectOnTrain);
-               };
-            };
-         };
-
-      [Wrapper<[&E]>] wrappedFusedObject = \[Wrapper<[&E]>]:wrapperWithObject defaultForEmptyTrain;
-      \containerOfCurrentFusedObject:retrive *([&E] fusedObject) {\wrappedFusedObject:store fusedObject}
-
-   } -> (\wrappedFusedObject:unwrap)
 }
 
 

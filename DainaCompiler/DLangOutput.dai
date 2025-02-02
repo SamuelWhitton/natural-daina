@@ -564,11 +564,13 @@
 			};
 			\expression:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
 				\select;
+				[Variable<[DainaType]>] instanceExpressionType = \[Variable<[DainaType]>]:as .synthesizedExpressionType;
 				\[O]:ifElse (usedAsInstantMethod) *{
 					\:output (\[String]:as "(cast(");
 					.blockOutput = \[Boolean]:true;
 					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
 					.blockOutput = \[Boolean]:false;
+					\instanceExpressionType:set .synthesizedExpressionType;
 					\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
 						\:output (\[String]:as "CLASSTYPE_");
 						\:output (\instanceExpressionClassName:content);
@@ -584,6 +586,7 @@
 					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
 					\:output (\[String]:as ";\n");
 					\:outputTabbed (\[String]:as "return (cast(");
+					\instanceExpressionType:set .synthesizedExpressionType;
 					\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
 						\:output (\[String]:as "CLASSTYPE_");
 						\:output (\instanceExpressionClassName:content);
@@ -594,7 +597,8 @@
 					\:decrementTab;
 					\:outputTabbed (\[String]:as "} })");
 				};
-				\.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+				[DainaType] theinstanceExpressionType = \instanceExpressionType:get;
+				\theinstanceExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
 					\.mappedClassMethods:retriveMappedValueWithKey (\instanceExpressionClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] instanceExpressionClassMethods) {
 						[Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \instanceExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
 						\mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
