@@ -200,21 +200,23 @@
       }
    }
 
-   :: until *([[['E]->]->['E]] actionWithStop) { @add
-      [] _ = <<dlang ##
+   :: until *([[['E]->]->['E]] actionWithStop) -> ['E] { @add
+      ['E] result = <<dlang ##
          bool continueActions = true;
+         OBJECT LOBJECT_result = null;
          while (continueActions) {
       ##;
-      \actionWithStop *{
+      \actionWithStop *(["E] resultFromAction) {
          [] _ = <<dlang ##
             continueActions = false;
+            LOBJECT_result = LOBJECT_resultFromAction;
          ##
       };
       [] _ = <<dlang
       ##
          }
       ##;
-   }
+   } -> result
 }
 
 [Variable<E>]
@@ -259,6 +261,28 @@
    ~ as *([%NATURAL] literal) {
       [Integer] integerRepresentation = <<dlang ##
          CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_literal]);
+      ##;
+      \$~>integerRepresentation;
+   }
+
+   ~ clampTo0 *([Integer] integer) {
+      [Integer] integerRepresentation = <<dlang ##
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         if (integer < BigInt("0")) {
+            integer = BigInt("0");
+         }
+         CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", integer))]);
+      ##;
+      \$~>integerRepresentation;
+   }
+
+   ~ magnitudeOf *([Integer] integer) {
+      [Integer] integerRepresentation = <<dlang ##
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         if (integer < BigInt("0")) {
+            integer = integer*BigInt("-1");
+         }
+         CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", integer))]);
       ##;
       \$~>integerRepresentation;
    }
@@ -338,6 +362,255 @@
    }
 
 }
+
+
+[ListNode] () -> (List)
+{
+
+}
+
+[List<E> : [Sequence<[&E]>]] (ListNode, Boolean, Maybe, Variable, Sequence, Natural, Loops)
+   [Variable<[Maybe<[ListNode<[&E]>]>]>] first
+   [Variable<[Maybe<[ListNode<[&E]>]>]>] last
+   [Variable<[Natural]>] length
+{
+   ~ empty *{
+      .first = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      .last = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      .length = \[Variable<[?]>]:as \[Natural]:as ##0##;
+   }
+
+   @ copy [Sequence<[&E]>]
+
+   ++ length *->\.length:get
+
+   ++ atIndex *([Natural] index) -> [Maybe<[&E]>] {
+      [Variable<[Maybe<[&E]>]>] atIndex = \[Variable<[?]>]:as \[Maybe<[&E]>]:nothing;
+      \[Loops]:iterate ^ *([Natural] thisIndex, [&E] this) {
+         \(\thisIndex:isEqualTo index):ifOrElse *{\atIndex:set \[Maybe<[&E]>]:as this} *{};
+      };
+   } -> \atIndex:get
+
+   ++ popFirst
+   ++ pushFirst
+
+   ++ popLast
+   ++ pushLast
+
+
+
+   *([[&E]->] cargoReceiver) {
+         \.frontCarriage:retriveCargoWithReceiver cargoReceiver;
+      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
+      \dropFrontCarriageIfItIsNotTheLastCarriage;
+   
+   }  !{
+         [->] dropFrontCarriageIfItIsNotTheLastCarriage = *{
+            \.frontCarriage:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
+               .frontCarriage = carriageCoupledToBack;
+               \.frontCarriage:disconnectFrontCoupler;
+            };
+         };
+      }
+
+   ++ popFirst *->[Maybe<[&E]>] {
+      [Variable<[Maybe<[&E]>]>] m = \[Variable<[Maybe<[&E]>]>]:as (\[Maybe<[&E]>]:nothing);
+      \:popFromFront *([&E] e) {
+         \m:set (\[Maybe<[&E]>]:as e);
+      };
+   } -> \m:get
+
+
+   ++ popFromBack *([[&E]->] cargoReceiver) {
+         \.backCarriage:retriveCargoWithReceiver cargoReceiver;
+      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
+      \dropBackCarriageIfItIsNotTheLastCarriage;
+      
+
+   }  !{
+         [->] dropBackCarriageIfItIsNotTheLastCarriage = *{
+            \.backCarriage:retriveCarriageCoupledToFront *([TrainCarriage<[&E]>] carriageCoupledToFront) {
+               .backCarriage = carriageCoupledToFront;
+               \.backCarriage:disconnectBackCoupler;
+            };
+         };
+      }
+
+
+
+   ++ pushToFront *([&E] cargo) {
+      \getFrontCarriageReadyForNewCargo;
+      \.frontCarriage:store cargo;
+      
+   }  !{
+         [->] getFrontCarriageReadyForNewCargo = *{
+            \.frontCarriage:performActionIfCarriageIsFull *{
+               [TrainCarriage<[&E]>] newFrontCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
+               \:coupleCarriagesWithFrontAndBackCarriage newFrontCarriage .frontCarriage;
+               .frontCarriage = newFrontCarriage;
+            };
+         };
+      }
+
+
+   ++ pushToBack *([&E] cargo) {
+      \getBackCarriageReadyForNewCargo;
+      \.backCarriage:store cargo;
+   
+   }  !{
+         [->] getBackCarriageReadyForNewCargo = *{
+            \.backCarriage:performActionIfCarriageIsFull *{
+               [TrainCarriage<[&E]>] newBackCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
+               \:coupleCarriagesWithFrontAndBackCarriage .backCarriage newBackCarriage;
+               .backCarriage = newBackCarriage;
+            };
+         };
+      }
+
+   ++ append *([&E] cargo) {
+      \getBackCarriageReadyForNewCargo;
+      \.backCarriage:store cargo;
+   
+   }  !{
+         [->] getBackCarriageReadyForNewCargo = *{
+            \.backCarriage:performActionIfCarriageIsFull *{
+               [TrainCarriage<[&E]>] newBackCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
+               \:coupleCarriagesWithFrontAndBackCarriage .backCarriage newBackCarriage;
+               .backCarriage = newBackCarriage;
+            };
+         };
+      }
+
+
+   - coupleCarriagesWithFrontAndBackCarriage *([TrainCarriage<[&E]>] frontCarriage, [TrainCarriage<[&E]>] backCarriage) {
+      \frontCarriage:connectBackCouplerToCarriage backCarriage;
+      \backCarriage:connectFrontCouplerToCarriage frontCarriage;
+   }
+
+   - iterateThroughCarriages *([[TrainCarriage<[&E]>]->] carriageReceiver) {
+      \[CoreFlow]:repeatUntilStopped *([->] stop) {
+         \carriageReceiver currentCarriageWeAreLookingAt;
+         [Boolean] moreCarrigesToLookInside = \checkIfThereAreMoreCarriagesToLookInside;
+         \moreCarrigesToLookInside:ifTrue moveToNextCarriage;
+         \moreCarrigesToLookInside:ifFalse stop;
+         
+      }  !{
+            [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
+            [->] moveToNextCarriage = *{
+               \currentCarriageWeAreLookingAt:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
+                  \wrappedCurrentCarriage:store carriageCoupledToBack;
+               };
+            };
+         };
+   }  !{
+         [Wrapper<[TrainCarriage<[&E]>]>] wrappedCurrentCarriage = \[Wrapper<[TrainCarriage<[&E]>]>]:wrapperWithObject .frontCarriage;
+         [->[TrainCarriage<[&E]>]] getCurrentCarriageWeAreLookingAt = wrappedCurrentCarriage:unwrap;
+         [->[Boolean]] checkIfThereAreMoreCarriagesToLookInside = *-> [Boolean] {
+            [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
+         } -> \currentCarriageWeAreLookingAt:backCouplingIsConnectedToACarriage;
+      }
+
+
+   ++ iterateThroughObjectsOnTrain *([[&E]->] cargoReceiver) {
+      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
+         \carriage:retriveCargoWithReceiver cargoReceiver;
+      };
+   }
+
+   ++ iterate *([[&E]->] cargoReceiver) {
+      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
+         \carriage:retriveCargoWithReceiver cargoReceiver;
+      };
+   }
+   
+   ++ deleteObjectsOnTrainWhenPrediateIsTrue *([[&E]->[Boolean]] determineIfWeShouldRemoveCargoFromTrain) {
+      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
+         \carriage:retriveCargoWithReceiver *([&E] cargo) {
+            [Boolean] weShouldDeleteThisCargo = \determineIfWeShouldRemoveCargoFromTrain cargo;
+            \weShouldDeleteThisCargo:ifTrue *{
+               \removeCargoFromTrainWithCarriage carriage;
+            };
+            
+         }; 
+      };
+
+   }  !{
+         [[TrainCarriage<[&E]>]->] removeCargoFromTrainWithCarriage = *([TrainCarriage<[&E]>] carriageToRemoveCargo) {
+            \:emptyTrainIfThereIsOnlyOneCarriageLeft;
+            [Boolean] trainIsCompletelyEmptyNow = \:isEmpty;
+            \trainIsCompletelyEmptyNow:ifFalse pullCarriageAwayFromTrainAndReconnectTrain;
+
+         }  !{
+               [->] pullCarriageAwayFromTrainAndReconnectTrain = *{
+                  [Boolean] carriageIsConnectedAtFront = \carriageToRemoveCargo:frontCouplingIsConnectedToACarriage;
+                  [Boolean] carriageIsConnectedAtBack = \carriageToRemoveCargo:backCouplingIsConnectedToACarriage;
+                  [Boolean] carriageIsInTheMiddleOfTheTrain = \[Boolean]:and carriageIsConnectedAtFront carriageIsConnectedAtBack;
+                  \carriageIsInTheMiddleOfTheTrain:ifTrue removeCarriageFromMiddleOfTrain;
+                  \carriageIsInTheMiddleOfTheTrain:ifFalse *{
+                     \carriageIsConnectedAtFront:ifTrue removeCarriageFromBackOfTrain;
+                     \carriageIsConnectedAtFront:ifFalse removeCarriageFromFrontOfTrain;
+                  };
+   
+               }  !{
+                     [TrainCarriage<[&E]>] theCarriageInQuestion = carriageToRemoveCargo;
+                     [->] removeCarriageFromMiddleOfTrain = *{
+                        \theCarriageInQuestion:retriveCarriageCoupledToFront *([TrainCarriage<[&E]>] frontCoupledCarriage) {
+                           \theCarriageInQuestion:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] backCoupledCarriage) {
+                              \:coupleCarriagesWithFrontAndBackCarriage frontCoupledCarriage backCoupledCarriage;
+                           };
+                        };
+                     };
+
+                     [->] removeCarriageFromBackOfTrain = *{ \:popFromBack *([]poppedObject){}; };
+                     [->] removeCarriageFromFrontOfTrain = *{ \:popFromFront *([]poppedObject){}; };
+                  };
+            };
+      }
+
+
+   ++ transformObjectsOnTrain *([[&E]->[&E]] cargoTransformer) {
+      \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
+         \carriage:retriveCargoWithReceiver *([&E] cargoNotYetTransformed) {
+            [&E] transformedCargo = \cargoTransformer cargoNotYetTransformed;
+            \carriage:store transformedCargo;
+         };
+      };
+   }
+
+   ++ newTrainBySelectingObjectsWhenPrediateIsTrue *([[&E]->[Boolean]] determineIfCargoShouldBeOnNewTrain) -> [List<[&E]>] {
+      [List<[&E]>] newTrain = \[List<[&E]>]:newEmptyTrain;
+      \:iterateThroughObjectsOnTrain *([&E] cargo) {
+         [Boolean] cargoShouldBeOnNewTrain = \determineIfCargoShouldBeOnNewTrain cargo;
+         \cargoShouldBeOnNewTrain:ifTrue *{\newTrain:pushToBack cargo;};
+      };
+   } -> newTrain
+
+
+
+   ++ fuseTrainObjectsWithFushionRuleAndDefaultOnEmptyTrain *([[&E] [&E]->[&E]] fuseTwoObjects, [&E] defaultForEmptyTrain) -> [&E] {
+      [Container<[&E]>] containerOfCurrentFusedObject = \[Container<[&E]>]:newEmptyContainer;
+
+      \:iterateThroughObjectsOnTrain *([&E] objectOnTrain) {
+         [Boolean] theContainerHasNoObject = \containerOfCurrentFusedObject:isEmpty;
+         \theContainerHasNoObject:ifTrue insertObjectOnTrainIntoContainer; 
+         \theContainerHasNoObject:ifFalse fuseObjectOnTrainWithObjectInContainer;
+
+      }  !{
+            [->] insertObjectOnTrainIntoContainer = *{\containerOfCurrentFusedObject:store objectOnTrain;};
+
+            [->] fuseObjectOnTrainWithObjectInContainer = *{
+               \containerOfCurrentFusedObject:retrive *([&E] objectInContainer) {
+                  \containerOfCurrentFusedObject:store (\fuseTwoObjects objectInContainer objectOnTrain);
+               };
+            };
+         };
+
+      [Wrapper<[&E]>] wrappedFusedObject = \[Wrapper<[&E]>]:wrapperWithObject defaultForEmptyTrain;
+      \containerOfCurrentFusedObject:retrive *([&E] fusedObject) {\wrappedFusedObject:store fusedObject}
+
+   } -> (\wrappedFusedObject:unwrap)
+}
+
 
 
 @@
