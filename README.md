@@ -225,6 +225,7 @@ asdf no brackets () around non value expression, i.e. statement
 asdf change ```[:?] [*?] [$$?]``` to ```[?:] [?*] [?$$]```
 asdf ! binds strongly to the left, still weak on the right
 asdf << compiler injection for local assignment instead of general statement compiler, if valid; compiler determines what the object's expression result is
+asdf anonymous class method can refer to . instance obejcts in containing class, but not instance methods : which are refering to the anonymous class object instead
 
 ---
 

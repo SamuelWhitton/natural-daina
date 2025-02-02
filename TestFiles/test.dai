@@ -1,6 +1,6 @@
 
 
-[] (SystemIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe) {
+[] (SystemIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition) {
    *{
 
       @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
@@ -18,7 +18,9 @@
          \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
          \[SystemIO]:stdout \(\[String]:asASCII \[SystemIO]:stdin):ascii;
       };@@
+      [SourcePosition] asdf = \[SourcePosition]:initialPositionIn (\[String]:as ##sadf/asdf/filenametest.h##) (\[String]:as ##This is a line....##);
 
+      \[SystemIO]:stdout \(\asdf:description):ascii;
       
       
 
@@ -80,7 +82,17 @@
    }
 
    ~ concatenating *([Sequence<[Data]>] datas) {
-      
+      [] _ = <<dlang ##
+         ubyte[] concatedData;
+      ##;
+      \[Loops]:iterate datas *([]_, [Data] data) {
+         [] _ = <<dlang ##
+            concatedData ~= (cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it;
+         ##;
+      };
+      [] _ = <<dlang ##
+         this.value = new WRAP!(ubyte[])(concatedData);
+      ##;
    }
 
    |++ length [->[Natural]]
@@ -99,7 +111,7 @@
 
 }
 
-[String] (Data, Sequence) 
+[String] (Data, Sequence, List) 
    [Data] ascii
 {
    <<dlang ##
@@ -135,6 +147,16 @@
          (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(bytes);
       ##;
    }
+
+   ++ appending *([String] other) -> [String] {
+      [String] this = ^;
+      [Sequence<[String]>] both = [:[Sequence<[String]>]] { 
+         |++ length *->\[Natural]:as ##2##
+         |++ atIndex *([Natural] index)->[String]{
+            [Boolean] indexIs0 = \index:isEqualTo (\[Natural]:as ##0##);
+         }->\indexIs0:ifOrElse (*->this) (*->other)
+      }
+   } -> \[String]:concatenating both
 
    ++ ascii *->.ascii
 }
@@ -282,6 +304,13 @@
       ##;
    } -> isLessThan
 
+   ++ isEqualTo *([Integer] otherInteger)-> [Boolean] {
+      [Boolean] isEqualTo = << dlang ## 
+         bool isEqualTo = this.value.it == (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_otherInteger).IMETHOD_internalInteger(null, []))).it;
+         OBJECT LOBJECT_isEqualTo = isEqualTo ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isEqualTo
+
    
 
    - internalInteger *{
@@ -394,14 +423,17 @@ Analysis: analysing class - Daina...
       .lineContent = lineContent;
    }
 
-   ++ asString *-> [String] {
+   ++ description *-> [String] {
       [String] colon = \[String]:as ##:##;
       [String] pos = \[String]:as ## pos ##;
       [String] line = \[String]:stringFormatOf (\.line:adding (\[Natural]:as ##1##));
       [String] column = \[String]:stringFormatOf (\.column:adding (\[Natural]:as ##1##));
       [String] tabulation = \[String]:as ##\n    ##;
       [Variable<[String]>] linePositionArrow = \[Variable<[String]>]:as (\[String]:as ####);
-      \[Loops]:repeatNTimes .column *{
+      \[Loops]:iterate ([:[Sequence<[Natural]>]] { 
+         |++ length *->.column
+         |++ atIndex *(i)->\[Maybe<[?]>]:as i
+      }) *{
          [String] curr = \linePositionArrow:get;
          \linePositionArrow:set (\curr:appending (\[String]:as ## ##));
       };
