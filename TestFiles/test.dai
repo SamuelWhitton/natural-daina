@@ -1,6 +1,6 @@
 
 
-[] (SystemIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition) {
+[] (SystemIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
 
       @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
@@ -24,7 +24,7 @@
       [SourcePosition] asdf4 = \asdf3:nextColumn;
 
 
-      \[SystemIO]:stdout \(\asdf4:description):ascii;
+      \[SystemIO]:stdout \(\(\[Error]:expectingSecondHashForDataSegmentAnchor asdf4):description):ascii;
       \[SystemIO]:stdout \(\[String]:as ##\n##):ascii;
 
       \[Loops]:iterate ([:[Sequence<[Natural]>]] {
@@ -373,7 +373,7 @@ Analysis: analysing class - ControlFlow...
 Analysis: analysing class - String...
 Analysis: analysing class - Token...
 Analysis: analysing class - Loops...
-Analysis: analysing class - SourcePosition...
+*Analysis: analysing class - SourcePosition...
 Analysis: analysing class - Error...
 Analysis: analysing class - MappingBucket...
 Analysis: analysing class - Mapping...
@@ -468,6 +468,264 @@ Analysis: analysing class - Daina...
 
 
 
+[Error] (Object, String, SourcePosition, List, Variable)
+   [String] errorString
+{
+   ++ description *-> [String] {
+      [String] errorPrefix = \[String]:as ##ERROR; ##;
+   } -> (\errorPrefix:appending .errorString)
+
+   ~ -+- as *([String] errorString) {
+      .errorString = errorString;
+   }
+
+   ~ -+- errorWithContext *([String] errorString, [List<[SourcePosition]>] context) {
+      [Variable<[String]>] errorWithContext = \[Variable<[String]>]:as errorString;
+      \context:iterate *([SourcePosition] sourcePosition) {
+         [String] addedContext = (\prefix:appending (\sourcePosition:description)) !{
+               [String] prefix = \[String]:as ## - ##;
+            };
+         \errorWithContext:set (\prefix:appending addedContext) !{
+               [String] prefix = \errorWithContext:get;
+            };
+      };
+      .errorString = \errorWithContext:get;
+   }
+
+   :: sourceFileNotAccessible *([String] fileName) -> [Error] {
+      [String] prefix = \[String]:as ##Source file not accessible: ##;
+   } -> (\[Error]:as (\prefix:appending fileName))
+
+   :: unrecognisedToken *([String] token, [SourcePosition] position) -> [Error] {
+      [String] prefix = \[String]:as ##Unrecognised token: ##;
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
+      \context:append position;
+   } -> (\[Error]:errorWithContext (\prefix:appending token) context)
+
+   :: invalidVisibilityIndicator *([SourcePosition] position) -> [Error] {
+      [String] error = \[String]:as ##Invalid visibility indicator##;
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
+      \context:append position;
+   } -> (\[Error]:errorWithContext error context)
+
+    :: expectingSecondHashForDataSegmentAnchor *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting second hash for data segment anchor##) context)
+
+   :: expectingSecondDataSegmentAnchor *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting second data segment anchor##) context)
+
+   :: expectingClassAtTopLevel *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting class at top level##) context)
+
+   :: expectingBodyOfClass *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting body of class##) context)
+
+   :: expectingEntryPointMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting entry point method##) context)
+
+   :: expectingClosingBracketForClassBody *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for class body##) context)
+
+   :: expectingClassName *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting class name##) context)
+
+   :: expectingParentType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting parent type##) context)
+
+   :: expectingClosingSquareBracketAfterClassHeader *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing square bracket after class header##) context)
+
+   :: expectingGenericIdentifier *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting generic identifier##) context)
+
+   :: expectingClosingBracketForGenericDeclarationList *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for generic declaration list##) context)
+
+   :: expectingDependancy *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting dependancy##) context)
+
+   :: expectingReverseDependancy *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting reverse dependancy##) context)
+
+   :: expectingClosingBracketForDependancyList *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for dependancy list##) context)
+
+   :: expectingReverseDependancyList *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting reverse dependancy list##) context)
+
+   :: expectingType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting type##) context)
+
+   :: expectingOneOrMoreTypesForClassGenericInstantiation *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting one or more types for class generic instantiation##) context)
+
+   :: expectingClosingBracketForClassGenericInstantiations *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for class generic instantiations##) context)
+
+   :: expectingClosingBracketForType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for type##) context)
+
+   :: expectingClosingBracketForDependancyWithDerivatives *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for dependancy with derivatives##) context)
+
+   :: expectingIdentifierForObjectDeclaration *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for object declaration##) context)
+
+   :: expectingVisibilityIndicatorForInstanceMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting visibility indicator for instance method##) context)
+
+   :: expectingIdentifierForClassMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for class method##) context)
+
+   :: expectingClassMethodExpression *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting class method expression##) context)
+
+   :: expectingIdentifierForCompilerInjection *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for compiler injection##) context)
+
+   :: expectingDataSegmentForCompilerInjection *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting data segment for compiler injection##) context)
+
+   :: expectingPrologueStatement *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting prologue statement##) context)
+
+   :: expectingMethodInput *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting method input##) context)
+
+   :: expectingClosingBracketForMethodInputs *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for method inputs##) context)
+
+   :: expectingMethodBody *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting method body##) context)
+
+   :: expectingMethodOutput *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting method output##) context)
+
+   :: expectingClosingBracketForStatementGroup *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for statement group##) context)
+
+   :: expectingParentTypeForAnonymousClassObject *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting parent type for anonymous class object##) context)
+
+   :: expectingClosingSquareBracketAfterAnonymousClassHeader *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing square bracket after anonymous class header##) context)
+
+   :: expectingAnonymousClassBody *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting anonymous class body##) context)
+
+   :: expectingClosingBracketForAnonymousClassBody *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for anonymous class body##) context)
+
+   :: unexpectedTokenAfterType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Unexpected token after type##) context)
+
+   :: expectingInstanceMethodIdentifier *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting instance method identifier##) context)
+
+   :: expectingExpressionToBeCast *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting expression to be cast##) context)
+
+   :: expectingClosingBracketForCastExpression *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for cast expression##) context)
+
+   :: expectingIdentifierForTypeMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for type method##) context)
+
+   :: expectingEqualsToAssignLocalDeclaration *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting equals to assign local declaration##) context)
+
+   :: expectingExpressionToAssignLocalDeclaration *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting expression to assign local declaration##) context)
+
+   :: expectingExpressionToAssignInstanceMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting expression to assign instance method##) context)
+
+   :: expectingExpressionToAssignInstanceObject *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting expression to assign instance object##) context)
+
+   :: expectingInstanceObjectIdentifier *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting instance object identifier##) context)
+
+   :: unexpectedTokenBeforeTilde *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Unexpected token before tilde##) context)
+
+   :: expectingMethodToInvoke *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting method to invoke##) context)
+
+   :: expectingProxyObject *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting proxy object##) context)
+
+   :: expectingCompilerInjectionIdentifier *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting compiler injection identifier##) context)
+
+   :: expectingCompilerInjectionDataSegment *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting compiler injection data segment##) context)
+
+   :: expectingExpression *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting expression##) context)
+
+   :: expectingClosingBracketForExpression *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for expression##) context)
+
+   :: expectingConstructorIdentifier *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting constructor identifier##) context)
+
+
+}
 
 
 
