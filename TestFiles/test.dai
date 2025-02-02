@@ -19,8 +19,21 @@
          \[SystemIO]:stdout \(\[String]:asASCII \[SystemIO]:stdin):ascii;
       };@@
       [SourcePosition] asdf = \[SourcePosition]:initialPositionIn (\[String]:as ##sadf/asdf/filenametest.h##) (\[String]:as ##This is a line....##);
+      [SourcePosition] asdf2 = \asdf:startOfNextLine (\[String]:as ##This is a line2....##);
+      [SourcePosition] asdf3 = \asdf2:startOfNextLine (\[String]:as ##This is a line3....##);
+      [SourcePosition] asdf4 = \asdf3:nextColumn;
 
-      \[SystemIO]:stdout \(\asdf:description):ascii;
+
+      \[SystemIO]:stdout \(\asdf4:description):ascii;
+      \[SystemIO]:stdout \(\[String]:as ##\n##):ascii;
+
+      \[Loops]:iterate ([:[Sequence<[Natural]>]] {
+         |++ length *->\[Natural]:as ##10##
+         |++ atIndex *([Natural] n)->\[Maybe<[?]>]:as \n:adding \[Natural]:as ##300000238974289438900234##
+      }) *([Natural] index, [Natural]value){
+         \[SystemIO]:stdout \(\[String]:stringFormatOf value):ascii;
+         \[SystemIO]:stdout \(\[String]:as ##\n##):ascii;
+      };
       
       
 
@@ -83,11 +96,13 @@
 
    ~ concatenating *([Sequence<[Data]>] datas) {
       [] _ = <<dlang ##
+         import std.stdio;
          ubyte[] concatedData;
       ##;
       \[Loops]:iterate datas *([]_, [Data] data) {
          [] _ = <<dlang ##
-            concatedData ~= (cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it;
+            ubyte[] thisData = (cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it;
+            concatedData ~= thisData;
          ##;
       };
       [] _ = <<dlang ##
@@ -134,7 +149,7 @@
    ~ concatenating *([Sequence<[String]>] strings) {
       [Sequence<[Data]>] asciis = [:[Sequence<[Data]>]] { 
          |++ length *->\strings:length
-         |++ atIndex *([Natural] i)->\(\strings:atIndex i):isOrElse (*([String] s)->\s:ascii) [Maybe<[?]>]:nothing
+         |++ atIndex *([Natural] i)->\(\strings:atIndex i):isOrElse (*([String] s)->\[Maybe<[?]>]:as \s:ascii) [Maybe<[?]>]:nothing
       };
       \:~asASCII \[Data]:concatenating asciis
    }
@@ -152,9 +167,9 @@
       [String] this = ^;
       [Sequence<[String]>] both = [:[Sequence<[String]>]] { 
          |++ length *->\[Natural]:as ##2##
-         |++ atIndex *([Natural] index)->[String]{
+         |++ atIndex *([Natural] index)->[Maybe<[String]>]{
             [Boolean] indexIs0 = \index:isEqualTo (\[Natural]:as ##0##);
-         }->\indexIs0:ifOrElse (*->this) (*->other)
+         }->\[Maybe<[String]>]:as \indexIs0:ifOrElse (*->this) (*->other)
       }
    } -> \[String]:concatenating both
 
@@ -167,11 +182,14 @@
       [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
       \[?:]:while ((*->((\index:isLessThan \sequence:length)!{[Natural] index = \currentIndex:get}))) *{
          {
-            \getNext index element;
+            \element:isOrElse *(e){
+               \getNext index e;
+            } *{};
+            @\getNext index element;
             \currentIndex:set \index:adding (\[Natural]:as ##1##);
          }!{
             [Natural] index = \currentIndex:get;
-            [?] element = \sequence:atIndex index;
+            [Maybe<['E]>] element = \sequence:atIndex index;
          }
       }
    }
@@ -445,7 +463,7 @@ Analysis: analysing class - Daina...
    } -> \[SourcePosition]:lineAndColumnIn (.line) (\.column:adding (\[Natural]:as ##1##)) (.sourceName) (.lineContent)
 
    ++ startOfNextLine *([String] lineContent)-> [SourcePosition] {
-   } -> \[SourcePosition]:lineAndColumnIn (\.line:adding (\[Natural]:as ##1##)) (\[Natural]:as ##1##) (.sourceName) lineContent
+   } -> \[SourcePosition]:lineAndColumnIn (\.line:adding (\[Natural]:as ##1##)) (\[Natural]:as ##0##) (.sourceName) lineContent
 }
 
 
