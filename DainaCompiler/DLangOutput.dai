@@ -339,9 +339,11 @@
 			[DainaGeneralIdentifier] id = \parameter:identifier;
 			\:outputTabbed (\[String]:as "OBJECT LOBJECT_");
 			\:output (\id:content);
-			\:output (\[String]:as " = parameters[");
+			\:output (\[String]:as " = parameters.length > ");
 			\:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
-			\:output (\[String]:as "];\n");
+			\:output (\[String]:as " ? parameters[");
+			\:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
+			\:output (\[String]:as "] : null;\n");
 			\paramNumber:set (\one:adding (\paramNumber:get));
 		};
 	}

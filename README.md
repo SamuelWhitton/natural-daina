@@ -144,6 +144,7 @@ Goals
 - to elimate variation that is not needed because of context, easier to remember whole language that way
 - no reserve keywords
 - low footprint language
+- multi use language features
 
 ```
 

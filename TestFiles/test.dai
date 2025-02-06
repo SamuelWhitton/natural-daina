@@ -85,7 +85,7 @@
 
    ~ copy *([Sequence<[Byte]>] bytes) {
       [Natural] length = \bytes:length;
-      :length = *>length;
+      :length = *->length;
       :atIndex = *->\[Maybe<[&E]>]:nothing;
       \[Loops]:iterate bytes *([Natural] index, [Byte] byte) {
          [] _ = <<dlang ##
@@ -96,7 +96,6 @@
 
    ~ concatenating *([Sequence<[Data]>] datas) {
       [] _ = <<dlang ##
-         import std.stdio;
          ubyte[] concatedData;
       ##;
       \[Loops]:iterate datas *([]_, [Data] data) {
@@ -376,9 +375,9 @@
 [ListNode<E>] () -> (List)
 {
    ~ withValue *([&E] value) {
-      :value = *> value;
-      :next = *> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
-      :previous = *> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      :value = *-> value;
+      :next = *-> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      :previous = *-> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
    }
 
    ++ value [->[&E]]
@@ -402,12 +401,23 @@
    ++ length *->\.length:get
 
    ++ atIndex *([Natural] index) -> [Maybe<[&E]>] {
-      [Variable<[Maybe<[&E]>]>] atIndex = \[Variable<[?]>]:as \[Maybe<[&E]>]:nothing;
-      \[Loops]:iterate ^ *([Natural] thisIndex, [&E] this) {
-         [Boolean] sameIndex = (\thisIndex:isEqualTo index);
-         \sameIndex:ifOrElse *{\atIndex:set \[Maybe<[&E]>]:as this} *{};
-      };
-   } -> \atIndex:get
+      [Variable<[Natural]>] varCurrentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
+      [Variable<[Maybe<[ListNode<[&E]>]>]>] varCurrentNode = \[Variable<[?]>]:as \.first:get;
+      [Maybe<[&E]>] atIndex = \[Loops]:until *([[Maybe<[&E]>]->] choose) {
+         [Natural] currentIndex = \varCurrentIndex:get;
+         [Maybe<[ListNode<[&E]>]>] currentNode = \varCurrentNode:get;
+         @[] _ = <<dlang ## import std.stdio; writeln("asdf6");##;
+         \varCurrentNode:set \currentNode:isOrElse (*([ListNode<[&E]>] n)-> [Maybe<[ListNode<[&E]>]>] {
+            @[] _ = <<dlang ## import std.stdio; writeln("asdf5");##;
+               [Boolean] sameIndex = (\currentIndex:isEqualTo index);
+               \sameIndex:ifOrElse *{
+                  \choose \[Maybe<[&E]>]:as \n:value;
+               } *{};
+            } ->\n:next) 
+         (*->[Maybe<[ListNode<[&E]>]>]{\choose \[Maybe<[&E]>]:nothing}->\[Maybe<[ListNode<[&E]>]>]:nothing);
+         \varCurrentIndex:set \currentIndex:adding \[Natural]:as ##1##;
+      }
+   } -> atIndex
 
    ++ removeFirst *-> [Maybe<[&E]>] {
       [Maybe<[ListNode<[&E]>]>] first = \.first:get;
@@ -427,7 +437,9 @@
          [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodeNext = \newNode:next;
          \newNodeNext:set .first;
          \firstNodePrevious:set \[Maybe<[?]>]:as newNode;
-      } *{};
+      } *{
+         \.last:set \[Maybe<[?]>]:as newNode;
+      };
       \.first:set \[Maybe<[?]>]:as newNode;
    }
 
@@ -449,7 +461,9 @@
          [Variable<[Maybe<[ListNode<[&E]>]>]>] lastNodeNext = \lastNode:next;
          \newNodePrevious:set .last;
          \lastNodeNext:set \[Maybe<[?]>]:as newNode;
-      } *{};
+      } *{
+         \.first:set \[Maybe<[?]>]:as newNode;
+      };
       \.last:set \[Maybe<[?]>]:as newNode;
    }
 }
@@ -489,11 +503,11 @@ Analysis: analysing class - ControlFlow...
 Analysis: analysing class - String...
 Analysis: analysing class - Token...
 Analysis: analysing class - Loops...
-*Analysis: analysing class - SourcePosition...
-Analysis: analysing class - Error...
+**Analysis: analysing class - SourcePosition...
+**Analysis: analysing class - Error...
 Analysis: analysing class - MappingBucket...
 Analysis: analysing class - Mapping...
-Analysis: analysing class - CommandReader...
+*Analysis: analysing class - CommandReader...
 Analysis: analysing class - Character...
 Analysis: analysing class - O...
 Analysis: analysing class - M...
@@ -597,7 +611,7 @@ Analysis: analysing class - Daina...
 
    ~ -+- errorWithContext *([String] errorString, [List<[SourcePosition]>] context) {
       [Variable<[String]>] errorWithContext = \[Variable<[String]>]:as errorString;
-      \[Loops]:iterate context *([SourcePosition] sourcePosition) {
+      \[Loops]:iterate context *([] _, [SourcePosition] sourcePosition) {
          [String] addedContext = (\prefix:appending (\sourcePosition:description)) !{
                [String] prefix = \[String]:as ## - ##;
             };
