@@ -91,18 +91,22 @@
       ##;
    }
 
-   @@~ copy *([Sequence<[Byte]>] bytes) {
-      [Natural] length = \bytes:length;
-      :length = *->length;
-      :atIndex = *->\[Maybe<[&E]>]:nothing;
-      \[Loops]:iterate bytes *([Natural] index, [Byte] byte) {
+   ~ copy *([Sequence<[Byte]>] bytes) {
+      [] _ = <<dlang ##
+         ubyte[] copiedData;
+      ##;
+      \[Loops]:iterate bytes *([] _, [Byte] byte) {
          [] _ = <<dlang ##
-            
+            ubyte thisByte = (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_byte).IMETHOD_internalByte(null, []))).it;
+            copiedData ~= thisByte;
          ##;
-      }
-   }@@
+      };
+      [] _ = <<dlang ##
+         this.value = new WRAP!(ubyte[])(copiedData);
+      ##;
+   }
 
-   ~ concatenating *([Sequence<[Data]>] datas) {
+   ~ concatenate *([Sequence<[Data]>] datas) {
       [] _ = <<dlang ##
          ubyte[] concatedData;
       ##;
@@ -413,8 +417,20 @@
             return this.value;
          ##;
    }
-@inclusiveBetween asdfg 
-@isEqualTo asdfg
+
+   ++ isEqualTo *([Byte] otherByte)-> [Boolean] {
+      [Boolean] isEqualTo = << dlang ## 
+         bool isEqualTo = this.value.it == (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_otherByte).IMETHOD_internalByte(null, []))).it;
+         OBJECT LOBJECT_isEqualTo = isEqualTo ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isEqualTo
+
+   ++ inclusiveBetween *([Byte] from, [Byte] to)-> [Boolean] {
+      [Boolean] isInclusiveBetween = << dlang ## 
+         bool isInclusiveBetween = (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_from).IMETHOD_internalByte(null, []))).it >= this.value.it && this.value.it <= (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_to).IMETHOD_internalByte(null, []))).it;
+         OBJECT LOBJECT_isInclusiveBetween = isInclusiveBetween ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isInclusiveBetween
 
 }
 
@@ -438,12 +454,12 @@
       .ascii = ascii
    }
 
-   ~ concatenating *([Sequence<[String]>] strings) {
+   ~ concatenate *([Sequence<[String]>] strings) {
       [Sequence<[Data]>] asciis = [:[Sequence<[Data]>]] { 
          |++ length *->\strings:length
          |++ atIndex *([Natural] i)->\(\strings:atIndex i):isOrElse (*([String] s)->\[Maybe<[?]>]:as \s:ascii) [Maybe<[?]>]:nothing
       };
-      \:~asASCII \[Data]:concatenating asciis
+      \:~asASCII \[Data]:concatenate asciis
    }
 
    ~ stringFormatOf *([Integer] integer) {
@@ -463,7 +479,7 @@
             [Boolean] indexIs0 = \index:isEqualTo (\[Natural]:as ##0##);
          }->\[Maybe<[String]>]:as \indexIs0:ifOrElse (*->this) (*->other)
       }
-   } -> \[String]:concatenating both
+   } -> \[String]:concatenate both
 
    ++ ascii *->.ascii
 }
@@ -609,8 +625,10 @@
 
    ++ ifOrElse [[->['O]][->['O]]->['O]]
 
-   @or  asdfg
-
+   ~ or *([Boolean] b1, [Boolean] b2) {
+      :ifOrElse = *([->["O]] if, [->["O]] else) 
+         -> \b1:ifOrElse if *->\b2:ifOrElse if else
+   }
 }
 
 
@@ -1165,19 +1183,18 @@ Analysis: analysing class - Daina...
 [Character] (Byte, Boolean, String, Data)
    [Byte] asciiByte
 {
-   ~ asASCII *([Byte] asciiByte) {
+   ~ fromASCII *([Byte] asciiByte) {
       .asciiByte = asciiByte;
    }
 
-   ~ asSpace *{
+   ~ space *{
       .asciiByte = \[Byte]:0x20;
    }
 
-   ++ asString *->(\[String]:asASCII (\[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {\useByte .asciiByte})))
-
-   ++ debugLog *{
-      \.asciiByte:debugLog;
-   }
+   ++ asString *-> (\[String]:asASCII \[Data]:copy [:[Sequence<[Byte]>]] { 
+      |++ length *->\[Natural]:as ##1## 
+      |++ atIndex *->\[Maybe<[Byte]>]:as .asciiByte
+   })
 
    ++ isNULL *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x00))
 
