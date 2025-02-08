@@ -54,7 +54,7 @@
    }
 
    :: stdin *-> [Data] {
-      [Data] readedData = \[Data]:copy \[Sequence<[Byte]>]:empty;
+      [Data] readedData = \[Data]:empty;
       [] _ = << dlang ##
          //BigInt bytesToRead = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_bytesToRead).IMETHOD_internalInteger(null, []))).it;
          string rawLine = readln();
@@ -80,10 +80,18 @@
 [Data :[Sequence<[Byte]>]] (Byte, Sequence, Loops, Natural)
 {
    <<dlang ##
+         import std.bigint;
+         import std.format;
          WRAP!(ubyte[]) value;
       ##
 
-   ~ copy *([Sequence<[Byte]>] bytes) {
+   ~ empty *{
+      [] _ = <<dlang ##
+         this.value = new WRAP!(ubyte[])([]);
+      ##;
+   }
+
+   @@~ copy *([Sequence<[Byte]>] bytes) {
       [Natural] length = \bytes:length;
       :length = *->length;
       :atIndex = *->\[Maybe<[&E]>]:nothing;
@@ -92,7 +100,7 @@
             
          ##;
       }
-   }
+   }@@
 
    ~ concatenating *([Sequence<[Data]>] datas) {
       [] _ = <<dlang ##
@@ -109,8 +117,25 @@
       ##;
    }
 
-   |++ length [->[Natural]]
-   |++ atIndex [[Natural]->[Maybe<[&E]>]]
+   |++ length *-> [Natural] {
+      [Natural] length = << dlang ##
+         OBJECT LOBJECT_length = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", this.value.it.length))]);
+      ##;
+   } -> length
+
+   |++ atIndex *([Natural] index) -> [Maybe<[Byte]>] {
+      [Maybe<[Byte]>] byteAtIndex = << dlang ##
+         OBJECT LOBJECT_byteAtIndex = null;
+         BigInt index = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_index).IMETHOD_internalInteger(null, []))).it;
+         if (this.value.it.length > index) {
+            CLASSIMPL_Byte rawByte = new CLASSIMPL_Byte();
+            rawByte.value = new WRAP!(ubyte)(this.value.it[index.toLong()]);
+            LOBJECT_byteAtIndex = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[rawByte]);
+         } else {
+            LOBJECT_byteAtIndex = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+         }
+      ##;
+   } -> byteAtIndex
 
 
    - internalData *{
@@ -122,6 +147,274 @@
 
 [Byte]
 {
+   <<dlang ##
+         WRAP!(ubyte) value;
+      ##
+
+   ~ 0x00 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x00); ##; }
+   ~ 0x01 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x01); ##; }
+   ~ 0x02 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x02); ##; }
+   ~ 0x03 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x03); ##; }
+   ~ 0x04 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x04); ##; }
+   ~ 0x05 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x05); ##; }
+   ~ 0x06 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x06); ##; }
+   ~ 0x07 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x07); ##; }
+   ~ 0x08 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x08); ##; }
+   ~ 0x09 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x09); ##; }
+   ~ 0x0A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0A); ##; }
+   ~ 0x0B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0B); ##; }
+   ~ 0x0C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0C); ##; }
+   ~ 0x0D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0D); ##; }
+   ~ 0x0E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0E); ##; }
+   ~ 0x0F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0F); ##; }
+   ~ 0x10 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x10); ##; }
+   ~ 0x11 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x11); ##; }
+   ~ 0x12 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x12); ##; }
+   ~ 0x13 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x13); ##; }
+   ~ 0x14 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x14); ##; }
+   ~ 0x15 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x15); ##; }
+   ~ 0x16 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x16); ##; }
+   ~ 0x17 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x17); ##; }
+   ~ 0x18 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x18); ##; }
+   ~ 0x19 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x19); ##; }
+   ~ 0x1A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1A); ##; }
+   ~ 0x1B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1B); ##; }
+   ~ 0x1C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1C); ##; }
+   ~ 0x1D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1D); ##; }
+   ~ 0x1E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1E); ##; }
+   ~ 0x1F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1F); ##; }
+   ~ 0x20 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x20); ##; }
+   ~ 0x21 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x21); ##; }
+   ~ 0x22 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x22); ##; }
+   ~ 0x23 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x23); ##; }
+   ~ 0x24 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x24); ##; }
+   ~ 0x25 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x25); ##; }
+   ~ 0x26 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x26); ##; }
+   ~ 0x27 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x27); ##; }
+   ~ 0x28 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x28); ##; }
+   ~ 0x29 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x29); ##; }
+   ~ 0x2A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2A); ##; }
+   ~ 0x2B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2B); ##; }
+   ~ 0x2C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2C); ##; }
+   ~ 0x2D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2D); ##; }
+   ~ 0x2E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2E); ##; }
+   ~ 0x2F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2F); ##; }
+   ~ 0x30 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x30); ##; }
+   ~ 0x31 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x31); ##; }
+   ~ 0x32 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x32); ##; }
+   ~ 0x33 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x33); ##; }
+   ~ 0x34 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x34); ##; }
+   ~ 0x35 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x35); ##; }
+   ~ 0x36 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x36); ##; }
+   ~ 0x37 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x37); ##; }
+   ~ 0x38 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x38); ##; }
+   ~ 0x39 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x39); ##; }
+   ~ 0x3A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3A); ##; }
+   ~ 0x3B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3B); ##; }
+   ~ 0x3C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3C); ##; }
+   ~ 0x3D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3D); ##; }
+   ~ 0x3E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3E); ##; }
+   ~ 0x3F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3F); ##; }
+   ~ 0x40 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x40); ##; }
+   ~ 0x41 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x41); ##; }
+   ~ 0x42 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x42); ##; }
+   ~ 0x43 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x43); ##; }
+   ~ 0x44 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x44); ##; }
+   ~ 0x45 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x45); ##; }
+   ~ 0x46 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x46); ##; }
+   ~ 0x47 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x47); ##; }
+   ~ 0x48 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x48); ##; }
+   ~ 0x49 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x49); ##; }
+   ~ 0x4A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4A); ##; }
+   ~ 0x4B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4B); ##; }
+   ~ 0x4C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4C); ##; }
+   ~ 0x4D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4D); ##; }
+   ~ 0x4E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4E); ##; }
+   ~ 0x4F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4F); ##; }
+   ~ 0x50 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x50); ##; }
+   ~ 0x51 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x51); ##; }
+   ~ 0x52 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x52); ##; }
+   ~ 0x53 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x53); ##; }
+   ~ 0x54 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x54); ##; }
+   ~ 0x55 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x55); ##; }
+   ~ 0x56 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x56); ##; }
+   ~ 0x57 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x57); ##; }
+   ~ 0x58 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x58); ##; }
+   ~ 0x59 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x59); ##; }
+   ~ 0x5A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5A); ##; }
+   ~ 0x5B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5B); ##; }
+   ~ 0x5C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5C); ##; }
+   ~ 0x5D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5D); ##; }
+   ~ 0x5E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5E); ##; }
+   ~ 0x5F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5F); ##; }
+   ~ 0x60 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x60); ##; }
+   ~ 0x61 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x61); ##; }
+   ~ 0x62 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x62); ##; }
+   ~ 0x63 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x63); ##; }
+   ~ 0x64 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x64); ##; }
+   ~ 0x65 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x65); ##; }
+   ~ 0x66 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x66); ##; }
+   ~ 0x67 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x67); ##; }
+   ~ 0x68 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x68); ##; }
+   ~ 0x69 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x69); ##; }
+   ~ 0x6A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6A); ##; }
+   ~ 0x6B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6B); ##; }
+   ~ 0x6C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6C); ##; }
+   ~ 0x6D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6D); ##; }
+   ~ 0x6E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6E); ##; }
+   ~ 0x6F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6F); ##; }
+   ~ 0x70 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x70); ##; }
+   ~ 0x71 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x71); ##; }
+   ~ 0x72 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x72); ##; }
+   ~ 0x73 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x73); ##; }
+   ~ 0x74 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x74); ##; }
+   ~ 0x75 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x75); ##; }
+   ~ 0x76 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x76); ##; }
+   ~ 0x77 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x77); ##; }
+   ~ 0x78 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x78); ##; }
+   ~ 0x79 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x79); ##; }
+   ~ 0x7A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7A); ##; }
+   ~ 0x7B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7B); ##; }
+   ~ 0x7C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7C); ##; }
+   ~ 0x7D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7D); ##; }
+   ~ 0x7E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7E); ##; }
+   ~ 0x7F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7F); ##; }
+   ~ 0x80 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x80); ##; }
+   ~ 0x81 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x81); ##; }
+   ~ 0x82 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x82); ##; }
+   ~ 0x83 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x83); ##; }
+   ~ 0x84 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x84); ##; }
+   ~ 0x85 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x85); ##; }
+   ~ 0x86 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x86); ##; }
+   ~ 0x87 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x87); ##; }
+   ~ 0x88 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x88); ##; }
+   ~ 0x89 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x89); ##; }
+   ~ 0x8A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8A); ##; }
+   ~ 0x8B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8B); ##; }
+   ~ 0x8C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8C); ##; }
+   ~ 0x8D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8D); ##; }
+   ~ 0x8E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8E); ##; }
+   ~ 0x8F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8F); ##; }
+   ~ 0x90 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x90); ##; }
+   ~ 0x91 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x91); ##; }
+   ~ 0x92 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x92); ##; }
+   ~ 0x93 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x93); ##; }
+   ~ 0x94 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x94); ##; }
+   ~ 0x95 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x95); ##; }
+   ~ 0x96 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x96); ##; }
+   ~ 0x97 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x97); ##; }
+   ~ 0x98 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x98); ##; }
+   ~ 0x99 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x99); ##; }
+   ~ 0x9A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9A); ##; }
+   ~ 0x9B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9B); ##; }
+   ~ 0x9C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9C); ##; }
+   ~ 0x9D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9D); ##; }
+   ~ 0x9E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9E); ##; }
+   ~ 0x9F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9F); ##; }
+   ~ 0xA0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA0); ##; }
+   ~ 0xA1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA1); ##; }
+   ~ 0xA2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA2); ##; }
+   ~ 0xA3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA3); ##; }
+   ~ 0xA4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA4); ##; }
+   ~ 0xA5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA5); ##; }
+   ~ 0xA6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA6); ##; }
+   ~ 0xA7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA7); ##; }
+   ~ 0xA8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA8); ##; }
+   ~ 0xA9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA9); ##; }
+   ~ 0xAA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAA); ##; }
+   ~ 0xAB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAB); ##; }
+   ~ 0xAC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAC); ##; }
+   ~ 0xAD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAD); ##; }
+   ~ 0xAE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAE); ##; }
+   ~ 0xAF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAF); ##; }
+   ~ 0xB0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB0); ##; }
+   ~ 0xB1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB1); ##; }
+   ~ 0xB2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB2); ##; }
+   ~ 0xB3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB3); ##; }
+   ~ 0xB4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB4); ##; }
+   ~ 0xB5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB5); ##; }
+   ~ 0xB6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB6); ##; }
+   ~ 0xB7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB7); ##; }
+   ~ 0xB8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB8); ##; }
+   ~ 0xB9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB9); ##; }
+   ~ 0xBA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBA); ##; }
+   ~ 0xBB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBB); ##; }
+   ~ 0xBC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBC); ##; }
+   ~ 0xBD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBD); ##; }
+   ~ 0xBE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBE); ##; }
+   ~ 0xBF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBF); ##; }
+   ~ 0xC0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC0); ##; }
+   ~ 0xC1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC1); ##; }
+   ~ 0xC2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC2); ##; }
+   ~ 0xC3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC3); ##; }
+   ~ 0xC4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC4); ##; }
+   ~ 0xC5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC5); ##; }
+   ~ 0xC6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC6); ##; }
+   ~ 0xC7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC7); ##; }
+   ~ 0xC8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC8); ##; }
+   ~ 0xC9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC9); ##; }
+   ~ 0xCA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCA); ##; }
+   ~ 0xCB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCB); ##; }
+   ~ 0xCC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCC); ##; }
+   ~ 0xCD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCD); ##; }
+   ~ 0xCE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCE); ##; }
+   ~ 0xCF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCF); ##; }
+   ~ 0xD0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD0); ##; }
+   ~ 0xD1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD1); ##; }
+   ~ 0xD2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD2); ##; }
+   ~ 0xD3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD3); ##; }
+   ~ 0xD4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD4); ##; }
+   ~ 0xD5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD5); ##; }
+   ~ 0xD6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD6); ##; }
+   ~ 0xD7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD7); ##; }
+   ~ 0xD8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD8); ##; }
+   ~ 0xD9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD9); ##; }
+   ~ 0xDA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDA); ##; }
+   ~ 0xDB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDB); ##; }
+   ~ 0xDC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDC); ##; }
+   ~ 0xDD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDD); ##; }
+   ~ 0xDE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDE); ##; }
+   ~ 0xDF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDF); ##; }
+   ~ 0xE0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE0); ##; }
+   ~ 0xE1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE1); ##; }
+   ~ 0xE2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE2); ##; }
+   ~ 0xE3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE3); ##; }
+   ~ 0xE4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE4); ##; }
+   ~ 0xE5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE5); ##; }
+   ~ 0xE6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE6); ##; }
+   ~ 0xE7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE7); ##; }
+   ~ 0xE8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE8); ##; }
+   ~ 0xE9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE9); ##; }
+   ~ 0xEA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEA); ##; }
+   ~ 0xEB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEB); ##; }
+   ~ 0xEC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEC); ##; }
+   ~ 0xED *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xED); ##; }
+   ~ 0xEE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEE); ##; }
+   ~ 0xEF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEF); ##; }
+   ~ 0xF0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF0); ##; }
+   ~ 0xF1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF1); ##; }
+   ~ 0xF2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF2); ##; }
+   ~ 0xF3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF3); ##; }
+   ~ 0xF4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF4); ##; }
+   ~ 0xF5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF5); ##; }
+   ~ 0xF6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF6); ##; }
+   ~ 0xF7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF7); ##; }
+   ~ 0xF8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF8); ##; }
+   ~ 0xF9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF9); ##; }
+   ~ 0xFA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFA); ##; }
+   ~ 0xFB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFB); ##; }
+   ~ 0xFC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFC); ##; }
+   ~ 0xFD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFD); ##; }
+   ~ 0xFE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFE); ##; }
+   ~ 0xFF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFF); ##; }
+
+   - internalByte *{
+      [] _ = <<dlang ##
+            return this.value;
+         ##;
+   }
+@inclusiveBetween asdfg 
+@isEqualTo asdfg
 
 }
 
@@ -134,7 +427,7 @@
       ##
 
    ~ as *([%STRING] literal) {
-      .ascii = \[Data]:copy \[Sequence<[Byte]>]:empty;
+      .ascii = \[Data]:empty;
       [] _ = <<dlang ##
          ubyte[] literalBytes = cast(ubyte[])((cast(WRAP!(string))LOBJECT_literal).it);
          (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(literalBytes);
@@ -154,7 +447,7 @@
    }
 
    ~ stringFormatOf *([Integer] integer) {
-      .ascii = \[Data]:copy \[Sequence<[Byte]>]:empty;
+      .ascii = \[Data]:empty;
       [] _ = << dlang ##
          BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
          ubyte[] bytes = cast(ubyte[])(format("%d", integer));
@@ -239,12 +532,6 @@
 {
    ++ length [->[Natural]]
    ++ atIndex [[Natural]->[Maybe<[&E]>]]
-
-   :: empty *-> [:[Sequence<[&E]>]] { 
-         |++ length *->\[Natural]:as ##0##
-         |++ atIndex *->\[Maybe<[&E]>]:nothing
-      }
-
 }
 
 
@@ -321,6 +608,9 @@
    }
 
    ++ ifOrElse [[->['O]][->['O]]->['O]]
+
+   @or  asdfg
+
 }
 
 
@@ -507,8 +797,12 @@ Analysis: analysing class - Loops...
 **Analysis: analysing class - Error...
 Analysis: analysing class - MappingBucket...
 Analysis: analysing class - Mapping...
-*Analysis: analysing class - CommandReader...
-Analysis: analysing class - Character...
+**Analysis: analysing class - CommandReader...
+
+
+
+
+*Analysis: analysing class - Character...
 Analysis: analysing class - O...
 Analysis: analysing class - M...
 Analysis: analysing class - SocketPort...
@@ -858,8 +1152,77 @@ Analysis: analysing class - Daina...
 }
 
 
+[CommandReader] (String) 
+{
+   ++ exit [->]
+   ++ parseSourceFile [[String]->]
+   ++ compileToFile [[String]->]
+   ++ invalidCommand [->]
+}
 
 
+
+[Character] (Byte, Boolean, String, Data)
+   [Byte] asciiByte
+{
+   ~ asASCII *([Byte] asciiByte) {
+      .asciiByte = asciiByte;
+   }
+
+   ~ asSpace *{
+      .asciiByte = \[Byte]:0x20;
+   }
+
+   ++ asString *->(\[String]:asASCII (\[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {\useByte .asciiByte})))
+
+   ++ debugLog *{
+      \.asciiByte:debugLog;
+   }
+
+   ++ isNULL *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x00))
+
+   ++ isSemicolon *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x3B))
+   ++ isPlus *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x2B))
+   ++ isUnderscore *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x5F))
+   ++ isBackslash *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x5C))
+   ++ isForwardslash *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x2F))
+   ++ isFullstop *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x2E))
+   ++ isColon *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x3A))
+   ++ isTilde *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x7E))
+   ++ isHash *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x23))
+   ++ isDollarSign *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x24))
+   ++ isBacktick *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x60))
+   ++ isAmpersand *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x26))
+   ++ isSingleApostrophe *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x27))
+   ++ isDash *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x2D))
+   ++ isArrowBracketOpen *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x3C))
+   ++ isArrowBracketClose *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x3E))
+   ++ isAsterisk *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x2A))
+   ++ isCaret *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x5E))
+   ++ isComma *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x2C))
+   ++ isCurlyBracketOpen *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x7B))
+   ++ isCurlyBracketClose *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x7D))
+   ++ isDoubleApostrophe *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x22))
+   ++ isPipe *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x7C))
+   ++ isStrudel *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x40))
+   ++ isEqualsSign *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x3D))
+   ++ isExclamationMark *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x21))
+   ++ isPercentSign *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x25))
+   ++ isQuestionMark *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x3F))
+   ++ isRoundBracketOpen *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x28))
+   ++ isRoundBracketClose *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x29))
+   ++ isSquareBracketOpen *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x5B))
+   ++ isSquareBracketClose *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x5D))
+
+   ++ isTab *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x09))
+   ++ isNewline *->[Boolean]{}->(\.asciiByte:isEqualTo (\[Byte]:0x0A))
+
+   ++ isAlphanumeric *->[Boolean] {
+   } -> \[Boolean]:or (\[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:0x30) (\[Byte]:0x39)) (\.asciiByte:inclusiveBetween (\[Byte]:0x41) (\[Byte]:0x5A))) (\.asciiByte:inclusiveBetween (\[Byte]:0x61) (\[Byte]:0x7A))
+
+   ++ isWhitespace *->[Boolean] {
+   } -> \[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:0x09) (\[Byte]:0x0D)) (\.asciiByte:isEqualTo (\[Byte]:0x20))
+}
 
 
 
