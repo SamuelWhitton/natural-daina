@@ -1204,7 +1204,7 @@
       .asciiByte = \[Byte]:0x20;
    }
 
-   ++ asString *-> (\[String]:asASCII \[Data]:copy [:[Sequence<[Byte]>]] { 
+   ++ description *-> (\[String]:asASCII \[Data]:copy [:[Sequence<[Byte]>]] { 
       |++ length *->\[Natural]:as ##1## 
       |++ atIndex *->\[Maybe<[Byte]>]:as .asciiByte
    })
@@ -1254,21 +1254,423 @@
    } -> \[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:0x09) (\[Byte]:0x0D)) (\.asciiByte:isEqualTo (\[Byte]:0x20))
 }
 
-@@
-[Configuration] (InputStream, OutputStream, SystemInputOutput, Maybe, Error, String) {
+
+[Configuration] (Maybe, Error, String, StandardIO) {
    
    ~ init *{}
 
    ++ outputError *([Error] error) {
-      [OutputStream] errorOutput = \[SystemInputOutput]:stdout;
-      \errorOutput:write (\error:asString);
-      \errorOutput:write (\[String]:as ##\n##);
+      \[StandardIO]:stdout \(\error:description):ascii;
+      \[StandardIO]:stdout \(\[String]:as ##\n##):ascii;
    }
-   ++ commandInput *->[InputStream] {} -> \[SystemInputOutput]:stdin
-   ++ compilationFileOutput *([String] filePath)-> [Maybe<[OutputStream]>] {} -> \[SystemInputOutput]:maybeOutputStreamForFileWithFilename filePath
-   ++ sourceFileInput *([String] filePath)-> [Maybe<[InputStream]>] {} -> \[SystemInputOutput]:maybeInputStreamForFileWithFilename filePath
+   @++ commandInput *->[InputStream] {} -> \[SystemInputOutput]:stdin
+   @++ compilationFileOutput *([String] filePath)-> [Maybe<[OutputStream]>] {} -> \[SystemInputOutput]:maybeOutputStreamForFileWithFilename filePath
+   @++ sourceFileInput *([String] filePath)-> [Maybe<[InputStream]>] {} -> \[SystemInputOutput]:maybeInputStreamForFileWithFilename filePath
 }
-@@
+
+
+
+
+[Parser] (
+         InputStream,
+         String,
+         Maybe,
+         List,
+         Error,
+         Character,
+         Byte,
+         Token,
+         SourcePosition,
+         Boolean,
+         Variable,
+         Loops,
+         Data,
+         Integer,
+         O,
+         Debug
+      ) 
+   [InputStream] sourceInput
+   [List<[Error]>] errors
+   [Variable<[Maybe<[Token]>]>] currentToken
+   [Variable<[SourcePosition]>] currentTokenPosition
+   [[[Maybe<[Token]>][SourcePosition]->][->]->] ifNextTokenOrElse
+   [Maybe<[Character]>] currentCharacter
+   [SourcePosition] currentCharacterPosition
+   [List<[Character]>] buffer
+{
+   ~ withSourceNameAndInput *([String] sourceName, [InputStream] sourceInput) {
+      .sourceInput = sourceInput;
+      .errors = \[List<[Error]>]:empty;
+      .currentToken = \[Variable<[Maybe<[Token]>]>]:as (\[Maybe<[Token]>]:asNothing);
+      .buffer = \[List<[Character]>]:empty;
+      .currentCharacter = \[Maybe<[Character]>]:asNothing;
+      [SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName (\:getCopyOfNextLine);
+      .currentCharacterPosition = initialPosition;
+      .currentTokenPosition = \[Variable<[SourcePosition]>]:as initialPosition;
+      .ifNextTokenOrElse = *([]a,[->]else){\else};
+      \:gotoNextCharacterTrue;
+      \:gotoNextToken;
+   }
+
+   - getCopyOfNextLine *->[String] {
+      [String] line = \:stringFromCharacters *([[Character]->] useCharacter) {
+         \[Loops]:until *([->] stop) {
+            [Maybe<[Character]>] nextChar = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+            \nextChar:ifIs *([Character] c) {
+               @\c:debugLog;
+               \.buffer:append c;
+               [Boolean] notEndOfLine = \[Boolean]:not (\c:isNewline);
+               \notEndOfLine:ifElse *{
+                  [Boolean] cIsTab = \c:isTab;
+                  \cIsTab:ifElse *{
+                     \useCharacter (\[Character]:asSpace);
+                  } *{
+                     \useCharacter c;
+                  };
+               } stop;
+            };
+            \nextChar:ifNothing stop;
+         };
+      };
+   } -> line
+
+   - stringFromCharacters *([[[Character]->]->] getCharacters) -> [String] {
+            [Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
+               \getCharacters *([Character] character) {
+                  \useByte (\character:asASCIIByte);
+               };
+            });
+         } -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
+
+    - gotoNextCharacter *{
+      \.currentCharacter:ifIs *([Character] t) {
+         \[O]:ifElse (\t:isNULL) *{} *{\:gotoNextCharacterTrue;};
+      };
+    }
+
+   - gotoNextCharacterTrue *{
+      [Boolean] isNewline = \.currentCharacter:is *([Character] c) -> [Boolean] {} -> \c:isNewline;
+      \isNewline:ifElse *{
+         .currentCharacterPosition = \.currentCharacterPosition:startOfNextLine (\:getCopyOfNextLine);
+      } *{
+         .currentCharacterPosition = \.currentCharacterPosition:nextColumn;
+      };
+      [Maybe<[Character]>] bufferedChar = \.buffer:popFirst;
+      .currentCharacter = bufferedChar;
+      @\bufferedChar:ifNothing *{
+         @.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
+      @};
+   }
+
+   - eatWhitespaceCharacters *{
+      \[Loops]:while (*->[Boolean]{
+         [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+         \.currentCharacter:ifIs *([Character] character) {
+            \isWhitespace:set (\character:isWhitespace);
+         };
+      } -> \isWhitespace:get) (:gotoNextCharacter);
+   }
+
+   ++ hasErrors *-> [Boolean] {} -> (\[Boolean]:not (\.errors:isEmpty))
+
+    ++ errors *-> [List<[Error]>] {} -> .errors
+
+    ++ addError *([Error] error) {
+      \.errors:append error;
+    }
+
+   ++ token *->[Token] {
+      [Variable<[Token]>] token = \[Variable<[Token]>]:as (\[Token]:EOF);
+      [Maybe<[Token]>] m = \.currentToken:get;
+      \m:ifIs *([Token] t) {\token:set t};
+   } -> \token:get
+
+   ++ position *->[SourcePosition] {} -> \.currentTokenPosition:get
+
+   ++ peekAtNextToken *->[Token] {
+      [Variable<[Token]>] token = \[Variable<[Token]>]:as (\[Token]:EOF);
+      \.ifNextTokenOrElse *([Maybe<[Token]>] t, [SourcePosition] p) {} *{
+         [Maybe<[Token]>] currT = \.currentToken:get;
+         [SourcePosition] currS = \.currentTokenPosition:get;
+         \:gotoNextToken;
+         [Maybe<[Token]>] nextT = \.currentToken:get;
+         [SourcePosition] nextS = \.currentTokenPosition:get;
+         \.currentToken:set currT;
+         \.currentTokenPosition:set currS;
+         .ifNextTokenOrElse = *([[Maybe<[Token]>][SourcePosition]->]get,[]e){
+            \get nextT nextS;
+         };
+      };
+      \.ifNextTokenOrElse *([Maybe<[Token]>] m, [SourcePosition] p) {
+         \m:ifIs *([Token] t) {\token:set t};
+      } *{};
+   } -> \token:get
+
+   ++ gotoNextToken *{
+      \.ifNextTokenOrElse *([Maybe<[Token]>] m, [SourcePosition] p) {
+         \m:ifIs *([Token] t) {\setToken p t;};
+         .ifNextTokenOrElse = *([]a,[->]else){\else};
+      } *{
+
+      \.currentToken:set (\[Maybe<[Token]>]:asNothing);
+      \:eatWhitespaceCharacters;
+
+      \ifStrudelOrElse *{
+         \[Loops]:while (*->\.currentCharacter:is (*([Character] c)->\c:isStrudel)) *{
+            \:gotoNextCharacter;
+            \ifStrudelOrElse *{
+                     \:gotoNextCharacter;
+                  [Variable<[Boolean]>] lastCharacterWasStrudel = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+                     \scanToken *([Character] thisCharacter, [->] continueScanning) {
+                        \ifElse (thisCharacter:isStrudel) *{
+                           \ifElse (lastCharacterWasStrudel:get) *{
+                              \lastCharacterWasStrudel:set (\[Boolean]:false);
+                              \:gotoNextCharacter;
+                              \:eatWhitespaceCharacters;
+                           } *{
+                              \lastCharacterWasStrudel:set (\[Boolean]:true);
+                              \continueScanning;
+                           };
+                        } *{
+                           \lastCharacterWasStrudel:set (\[Boolean]:false);
+                           \continueScanning;
+                        };
+               };
+                  } *{
+                     \scanToken *([Character] thisCharacter, [->] continueScanning) {
+                        \ifElse (thisCharacter:isNewline) *{
+                           \:eatWhitespaceCharacters;
+                        } *{
+                           \continueScanning;
+                        };
+               };
+                  };
+            };
+        } *{};
+
+        \ifHashOrElse *{
+            [SourcePosition] position1 = .currentCharacterPosition;
+         \:gotoNextCharacter;
+         \ifHashOrElse *{
+            \:gotoNextCharacter;
+            [String] dataSegmentString = \stringFromCharacters *([[Character]->] useCharacter) {
+               [Variable<[Character]>] variablePreviousCharacter = \[Variable<[Character]>]:as (\[Character]:asSpace);
+               \[Loops]:until *([->] stop) {
+                  [Character] previousCharacter = \variablePreviousCharacter:get;
+                  \.currentCharacter:ifIs *([Character] char) {\variablePreviousCharacter:set char};
+                  \ifElse (previousCharacter:isHash) *{
+                     \ifHashOrElse stop *{
+                        \useCharacter previousCharacter;
+                        \.currentCharacter:ifIs *([Character] char) {\useCharacter char};
+                        \.currentCharacter:ifNothing *{
+                           \:addError (\[Error]:expectingSecondDataSegmentAnchor position1);
+                           \stop;
+                        };
+                     };
+                  } *{
+                     \ifHashOrElse *{} *{
+                        \.currentCharacter:ifIs *([Character] char) {\useCharacter char};
+                        \.currentCharacter:ifNothing *{\:addError (
+                           \[Error]:expectingSecondDataSegmentAnchor position1);
+                           \stop;
+                        };
+                     };
+                  };
+                  \:gotoNextCharacter;
+               }
+            };
+            \ifElse (.errors:isEmpty) *{
+               \setToken position1 (\[Token]:dataSegment dataSegmentString);
+            } *{};            
+         } *{
+            \:addError (\[Error]:expectingSecondHashForDataSegmentAnchor position1);
+         }; 
+        } *{
+        \.currentCharacter:ifIs *([Character] character1) {
+         [SourcePosition] position1 = .currentCharacterPosition;
+         \:gotoNextCharacter;
+         
+         [Boolean] isIdentifier = \[Boolean]:or (\character1:isAlphanumeric) (\character1:isUnderscore);
+         \isIdentifier:ifElse *{
+            [String] identifierString = \stringFromCharacters *([[Character]->] useCharacter) {
+               \useCharacter character1;
+               \scanToken *([Character] thisCharacter, [->] continueScanning) {
+                  [Boolean] thisCharacterIsForIdentifier = \[Boolean]:or (\thisCharacter:isAlphanumeric) (\thisCharacter:isUnderscore);
+                  \thisCharacterIsForIdentifier:ifElse *{\useCharacter thisCharacter;\continueScanning;} *{};
+               };
+            };
+            \setToken position1 (\[Token]:identifier identifierString);
+         } *{};
+
+         \if (character1:isDollarSign) *{
+                  [Variable<[Integer]>] repetitionCount = \[Variable<[Integer]>]:as (\[Integer]:one);
+                  \scanToken *([Character] thisCharacter, [->] continueScanning) {
+                     \ifElse (thisCharacter:isDollarSign) *{
+                        \repetitionCount:set (\x:integerByAdding (\[Integer]:one)) !{[Integer] x = \repetitionCount:get};
+                        \continueScanning;
+                     } *{};
+                  };
+                  \setToken position1 (\[Token]:parentIdentifier (\repetitionCount:get));
+            };
+
+            \if (*->\[Boolean]:or (\character1:isDash) (\character1:isPlus)) *{
+                  \ifPlusOrDashOrElse (\[Maybe<[Character]>]:as character1) *{
+                     \ifPlusOrDashOrElse .currentCharacter *{
+                        \:gotoNextCharacter;
+                        \ifPlusOrDashOrElse .currentCharacter *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:true));
+                        } *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:false));
+                        } *{
+                           \setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:true));
+                        };
+                     } *{
+                        \:gotoNextCharacter;
+                        \ifPlusOrDashOrElse .currentCharacter *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:true));
+                        } *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:false));
+                        } *{
+                           \:addError (\[Error]:invalidVisibilityIndicator position1);
+                        };
+                     } *{
+                        \setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
+                     };
+                  } *{
+                     \ifPlusOrDashOrElse .currentCharacter *{
+                        \:gotoNextCharacter;
+                        \ifPlusOrDashOrElse .currentCharacter *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:true) (\[Boolean]:true));
+                        } *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:true) (\[Boolean]:false));
+                        } *{
+                           \:addError (\[Error]:invalidVisibilityIndicator position1);
+                        };
+                     } *{
+                        \:gotoNextCharacter;
+                        \ifPlusOrDashOrElse .currentCharacter *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
+                        } *{
+                           \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
+                        } *{
+                           \:addError (\[Error]:invalidVisibilityIndicator position1);
+                        };
+                     } *{
+                        \setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
+                     };
+                  } *{};
+            };
+
+         \.currentCharacter:ifIs *([Character] character2) {
+            [SourcePosition] position2 = .currentCharacterPosition;
+                \if (character1:isDash) *{
+                     \if (character2:isArrowBracketClose) *{\:gotoNextCharacter;\setToken position1 (\[Token]:arrow)};
+                  };
+                \if (character1:isAsterisk) *{
+                     \if (character2:isCaret) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskCaret)};
+                     \if (character2:isArrowBracketClose) *{\:gotoNextCharacter;\setToken position1 (\[Token]:asteriskArrow)};
+                  };
+                   \if (character1:isColon) *{
+                     \if (character2:isColon) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleColon)};
+                  };
+                \if (character1:isArrowBracketOpen) *{
+                     \if (character2:isArrowBracketOpen) *{\:gotoNextCharacter;\setToken position1 (\[Token]:doubleLessThan)};
+                     };
+         }; 
+
+         \ifNoToken *{
+            \if (character1:isAmpersand) *{\setToken position1 (\[Token]:ampersand)};
+            \if (character1:isSingleApostrophe) *{\setToken position1 (\[Token]:singleApostrophe)};
+            \if (character1:isArrowBracketOpen) *{\setToken position1 (\[Token]:arrowBracketOpen)};
+            \if (character1:isArrowBracketClose) *{\setToken position1 (\[Token]:arrowBracketClose)};
+            \if (character1:isAsterisk) *{\setToken position1 (\[Token]:asterisk)};
+            \if (character1:isBackslash) *{\setToken position1 (\[Token]:backslash)};
+            \if (character1:isCaret) *{\setToken position1 (\[Token]:caret)};
+            \if (character1:isColon) *{\setToken position1 (\[Token]:colon)};
+            \if (character1:isComma) *{\setToken position1 (\[Token]:comma)};
+            \if (character1:isCurlyBracketOpen) *{\setToken position1 (\[Token]:curlyBracketOpen)};
+            \if (character1:isCurlyBracketClose) *{\setToken position1 (\[Token]:curlyBracketClose)};
+            \if (character1:isDoubleApostrophe) *{\setToken position1 (\[Token]:doubleApostrophe)};
+            \if (character1:isEqualsSign) *{\setToken position1 (\[Token]:equalsSign)};
+            \if (character1:isExclamationMark) *{\setToken position1 (\[Token]:exclamationMark)};
+            \if (character1:isForwardslash) *{\setToken position1 (\[Token]:forwardSlash)};
+            \if (character1:isFullstop) *{\setToken position1 (\[Token]:fullStop)};
+            \if (character1:isPercentSign) *{\setToken position1 (\[Token]:percentSign)};
+            \if (character1:isPipe) *{\setToken position1 (\[Token]:pipe)};
+            \if (character1:isQuestionMark) *{\setToken position1 (\[Token]:questionMark)};
+            \if (character1:isRoundBracketOpen) *{\setToken position1 (\[Token]:roundBracketOpen)};
+            \if (character1:isRoundBracketClose) *{\setToken position1 (\[Token]:roundBracketClose)};
+            \if (character1:isSemicolon) *{\setToken position1 (\[Token]:semicolon)};
+            \if (character1:isSquareBracketOpen) *{\setToken position1 (\[Token]:squareBracketOpen)};
+            \if (character1:isSquareBracketClose) *{\setToken position1 (\[Token]:squareBracketClose)};
+            \if (character1:isTilde) *{\setToken position1 (\[Token]:tilde)};
+         };
+         
+         \ifNoToken *{
+            \:addError (\[Error]:unrecognisedToken (\character1:asString) position1);
+         };
+      }};   
+      }; 
+   }  !{
+         [[SourcePosition][Token]->] setToken = *([SourcePosition] position, [Token] token) {
+            \.currentToken:set (\[Maybe<[Token]>]:as token);
+            \.currentTokenPosition:set position;
+         };
+         [[->]->] ifNoToken = *([->] noToken) {
+            (\currentToken:ifNothing noToken) !{[Maybe<[Token]>] currentToken = \.currentToken:get};
+         };
+         [[->[Boolean]][->]->] if = *([->[Boolean]] condition, [->] action) {
+            [Boolean] result = \condition;
+            \result:ifElse action *{};
+         };
+         [[->[Boolean]][->][->]->] ifElse = *([->[Boolean]] condition, [->] action, [->] else) {
+            [Boolean] result = \condition;
+            \result:ifElse action else;
+         };
+         [[[Character][->]->]->] scanToken = *([[Character][->]->] provideCharacterAndContinueScannning) {
+            [Variable<[Boolean]>] continuing = \[Variable<[Boolean]>]:as (\[Boolean]:true);
+            \[Loops]:while (continuing:get) *{
+               \continuing:set (\[Boolean]:false);
+               \.currentCharacter:ifIs *([Character] character) {
+                  \provideCharacterAndContinueScannning character *{
+                     \continuing:set (\[Boolean]:true);
+                     \:gotoNextCharacter;
+                  };
+               };
+            };
+         };
+         [[[[Character]->]->]->[String]] stringFromCharacters = *([[[Character]->]->] getCharacters) -> [String] {
+            [Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
+               \getCharacters *([Character] character) {
+                  \useByte (\character:asASCIIByte);
+               };
+            });
+         } -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData;
+         [[->][->]->] ifStrudelOrElse = *([->] action, [->] else) {
+            [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+            \maybeCurrentCharacter:ifIs *([Character] currentCharacter) {
+               \ifElse (currentCharacter:isStrudel) action else;
+            };
+            \maybeCurrentCharacter:ifNothing else;
+         };
+         [[->][->]->] ifHashOrElse = *([->] action, [->] else) {
+            [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+            \maybeCurrentCharacter:ifIs *([Character] currentCharacter) {
+               \ifElse (currentCharacter:isHash) action else;
+            };
+            \maybeCurrentCharacter:ifNothing else;
+         };
+         [[Maybe<[Character]>][->][->][->]->] ifPlusOrDashOrElse = *([Maybe<[Character]>] maybeChar, [->] plus, [->] dash, [->] else) {
+            \maybeChar:ifNothing else;
+            \maybeChar:ifIs *([Character] char) {
+               \ifElse (char:isPlus) plus *{
+                  \ifElse (char:isDash) dash else;
+               };
+            };
+         };
+      }
+}
+
 
 @@
 Analysis: analysing class - InternalValue...
@@ -1325,10 +1727,10 @@ Analysis: analysing class - AutomaticallyClosingInputFileDataStream...
 Analysis: analysing class - AutomaticallyClosingOutputFileDataStream...
 Analysis: analysing class - IPAddress...
 Analysis: analysing class - SystemInputOutput...
-
-*Analysis: analysing class - Configuration...
+**Analysis: analysing class - Configuration...
 Analysis: analysing class - Debug...
-Analysis: analysing class - Parser...
+
+*Analysis: analysing class - Parser...
 Analysis: analysing class - Commands...
 Analysis: analysing class - DainaGeneralIdentifier...
 Analysis: analysing class - DainaGenericDeclarationList...
