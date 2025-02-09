@@ -1,6 +1,6 @@
 
 
-[] (StandardIO, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
+[] (StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
 
       @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
@@ -35,8 +35,25 @@
          \[StandardIO]:stdout \(\[String]:as ##\n##):ascii;
       };
       
-      
+      @\(\[File]:atPath \[String]:as ##TestFiles/dlang_compiler_bootstrap_test.dai##):readContents (\[Natural]:as ##1000##) [StandardIO]:stdout;
+      @[File] outputFile = (\[File]:atPath \[String]:as ##TestFiles/testwrite.txt##);
+      @\outputFile:clearContents;
+@@
+      [List<[Byte]>] bytes = \[List<[Byte]>]:empty;
+      \bytes:append \[Byte]:0x01;
+      \bytes:append \[Byte]:0x21;
+      \bytes:append \[Byte]:0xFF;
+      [Data] dat = \[Data]:copy bytes;
+      @\[StandardIO]:stdout \(\[String]:stringFormatOf (\bytes:length)):ascii;
+      \outputFile:appendContents dat;
+      @\outputFile:appendContents \(\[String]:as ##1000##):ascii;
+      \(\outputFile:exists):ifOrElse *{
+         \[StandardIO]:stdout \(\[String]:as ##Exists\n##):ascii;
+      } *{
+         \[StandardIO]:stdout \(\[String]:as ##NotExists\n##):ascii;
+      };
 
+      \outputFile:close;@@
 
    } @!{[String] nothingStr = \[String]:as ##<NOTHING>##}
 }
@@ -56,7 +73,6 @@
    :: stdin *-> [Data] {
       [Data] readedData = \[Data]:empty;
       [] _ = << dlang ##
-         //BigInt bytesToRead = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_bytesToRead).IMETHOD_internalInteger(null, []))).it;
          string rawLine = readln();
          if (rawLine == null) {
             rawLine = "";
@@ -118,20 +134,28 @@
             this.file.open(this.fileName, "ab");
          }
          if (this.file.isOpen) {
-            this.file.write("test\n");
+            this.file.rawWrite((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_toAppend).IMETHOD_internalData(null, []))).it);
          }
       ##;
    }
 
    ++ readContents *([Natural] chunkSize, [[Data]->] readChunk) {
       [] _ = <<dlang ##
+         BigInt chunkSize = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_chunkSize).IMETHOD_internalInteger(null, []))).it;
          if (this.file.isOpen) {
             this.file.close();
          }
          this.file.open(this.fileName, "rb");
          if (this.file.isOpen) {
-            foreach (ubyte[] buffer; this.file.byChunk(4096)) {
-               writeln(buffer);
+            foreach (ubyte[] buffer; this.file.byChunk(chunkSize.toLong())) {
+      ##;
+      [Data] chunk = << dlang ##
+               CLASSIMPL_Data LOBJECT_chunk = new CLASSIMPL_Data();
+               LOBJECT_chunk.value = new WRAP!(ubyte[])(buffer);
+      ##;
+      \readChunk chunk;
+      [] _ = <<dlang ##
+         
             }
             this.file.close();
          }
@@ -753,8 +777,8 @@
 {
    ~ withValue *([&E] value) {
       :value = *-> value;
-      :next = *-> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
-      :previous = *-> \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      :next = (*-> next) ! [?] next = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      :previous = (*-> previous) ! [?] previous = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
    }
 
    ++ value [->[&E]]
@@ -783,17 +807,15 @@
       [Maybe<[&E]>] atIndex = \[Loops]:until *([[Maybe<[&E]>]->] choose) {
          [Natural] currentIndex = \varCurrentIndex:get;
          [Maybe<[ListNode<[&E]>]>] currentNode = \varCurrentNode:get;
-         @[] _ = <<dlang ## import std.stdio; writeln("asdf6");##;
          \varCurrentNode:set \currentNode:isOrElse (*([ListNode<[&E]>] n)-> [Maybe<[ListNode<[&E]>]>] {
-            @[] _ = <<dlang ## import std.stdio; writeln("asdf5");##;
                [Boolean] sameIndex = (\currentIndex:isEqualTo index);
                \sameIndex:ifOrElse *{
                   \choose \[Maybe<[&E]>]:as \n:value;
                } *{};
-            } ->\n:next) 
+            } ->\(\n:next):get) 
          (*->[Maybe<[ListNode<[&E]>]>]{\choose \[Maybe<[&E]>]:nothing}->\[Maybe<[ListNode<[&E]>]>]:nothing);
          \varCurrentIndex:set \currentIndex:adding \[Natural]:as ##1##;
-      }
+      };
    } -> atIndex
 
    ++ removeFirst *-> [Maybe<[&E]>] {
@@ -812,7 +834,7 @@
       \first:isOrElse *([ListNode<[&E]>] firstNode) {
          [Variable<[Maybe<[ListNode<[&E]>]>]>] firstNodePrevious = \firstNode:previous;
          [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodeNext = \newNode:next;
-         \newNodeNext:set .first;
+         \newNodeNext:set first;
          \firstNodePrevious:set \[Maybe<[?]>]:as newNode;
       } *{
          \.last:set \[Maybe<[?]>]:as newNode;
@@ -836,7 +858,7 @@
       \last:isOrElse *([ListNode<[&E]>] lastNode) {
          [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodePrevious = \newNode:previous;
          [Variable<[Maybe<[ListNode<[&E]>]>]>] lastNodeNext = \lastNode:next;
-         \newNodePrevious:set .last;
+         \newNodePrevious:set last;
          \lastNodeNext:set \[Maybe<[?]>]:as newNode;
       } *{
          \.first:set \[Maybe<[?]>]:as newNode;
