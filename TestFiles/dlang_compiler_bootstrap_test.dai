@@ -564,6 +564,15 @@
       ##;
    }
 
+   ++ isEqualTo *([String] otherString)-> [Boolean] {
+      [Data] thisAscii = \:ascii;
+      [Data] otherAscii = \otherString:ascii;
+      [Boolean] isEqualTo = << dlang ## 
+         bool isEqualTo = cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_thisAscii).IMETHOD_internalData(null, []))).it) == cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_otherAscii).IMETHOD_internalData(null, []))).it);
+         OBJECT LOBJECT_isEqualTo = isEqualTo ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isEqualTo
+
    ++ appending *([String] other) -> [String] {
       [String] this = ^;
       [Sequence<[String]>] both = [:[Sequence<[String]>]] { 
@@ -722,6 +731,11 @@
       :ifOrElse = *([->["O]] if, [->["O]] else) 
          -> \b1:ifOrElse if *->\b2:ifOrElse if else
    }
+
+   ~ and *([Boolean] b1, [Boolean] b2) {
+      :ifOrElse = *([->["O]] if, [->["O]] else) 
+         -> \b1:ifOrElse (*->\b2:ifOrElse if else) else
+   }
 }
 
 
@@ -759,6 +773,15 @@
          BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
          BigInt toSubtractBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toSubtract).IMETHOD_internalInteger(null, []))).it;
          BigInt bigIntResult = thisBigInt - toSubtractBigInt;
+         OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
+      ##;
+   } -> result
+
+   ++ adding *([Integer] toAdd) -> [Natural] {
+      [Natural] result = << dlang ##
+         BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
+         BigInt toAddBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         BigInt bigIntResult = thisBigInt + toAddBigInt;
          OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
       ##;
    } -> result
@@ -1270,9 +1293,134 @@
 
 
 
+[Token] (
+         Natural,
+         String,
+         Boolean,
+         Variable
+      )
+   [Natural] id
+   [Natural] secondId
+   [String] content
+{
+   ~ -+- basicToken *([Natural] id) {
+      .id = id;
+      .content = \[String]:as ####;
+      .secondId = \[Natural]:as ##0##;
+   }
 
+   ~ -+- secondIdToken *([Natural] id, [Natural] secondId) {
+      .id = id;
+      .content = \[String]:as ####;
+      .secondId = secondId;
+   }
+
+   ~ -+- contentToken *([Natural] id, [String] content) {
+      .id = id;
+      .content = content;
+      .secondId = \[Natural]:as ##0##;
+   }
+
+   -+- id *->[Natural] {} -> .id
+   -+- content *->[String] {} -> .content
+   -+- secondId *->[Natural] {} -> .secondId
+@@
+   ++ asDebugString *->[String] {
+      [String] idString = \[String]:stringRepresentationOfNatural .id;
+      [String] seperator = \[String]:as "~";
+      [String] secondIDString = \[String]:stringRepresentationOfNatural .secondId;
+   } -> (\idString:appending (\seperator:appending (\secondIDString:appending (\seperator:appending .content))))
+@@
+   ++ ifIdentifier *([[String]->] ifIdentifier) {
+      [Token] idToken = \[Token]:identifier (\[String]:as ####);
+      [Boolean] isIdentifier = \.id:isEqualTo (\idToken:id);
+      \isIdentifier:ifOrElse *{
+         \ifIdentifier .content;
+      } *{};
+   }
+
+   :: isVisibilityIndicator *([Token]t) -> [Boolean] {
+      [Natural] id = \t:id;
+   } -> (\id:isEqualTo (\[Natural]:as ##1##))
+
+   :: isDataSegment *([Token]t) -> [Boolean] {
+      [Natural] id = \t:id;
+   } -> (\id:isEqualTo (\[Natural]:as ##4##))
+
+   :: isIdentifier *([Token]t) -> [Boolean] {
+      [Natural] id = \t:id;
+   } -> (\id:isEqualTo (\[Natural]:as ##3##))
+
+   :: isParentIdentifier *([Token]t) -> [Boolean] {
+      [Natural] id = \t:id;
+   } -> (\id:isEqualTo (\[Natural]:as ##2##))
+
+   @++ equals *([Token] t) -> [Boolean] {
+   @} -> (\[Boolean]:and (\[Boolean]:and (\.content:isEqualTo (\t:content)) (\.secondId:isEqualTo (\t:secondId))) (\.id:isEqualTo (\t:id)))
+
+   :: equals *([Token] t, [Token] t2) -> [Boolean] {
+      [String] content = \t2:content;
+      [Natural] id = \t2:id;
+      [Natural] secondId = \t2:secondId;
+   } -> (\[Boolean]:and (\[Boolean]:and (\content:isEqualTo (\t:content)) (\secondId:isEqualTo (\t:secondId))) (\id:isEqualTo (\t:id)))
+
+   :: visibilityIndicator *([Boolean] externalVisibility, [Boolean] classVisibility, [Boolean] inheritedVisibility) -> [Token] {
+      [Variable<[Natural]>] visibility = \[Variable<[Natural]>]:as (\[Natural]:as ##0##);
+      \externalVisibility:ifOrElse (*{
+            \visibility:set (\one:adding (\visibility:get));
+         } !{[Natural] one = \[Natural]:as ##1##;}) *{};
+      \classVisibility:ifOrElse (*{
+            \visibility:set (\ten:adding (\visibility:get));
+         } !{[Natural] ten = \[Natural]:as ##10##;}) *{};
+      \inheritedVisibility:ifOrElse (*{
+            \visibility:set (\hundred:adding (\visibility:get));
+         } !{[Natural] hundred = \[Natural]:as ##100##;}) *{};
+   } -> (\[Token]:secondIdToken (\[Natural]:as ##1##) (\visibility:get))
+
+   :: parentIdentifier *([Natural] repetitionCount) -> (\[Token]:secondIdToken (\[Natural]:as ##2##) repetitionCount)
+   :: identifier *([String] identifierString) -> (\[Token]:contentToken (\[Natural]:as ##3##) identifierString)
+   :: dataSegment *([String] content) -> (\[Token]:contentToken (\[Natural]:as ##4##) content)
+   
+   :: ampersand *-> (\[Token]:basicToken \[Natural]:as ##5##)
+   :: singleApostrophe *-> (\[Token]:basicToken \[Natural]:as ##6##)
+   :: arrow *-> (\[Token]:basicToken \[Natural]:as ##7##)
+   :: arrowBracketOpen *-> (\[Token]:basicToken \[Natural]:as ##8##)
+   :: arrowBracketClose *-> (\[Token]:basicToken \[Natural]:as ##9##)
+   :: asterisk *-> (\[Token]:basicToken \[Natural]:as ##10##)
+   :: asteriskCaret *-> (\[Token]:basicToken \[Natural]:as ##11##)
+   :: asteriskArrow *-> (\[Token]:basicToken \[Natural]:as ##12##)
+   :: backslash *-> (\[Token]:basicToken \[Natural]:as ##13##)
+   :: caret *-> (\[Token]:basicToken \[Natural]:as ##14##)
+   :: colon *-> (\[Token]:basicToken \[Natural]:as ##15##)
+   :: comma *-> (\[Token]:basicToken \[Natural]:as ##16##)
+   :: curlyBracketOpen *-> (\[Token]:basicToken \[Natural]:as ##17##)
+   :: curlyBracketClose *-> (\[Token]:basicToken \[Natural]:as ##18##)
+   :: doubleApostrophe *-> (\[Token]:basicToken \[Natural]:as ##19##)
+   :: doubleColon *-> (\[Token]:basicToken \[Natural]:as ##20##)
+   :: equalsSign *-> (\[Token]:basicToken \[Natural]:as ##23##)
+   :: exclamationMark *-> (\[Token]:basicToken \[Natural]:as ##24##)
+   :: forwardSlash *-> (\[Token]:basicToken \[Natural]:as ##25##)
+   :: fullStop *-> (\[Token]:basicToken \[Natural]:as ##26##)
+   :: percentSign *-> (\[Token]:basicToken \[Natural]:as ##27##)
+   :: pipe *-> (\[Token]:basicToken \[Natural]:as ##28##)
+   :: questionMark *-> (\[Token]:basicToken \[Natural]:as ##29##)
+   :: roundBracketOpen *-> (\[Token]:basicToken \[Natural]:as ##30##)
+   :: roundBracketClose *-> (\[Token]:basicToken \[Natural]:as ##31##)
+   :: semicolon *-> (\[Token]:basicToken \[Natural]:as ##32##)
+   :: squareBracketOpen *-> (\[Token]:basicToken \[Natural]:as ##33##)
+   :: squareBracketClose *-> (\[Token]:basicToken \[Natural]:as ##34##)
+   :: tilde *-> (\[Token]:basicToken \[Natural]:as ##36##)
+   :: doubleLessThan *-> (\[Token]:basicToken \[Natural]:as ##37##)
+   :: EOF *-> (\[Token]:basicToken \[Natural]:as ##38##)
+}
+
+
+
+
+
+
+@@
 [Parser] (
-         InputStream,
          String,
          Maybe,
          List,
@@ -1503,10 +1651,10 @@
          } *{};
 
          \if (character1:isDollarSign) *{
-                  [Variable<[Integer]>] repetitionCount = \[Variable<[Integer]>]:as (\[Integer]:one);
+                  [Variable<[Integer]>] repetitionCount = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
                   \scanToken *([Character] thisCharacter, [->] continueScanning) {
                      \ifElse (thisCharacter:isDollarSign) *{
-                        \repetitionCount:set (\x:integerByAdding (\[Integer]:one)) !{[Integer] x = \repetitionCount:get};
+                        \repetitionCount:set (\x:integerByAdding (\[Integer]:as ##1##)) !{[Integer] x = \repetitionCount:get};
                         \continueScanning;
                      } *{};
                   };
@@ -1670,7 +1818,7 @@
          };
       }
 }
-
+@@
 
 @@
 Analysis: analysing class - InternalValue...
