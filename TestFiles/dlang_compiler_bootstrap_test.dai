@@ -736,6 +736,11 @@
       :ifOrElse = *([->["O]] if, [->["O]] else) 
          -> \b1:ifOrElse (*->\b2:ifOrElse if else) else
    }
+
+   ~ not *([Boolean] b1) {
+      :ifOrElse = *([->["O]] if, [->["O]] else) 
+         -> \b1:ifOrElse else if
+   }
 }
 
 
@@ -1419,7 +1424,7 @@
 
 
 
-@@
+
 [Parser] (
          String,
          Maybe,
@@ -1433,29 +1438,27 @@
          Variable,
          Loops,
          Data,
-         Integer,
-         O,
-         Debug
+         Integer
       ) 
-   [InputStream] sourceInput
+   [->[Maybe<[Byte]>]] inputStream
    [List<[Error]>] errors
    [Variable<[Maybe<[Token]>]>] currentToken
    [Variable<[SourcePosition]>] currentTokenPosition
-   [[[Maybe<[Token]>][SourcePosition]->][->]->] ifNextTokenOrElse
-   [Maybe<[Character]>] currentCharacter
-   [SourcePosition] currentCharacterPosition
+   [Variable<[[[Maybe<[Token]>][SourcePosition]->][->]->]>] ifNextTokenOrElse
+   [Variable<[Maybe<[Character]>]>] currentCharacter
+   [Variable<[SourcePosition]>] currentCharacterPosition
    [List<[Character]>] buffer
 {
-   ~ withSourceNameAndInput *([String] sourceName, [InputStream] sourceInput) {
-      .sourceInput = sourceInput;
+   ~ withSourceNameAndInput *([String] sourceName, [->[Maybe<[Byte]>]] inputStream) {
+      .inputStream = inputStream;
       .errors = \[List<[Error]>]:empty;
-      .currentToken = \[Variable<[Maybe<[Token]>]>]:as (\[Maybe<[Token]>]:asNothing);
+      .currentToken = \[Variable<[?]>]:as (\[Maybe<[Token]>]:nothing);
       .buffer = \[List<[Character]>]:empty;
-      .currentCharacter = \[Maybe<[Character]>]:asNothing;
+      .currentCharacter = \[Variable<[?]>]:as \[Maybe<[Character]>]:nothing;
       [SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName (\:getCopyOfNextLine);
-      .currentCharacterPosition = initialPosition;
-      .currentTokenPosition = \[Variable<[SourcePosition]>]:as initialPosition;
-      .ifNextTokenOrElse = *([]a,[->]else){\else};
+      .currentCharacterPosition = \[Variable<[?]>]:as initialPosition;
+      .currentTokenPosition = \[Variable<[?]>]:as initialPosition;
+      .ifNextTokenOrElse = \[Variable<[?]>]:as *([]a,[->]else){\else};
       \:gotoNextCharacterTrue;
       \:gotoNextToken;
    }
@@ -1463,20 +1466,20 @@
    - getCopyOfNextLine *->[String] {
       [String] line = \:stringFromCharacters *([[Character]->] useCharacter) {
          \[Loops]:until *([->] stop) {
-            [Maybe<[Character]>] nextChar = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
-            \nextChar:ifIs *([Character] c) {
+            [Maybe<[Character]>] nextChar = \(\.inputStream):isOrElse ([Character]:fromASCII) ([Maybe<[Character]>]:nothing);
+            \nextChar:isOrElse *([Character] c) {
                @\c:debugLog;
                \.buffer:append c;
                [Boolean] notEndOfLine = \[Boolean]:not (\c:isNewline);
-               \notEndOfLine:ifElse *{
+               \notEndOfLine:ifOrElse *{
                   [Boolean] cIsTab = \c:isTab;
-                  \cIsTab:ifElse *{
-                     \useCharacter (\[Character]:asSpace);
+                  \cIsTab:ifOrElse *{
+                     \useCharacter (\[Character]:space);
                   } *{
                      \useCharacter c;
                   };
                } stop;
-            };
+            } *{};
             \nextChar:ifNothing stop;
          };
       };
@@ -1818,7 +1821,7 @@
          };
       }
 }
-@@
+
 
 @@
 Analysis: analysing class - InternalValue...
