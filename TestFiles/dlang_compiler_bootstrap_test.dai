@@ -1232,6 +1232,8 @@
       .asciiByte = \[Byte]:0x20;
    }
 
+   ++ asASCII *->.asciiByte
+
    ++ description *-> (\[String]:asASCII \[Data]:copy [:[Sequence<[Byte]>]] { 
       |++ length *->\[Natural]:as ##1## 
       |++ atIndex *->\[Maybe<[Byte]>]:as .asciiByte
@@ -1479,20 +1481,18 @@
                      \useCharacter c;
                   };
                } stop;
-            } *{};
-            \nextChar:ifNothing stop;
+            } stop;
          };
       };
    } -> line
 
    - stringFromCharacters *([[[Character]->]->] getCharacters) -> [String] {
-            [Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
-               \getCharacters *([Character] character) {
-                  \useByte (\character:asASCIIByte);
-               };
-            });
-         } -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
-
+            [List<[Byte]>] asciiString = \[List<[Byte]>]:empty;
+            \getCharacters *([Character] character) {
+               \asciiString:append (\character:asASCII);
+            };
+         } -> \[String]:asASCII \[Data]:copy asciiString
+@asdf0
     - gotoNextCharacter *{
       \.currentCharacter:ifIs *([Character] t) {
          \[O]:ifElse (\t:isNULL) *{} *{\:gotoNextCharacterTrue;};
