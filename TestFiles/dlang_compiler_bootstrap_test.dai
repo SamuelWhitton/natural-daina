@@ -1492,16 +1492,18 @@
                \asciiString:append (\character:asASCII);
             };
          } -> \[String]:asASCII \[Data]:copy asciiString
-@asdf0
+
     - gotoNextCharacter *{
-      \.currentCharacter:ifIs *([Character] t) {
-         \[O]:ifElse (\t:isNULL) *{} *{\:gotoNextCharacterTrue;};
-      };
+      [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
+      \currentCharacter:isOrElse *([Character] t) {
+         \(\t:isNULL):ifOrElse *{} *{\:gotoNextCharacterTrue;};
+      } *{};
     }
 
    - gotoNextCharacterTrue *{
-      [Boolean] isNewline = \.currentCharacter:is *([Character] c) -> [Boolean] {} -> \c:isNewline;
-      \isNewline:ifElse *{
+      [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
+      [Boolean] isNewline = \currentCharacter:isOrElse (*([Character] c) -> [Boolean] {} -> \c:isNewline) *{};
+      \isNewline:ifOrElse *{@asdf
          .currentCharacterPosition = \.currentCharacterPosition:startOfNextLine (\:getCopyOfNextLine);
       } *{
          .currentCharacterPosition = \.currentCharacterPosition:nextColumn;
@@ -1821,6 +1823,7 @@
          };
       }
 }
+
 
 
 @@
