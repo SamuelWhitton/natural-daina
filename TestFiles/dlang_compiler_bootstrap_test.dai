@@ -1826,6 +1826,83 @@
       }
 }
 
+@asdf
+
+[Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String, Character, Loops, Variable, Data) 
+   [InputStream] inputStream
+   [Maybe<[Character]>] currentCharacter
+{
+   ~ from *([InputStream] inputStream) {
+      .inputStream = inputStream;
+      .currentCharacter = \[Maybe<[Character]>]:asNothing;
+      \:readNextCharacter;
+   }
+
+   ++ readNext *([CommandReader] reader) {
+      \:eatWhitespaceCharacters;
+      \.currentCharacter:ifNothing (reader:exit);
+      \.currentCharacter:ifIs *([Character] character) {
+         [Boolean] exit = (\character:isSemicolon);
+         \exit:ifTrue reader:exit;
+         [Variable<[Boolean]>] validCommand = \[Variable<[Boolean]>]:as exit;
+         [Boolean] parseSourceFile = (\character:isPlus);
+         \parseSourceFile:ifTrue *{
+            \reader:parseSourceFile (\:readNextFilePath);
+            \validCommand:set (\[Boolean]:true);
+         };
+         [Boolean] compileToFile = (\character:isTilde);
+         \compileToFile:ifTrue *{
+            [String] compilationMethod = \:readNextString (*([Character]c)->\c:isAlphanumeric);
+            \:eatWhitespaceCharacters;
+            [Boolean] colonPresent = (\.currentCharacter:is (*([Character]c)->\c:isColon));
+            \colonPresent:ifTrue *{
+               \reader:compileToFile (\:readNextFilePath);
+               \validCommand:set (\[Boolean]:true);
+            };
+         };
+         [Boolean] invalidCommand = \[Boolean]:not (\validCommand:get);
+         \invalidCommand:ifTrue *{
+            \reader:invalidCommand;
+            \:readNextCharacter;
+         };
+      };
+   }
+
+   - readNextCharacter *{
+      .currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.inputStream:readNextByte);
+   }
+
+   - readNextString *([[Character]->[Boolean]] inString) -> [String] {
+      \:eatWhitespaceCharacters;
+      [Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
+         \[Loops]:while (*->[Boolean]{
+            [Variable<[Boolean]>] charcterInString = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+            \:readNextCharacter;
+            \.currentCharacter:ifIs *([Character] character) {
+               \charcterInString:set (\inString character);
+            };
+         } -> \charcterInString:get) *{
+            \.currentCharacter:ifIs *([Character] character) {
+               \useByte (\character:asASCIIByte);
+            };
+         };
+      });
+   } -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
+
+   - readNextFilePath *-> [String] {
+   } -> \:readNextString *([Character] c) ->[Boolean] {
+      } -> \[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\c:isAlphanumeric) (\c:isFullstop)) (\c:isForwardslash)) (\c:isBackslash)) (\c:isUnderscore)
+
+   - eatWhitespaceCharacters *{
+      \[Loops]:while (*->[Boolean]{
+         [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+         \.currentCharacter:ifIs *([Character] character) {
+            \isWhitespace:set (\character:isWhitespace);
+         };
+      } -> \isWhitespace:get) (:readNextCharacter);
+   }
+}
+
 
 
 @@
@@ -1885,9 +1962,9 @@ Analysis: analysing class - IPAddress...
 Analysis: analysing class - SystemInputOutput...
 **Analysis: analysing class - Configuration...
 Analysis: analysing class - Debug...
+Analysis: analysing class - Parser...
 
-*Analysis: analysing class - Parser...
-Analysis: analysing class - Commands...
+*Analysis: analysing class - Commands...
 Analysis: analysing class - DainaGeneralIdentifier...
 Analysis: analysing class - DainaGenericDeclarationList...
 Analysis: analysing class - DainaDependancyStructure...
