@@ -1572,7 +1572,7 @@
 
       \ifStrudelOrElse *{
          \[Loops]:while (*->[Boolean]{
-                  [Maybe<[Character]>] currentCharacter = .currentCharacter;
+                  [Maybe<[Character]>] currentCharacter = \.currentCharacter:get;
                }->\currentCharacter:isOrElse (*([Character] c)->\c:isStrudel) (*->\[Boolean]:false)) *{
             \:gotoNextCharacter;
             \ifStrudelOrElse *{
@@ -1789,7 +1789,7 @@
             [Variable<[Boolean]>] continuing = \[Variable<[Boolean]>]:as (\[Boolean]:true);
             \[Loops]:while (continuing:get) *{
                \continuing:set (\[Boolean]:false);
-               [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+               [Maybe<[Character]>] maybeCurrentCharacter = \.currentCharacter:get;
                \maybeCurrentCharacter:isOrElse *([Character] character) {
                   \provideCharacterAndContinueScannning character *{
                      \continuing:set (\[Boolean]:true);
@@ -1805,13 +1805,13 @@
             };
          } -> \[String]:asASCII \[Data]:copy asciiString;
          [[->][->]->] ifStrudelOrElse = *([->] action, [->] else) {
-            [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+            [Maybe<[Character]>] maybeCurrentCharacter = \.currentCharacter:get;
             \maybeCurrentCharacter:isOrElse *([Character] currentCharacter) {
                \ifElse (currentCharacter:isStrudel) action else;
             } else;
          };
          [[->][->]->] ifHashOrElse = *([->] action, [->] else) {
-            [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
+            [Maybe<[Character]>] maybeCurrentCharacter = \.currentCharacter:get;
             \maybeCurrentCharacter:isOrElse *([Character] currentCharacter) {
                \ifElse (currentCharacter:isHash) action else;
             } else;
@@ -1826,7 +1826,7 @@
       }
 }
 
-@asdf
+
 
 [Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String, Character, Loops, Variable, Data) 
    [InputStream] inputStream
@@ -1834,10 +1834,10 @@
 {
    ~ from *([InputStream] inputStream) {
       .inputStream = inputStream;
-      .currentCharacter = \[Maybe<[Character]>]:asNothing;
+      .currentCharacter = \[Maybe<[Character]>]:nothing;
       \:readNextCharacter;
    }
-
+@asdf
    ++ readNext *([CommandReader] reader) {
       \:eatWhitespaceCharacters;
       \.currentCharacter:ifNothing (reader:exit);
