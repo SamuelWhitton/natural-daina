@@ -1837,37 +1837,36 @@
       .currentCharacter = \[Maybe<[Character]>]:nothing;
       \:readNextCharacter;
    }
-@asdf
+
    ++ readNext *([CommandReader] reader) {
       \:eatWhitespaceCharacters;
-      \.currentCharacter:ifNothing (reader:exit);
-      \.currentCharacter:ifIs *([Character] character) {
+      \.currentCharacter:isOrElse *([Character] character) {
          [Boolean] exit = (\character:isSemicolon);
-         \exit:ifTrue reader:exit;
+         \exit:ifOrElse reader:exit *{};
          [Variable<[Boolean]>] validCommand = \[Variable<[Boolean]>]:as exit;
          [Boolean] parseSourceFile = (\character:isPlus);
-         \parseSourceFile:ifTrue *{
+         \parseSourceFile:ifOrElse *{
             \reader:parseSourceFile (\:readNextFilePath);
             \validCommand:set (\[Boolean]:true);
-         };
+         } *{};
          [Boolean] compileToFile = (\character:isTilde);
-         \compileToFile:ifTrue *{
+         \compileToFile:ifOrElse *{
             [String] compilationMethod = \:readNextString (*([Character]c)->\c:isAlphanumeric);
             \:eatWhitespaceCharacters;
-            [Boolean] colonPresent = (\.currentCharacter:is (*([Character]c)->\c:isColon));
-            \colonPresent:ifTrue *{
+            [Boolean] colonPresent = (\.currentCharacter:isOrElse (*([Character]c)->\c:isColon) (*->\[Boolean]:false));
+            \colonPresent:ifOrElse *{
                \reader:compileToFile (\:readNextFilePath);
                \validCommand:set (\[Boolean]:true);
-            };
-         };
+            } *{};
+         } *{};
          [Boolean] invalidCommand = \[Boolean]:not (\validCommand:get);
-         \invalidCommand:ifTrue *{
+         \invalidCommand:ifOrElse *{
             \reader:invalidCommand;
             \:readNextCharacter;
-         };
-      };
+         } *{};
+      } (reader:exit);
    }
-
+@asdf
    - readNextCharacter *{
       .currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.inputStream:readNextByte);
    }
@@ -1878,13 +1877,13 @@
          \[Loops]:while (*->[Boolean]{
             [Variable<[Boolean]>] charcterInString = \[Variable<[Boolean]>]:as (\[Boolean]:false);
             \:readNextCharacter;
-            \.currentCharacter:ifIs *([Character] character) {
+            \.currentCharacter:isOrElse *([Character] character) {
                \charcterInString:set (\inString character);
-            };
+            } *{};
          } -> \charcterInString:get) *{
-            \.currentCharacter:ifIs *([Character] character) {
+            \.currentCharacter:isOrElse *([Character] character) {
                \useByte (\character:asASCIIByte);
-            };
+            } *{};
          };
       });
    } -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
@@ -1896,9 +1895,9 @@
    - eatWhitespaceCharacters *{
       \[Loops]:while (*->[Boolean]{
          [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
-         \.currentCharacter:ifIs *([Character] character) {
+         \.currentCharacter:isOrElse *([Character] character) {
             \isWhitespace:set (\character:isWhitespace);
-         };
+         } *{};
       } -> \isWhitespace:get) (:readNextCharacter);
    }
 }
