@@ -1829,10 +1829,10 @@
 
 
 [Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String, Character, Loops, Variable, Data) 
-   [InputStream] inputStream
+   [->[Maybe<[Byte]>]] inputStream
    [Maybe<[Character]>] currentCharacter
 {
-   ~ from *([InputStream] inputStream) {
+   ~ from *([->[Maybe<[Byte]>]] inputStream) {
       .inputStream = inputStream;
       .currentCharacter = \[Maybe<[Character]>]:nothing;
       \:readNextCharacter;
@@ -1866,15 +1866,15 @@
          } *{};
       } (reader:exit);
    }
-@asdf
+
    - readNextCharacter *{
-      .currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.inputStream:readNextByte);
+      .currentCharacter = \(\.inputStream):isOrElse ([Character]:fromASCII) ([Maybe<[Character]>]:nothing);
    }
 
    - readNextString *([[Character]->[Boolean]] inString) -> [String] {
       \:eatWhitespaceCharacters;
-      [Data] asciiStringData = \[Data]:dataFromBytesWithByteProvider (*([[Byte]->] useByte) {
-         \[Loops]:while (*->[Boolean]{
+      [List<[Byte]>] asciiString = \[List<[Byte]>]:empty;
+      \[Loops]:while (*->[Boolean]{
             [Variable<[Boolean]>] charcterInString = \[Variable<[Boolean]>]:as (\[Boolean]:false);
             \:readNextCharacter;
             \.currentCharacter:isOrElse *([Character] character) {
@@ -1882,11 +1882,10 @@
             } *{};
          } -> \charcterInString:get) *{
             \.currentCharacter:isOrElse *([Character] character) {
-               \useByte (\character:asASCIIByte);
+               \asciiString:append (\character:asASCII);
             } *{};
          };
-      });
-   } -> \[String]:stringWithASCIIDataRepresentationOfString asciiStringData
+   } -> \[String]:asASCII \[Data]:copy asciiString
 
    - readNextFilePath *-> [String] {
    } -> \:readNextString *([Character] c) ->[Boolean] {
@@ -1962,8 +1961,8 @@ Analysis: analysing class - SystemInputOutput...
 **Analysis: analysing class - Configuration...
 Analysis: analysing class - Debug...
 Analysis: analysing class - Parser...
+Analysis: analysing class - Commands...
 
-*Analysis: analysing class - Commands...
 Analysis: analysing class - DainaGeneralIdentifier...
 Analysis: analysing class - DainaGenericDeclarationList...
 Analysis: analysing class - DainaDependancyStructure...
