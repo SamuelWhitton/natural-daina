@@ -1903,6 +1903,233 @@
 
 
 
+
+
+
+@asdf
+
+
+[DainaGeneralIdentifier] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String, Variable,
+         Error, M, O,
+
+         Debug
+      )
+   @[Variable<[Maybe<[String]>]>]
+      [String] content
+
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+      [Variable<[Boolean]>] isIdentifier = \[Variable<[Boolean]>]:as \[Boolean]:false;
+      \token:ifIdentifier *([String] s) {
+         \isIdentifier:set \[Boolean]:true;
+      };
+   } -> (\isIdentifier:get)
+
+   ~ base *{
+      .content = \[String]:as ####;
+   }
+
+   ++ content *->.content
+
+   ++ parse *([Parser] parser) {
+      [Token] identifierToken = \parser:token;
+      \identifierToken:ifIdentifier *([String] s) {
+      .content = s;
+         @\isIdentifier:set \[Boolean]:true;
+      };
+      \parser:gotoNextToken;
+   }
+}
+
+
+[DainaGenericDeclarationList] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaGeneralIdentifier,
+
+         Debug
+      )
+   [List<[DainaGeneralIdentifier]>] generics
+{
+   ~ base *{
+      .generics = \[List<[DainaGeneralIdentifier]>]:empty;
+   }
+
+   ++ parse *([Parser] parser) {
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
+         \parser:gotoNextToken;
+         \[Loops]:until *([->] stop) {
+            \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+               [DainaGeneralIdentifier] generic = \[DainaGeneralIdentifier]:base;
+               \generic:parse parser;
+               \.generics:append generic;
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:comma) *{
+                  \parser:gotoNextToken;
+               } stop;
+            } *{
+               \parser:addError (\[Error]:expectingGenericIdentifier (\parser:position));
+               \stop;
+            };
+         };
+         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose) *{
+            \parser:gotoNextToken;
+         } *{
+            \parser:addError (\[Error]:expectingClosingBracketForGenericDeclarationList (\parser:position));
+         };
+      } *{};
+   }
+}
+
+
+[DainaDependancyStructure] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaGeneralIdentifier,
+         SourcePosition,
+
+         Debug
+      )
+   [List<[DainaGeneralIdentifier]>] dependancies
+   [List<[DainaGeneralIdentifier]>] dependanciesWithDerivatives
+   [List<[DainaGeneralIdentifier]>] reverseDependancies
+{
+   ~ base *{
+      .dependancies = \[List<[DainaGeneralIdentifier]>]:empty;
+      .reverseDependancies = \[List<[DainaGeneralIdentifier]>]:empty;
+      .dependanciesWithDerivatives = \[List<[DainaGeneralIdentifier]>]:empty;
+   }
+
+   ++ parse *([Parser] parser) {
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketOpen) *{
+         \parseIDList .dependancies ([Error]:expectingDependancy) (\[Maybe<[List<[DainaGeneralIdentifier]>]>]:as .dependanciesWithDerivatives);
+         \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketOpen) *{
+               \parseIDList .reverseDependancies ([Error]:expectingReverseDependancy) (\[Maybe<[List<[DainaGeneralIdentifier]>]>]:nothing);
+            } *{
+               \parser:addError (\[Error]:expectingReverseDependancyList (\parser:position));
+            };
+         } *{};
+      } *{};
+   }  !{
+         [[List<[DainaGeneralIdentifier]>][[SourcePosition]->[Error]][Maybe<[List<[DainaGeneralIdentifier]>]>]->] parseIDList = *([List<[DainaGeneralIdentifier]>] list, [[SourcePosition]->[Error]] missingIDError, [Maybe<[List<[DainaGeneralIdentifier]>]>] maybeDerivativeList) {
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+                     [DainaGeneralIdentifier] id = \[DainaGeneralIdentifier]:base;
+                     \id:parse parser;
+                     \list:append id;
+                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:comma) *{
+                        \parser:gotoNextToken;
+                     } stop;
+                  } *{
+                     \maybeDerivativeList:ifNothing missingId;
+                     \maybeDerivativeList:ifIs *([List<[DainaGeneralIdentifier]>] derivativeList) {
+                        \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketOpen) *{
+                           \parser:gotoNextToken;
+                           \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+                              [DainaGeneralIdentifier] id = \[DainaGeneralIdentifier]:base;
+                              \id:parse parser;
+                              \list:append id;
+                              \derivativeList:append id;
+                              \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketClose) *{
+                                 \parser:gotoNextToken;
+                                 \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:comma) *{
+                                    \parser:gotoNextToken;
+                                 } stop;
+                              } *{
+                                 \parser:addError (\[Error]:expectingClosingBracketForDependancyWithDerivatives (\parser:position));
+                                 \stop;
+                              };
+                           } missingId;
+                        } missingId;
+                     };
+                  }  !{ 
+                        [->] missingId = *{
+                           \parser:addError (\missingIDError (\parser:position));
+                           \stop;
+                        }
+                     };
+               };
+            } *{};
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:roundBracketClose) *{
+               \parser:gotoNextToken;
+            } *{
+               \parser:addError (\[Error]:expectingClosingBracketForDependancyList (\parser:position));
+            };
+         };
+         }
+}
+
+
+
+[DainaClassIdentifier] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String, Variable,
+         Error, M, O,
+
+         Debug
+      )
+   @[Variable<[Maybe<[String]>]>]
+   [String] content
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+      [Variable<[Boolean]>] isIdentifier = \[Variable<[Boolean]>]:as \[Boolean]:false;
+      \token:ifIdentifier *([String] s) {
+         \isIdentifier:set \[Boolean]:true;
+      };
+   } -> (\isIdentifier:get)
+
+   ~ base *{
+      .content = \[String]:as ####;
+   }
+
+   ++ content *->.content
+
+   ++ parse *([Parser] parser) {
+      [Token] identifierToken = \parser:token;
+      \identifierToken:ifIdentifier *([String] s) {
+      .content = s;
+         @\isIdentifier:set \[Boolean]:true;
+      };
+      \parser:gotoNextToken;
+   }
+}
+
+
+
+
+
+
 @@
 Analysis: analysing class - InternalValue...
 Analysis: analysing class - InternalPointer...
@@ -1963,10 +2190,11 @@ Analysis: analysing class - Debug...
 Analysis: analysing class - Parser...
 Analysis: analysing class - Commands...
 
-Analysis: analysing class - DainaGeneralIdentifier...
-Analysis: analysing class - DainaGenericDeclarationList...
-Analysis: analysing class - DainaDependancyStructure...
-Analysis: analysing class - DainaClassIdentifier...
+*Analysis: analysing class - DainaGeneralIdentifier...
+*Analysis: analysing class - DainaGenericDeclarationList...
+*Analysis: analysing class - DainaDependancyStructure...
+*Analysis: analysing class - DainaClassIdentifier...
+
 Analysis: analysing class - DainaType...
 Analysis: analysing class - DainaObjectDeclaration...
 Analysis: analysing class - DainaClassMethod...
