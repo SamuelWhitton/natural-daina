@@ -1517,7 +1517,7 @@
       };
       [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;
       .currentCharacter = bufferedChar;
-      @\bufferedChar:ifNothing *{
+      @\bufferedChar:isOrElse *{} *{
          @.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
       @};
    }
@@ -2129,7 +2129,11 @@
 @asdf
 
 
-
+[O] {
+   :: ifElse *([Boolean] b, [->] if, [->] else) {
+      \b:ifOrElse if else;
+   } 
+}
 
 
 [DainaType] (
@@ -2878,7 +2882,7 @@
                   \parser:addError (\[Error]:expectingExpressionToAssignInstanceMethod (\parser:position)); 
                };
             } *{
-               .ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get (\[Integer]:zero) identifier};
+               .ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get (\[Integer]:as ##0##) identifier};
             };
          } *{
             \parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
@@ -2933,13 +2937,13 @@
                \parentNum:set (\[Maybe<[Integer]>]:as (\idToken:secondId));
             } *{
                \[O]:ifElse (\[Token]:equals idToken (\[Token]:colon)) *{
-                  \parentNum:set (\[Maybe<[Integer]>]:as (\[Integer]:zero));
+                  \parentNum:set (\[Maybe<[Integer]>]:as (\[Integer]:as ##0##));
                } *{
                   \parser:addError (\[Error]:unexpectedTokenBeforeTilde (\parser:position));
                };
             };
             [Maybe<[Integer]>] m = \parentNum:get;
-            \m:ifIs *([Integer] parentNumber) {
+            \m:isOrElse *([Integer] parentNumber) {
                \parser:gotoNextToken;
                \parser:gotoNextToken;
                [Boolean] isPointerConstructor = (\[Token]:equals (\parser:token) (\[Token]:arrowBracketClose));
@@ -2953,7 +2957,7 @@
                };
                [List<[DainaExpression]>] paramList = \parseParameterList;
                .ifConstructorInvocation = *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\get parentNumber identifier isPointerConstructor paramList};
-            };
+            } *{};
          } *{
             \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
                [DainaExpression] methodExpr = \[DainaExpression]:base;
@@ -3236,11 +3240,11 @@
    [Mapping<[String][DainaType]>] localObjectScope
 {
    ~ to *([OutputStream] output) {
-      .tab = \[Integer]:zero;
+      .tab = \[Integer]:as ##0##;
       .output = output;
       .mappedClasses = \[Mapping<[String][DainaClass]>]:empty;
       .mappedClassMethods = \[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>]:empty;
-      .temporaryNumber = \[Integer]:zero;
+      .temporaryNumber = \[Integer]:as ##0##;
       .selfClassName = \[DainaClassIdentifier]:base;
       .synthesizedExpressionType = \[DainaType]:base;
       .selfInstanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
@@ -3249,7 +3253,7 @@
    }
 
    - outputNextTemporaryVariableName *{
-      .temporaryNumber = \.temporaryNumber:adding (\[Integer]:one);
+      .temporaryNumber = \.temporaryNumber:adding (\[Integer]:as ##1##);
       \:output (\[String]:as ##temp##);
       \:output (\[String]:stringRepresentationOfInteger .temporaryNumber);
    }
@@ -3270,20 +3274,20 @@
    }
 
    - incrementTab *{
-      .tab = \.tab:integerByAdding (\[Integer]:one);
+      .tab = \.tab:integerByAdding (\[Integer]:as ##1##);
    }
 
    - decrementTab *{
-      .tab = \.tab:integerBySubtracting (\[Integer]:one);
+      .tab = \.tab:integerBySubtracting (\[Integer]:as ##1##);
    }
 
    - iterateUnoverridenInstanceMethods *([DainaClass] class, [[Integer][DainaClassMethod<[DainaExpression]>]->] get) {
       \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
       } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
-         [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+         [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
          \inheritedParentTypes:iterate *([DainaType] parentType) {
             [Integer] parentNumber = \varParentNumber:get;
-            \varParentNumber:set (\parentNumber:adding (\[Integer]:one));
+            \varParentNumber:set (\parentNumber:adding (\[Integer]:as ##1##));
             \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
                [String] parentID = (\parentTypeIdentifier:content);
                \.mappedClasses:retriveMappedValueWithKey parentID *([DainaClass] parentClass) {
@@ -3305,7 +3309,7 @@
                [DainaGeneralIdentifier] parentMethodIdentifier = \parentMethod:identifier;
                \.mappedClassMethods:retriveMappedValueWithKey (\className:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] ownClassMethods) {
                   [Maybe<[DainaClassMethod<[DainaExpression]>]>] ifOverriden = \ownClassMethods:maybeRetriveMappedValueWithKey (\parentMethodIdentifier:content);
-                  \ifOverriden:ifNothing *{
+                  \ifOverriden:isOrElse *{} *{
                      \get parentNumber parentMethod;
                   };
                };
@@ -3315,10 +3319,10 @@
 
    - iterateUnoverridenInstanceMethodsAnon *([List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaType]>] inheritedParentTypes, [[Integer][DainaClassMethod<[DainaExpression]>]->] get) {
       
-         [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+         [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
          \inheritedParentTypes:iterate *([DainaType] parentType) {
             [Integer] parentNumber = \varParentNumber:get;
-            \varParentNumber:set (\parentNumber:adding (\[Integer]:one));
+            \varParentNumber:set (\parentNumber:adding (\[Integer]:as ##1##));
             \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
                [String] parentID = (\parentTypeIdentifier:content);
                \.mappedClasses:retriveMappedValueWithKey parentID *([DainaClass] parentClass) {
@@ -3345,7 +3349,7 @@
             [[Integer][DainaClassMethod<[DainaExpression]>]->] getIfNotOverriden = *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] parentMethod) {
                [DainaGeneralIdentifier] parentMethodIdentifier = \parentMethod:identifier;
                [Maybe<[DainaClassMethod<[DainaExpression]>]>] ifOverriden = \ownClassMethods:maybeRetriveMappedValueWithKey (\parentMethodIdentifier:content);
-               \ifOverriden:ifNothing *{
+               \ifOverriden:isOrElse *{} *{
                   \get parentNumber parentMethod;
                };
             };
@@ -3417,11 +3421,11 @@
             };
          };
          \:outputTabbed (\[String]:as ##override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n##);
-         [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+         [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
          \inheritedParentTypes:iterate *([DainaType] parentType) {
             [Integer] curr = \parentNumber:get;
             \:synthesizeParentObjectDeclaration curr parentType;
-            \parentNumber:set (\curr:adding (\[Integer]:one));
+            \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
          };
          \instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
          \:iterateUnoverridenInstanceMethods class (:synthesizeParentUnoverridenMethod);
@@ -3530,8 +3534,8 @@
 
 
    - pushScope *([List<[DainaObjectDeclaration]>] parameters) {
-      [Variable<[Integer]>] paramNumber = \[Variable<[Integer]>]:as (\[Integer]:zero);
-      [Integer] one = \[Integer]:one;
+      [Variable<[Integer]>] paramNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##0##);
+      [Integer] one = \[Integer]:as ##1##;
       \parameters:iterate *([DainaObjectDeclaration] parameter) {
          \:addLocalObjectToScope parameter;
          [DainaGeneralIdentifier] id = \parameter:identifier;
@@ -3579,14 +3583,14 @@
             \select;
             \:pushScope inputs; 
             \:synthesizeStatement body (\[Boolean]:true);
-            \output:ifNothing *{
+            \output:isOrElse *{} *{
                \:outputTabbed (\[String]:as ##return caller;\n##);
             };
-            \output:ifIs *([DainaExpression] outputExpression) {
+            \output:isOrElse *([DainaExpression] outputExpression) {
                \:outputTabbed (\[String]:as ##return ##);
                \:synthesizeInPlaceExpression (\[Boolean]:false)  outputExpression;
                \:output (\[String]:as ##;\n##);
-            };
+            } *{};
             \:popScope;
          };
       } *{
@@ -3674,7 +3678,7 @@
          };
          \statement:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
             \select;
-            \[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+            \[O]:ifElse (\parentNumber:equals (\[Integer]:as ##0##)) *{
                \[O]:ifElse isPointerConstructor *{
                   \:outputTabbed (\[String]:as ##caller = ##);
                   \:synthesizeMethodInputs inputs;
@@ -3801,7 +3805,7 @@
             \theinstanceExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
                \.mappedClassMethods:retriveMappedValueWithKey (\instanceExpressionClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] instanceExpressionClassMethods) {
                   [Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \instanceExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
-                  \mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+                  \mInvokedMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
                      \[O]:ifElse (\invokedMethod:isUnimplementedMethod) *{
                         .synthesizedExpressionType = \invokedMethod:unimplementedType;
                      } *{
@@ -3809,7 +3813,7 @@
                         .synthesizedExpressionType = \[DainaType]:base;
                         \.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
                      };
-                  };
+                  } *{};
                };
             };
          };
@@ -3841,11 +3845,11 @@
             \type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
                \.mappedClassMethods:retriveMappedValueWithKey (\typeIdentifier:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
                   [Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
-                  \mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+                  \mInvokedMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
                      [DainaExpression] methodExpression = \invokedMethod:methodExpression;
                      .synthesizedExpressionType = \[DainaType]:base;
                      \.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
-                  };
+                  } *{};
                };
             };
          };
@@ -3872,9 +3876,9 @@
             };
             [DainaType] _invokedExpressionType = \invokedExpressionType:get;
             \_invokedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
-               \MoutputType:ifIs *([DainaType] outputType) {
+               \MoutputType:isOrElse *([DainaType] outputType) {
                   .synthesizedExpressionType = outputType;
-               };
+               } *{};
             };
          };
          \expression:ifProxyObject *([DainaExpression] object) {
@@ -3884,7 +3888,7 @@
          \expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
             \select;
             \[O]:ifElse (usedAsInstantMethod) *{
-               \[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+               \[O]:ifElse (\parentNumber:equals (\[Integer]:as ##0##)) *{
                   \:output (\[String]:as ##self.IMETHOD_##);
                } *{
                   \:output (\[String]:as ##PARENT_##);
@@ -3895,7 +3899,7 @@
             } *{
                \:output (\[String]:as ##(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n##);
                \:incrementTab;
-               \[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+               \[O]:ifElse (\parentNumber:equals (\[Integer]:as ##0##)) *{
                   \:outputTabbed (\[String]:as ##OBJECT instance = self;\n##);
                   \:outputTabbed (\[String]:as ##return self.IMETHOD_##);
                } *{
@@ -3913,7 +3917,7 @@
             };
             \.mappedClassMethods:retriveMappedValueWithKey (\.selfClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
                   [Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
-                  \mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+                  \mInvokedMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
                      \[O]:ifElse (\invokedMethod:isUnimplementedMethod) *{
                         .synthesizedExpressionType = \invokedMethod:unimplementedType;
                      } *{
@@ -3921,7 +3925,7 @@
                         .synthesizedExpressionType = \[DainaType]:base;
                         \.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
                      };
-                  };
+                  } *{};
                };
          };
          \expression:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
@@ -3951,11 +3955,11 @@
             [DainaClassIdentifier] originalClassName = .selfClassName;
             \:output (\[String]:as ##((){\n##);
             \:incrementTab;
-            [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+            [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
             \parents:iterate *([DainaType] parentType) {
                [Integer] curr = \parentNumber:get;
                \:synthesizeParentObjectDeclaration curr parentType;
-               \parentNumber:set (\curr:adding (\[Integer]:one));
+               \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
                \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] a) {
                   .selfClassName = parentTypeIdentifier;
                };
@@ -4084,15 +4088,15 @@
       \[Debug]:log (\[String]:as ##...\n##);
 
       [Maybe<[OutputStream]>] maybeOutputFile = \.configuration:compilationFileOutput path;
-      \maybeOutputFile:ifNothing *{
+      \maybeOutputFile:isOrElse *{} *{
          \[Debug]:log (\[String]:as ##Can't output to file.\n##);
       };
-      \maybeOutputFile:ifIs *([OutputStream] outputFile) {
+      \maybeOutputFile:isOrElse *([OutputStream] outputFile) {
          [DLangSynthesizer] dlang = \[DLangSynthesizer]:to outputFile;
          \dlang:synthesizeClasses .parsedClasses;
 
          \[Debug]:log (\[String]:as ##Done!\n##);
-      };
+      } *{};
       
    }
 
