@@ -1,4 +1,10 @@
 
+@@
+[] (Daina, Configuration) {
+   ^ *{
+      \[Daina]:run \[Configuration]:init;
+   }
+}@@
 
 [] (StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
@@ -2120,8 +2126,1989 @@
 
 
 
+@asdf
 
 
+
+
+[DainaType :[Object]] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Integer,
+         Maybe,
+         String,
+         Error, M, O,
+         Variable,
+         DainaClassIdentifier,
+         DainaGeneralIdentifier,
+
+         Debug
+      )
+   [[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstantiation
+
+   [[[List<[DainaType]>][Maybe<[DainaType]>]->]->] ifMethodInputsAndOutput
+   [[[List<[DainaType]>]->]->] ifDisjoint
+   [[[DainaGeneralIdentifier]->]->] ifClassGeneric
+   [[[Integer][DainaGeneralIdentifier]->]->] ifMethodGenericLevelAndIdentifier
+   [[[DainaGeneralIdentifier]->]->] ifDataSegment
+   [[->]->] ifInferredMethod
+   [[->]->] ifInferredSelf
+   [[->]->] ifInferred
+   [[[Integer]->]->] ifInferredParent
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } -> (\[Token]:equals token \[Token]:squareBracketOpen)
+
+   ++ ifClassNameAndGenericInstantiation *([[DainaClassIdentifier][List<[DainaType]>]->] get) {
+      \.ifClassNameAndGenericInstantiation get;
+   }
+
+   ++ ifMethodInputsAndOutput *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {
+      \.ifMethodInputsAndOutput get;
+   }
+
+   ~ base *{
+      .ifClassNameAndGenericInstantiation = *([]a){};
+
+      .ifMethodInputsAndOutput = *([]a){};
+      .ifDisjoint = *([]a){};
+      .ifClassGeneric = *([]a){};
+      .ifMethodGenericLevelAndIdentifier = *([]a){};
+      .ifDataSegment = *([]a){};
+      .ifInferredMethod = *([]a){};
+      .ifInferredSelf = *([]a){};
+      .ifInferredParent = *([]a){};
+      .ifInferred = *([->]a){\a};
+      \::new;
+   }
+
+   ++ setAsMethodWithOutputType *([DainaType] outputType) {
+      .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
+   }
+
+   ++ setAsClassName *([DainaClassIdentifier] className) {
+      .ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->]get){\get className (\[List<[DainaType]>]:empty)};
+   }
+
+   ++ parse *([Parser] parser) {
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
+            [DainaClassIdentifier] className = \[DainaClassIdentifier]:base;
+            \className:parse parser;
+            [List<[DainaType]>] genericInstantiations = \[List<[DainaType]>]:empty;
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
+               \parser:gotoNextToken;
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+                     [DainaType] genericInstantiation = \[DainaType]:base;
+                     \genericInstantiation:parse parser;
+                     \genericInstantiations:append genericInstantiation;
+                     \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{} stop;
+                  } *{
+                     \parser:addError (\[Error]:expectingOneOrMoreTypesForClassGenericInstantiation (\parser:position));
+                     \stop;
+                  };
+               };
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose) *{
+                  \parser:gotoNextToken;
+               } *{
+                  \parser:addError (\[Error]:expectingClosingBracketForClassGenericInstantiations (\parser:position));
+               };
+            } *{};
+            .ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->] get) {\get className genericInstantiations};
+         } *{
+            @ bla my way through
+            \[Loops]:until *([->] stop) {
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+                  [DainaType] subtype = \[DainaType]:base;
+                  \subtype:parse parser;
+                  \.ifMethodInputsAndOutput *([List<[DainaType]>] a, [Maybe<[DainaType]>]b) {
+                     .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as subtype)};
+                  };
+               } *{
+                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow) *{
+                     \parser:gotoNextToken;
+                     .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:nothing)};
+                  } *{
+                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) stop *{
+                        \parser:gotoNextToken;
+                     };
+                  };
+               };
+            };
+         };
+         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+            \parser:gotoNextToken;
+         } *{
+            \parser:addError (\[Error]:expectingClosingBracketForType (\parser:position));
+         };
+      } *{
+         \parser:addError (\[Error]:expectingType (\parser:position));
+      };
+   }
+}
+
+
+[DainaObjectDeclaration :[Object]] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaType,
+         DainaGeneralIdentifier,
+
+         Debug
+      )
+   [DainaType] type
+   [DainaGeneralIdentifier] identifier
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } -> (\[Boolean]:or (\[DainaType]:isFirstToken token) (\[DainaGeneralIdentifier]:isFirstToken token))
+
+   ++ type*->.type
+   ++ identifier*->.identifier
+
+   ~ base *{
+      .type = \[DainaType]:base;
+      .identifier = \[DainaGeneralIdentifier]:base;
+      \::new;
+   }
+
+   ~ as *([DainaType] type, [DainaGeneralIdentifier] identifier){
+      .type = type;
+      .identifier = identifier;
+      \::new;
+   }
+
+   ++ parse *([Parser] parser) {
+      \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+         \.identifier:parse parser;
+      } *{
+         \.type:parse parser;
+         \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+            \.identifier:parse parser;
+         } *{
+            \parser:addError (\[Error]:expectingIdentifierForObjectDeclaration (\parser:position));
+         };
+      };
+   }
+}
+
+
+@class-method-classification identifier ( type | expression )
+
+@    class-method-classification: ( ( | | || )? method-visibility-indicator ) | ( ( ~ | :: ) ( | )? ( method-visibility-indicator )? )
+
+
+[DainaClassMethod<DainaExpression[Object]> :[Object]] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaGeneralIdentifier,
+         Variable,
+         DainaType,
+
+         Debug
+      )
+   [Variable<[Boolean]>] unimplementedMethod
+   [DainaGeneralIdentifier] identifier
+   [&DainaExpression] methodExpression
+   [[->][->][->]->] isInstanceTypeOrConstructor
+   [[Parser][&DainaExpression]->] parseExpression
+   [[Token]->[Boolean]] isExpressionFirstToken
+   [DainaType] unimplementedType
+{
+   ++ isInstanceTypeOrConstructor *([->] isInstance,[->] isType,[->] isConstructor) {
+      \.isInstanceTypeOrConstructor isInstance isType isConstructor;
+   }
+
+   ++ isUnimplementedMethod *->(\.unimplementedMethod:get)
+
+   ++ unimplementedType *->(.unimplementedType)
+
+   ++ methodExpression *->.methodExpression
+
+   ++ identifier*-> .identifier
+
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } -> (\[Boolean]:or (\[Boolean]:or (\[Token]:isVisibilityIndicator token) (\[Token]:equals token (\[Token]:pipe))) (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleColon)) (\[Token]:equals token (\[Token]:tilde))))
+
+   ~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken){
+      .isInstanceTypeOrConstructor = *([->]a,[]b,[]c){};
+      .methodExpression = \getBase;
+      .identifier = \[DainaGeneralIdentifier]:base;
+      .unimplementedMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+      .parseExpression = parseExpression;
+      .isExpressionFirstToken = isExpressionFirstToken;
+      .unimplementedType = \[DainaType]:base;
+      \::new;
+   }
+
+   ++ parse *([Parser] parser) {
+      .isInstanceTypeOrConstructor = *([->]a,[]b,[]c){\a};
+      \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:tilde)) *{
+         \parser:gotoNextToken;
+         .isInstanceTypeOrConstructor = *([]a,[]b,[->]c){\c};
+      } *{
+         \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:doubleColon)) *{
+            \parser:gotoNextToken;
+            .isInstanceTypeOrConstructor = *([]a,[->]b,[]c){\b};
+         } *{};
+      };
+      \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:pipe)) *{
+         \parser:gotoNextToken;
+      } *{};
+      \.isInstanceTypeOrConstructor *{
+         \[O]:ifElse (\[Token]:isVisibilityIndicator (\parser:token)) *{
+            \parser:gotoNextToken;
+         } *{
+            \parser:addError (\[Error]:expectingVisibilityIndicatorForInstanceMethod (\parser:position));
+         };
+      } *{
+         \[O]:ifElse (\[Token]:isVisibilityIndicator (\parser:token)) *{
+            \parser:gotoNextToken;
+         } *{};
+      } *{
+         \[O]:ifElse (\[Token]:isVisibilityIndicator (\parser:token)) *{
+            \parser:gotoNextToken;
+         } *{};
+      };
+      \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+         \.identifier:parse parser;
+         \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+            \.unimplementedMethod:set (\[Boolean]:true); 
+            [DainaType] typeForUnimplemented = \[DainaType]:base;
+            \.unimplementedType:parse parser;
+         } *{
+            \[O]:ifElse (\.isExpressionFirstToken (\parser:token)) *{
+               \.parseExpression parser (.methodExpression);
+            } *{
+               \parser:addError (\[Error]:expectingClassMethodExpression (\parser:position));
+            };
+         };
+      } *{
+         \parser:addError (\[Error]:expectingIdentifierForClassMethod (\parser:position));
+      };
+   }
+}
+
+
+
+[DainaCompilerInjection :[Object]] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaGeneralIdentifier,
+
+         Debug
+      )
+   [DainaGeneralIdentifier] identifier
+   [String] dataSegment
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } -> (\[Token]:equals token \[Token]:doubleLessThan)
+
+   ~ base *{
+      .identifier = \[DainaGeneralIdentifier]:base;
+      .dataSegment = \[String]:as "";
+      \::new;
+   }
+
+   ++ identifierString *->\.identifier:content
+
+   ++ dataSegment *->.dataSegment
+
+   ++ parse *([Parser] parser) {
+      \parser:gotoNextToken;
+      \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+         \.identifier:parse parser;
+         \[O]:ifElse (\[Token]:isDataSegment (\parser:token)) *{
+            [Token] token = (\parser:token);
+            .dataSegment = \token:content;
+            \parser:gotoNextToken;
+         } *{
+            \parser:addError (\[Error]:expectingDataSegmentForCompilerInjection (\parser:position));
+         };
+      } *{
+         \parser:addError (\[Error]:expectingIdentifierForCompilerInjection (\parser:position));
+      };
+   }
+}
+
+
+
+[DainaExpression :[Object]] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaObjectDeclaration,
+         DainaType,
+         Variable,
+         DainaClassMethod,
+         DainaGeneralIdentifier,
+         Integer,
+         DainaCompilerInjection,
+
+         Debug
+      )
+   [DainaType] outputType
+   [[[List<[DainaExpression]>]->]->] ifStatementGroup
+   [[[String]->]->] ifDataSegment
+   [[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
+   [[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
+   [[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
+   [[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
+   [[[DainaObjectDeclaration][DainaExpression]->]->] ifLocalObjectAssignment
+   [[[DainaType][DainaGeneralIdentifier]->]->] ifTypeMethod
+
+   [[[DainaExpression][List<[DainaExpression]>]->]->] ifInvocation
+   [[[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->]->] ifConstructorInvocation @ parentnum, identifier, ispointerconsturcotr, params
+   [[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceMethodAssignment
+   [[[DainaGeneralIdentifier][DainaExpression]->]->] ifInstanceObjectAssignment
+   [[[DainaExpression]->]->] ifProxyObject
+   [[[DainaCompilerInjection]->]->] ifCompilerInjection
+   [[[DainaGeneralIdentifier]->]->] ifLocalObject
+   [[[Integer][DainaGeneralIdentifier]->]->] ifInternalInstanceMethod @ prentnum, id
+   [[[DainaGeneralIdentifier]->]->] ifInternalInstanceObject
+   [[->]->] ifSelfReference
+   [[->]->] ifMethodSelfReference
+   
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } ->  
+
+(\[Boolean]:or (\[Token]:equals token (\[Token]:backslash))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:fullStop))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:colon))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskCaret))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:asteriskArrow))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:caret))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:doubleLessThan))
+(\[Boolean]:or (\[Token]:equals token (\[Token]:roundBracketOpen))
+(\[Boolean]:or (\[Token]:isIdentifier token)
+(\[Boolean]:or (\[Token]:isParentIdentifier token)
+
+   (\[Boolean]:or (\[Token]:equals token (\[Token]:squareBracketOpen)) (\[Boolean]:or (\[Token]:equals token (\[Token]:curlyBracketOpen)) (\[Boolean]:or (\[Token]:isDataSegment token) (\[Token]:equals token (\[Token]:asterisk))))) ))))))))))
+
+
+   ~ base *{
+      .ifStatementGroup = *([[List<[DainaExpression]>]->]get){};
+      .ifDataSegment = *([]a){};
+      .ifWithPrologueStatement = *([]a){};
+      .ifMethodExpression = *([]a){};
+      .ifAnonymousClassObject = *([]a){};
+      .ifInstanceMethod = *([]a){};
+      .ifLocalObjectAssignment = *([]a){};
+      .ifTypeMethod = *([]a){};
+      .outputType = \[DainaType]:base;
+
+      .ifInvocation = *([]a){};
+      .ifConstructorInvocation = *([]a){};
+      .ifInstanceMethodAssignment = *([]a){};
+      .ifInstanceObjectAssignment = *([]a){};
+      .ifProxyObject = *([]a){};
+      .ifCompilerInjection = *([]a){};
+      .ifLocalObject = *([]a){};
+      .ifInternalInstanceMethod = *([]a){};
+      .ifInternalInstanceObject = *([]a){};
+      .ifSelfReference = *([]a){};
+      .ifMethodSelfReference = *([]a){};
+      
+      \::new;
+   }
+
+   ++ toBase *{
+      .ifStatementGroup = *([[List<[DainaExpression]>]->]get){};
+      .ifDataSegment = *([]a){};
+      .ifWithPrologueStatement = *([]a){};
+      .ifMethodExpression = *([]a){};
+      .ifAnonymousClassObject = *([]a){};
+      .ifInstanceMethod = *([]a){};
+      .ifLocalObjectAssignment = *([]a){};
+      .ifTypeMethod = *([]a){};
+      .outputType = \[DainaType]:base;
+
+      .ifInvocation = *([]a){};
+      .ifConstructorInvocation = *([]a){};
+      .ifInstanceMethodAssignment = *([]a){};
+      .ifInstanceObjectAssignment = *([]a){};
+      .ifProxyObject = *([]a){};
+      .ifCompilerInjection = *([]a){};
+      .ifLocalObject = *([]a){};
+      .ifInternalInstanceMethod = *([]a){};
+      .ifInternalInstanceObject = *([]a){};
+      .ifSelfReference = *([]a){};
+      .ifMethodSelfReference = *([]a){};
+   }
+
+   ++ outputType *->[DainaType]{}->.outputType
+   ++ setOutputType *([DainaType] outputType) {.outputType = outputType}
+
+   ++ ifInvocation *([[DainaExpression][List<[DainaExpression]>]->] get) {\.ifInvocation get}
+   ++ ifConstructorInvocation *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\.ifConstructorInvocation get}
+   ++ ifInstanceMethodAssignment *([[DainaGeneralIdentifier][DainaExpression]->] get) {\.ifInstanceMethodAssignment get}
+   ++ ifInstanceObjectAssignment *([[DainaGeneralIdentifier][DainaExpression]->] get) {\.ifInstanceObjectAssignment get}
+   ++ ifProxyObject *([[DainaExpression]->] get) {\.ifProxyObject get}
+   ++ ifCompilerInjection *([[DainaCompilerInjection]->] get) {\.ifCompilerInjection get}
+   ++ ifLocalObject *([[DainaGeneralIdentifier]->] get) {\.ifLocalObject get}
+   ++ ifInternalInstanceMethod *([[Integer][DainaGeneralIdentifier]->] get) {\.ifInternalInstanceMethod get}
+   ++ ifInternalInstanceObject *([[DainaGeneralIdentifier]->] get) {\.ifInternalInstanceObject get}
+   ++ ifSelfReference *([->] get) {\.ifSelfReference get}
+   ++ ifMethodSelfReference *([->] get) {\.ifMethodSelfReference get}
+
+   ++ ifStatementGroup *([[List<[DainaExpression]>]->] get) {\.ifStatementGroup get}
+   ++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
+   ++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
+   ++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
+   ++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get) {\.ifAnonymousClassObject get}
+   ++ ifInstanceMethod *([[DainaExpression][DainaGeneralIdentifier]->] get) {\.ifInstanceMethod get}
+   ++ ifLocalObjectAssignment *([[DainaObjectDeclaration][DainaExpression]->] get) {\.ifLocalObjectAssignment get}
+   ++ ifTypeMethod *([[DainaType][DainaGeneralIdentifier]->] get) {\.ifTypeMethod get}
+
+   ++ @@-+-@@ copy *([DainaExpression] other) {
+      .ifStatementGroup = other:ifStatementGroup;
+      .ifDataSegment = other:ifDataSegment;
+      .ifWithPrologueStatement = other:ifWithPrologueStatement;
+      .ifMethodExpression = other:ifMethodExpression;
+      .ifAnonymousClassObject = other:ifAnonymousClassObject;
+      .ifInstanceMethod = other:ifInstanceMethod;
+      .ifLocalObjectAssignment = other:ifLocalObjectAssignment;
+      .ifTypeMethod = other:ifTypeMethod;
+      .outputType = \other:outputType;
+
+      .ifInvocation = other:ifInvocation;
+      .ifConstructorInvocation = other:ifConstructorInvocation;
+      .ifInstanceMethodAssignment = other:ifInstanceMethodAssignment;
+      .ifInstanceObjectAssignment = other:ifInstanceObjectAssignment;
+      .ifProxyObject = other:ifProxyObject;
+      .ifCompilerInjection = other:ifCompilerInjection;
+      .ifLocalObject = other:ifLocalObject;
+      .ifInternalInstanceMethod = other:ifInternalInstanceMethod;
+      .ifInternalInstanceObject = other:ifInternalInstanceObject;
+      .ifSelfReference = other:ifSelfReference;
+      .ifMethodSelfReference = other:ifMethodSelfReference;
+   }
+
+   - copyTo *([DainaExpression] it) {
+      @[DainaExpression] me = \[DainaExpression]:base;
+      <instant
+      ##
+         //Z_local_me = Z_self;
+      ##;
+      @\it:copy me;
+      <instant
+      ##
+
+      void* Z_temporary_9 = ((void *)(0));
+           //ASSIGN temporary_9 = Z_self
+/*C*/      Z_temporary_9 = Z_self;
+           //CREATE STATIC_OBJECT temporary_11 WITH METHOD classmethod_DainaExpression_copy
+/*C*/      void* Z_temporary_11 = &Z_classmethod_DainaExpression_copy;
+           //CREATE DYNAMIC_OBJECT temporary_10 WITH METHOD[STATIC_OBJECT] temporary_11 FRAME{STATIC(),DYNAMIC(local_it)}
+/*C*/      void* Z_temporary_10 = allocateDynamicLambda(1,1,Z_temporary_11);
+/*C*/      *(((void* *)(Z_temporary_10+sizeof(DynamicLambda)+sizeof(void*)*0))) = Z_local_it;
+           //CREATE OBJECT temporary_8 = INVOKE temporary_10(temporary_9)
+/*C*/      void* Z_temporary_8 = ((void*(*)(void*,void*))(((DynamicLambda *)(Z_temporary_10))->method))(Z_temporary_10+sizeof(DynamicLambda), Z_temporary_9);
+
+
+         //Z_local_me = Z_self;
+      ##;
+   }
+
+   ++ makeEmptyStatement *{.ifStatementGroup = *([[List<[DainaExpression]>]->] get){\get (\[List<[DainaExpression]>]:empty)}}
+
+   ++ parse *([Parser] parser) {
+      [DainaExpression] left = \[DainaExpression]:base;
+      \left:parseStrongBinding parser;
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:exclamationMark) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+            [DainaExpression] right = \[DainaExpression]:base;
+            \right:parse parser;
+            .ifWithPrologueStatement = *([[DainaExpression][DainaExpression]->] get) {\get left right};
+         } *{
+            \parser:addError (\[Error]:expectingPrologueStatement (\parser:position));
+         };
+      } *{
+         \:copy left;
+      };
+   }
+
+   
+
+   ++ @@-+-@@ parseStrongBinding *([Parser] parser) {
+      [DainaExpression] left = \[DainaExpression]:base;
+      \left:parseStrongestBinding parser;
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:colon) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+            [DainaGeneralIdentifier] right = \[DainaGeneralIdentifier]:base;
+            \right:parse parser;
+            .ifInstanceMethod = *([[DainaExpression][DainaGeneralIdentifier]->] get) {\get left right};
+         } *{
+            \parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
+         };
+      } *{
+         \:copy left;
+      };
+   }
+
+   ++ @@-+-@@ parseStrongestBinding *([Parser] parser) {
+      [Token] token1 = (\parser:token);
+      [Token] token2 = (\parser:peekAtNextToken);
+      \[O]:ifElse (\[Token]:isDataSegment token1) *{
+         .ifDataSegment = *([[String]->] get) {\get (\token1:content)};
+         \parser:gotoNextToken;
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:asterisk)) *{
+         \parser:gotoNextToken;
+         [List<[DainaObjectDeclaration]>] parameters = \[List<[DainaObjectDeclaration]>]:empty;
+         [DainaExpression] body = (\[DainaExpression]:base);
+         [Variable<[Maybe<[DainaExpression]>]>] output = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
+         .ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {
+            \get parameters body (\output:get);
+         };
+         \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
+            \parser:gotoNextToken;
+            \[Loops]:until *([->] stop) {
+               \[O]:ifElse (\[DainaObjectDeclaration]:isFirstToken (\parser:token)) *{
+                  [DainaObjectDeclaration] parameter = \[DainaObjectDeclaration]:base;
+                  \parameter:parse parser;
+                  \parameters:append parameter;
+               } *{
+                  \parser:addError (\[Error]:expectingMethodInput (\parser:position));
+               };
+               \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:comma)) (parser:gotoNextToken) stop;
+            };
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketClose)) *{
+               \parser:gotoNextToken;
+            } *{
+               \parser:addError (\[Error]:expectingClosingBracketForMethodInputs (\parser:position));
+            };
+         } *{};
+         \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+            \body:parseStrongBinding parser;
+         } *{
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+               \parser:gotoNextToken;
+               \[O]:ifElse (\[Boolean]:and (\[DainaType]:isFirstToken (\parser:token)) (\[Boolean]:not (\[Token]:equals (\parser:peekAtNextToken) (\[Token]:colon)))) *{
+                  [DainaType] outputType = \[DainaType]:base;
+                  \outputType:parse parser;
+                  .outputType = outputType;
+                  \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+                     \body:parseStrongBinding parser;
+                  } *{
+                     \parser:addError (\[Error]:expectingMethodBody (\parser:position));
+                  };
+                  \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
+                     \parser:gotoNextToken;
+                  } *{
+                     \parser:addError (\[Error]:expectingMethodOutput (\parser:position));
+                  };
+               } *{
+                  \body:makeEmptyStatement;
+               };
+               \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+                  [DainaExpression] outputExpression = \[DainaExpression]:base;
+                  \outputExpression:parseStrongBinding parser;
+                  \output:set (\[Maybe<[DainaExpression]>]:as outputExpression);
+               } *{
+                  \parser:addError (\[Error]:expectingMethodOutput (\parser:position));
+               };
+            } *{
+               \body:makeEmptyStatement;
+            };
+         };
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:curlyBracketOpen)) *{
+         \parser:gotoNextToken;
+         [List<[DainaExpression]>] statements = \[List<[DainaExpression]>]:empty;
+         .ifStatementGroup = *([[List<[DainaExpression]>]->] get) {\get statements};
+         \[Loops]:until *([->] stop) {
+            \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+               [DainaExpression] statement = \[DainaExpression]:base;
+               \statement:parse parser;
+               \statements:append statement;
+            } *{};
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:semicolon)) (parser:gotoNextToken) stop;
+         };
+         \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketClose)) *{
+            \parser:gotoNextToken;
+         } *{
+            \parser:addError (\[Error]:expectingClosingBracketForStatementGroup (\parser:position));
+         };
+      } *{};
+      \[O]:ifElse (\[Boolean]:and (\[Token]:equals token1 (\[Token]:squareBracketOpen)) (\[Token]:equals token2 (\[Token]:colon))) *{
+         @anonymous-class-object
+         \parser:gotoNextToken;
+         \parser:gotoNextToken;
+         [List<[DainaType]>] parents = \[List<[DainaType]>]:empty;
+         [List<[DainaExpression]>] constructor = \[List<[DainaExpression]>]:empty;
+         [List<[DainaClassMethod<[DainaExpression]>]>] classMethods = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
+         .ifAnonymousClassObject = *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get)  {
+            \get parents constructor classMethods;
+         };
+         \[Loops]:until *([->] stop) {
+            \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+               [DainaType] parent = \[DainaType]:base;
+               \parent:parse parser;
+               \parents:append parent;
+               \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) (parser:gotoNextToken) stop;
+            } *{
+               \parser:addError (\[Error]:expectingParentTypeForAnonymousClassObject (\parser:position));
+               \stop;
+            }
+         };
+         \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:squareBracketClose)) *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketOpen)) *{
+               \parser:gotoNextToken;
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+                     [DainaExpression] constructorStatement = \[DainaExpression]:base;
+                     \constructorStatement:parse parser;
+                     \constructor:append constructorStatement;
+                  } *{};
+                  \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:semicolon)) (parser:gotoNextToken) stop;
+               };
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
+                     [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
+                     \classMethod:parse parser;
+                     \classMethods:append classMethod;
+                  } stop;
+               };
+               \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:curlyBracketClose)) *{
+                  \parser:gotoNextToken;
+               } *{
+                  \parser:addError (\[Error]:expectingClosingBracketForAnonymousClassBody (\parser:position));
+               };
+            } *{
+               \parser:addError (\[Error]:expectingAnonymousClassBody (\parser:position));
+            };
+         } *{
+            \parser:addError (\[Error]:expectingClosingSquareBracketAfterAnonymousClassHeader (\parser:position));
+         };
+      } *{};
+      \[O]:ifElse (\[Boolean]:and (\[DainaType]:isFirstToken token1) (\[Boolean]:not (\[Token]:equals token2 (\[Token]:colon)))) *{
+         [DainaType] type = \[DainaType]:base;
+         \type:parse parser;
+         \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+               [DainaExpression] expr = \[DainaExpression]:base;
+               \expr:parse parser;
+               \:copy expr;
+               \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketClose)) *{
+                  \parser:gotoNextToken;
+               } *{
+                  \parser:addError (\[Error]:expectingClosingBracketForCastExpression (\parser:position));
+               };
+            } *{
+               \parser:addError (\[Error]:expectingExpressionToBeCast (\parser:position));
+            };
+         } *{
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) *{
+               \parser:gotoNextToken;
+               \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+                  [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+                  \identifier:parse parser;
+                  .ifTypeMethod = *([[DainaType][DainaGeneralIdentifier]->] get) {\get type identifier};
+               } *{
+                  \parser:addError (\[Error]:expectingIdentifierForTypeMethod (\parser:position));
+               };
+            } *{
+               \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+                  [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+                  \identifier:parse parser;
+                  [DainaObjectDeclaration] localDeclaration = \[DainaObjectDeclaration]:as type identifier;
+                  \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:equalsSign)) *{
+                     \parser:gotoNextToken;
+                     \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+                        [DainaExpression] expr = \[DainaExpression]:base;
+                        \expr:parse parser;
+                        .ifLocalObjectAssignment = *([[DainaObjectDeclaration][DainaExpression]->] get) {\get localDeclaration expr};
+                     } *{
+                        \parser:addError (\[Error]:expectingExpressionToAssignLocalDeclaration (\parser:position));  
+                     };
+                  } *{
+                     \parser:addError (\[Error]:expectingEqualsToAssignLocalDeclaration (\parser:position));   
+                  };
+               } *{
+                  \parser:addError (\[Error]:unexpectedTokenAfterType (\parser:position));
+               };
+            };
+         };
+      } *{};
+
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:colon)) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+            [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+            \identifier:parse parser;
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:equalsSign)) *{
+               \parser:gotoNextToken;
+               \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+                  [DainaExpression] expr = \[DainaExpression]:base;
+                  \expr:parse parser;
+                  .ifInstanceMethodAssignment = *([[DainaGeneralIdentifier][DainaExpression]->] get) {\get identifier expr};
+               } *{
+                  \parser:addError (\[Error]:expectingExpressionToAssignInstanceMethod (\parser:position)); 
+               };
+            } *{
+               .ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get (\[Integer]:zero) identifier};
+            };
+         } *{
+            \parser:addError (\[Error]:expectingInstanceMethodIdentifier (\parser:position));
+         };
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:fullStop)) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+            [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+            \identifier:parse parser;
+            \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:equalsSign)) *{
+               \parser:gotoNextToken;
+               \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+                  [DainaExpression] expr = \[DainaExpression]:base;
+                  \expr:parse parser;
+                  .ifInstanceObjectAssignment = *([[DainaGeneralIdentifier][DainaExpression]->] get) {\get identifier expr};
+               } *{
+                  \parser:addError (\[Error]:expectingExpressionToAssignInstanceObject (\parser:position)); 
+               };
+            } *{
+               .ifInternalInstanceObject = *([[DainaGeneralIdentifier]->] get) {\get identifier};
+            };
+         } *{
+            \parser:addError (\[Error]:expectingInstanceObjectIdentifier (\parser:position));
+         };
+      } *{};
+      \[O]:ifElse (\[Token]:isParentIdentifier token1) *{
+         [Integer] parentNum = \token1:secondId;
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+            [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+            \identifier:parse parser;
+            .ifInternalInstanceMethod = *([[Integer][DainaGeneralIdentifier]->] get) {\get parentNum identifier};
+         } *{
+            \parser:addError (\[Error]:expectingInstanceObjectIdentifier (\parser:position));
+         };
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:backslash)) *{
+         [->[List<[DainaExpression]>]] parseParameterList = *->[List<[DainaExpression]>] {
+            [List<[DainaExpression]>] paramList = \[List<[DainaExpression]>]:empty;
+            \[Loops]:while (*->(\[DainaExpression]:isFirstToken (\parser:token))) *{
+               [DainaExpression] expr = \[DainaExpression]:base;
+               \expr:parse parser;
+               \paramList:append expr;
+            };
+         } -> paramList;
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[Token]:equals (\parser:peekAtNextToken) (\[Token]:tilde)) *{
+            [Token] idToken = (\parser:token);
+            [Variable<[Maybe<[Integer]>]>] parentNum = \[Variable<[Maybe<[Integer]>]>]:as (\[Maybe<[Integer]>]:nothing);
+            \[O]:ifElse (\[Token]:isParentIdentifier idToken) *{
+               \parentNum:set (\[Maybe<[Integer]>]:as (\idToken:secondId));
+            } *{
+               \[O]:ifElse (\[Token]:equals idToken (\[Token]:colon)) *{
+                  \parentNum:set (\[Maybe<[Integer]>]:as (\[Integer]:zero));
+               } *{
+                  \parser:addError (\[Error]:unexpectedTokenBeforeTilde (\parser:position));
+               };
+            };
+            [Maybe<[Integer]>] m = \parentNum:get;
+            \m:ifIs *([Integer] parentNumber) {
+               \parser:gotoNextToken;
+               \parser:gotoNextToken;
+               [Boolean] isPointerConstructor = (\[Token]:equals (\parser:token) (\[Token]:arrowBracketClose));
+               [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+               \[O]:ifElse isPointerConstructor (parser:gotoNextToken) *{
+                  \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
+                     \identifier:parse parser;
+                  } *{
+                     \parser:addError (\[Error]:expectingConstructorIdentifier (\parser:position));   
+                  };
+               };
+               [List<[DainaExpression]>] paramList = \parseParameterList;
+               .ifConstructorInvocation = *([[Integer][DainaGeneralIdentifier][Boolean][List<[DainaExpression]>]->] get) {\get parentNumber identifier isPointerConstructor paramList};
+            };
+         } *{
+            \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+               [DainaExpression] methodExpr = \[DainaExpression]:base;
+               \methodExpr:parse parser;
+               [List<[DainaExpression]>] paramList = \parseParameterList;
+               .ifInvocation = *([[DainaExpression][List<[DainaExpression]>]->] get) {\get methodExpr paramList};
+            } *{
+               \parser:addError (\[Error]:expectingMethodToInvoke (\parser:position)); 
+            };
+         };
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskArrow)) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+            [DainaExpression] expr = \[DainaExpression]:base;
+            \expr:parse parser;
+            .ifProxyObject = *([[DainaExpression]->] get) {\get expr};
+         } *{
+            \parser:addError (\[Error]:expectingProxyObject (\parser:position)); 
+         };
+      } *{};
+      \[O]:ifElse (\[DainaCompilerInjection]:isFirstToken token1) *{
+         [DainaCompilerInjection] inj = \[DainaCompilerInjection]:base;
+         \inj:parse parser;
+         .ifCompilerInjection = *([[DainaCompilerInjection]->] get) {\get inj};
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:roundBracketOpen)) *{
+         \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+               [DainaExpression] expr = \[DainaExpression]:base;
+               \expr:parse parser;
+               \:copy expr;
+               \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketClose)) *{
+                  \parser:gotoNextToken;
+               } *{
+                  \parser:addError (\[Error]:expectingClosingBracketForExpression (\parser:position));
+               };
+            } *{
+               \parser:addError (\[Error]:expectingExpression (\parser:position));
+            };
+      } *{};
+      \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken token1) *{
+         [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+         \identifier:parse parser;
+         .ifLocalObject = *([[DainaGeneralIdentifier]->] get) {\get identifier};
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:caret)) *{
+         \parser:gotoNextToken;
+         .ifSelfReference = *([->] get) {\get};
+      } *{};
+      \[O]:ifElse (\[Token]:equals token1 (\[Token]:asteriskCaret)) *{
+         \parser:gotoNextToken;
+         .ifMethodSelfReference = *([->] get) {\get};
+      } *{};
+
+      @@\[O]:ifElse (\parser:hasErrors) *{} *{
+         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:exclamationMark) *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+               [DainaExpression] left = \[DainaExpression]:base;
+               \:copyTo left;
+               [DainaExpression] right = \[DainaExpression]:base;
+               \right:parse parser;
+               \:toBase;
+               .ifWithPrologueStatement = *([[DainaExpression][DainaExpression]->] get) {\get left right};
+            } *{
+               \parser:addError (\[Error]:expectingPrologueStatement (\parser:position));
+            };
+         } *{};
+      };@@
+   }
+}
+
+
+
+
+[DainaClass :[Object]] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaDependancyStructure,
+         DainaExpression,
+         Variable,
+         DainaClassIdentifier,
+         DainaGenericDeclarationList,
+         DainaType,
+         DainaObjectDeclaration,
+         DainaClassMethod,
+         DainaCompilerInjection,
+
+         Debug
+      )
+   [Variable<[Boolean]>] isEntryPointClass
+   [DainaDependancyStructure] dependancyStructure
+   [DainaExpression] entryPointMethod
+   [DainaClassIdentifier] className
+   [DainaGenericDeclarationList] genericDeclarationList
+   [List<[DainaType]>] inheritedParentTypes
+   [List<[DainaObjectDeclaration]>] instanceObjects
+   [List<[DainaClassMethod<[DainaExpression]>]>] classMethods
+   [List<[DainaCompilerInjection]>] compilerInjections
+{
+   :: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
+      [List<[DainaClass]>] classes = \[List<[DainaClass]>]:empty;
+      \[Loops]:until *([->] stop) {
+         \[O]:ifElse (\[DainaClass]:isFirstToken (\parser:token)) *{
+            [DainaClass] class = \[DainaClass]:base;
+            \class:parse parser;
+            \classes:append class;
+            @\[O]:ifElse (\parser:hasErrors) stop *{};
+         } *{  
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:EOF) *{} *{
+               \parser:addError (\[Error]:expectingClassAtTopLevel (\parser:position));
+            };
+            \stop;
+         };
+      };
+
+      @@\[Loops]:while (*->[Boolean]{[Token] token = \parser:token;}->\[Boolean]:not (\[Token]:equals token (\[Token]:EOF))) *{
+         [Token] token = \parser:token;
+         \[Debug]:log (\token:asDebugString);
+         \[Debug]:log (\[String]:as "\n");
+         \parser:gotoNextToken;
+      }@@
+   } -> classes
+
+   ++ isEntryPointOrRegularClass *([[DainaDependancyStructure][DainaExpression]->] getEntryPoint, [[DainaClassIdentifier][List<[DainaType]>][List<[DainaObjectDeclaration]>][List<[DainaClassMethod<[DainaExpression]>]>][List<[DainaCompilerInjection]>]->] getRegularClass) {
+      \[O]:ifElse (\.isEntryPointClass:get) *{
+         \getEntryPoint .dependancyStructure .entryPointMethod;
+      } *{
+         \getRegularClass .className .inheritedParentTypes .instanceObjects .classMethods .compilerInjections;
+      };
+   }
+
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } -> (\[Token]:equals token \[Token]:squareBracketOpen)
+
+   ~ base *{
+      .isEntryPointClass = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+      .dependancyStructure = \[DainaDependancyStructure]:base;
+      .entryPointMethod = \[DainaExpression]:base;
+      .className = \[DainaClassIdentifier]:base;
+      .genericDeclarationList = \[DainaGenericDeclarationList]:base;
+      .inheritedParentTypes = \[List<[DainaType]>]:empty;
+      .instanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
+      .classMethods = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
+      .compilerInjections = \[List<[DainaCompilerInjection]>]:empty;
+      \::new;
+   }
+
+   ++ parse *([Parser] parser) {
+      \parser:gotoNextToken;
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+         \.isEntryPointClass:set (\[Boolean]:true);
+         \parser:gotoNextToken;
+         \.dependancyStructure:parse parser;
+         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketOpen) *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+               \.entryPointMethod:parse parser;
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketClose) *{
+                  \parser:gotoNextToken;
+               } *{  
+                  \parser:addError (\[Error]:expectingClosingBracketForClassBody (\parser:position));
+               };
+            } *{
+               \parser:addError (\[Error]:expectingEntryPointMethod (\parser:position));  
+            };
+         } *{
+            \parser:addError (\[Error]:expectingBodyOfClass (\parser:position)); 
+         };
+      } *{  
+         \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
+            \.className:parse parser;
+            \.genericDeclarationList:parse parser;
+            \[Loops]:until *([->] stop) {
+               \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:colon)) *{
+                  \parser:gotoNextToken;
+                  \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+                     [DainaType] parentType = \[DainaType]:base;
+                     \parentType:parse parser;
+                     \.inheritedParentTypes:append parentType;
+                  } *{  
+                     \parser:addError (\[Error]:expectingParentType (\parser:position));
+                     \stop;
+                  };
+               } stop;
+            };
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+               \parser:gotoNextToken;
+               \.dependancyStructure:parse parser;
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaObjectDeclaration]:isFirstToken (\parser:token)) *{
+                     [DainaObjectDeclaration] instanceObject = \[DainaObjectDeclaration]:base;
+                     \instanceObject:parse parser;
+                     \.instanceObjects:append instanceObject;
+                  } stop;
+               };
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketOpen) *{
+                  \parser:gotoNextToken;
+                  \[Loops]:until *([->] stop) {
+                     \[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
+                        [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
+                        \classMethod:parse parser;
+                        \classMethod:isInstanceTypeOrConstructor *{} *{} *{
+                           [DainaType] classType = \[DainaType]:base;
+                           \classType:setAsClassName .className;
+                           [DainaExpression] methodExpression = \classMethod:methodExpression;
+                           \methodExpression:setOutputType classType;
+                        };
+                        \.classMethods:append classMethod;
+                     } *{
+                        \[O]:ifElse (\[DainaCompilerInjection]:isFirstToken (\parser:token)) *{
+                           [DainaCompilerInjection] compilerInjection = \[DainaCompilerInjection]:base;
+                           \compilerInjection:parse parser;
+                           \.compilerInjections:append compilerInjection;
+                        } stop;
+                     };
+                  };
+                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketClose) *{
+                     \parser:gotoNextToken;
+                  } *{  
+                     \parser:addError (\[Error]:expectingClosingBracketForClassBody (\parser:position));
+                  };
+               } *{
+                  \parser:addError (\[Error]:expectingBodyOfClass (\parser:position));
+               };
+            } *{  
+               \parser:addError (\[Error]:expectingClosingSquareBracketAfterClassHeader (\parser:position));
+            };
+         } *{
+            \parser:addError (\[Error]:expectingClassName (\parser:position));   
+         }; 
+      };
+   }
+}
+
+
+
+[DLangSynthesizer] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         DainaDependancyStructure,
+         DainaExpression,
+         Variable,
+         DainaClassIdentifier,
+         DainaGenericDeclarationList,
+         DainaType,
+         DainaObjectDeclaration,
+         DainaClassMethod,
+         DainaCompilerInjection,
+         OutputStream,
+         DainaClass,
+         Integer,
+         DainaGeneralIdentifier,
+         Mapping,
+         Debug
+      )
+   [OutputStream] output
+   [Integer] tab
+   [Boolean] blockOutput
+   [Mapping<[String][DainaClass]>] mappedClasses
+   [Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>] mappedClassMethods
+   [DainaClassIdentifier] selfClassName
+   [List<[DainaObjectDeclaration]>] selfInstanceObjects
+   [Integer] temporaryNumber
+   [DainaType] synthesizedExpressionType
+   [Mapping<[String][DainaType]>] localObjectScope
+{
+   ~ to *([OutputStream] output) {
+      .tab = \[Integer]:zero;
+      .output = output;
+      .mappedClasses = \[Mapping<[String][DainaClass]>]:empty;
+      .mappedClassMethods = \[Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>]:empty;
+      .temporaryNumber = \[Integer]:zero;
+      .selfClassName = \[DainaClassIdentifier]:base;
+      .synthesizedExpressionType = \[DainaType]:base;
+      .selfInstanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
+      .localObjectScope = \[Mapping<[String][DainaType]>]:empty;
+      .blockOutput = \[Boolean]:false;
+   }
+
+   - outputNextTemporaryVariableName *{
+      .temporaryNumber = \.temporaryNumber:adding (\[Integer]:one);
+      \:output (\[String]:as "temp");
+      \:output (\[String]:stringRepresentationOfInteger .temporaryNumber);
+   }
+
+   - output *([String] string) {
+      \[O]:ifElse .blockOutput *{} *{
+         \.output:writeString string;
+      };
+   }
+
+   - outputTabbed *([String] string) {
+      \[O]:ifElse .blockOutput *{} *{
+         \[Loops]:repeatNTimes .tab *{
+            \.output:writeString (\[String]:as "   ");
+         };
+         \.output:writeString string;
+      };
+   }
+
+   - incrementTab *{
+      .tab = \.tab:integerByAdding (\[Integer]:one);
+   }
+
+   - decrementTab *{
+      .tab = \.tab:integerBySubtracting (\[Integer]:one);
+   }
+
+   - iterateUnoverridenInstanceMethods *([DainaClass] class, [[Integer][DainaClassMethod<[DainaExpression]>]->] get) {
+      \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+      } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+         [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+         \inheritedParentTypes:iterate *([DainaType] parentType) {
+            [Integer] parentNumber = \varParentNumber:get;
+            \varParentNumber:set (\parentNumber:adding (\[Integer]:one));
+            \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+               [String] parentID = (\parentTypeIdentifier:content);
+               \.mappedClasses:retriveMappedValueWithKey parentID *([DainaClass] parentClass) {
+                  \:iterateUnoverridenInstanceMethods parentClass *([Integer] i, [DainaClassMethod<[DainaExpression]>]c) {
+                     \getIfNotOverriden parentNumber c;
+                  };
+                  \parentClass:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+                  } *([DainaClassIdentifier] a1, [List<[DainaType]>] a2, [List<[DainaObjectDeclaration]>] a3, [List<[DainaClassMethod<[DainaExpression]>]>] parentClassMethods, [List<[DainaCompilerInjection]>] a5) {
+                     \parentClassMethods:iterate *([DainaClassMethod<[DainaExpression]>] parentClassMethod) {
+                        \getIfNotOverriden parentNumber parentClassMethod;
+                     };
+                  };
+               };    
+            };
+         };
+
+      } !{
+            [[Integer][DainaClassMethod<[DainaExpression]>]->] getIfNotOverriden = *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] parentMethod) {
+               [DainaGeneralIdentifier] parentMethodIdentifier = \parentMethod:identifier;
+               \.mappedClassMethods:retriveMappedValueWithKey (\className:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] ownClassMethods) {
+                  [Maybe<[DainaClassMethod<[DainaExpression]>]>] ifOverriden = \ownClassMethods:maybeRetriveMappedValueWithKey (\parentMethodIdentifier:content);
+                  \ifOverriden:ifNothing *{
+                     \get parentNumber parentMethod;
+                  };
+               };
+            };
+         };
+   }
+
+   - iterateUnoverridenInstanceMethodsAnon *([List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaType]>] inheritedParentTypes, [[Integer][DainaClassMethod<[DainaExpression]>]->] get) {
+      
+         [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+         \inheritedParentTypes:iterate *([DainaType] parentType) {
+            [Integer] parentNumber = \varParentNumber:get;
+            \varParentNumber:set (\parentNumber:adding (\[Integer]:one));
+            \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+               [String] parentID = (\parentTypeIdentifier:content);
+               \.mappedClasses:retriveMappedValueWithKey parentID *([DainaClass] parentClass) {
+                  \:iterateUnoverridenInstanceMethods parentClass *([Integer] i, [DainaClassMethod<[DainaExpression]>]c) {
+                     \getIfNotOverriden parentNumber c;
+                  };
+                  \parentClass:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+                  } *([DainaClassIdentifier] a1, [List<[DainaType]>] a2, [List<[DainaObjectDeclaration]>] a3, [List<[DainaClassMethod<[DainaExpression]>]>] parentClassMethods, [List<[DainaCompilerInjection]>] a5) {
+                     \parentClassMethods:iterate *([DainaClassMethod<[DainaExpression]>] parentClassMethod) {
+                        \getIfNotOverriden parentNumber parentClassMethod;
+                     };
+                  };
+               };    
+            };
+         };
+
+      
+   }  !{
+            [Mapping<[String][DainaClassMethod<[DainaExpression]>]>] ownClassMethods = \[Mapping<[String][DainaClassMethod<[DainaExpression]>]>]:empty;
+            \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+               [DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+               \ownClassMethods:mapKeyToValue (\classMethodIdentifier:content) classMethod;
+            };
+            [[Integer][DainaClassMethod<[DainaExpression]>]->] getIfNotOverriden = *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] parentMethod) {
+               [DainaGeneralIdentifier] parentMethodIdentifier = \parentMethod:identifier;
+               [Maybe<[DainaClassMethod<[DainaExpression]>]>] ifOverriden = \ownClassMethods:maybeRetriveMappedValueWithKey (\parentMethodIdentifier:content);
+               \ifOverriden:ifNothing *{
+                  \get parentNumber parentMethod;
+               };
+            };
+         }  
+
+
+   
+
+   ++ synthesizeClasses *([List<[DainaClass]>] classes) {
+      \classes:iterate *([DainaClass] class) {
+         \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+         } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+            \.mappedClasses:mapKeyToValue (\className:content) class;
+            [Mapping<[String][DainaClassMethod<[DainaExpression]>]>] classMethodsMapping = \[Mapping<[String][DainaClassMethod<[DainaExpression]>]>]:empty;
+            \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+               [DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+               \classMethodsMapping:mapKeyToValue (\classMethodIdentifier:content) classMethod;
+            };
+            \.mappedClassMethods:mapKeyToValue (\className:content) classMethodsMapping;
+         }; 
+      };
+      \:output (\[String]:as "/* *** HEADER *** */\n");
+      \:output (\[String]:as "interface OBJECT {}\n");
+      \:output (\[String]:as "class WRAP(E) : OBJECT { E it; this(E v) {this.it = v;} }\n");
+      \:output (\[String]:as "interface LAMBDA {\n   OBJECT method(OBJECT caller, OBJECT[] parameters);\n}\n\n");
+      \classes:iterate :synthesizeClass;
+   }
+
+   - synthesizeClass *([DainaClass] class) {
+      \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+         \:output (\[String]:as "/* *** ENTRY POINT CLASS *** */\n");
+         \:output (\[String]:as "void main() { ENTRY_POINT_CLASS.entryPointMethod(null, []); }\n"); 
+         \:output (\[String]:as "class ENTRY_POINT_CLASS {\n");
+         \:output (\[String]:as "   static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {\n"); \:incrementTab; \:incrementTab;
+         \:synthesizeMethodBodyContent entryPointMethod; 
+         \:decrementTab; \:decrementTab; \:output (\[String]:as "   }\n}\n\n");
+      } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+         .selfClassName = className;
+         .selfInstanceObjects = instanceObjects;
+         \:output (\[String]:as "/* *** CLASS: ");
+         \:output (\className:content);
+         \:output (\[String]:as " *** */\n");
+         \:output (\[String]:as "interface CLASSTYPE_");
+         \:output (\className:content);
+         \:output (\[String]:as " : OBJECT, LAMBDA");
+         \inheritedParentTypes:iterate *([DainaType] parentType) {
+            \:output (\[String]:as ", ");
+            \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+               \:output (\[String]:as "CLASSTYPE_");
+               \:output (\parentTypeIdentifier:content);
+            };
+         };
+         \:output (\[String]:as " {\n"); \:incrementTab;
+         \classMethods:iterate :synthesizeClassMethodInterface;
+         \:decrementTab; \:output (\[String]:as "}\n");
+         \:output (\[String]:as "class CLASSIMPL_");
+         \:output (\className:content);
+         \:output (\[String]:as " : CLASSTYPE_");
+         \:output (\className:content);
+         \:output (\[String]:as " {\n"); \:incrementTab;
+         \compilerInjections:iterate *([DainaCompilerInjection] compilerInjection) {
+            [String] dlang = \[String]:as "dlang";
+            \[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+               \:output (\[String]:as "/* dlang injection start */");
+               \:output (\compilerInjection:dataSegment);
+               \:output (\[String]:as "/* dlang injection end */\n");
+            } *{
+               \:outputTabbed (\[String]:as "ERROR UNKNOWN INJECTION!!!\n");
+            };
+         };
+         \:outputTabbed (\[String]:as "override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
+         [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+         \inheritedParentTypes:iterate *([DainaType] parentType) {
+            [Integer] curr = \parentNumber:get;
+            \:synthesizeParentObjectDeclaration curr parentType;
+            \parentNumber:set (\curr:adding (\[Integer]:one));
+         };
+         \instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
+         \:iterateUnoverridenInstanceMethods class (:synthesizeParentUnoverridenMethod);
+         \classMethods:iterate :synthesizeClassMethodImplementation;
+         \:decrementTab; \:output (\[String]:as "}\n\n");
+      };
+   }
+
+   - synthesizeInstanceObjectDeclaration *([DainaObjectDeclaration] instanceObject) {
+      \:outputTabbed (\[String]:as "private OBJECT IOBJECT_");
+      [DainaGeneralIdentifier] instanceObjectIdentifier = \instanceObject:identifier;
+      \:output (\instanceObjectIdentifier:content);
+      \:output (\[String]:as " = null;\n");
+   }
+
+   - synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
+      \:outputTabbed (\[String]:as "");
+      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+         \:output (\[String]:as "CLASSIMPL_");
+         \:output (\parentTypeIdentifier:content);
+      };
+      \:output (\[String]:as " ");
+      \:output (\[String]:as "PARENT_");
+      \:output (\[String]:stringRepresentationOfInteger parentNumber);
+      \:output (\[String]:as " = new ");
+      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+         \:output (\[String]:as "CLASSIMPL_");
+         \:output (\parentTypeIdentifier:content);
+      };
+      \:output (\[String]:as "();\n");
+   }
+
+   - synthesizeParentUnoverridenMethod *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] unoverridenMethod) {
+      \unoverridenMethod:isInstanceTypeOrConstructor *{
+         [DainaGeneralIdentifier] unoverridenMethodIdentifier = \unoverridenMethod:identifier;
+         \:outputTabbed (\[String]:as "override OBJECT IMETHOD_");
+         \:output (\unoverridenMethodIdentifier:content);
+         \:output (\[String]:as "(OBJECT caller, OBJECT[] parameters) { return PARENT_");
+         \:output (\[String]:stringRepresentationOfInteger parentNumber);
+         \:output (\[String]:as ".IMETHOD_");
+         \:output (\unoverridenMethodIdentifier:content);
+         \:output (\[String]:as "(caller, parameters); }\n");
+      } *{} *{};
+   }
+
+
+   - synthesizeClassMethodInterface *([DainaClassMethod<[DainaExpression]>] classMethod) {
+      [DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+      \classMethod:isInstanceTypeOrConstructor *{
+         \:outputTabbed (\[String]:as "OBJECT IMETHOD_");
+         \:output (\classMethodIdentifier:content);
+         \:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");
+      } *{
+      } *{
+         @@\:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+         \:output (\classMethodIdentifier:content);
+         \:output (\[String]:as "(OBJECT caller, OBJECT[] parameters);\n");@@
+      };
+   }
+
+   - synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
+      [DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
+      \[O]:ifElse (\classMethod:isUnimplementedMethod) *{
+         \:outputTabbed (\[String]:as "private LAMBDA ASSIGNIMETHOD_");
+         \:output (\classMethodIdentifier:content);
+         \:output (\[String]:as " = null;\n");
+      } *{};
+      \classMethod:isInstanceTypeOrConstructor *{
+         \:outputTabbed (\[String]:as "override OBJECT IMETHOD_");
+      } *{
+         \:outputTabbed (\[String]:as "static OBJECT TMETHOD_");
+      } *{
+         \:outputTabbed (\[String]:as "static OBJECT TMETHOD_");
+         \:output (\classMethodIdentifier:content);
+         \:output (\[String]:as "(OBJECT caller, OBJECT[] parameters) { ");
+         \:output (\[String]:as "CLASSIMPL_");
+         \:output (\.selfClassName:content);
+         \:output (\[String]:as " newInstance = new ");
+         \:output (\[String]:as "CLASSIMPL_");
+         \:output (\.selfClassName:content);
+         \:output (\[String]:as "(); return newInstance.CMETHOD_");
+         \:output (\classMethodIdentifier:content);
+         \:output (\[String]:as "(newInstance, parameters); }\n");
+         \:outputTabbed (\[String]:as "OBJECT CMETHOD_");
+      };
+      \:output (\classMethodIdentifier:content);
+      \:output (\[String]:as "(OBJECT caller, OBJECT[] parameters)");
+      \:output (\[String]:as " {\n"); \:incrementTab;
+      \:outputTabbed (\[String]:as "CLASSTYPE_");
+      \:output (\.selfClassName:content);
+      \:output (\[String]:as " self = ");
+      \:output (\[String]:as "cast(");
+      \:output (\[String]:as "CLASSTYPE_");
+      \:output (\.selfClassName:content);
+      \:output (\[String]:as ")caller");
+      \:output (\[String]:as ";\n");
+      \[O]:ifElse (\classMethod:isUnimplementedMethod) *{
+         \:outputTabbed (\[String]:as "return ASSIGNIMETHOD_");
+         \:output (\classMethodIdentifier:content);
+         \:output (\[String]:as ".method(caller, parameters);\n");
+      } *{
+         \:synthesizeMethodBodyContent (\classMethod:methodExpression);
+      };
+      \:decrementTab; \:outputTabbed (\[String]:as "}\n");
+   }
+
+
+   - pushScope *([List<[DainaObjectDeclaration]>] parameters) {
+      [Variable<[Integer]>] paramNumber = \[Variable<[Integer]>]:as (\[Integer]:zero);
+      [Integer] one = \[Integer]:one;
+      \parameters:iterate *([DainaObjectDeclaration] parameter) {
+         \:addLocalObjectToScope parameter;
+         [DainaGeneralIdentifier] id = \parameter:identifier;
+         \:outputTabbed (\[String]:as "OBJECT LOBJECT_");
+         \:output (\id:content);
+         \:output (\[String]:as " = parameters.length > ");
+         \:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
+         \:output (\[String]:as " ? parameters[");
+         \:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
+         \:output (\[String]:as "] : null;\n");
+         \paramNumber:set (\one:adding (\paramNumber:get));
+      };
+   }
+
+   - popScope *{
+      
+   }
+
+   - pushPrologueScope *{
+
+   }
+
+   - pushPrelogueScopeAfterPrologue *{
+
+   }
+
+   - popPrelogueAndPrologueScope *{
+
+   }
+
+   - addLocalObjectToScope *([DainaObjectDeclaration] localObject) {
+      [DainaGeneralIdentifier] id = \localObject:identifier;
+      \.localObjectScope:mapKeyToValue (\id:content) (\localObject:type);
+   }
+
+   - getLocalObjectType *([DainaGeneralIdentifier] localObjectIdentifier) -> [DainaType] {
+      [Variable<[DainaType]>] ret = \[Variable<[DainaType]>]:as (\[DainaType]:base);
+      \.localObjectScope:retriveMappedValueWithKey (\localObjectIdentifier:content) (ret:set);
+   } -> \ret:get
+
+
+   - synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
+      \[O]:selectOrDefault *([->] select) {
+         \methodExpression:ifMethodExpression *([List<[DainaObjectDeclaration]>] inputs, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+            \select;
+            \:pushScope inputs; 
+            \:synthesizeStatement body (\[Boolean]:true);
+            \output:ifNothing *{
+               \:outputTabbed (\[String]:as "return caller;\n");
+            };
+            \output:ifIs *([DainaExpression] outputExpression) {
+               \:outputTabbed (\[String]:as "return ");
+               \:synthesizeInPlaceExpression (\[Boolean]:false)  outputExpression;
+               \:output (\[String]:as ";\n");
+            };
+            \:popScope;
+         };
+      } *{
+         \:outputTabbed (\[String]:as "return (cast(LAMBDA)");
+         \:synthesizeInPlaceExpression (\[Boolean]:false)  methodExpression;
+         \:output (\[String]:as ").method(caller, []);\n");
+      };
+   }
+
+   - synthesizeStatement *([DainaExpression] statement, [Boolean] baseStatement) {
+      \[O]:selectOrDefault *([->] select) {
+         \statement:ifStatementGroup *([List<[DainaExpression]>] statements) {
+            \select;
+            \[O]:ifElse baseStatement *{} *{
+               \:pushScope (\[List<[DainaObjectDeclaration]>]:empty); 
+               \:outputTabbed (\[String]:as "{\n");
+               \:incrementTab;
+            };
+            \statements:iterate *([DainaExpression] subStatement) {
+               \:synthesizeStatement subStatement (\[Boolean]:false);
+            };
+            \[O]:ifElse baseStatement *{} *{
+               \:decrementTab;
+               \:outputTabbed (\[String]:as "}\n");
+               \:popScope;
+            };
+         };
+         \statement:ifWithPrologueStatement *([DainaExpression] prelogueStatement, [DainaExpression] prologueStatement) {
+            \select;
+            \:pushPrologueScope;
+            \:synthesizeStatement prologueStatement (\[Boolean]:true);
+            \:pushPrelogueScopeAfterPrologue;
+            \:synthesizeStatement prelogueStatement (baseStatement);
+            \:popPrelogueAndPrologueScope;
+         };
+         \statement:ifLocalObjectAssignment *([DainaObjectDeclaration] declaration, [DainaExpression] assginedExpression) {
+            \select;
+            \[O]:selectOrDefault *([->] _select) {
+               \assginedExpression:ifCompilerInjection *([DainaCompilerInjection] compilerInjection) {
+                  \_select;
+                  [String] dlang = \[String]:as "dlang";
+                  \[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+                     \:output (\[String]:as "/* dlang injection start */");
+                     \:output (\compilerInjection:dataSegment);
+                     \:output (\[String]:as "/* dlang injection end */\n");
+                  } *{
+                     \:outputTabbed (\[String]:as "ERROR UNKNOWN INJECTION!!!\n");
+                  };
+               };
+            } *{
+               [String] nothing = \[String]:as "";
+               [DainaGeneralIdentifier] identifier = \declaration:identifier;
+               \:outputTabbed (\[String]:as "");
+               \[O]:ifElse (\nothing:equals (\identifier:content)) *{} *{
+                  \:addLocalObjectToScope declaration;
+                  \:output (\[String]:as "OBJECT LOBJECT_");
+                  \:output (\identifier:content);
+                  \:output (\[String]:as " = ");
+               };
+               \:synthesizeInPlaceExpression (\[Boolean]:false)  assginedExpression;
+               \:output (\[String]:as ";\n");
+            };
+         };
+         \statement:ifInvocation *([] a, [] b) {
+            \select;
+            \:outputTabbed (\[String]:as "");
+            \:synthesizeInPlaceExpression (\[Boolean]:false)  statement;
+            \:output (\[String]:as ";\n");
+         };
+         \statement:ifInstanceMethodAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
+            \select;
+            \:outputTabbed (\[String]:as "ASSIGNIMETHOD_");
+            \:output (\identifier:content);
+            \:output (\[String]:as " = cast(LAMBDA)");
+            \:synthesizeInPlaceExpression (\[Boolean]:false)  assignedExpression;
+            \:output (\[String]:as ";\n");
+         };
+         \statement:ifInstanceObjectAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
+            \select;
+            \:outputTabbed (\[String]:as "IOBJECT_");
+            \:output (\identifier:content);
+            \:output (\[String]:as " = ");
+            \:synthesizeInPlaceExpression (\[Boolean]:false)  assignedExpression;
+            \:output (\[String]:as ";\n");
+         };
+         \statement:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
+            \select;
+            \[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+               \[O]:ifElse isPointerConstructor *{
+                  \:outputTabbed (\[String]:as "caller = ");
+                  \:synthesizeMethodInputs inputs;
+                  \:output (\[String]:as ";\n");
+               } *{
+                  \:outputTabbed (\[String]:as "(cast(");
+                  \:output (\[String]:as "CLASSIMPL_");
+                  \:output (\.selfClassName:content);
+                  \:output (\[String]:as ")");
+                  \:output (\[String]:as "self).CMETHOD_");
+                  \:output (\identifier:content);
+                  \:output (\[String]:as "(this");
+                  \:output (\[String]:as ", [");
+                  \:synthesizeMethodInputs inputs;
+                  \:output (\[String]:as "]);\n");
+               };
+            } *{
+               \:outputTabbed (\[String]:as "PARENT_");
+               \:output (\[String]:stringRepresentationOfInteger parentNumber);
+               \[O]:ifElse isPointerConstructor *{
+                  \:output (\[String]:as " = ");
+                  \:synthesizeMethodInputs inputs;
+                  \:output (\[String]:as ";\n");
+               } *{
+                  \:output (\[String]:as ".CMETHOD_");
+                  \:output (\identifier:content);
+                  \:output (\[String]:as "(PARENT_");
+                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:as ", [");
+                  \:synthesizeMethodInputs inputs;
+                  \:output (\[String]:as "]);\n");
+               };
+            };
+         };
+      } *{
+         \:outputTabbed (\[String]:as "INTERNAL STATEMENT ERROR!!!\n");
+      };
+   }
+
+   - synthesizeMethodInputs *([List<[DainaExpression]>] inputs) {
+      [Variable<[String]>] seperator = \[Variable<[String]>]:as (\[String]:as "");
+      \inputs:iterate *([DainaExpression] input) {
+         \:output (\seperator:get);
+         \:synthesizeInPlaceExpression (\[Boolean]:false)  input;
+         \seperator:set (\[String]:as ", ");
+      };
+   }
+
+   - synthesizeInPlaceExpression *([Boolean] usedAsInstantMethod, [DainaExpression] expression) {
+      .synthesizedExpressionType = \[DainaType]:base;
+      \[O]:selectOrDefault *([->] select) {
+         \expression:ifWithPrologueStatement *([DainaExpression] prelogue, [DainaExpression] prologue) {
+            \select;
+            \:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+            \:incrementTab;
+            \:synthesizeStatement prologue (\[Boolean]:true);
+            \[O]:selectOrDefault *([->] selectInner) {
+               \prelogue:ifStatementGroup *([] a) {
+                  \selectInner;
+                  \:synthesizeStatement prelogue (\[Boolean]:true);
+                  \:outputTabbed (\[String]:as "return caller;\n");
+               };
+            } *{
+               \:outputTabbed (\[String]:as "return ");
+               \:synthesizeInPlaceExpression (\[Boolean]:false)  prelogue;
+               \:output (\[String]:as ";\n");
+            };
+            \:decrementTab;
+            \:outputTabbed (\[String]:as "} }).method(caller, [])");
+         };
+         \expression:ifLocalObject *([DainaGeneralIdentifier] identifier) {
+            \select;
+            \:output (\[String]:as "LOBJECT_");
+            \:output (\identifier:content);
+            .synthesizedExpressionType = \:getLocalObjectType identifier;
+         };
+         \expression:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+            \select;
+            \:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+            \:incrementTab;
+            \:synthesizeMethodBodyContent expression;
+            \:decrementTab;
+            \:outputTabbed (\[String]:as "} })");
+            [DainaType] outputType = .synthesizedExpressionType;
+            .synthesizedExpressionType = \[DainaType]:base;
+            \.synthesizedExpressionType:setAsMethodWithOutputType (\expression:outputType);
+         };
+         \expression:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
+            \select;
+            [Variable<[DainaType]>] instanceExpressionType = \[Variable<[DainaType]>]:as .synthesizedExpressionType;
+            \[O]:ifElse (usedAsInstantMethod) *{
+               \:output (\[String]:as "(cast(");
+               .blockOutput = \[Boolean]:true;
+               \:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
+               .blockOutput = \[Boolean]:false;
+               \instanceExpressionType:set .synthesizedExpressionType;
+               \.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+                  \:output (\[String]:as "CLASSTYPE_");
+                  \:output (\instanceExpressionClassName:content);
+               };
+               \:output (\[String]:as ")");
+               \:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
+               \:output (\[String]:as ").IMETHOD_");
+               \:output (\identifier:content);
+            } *{
+               \:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+               \:incrementTab;
+               \:outputTabbed (\[String]:as "OBJECT instance = ");
+               \:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
+               \:output (\[String]:as ";\n");
+               \:outputTabbed (\[String]:as "return (cast(");
+               \instanceExpressionType:set .synthesizedExpressionType;
+               \.synthesizedExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+                  \:output (\[String]:as "CLASSTYPE_");
+                  \:output (\instanceExpressionClassName:content);
+               };
+               \:output (\[String]:as ")instance).IMETHOD_");
+               \:output (\identifier:content);
+               \:output (\[String]:as "(instance, parameters);\n");
+               \:decrementTab;
+               \:outputTabbed (\[String]:as "} })");
+            };
+            [DainaType] theinstanceExpressionType = \instanceExpressionType:get;
+            \theinstanceExpressionType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] instanceExpressionClassName, [List<[DainaType]>] insta) {
+               \.mappedClassMethods:retriveMappedValueWithKey (\instanceExpressionClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] instanceExpressionClassMethods) {
+                  [Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \instanceExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
+                  \mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+                     \[O]:ifElse (\invokedMethod:isUnimplementedMethod) *{
+                        .synthesizedExpressionType = \invokedMethod:unimplementedType;
+                     } *{
+                        [DainaExpression] methodExpression = \invokedMethod:methodExpression;
+                        .synthesizedExpressionType = \[DainaType]:base;
+                        \.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+                     };
+                  };
+               };
+            };
+         };
+         \expression:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
+            \select;
+            \[O]:ifElse (usedAsInstantMethod) *{
+               \type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
+                  \:output (\[String]:as "CLASSIMPL_");
+                  \:output (\typeIdentifier:content);
+                  \:output (\[String]:as ".");
+               };
+               \:output (\[String]:as "TMETHOD_");
+               \:output (\identifier:content);
+            } *{
+               \:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+               \:incrementTab;
+               \:outputTabbed (\[String]:as "return ");
+               \type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
+                  \:output (\[String]:as "CLASSIMPL_");
+                  \:output (\typeIdentifier:content);
+                  \:output (\[String]:as ".");
+               };
+               \:output (\[String]:as "TMETHOD_");
+               \:output (\identifier:content);
+               \:output (\[String]:as "(caller, parameters);\n");
+               \:decrementTab;
+               \:outputTabbed (\[String]:as "} })");
+            };
+            \type:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] typeIdentifier, [List<[DainaType]>] genericInstantiation) {
+               \.mappedClassMethods:retriveMappedValueWithKey (\typeIdentifier:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
+                  [Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
+                  \mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+                     [DainaExpression] methodExpression = \invokedMethod:methodExpression;
+                     .synthesizedExpressionType = \[DainaType]:base;
+                     \.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+                  };
+               };
+            };
+         };
+         \expression:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
+            \select;
+            [Variable<[Boolean]>] isInstantMethod = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+            \method:ifTypeMethod *([DainaType] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+            \method:ifInternalInstanceMethod *([Integer] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+            @\method:ifInstanceMethod *([DainaExpression] a, [DainaGeneralIdentifier] b) {\isInstantMethod:set (\[Boolean]:true)};
+            [Variable<[DainaType]>] invokedExpressionType = \[Variable<[DainaType]>]:as .synthesizedExpressionType;
+            \[O]:ifElse (\isInstantMethod:get) *{
+               \:synthesizeInPlaceExpression (\[Boolean]:true) method;
+               \invokedExpressionType:set .synthesizedExpressionType;
+               \:output (\[String]:as "(caller, cast(OBJECT[])[");
+               \:synthesizeMethodInputs params;
+               \:output (\[String]:as "])");
+            } *{
+               \:output (\[String]:as "(cast(LAMBDA)");
+               \:synthesizeInPlaceExpression (\[Boolean]:false) method;
+               \invokedExpressionType:set .synthesizedExpressionType;
+               \:output (\[String]:as ").method(caller, cast(OBJECT[])[");
+               \:synthesizeMethodInputs params;
+               \:output (\[String]:as "])");
+            };
+            [DainaType] _invokedExpressionType = \invokedExpressionType:get;
+            \_invokedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
+               \MoutputType:ifIs *([DainaType] outputType) {
+                  .synthesizedExpressionType = outputType;
+               };
+            };
+         };
+         \expression:ifProxyObject *([DainaExpression] object) {
+            \select;
+            \:synthesizeInPlaceExpression (\[Boolean]:false)  object;
+         };
+         \expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
+            \select;
+            \[O]:ifElse (usedAsInstantMethod) *{
+               \[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+                  \:output (\[String]:as "self.IMETHOD_");
+               } *{
+                  \:output (\[String]:as "PARENT_");
+                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:as ".IMETHOD_");
+               };
+               \:output (\identifier:content);
+            } *{
+               \:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
+               \:incrementTab;
+               \[O]:ifElse (\parentNumber:equals (\[Integer]:zero)) *{
+                  \:outputTabbed (\[String]:as "OBJECT instance = self;\n");
+                  \:outputTabbed (\[String]:as "return self.IMETHOD_");
+               } *{
+                  \:outputTabbed (\[String]:as "OBJECT instance = PARENT_");
+                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:as ";\n");
+                  \:outputTabbed (\[String]:as "return PARENT_");
+                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:as ".IMETHOD_");
+               };
+               \:output (\identifier:content);
+               \:output (\[String]:as "(instance, parameters);\n");
+               \:decrementTab;
+               \:outputTabbed (\[String]:as "} })");
+            };
+            \.mappedClassMethods:retriveMappedValueWithKey (\.selfClassName:content) *([Mapping<[String][DainaClassMethod<[DainaExpression]>]>] typeExpressionClassMethods) {
+                  [Maybe<[DainaClassMethod<[DainaExpression]>]>] mInvokedMethod = \typeExpressionClassMethods:maybeRetriveMappedValueWithKey (\identifier:content);
+                  \mInvokedMethod:ifIs *([DainaClassMethod<[DainaExpression]>] invokedMethod) {
+                     \[O]:ifElse (\invokedMethod:isUnimplementedMethod) *{
+                        .synthesizedExpressionType = \invokedMethod:unimplementedType;
+                     } *{
+                        [DainaExpression] methodExpression = \invokedMethod:methodExpression;
+                        .synthesizedExpressionType = \[DainaType]:base;
+                        \.synthesizedExpressionType:setAsMethodWithOutputType (\methodExpression:outputType);
+                     };
+                  };
+               };
+         };
+         \expression:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
+            \select;
+            \:output (\[String]:as "IOBJECT_");
+            \:output (\instanceObjectIdentifier:content);
+            [String] instanceObjectIdentifierString = \instanceObjectIdentifier:content;
+            \.selfInstanceObjects:iterate *([DainaObjectDeclaration] decl) {
+               [DainaGeneralIdentifier] thisId = \decl:identifier;
+               \[O]:ifElse (\instanceObjectIdentifierString:equals (\thisId:content)) *{
+                  .synthesizedExpressionType = \decl:type;
+               } *{};
+            };
+         };
+         \expression:ifSelfReference * {
+            \select;
+            \:output (\[String]:as "caller");
+         };
+         \expression:ifDataSegment *([String] dataSegmentContent) {
+            \select;
+            \:output (\[String]:as "new WRAP!(string)(\"");
+            \:output (dataSegmentContent);
+            \:output (\[String]:as "\")");
+         };
+         \expression:ifAnonymousClassObject *([List<[DainaType]>] parents, [List<[DainaExpression]>] constructor, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods) {
+            \select;
+            [DainaClassIdentifier] originalClassName = .selfClassName;
+            \:output (\[String]:as "((){\n");
+            \:incrementTab;
+            [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:one);
+            \parents:iterate *([DainaType] parentType) {
+               [Integer] curr = \parentNumber:get;
+               \:synthesizeParentObjectDeclaration curr parentType;
+               \parentNumber:set (\curr:adding (\[Integer]:one));
+               \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] a) {
+                  .selfClassName = parentTypeIdentifier;
+               };
+            };
+
+            \:outputTabbed (\[String]:as "OBJECT caller;\n");
+            \:outputTabbed (\[String]:as "OBJECT anonymousClassObject = ");
+            \:output (\[String]:as "new class OBJECT, LAMBDA");
+            \parents:iterate *([DainaType] parentType) {
+               \:output (\[String]:as ", ");
+               \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+                  \:output (\[String]:as "CLASSTYPE_");
+                  \:output (\parentTypeIdentifier:content);
+               };
+            };
+            \:output (\[String]:as " {\n"); \:incrementTab;
+            \:outputTabbed (\[String]:as "override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n");
+            \:iterateUnoverridenInstanceMethodsAnon classMethods parents (:synthesizeParentUnoverridenMethod);
+            \classMethods:iterate :synthesizeClassMethodImplementation;
+            \:decrementTab; \:outputTabbed (\[String]:as "};\n");
+
+            
+            \:outputTabbed (\[String]:as "caller = anonymousClassObject;\n");
+            \:outputTabbed (\[String]:as "CLASSTYPE_");
+            \:output (\.selfClassName:content);
+            \:output (\[String]:as " self = ");
+            \:output (\[String]:as "cast(");
+            \:output (\[String]:as "CLASSTYPE_");
+            \:output (\.selfClassName:content);
+            \:output (\[String]:as ")caller");
+            \:output (\[String]:as ";\n");
+            \constructor:iterate *([DainaExpression] constructorStatement) {
+               \:synthesizeStatement constructorStatement (\[Boolean]:false);
+            };
+            \:outputTabbed (\[String]:as "return anonymousClassObject;\n");
+            \:decrementTab;
+            \:outputTabbed (\[String]:as "})()");
+            .selfClassName = originalClassName;
+         };
+      } *{
+         \:output (\[String]:as "<INTERNAL EXPRESSION ERROR!!!>");
+      };
+
+      @[[->]->] ifMethodSelfReference
+   }
+
+   
+}
+
+
+
+[Daina :[CommandReader]] (
+         Configuration, 
+         OutputStream, 
+         InputStream, 
+         Loops, 
+         Variable, 
+         Boolean, 
+         CommandReader, 
+         String,
+         Commands,
+         Parser,
+         Error,
+         DainaClass,
+         List,
+         Maybe,
+         DLangSynthesizer,
+
+         Debug
+      ) 
+   [Configuration] configuration
+   [Variable<[Boolean]>] exitReached
+   [List<[DainaClass]>] parsedClasses
+{
+
+   :: run *([Configuration] configuration) {
+      [Daina] daina = \[Daina]:init configuration;
+      [Commands] commands = \[Commands]:from (\configuration:commandInput);
+      \[Loops]:while (*->(\[Boolean]:not \daina:exitReached)) *{
+         \commands:readNext daina;
+      };
+   }
+   
+   ~ @@-+-@@ init *([Configuration] configuration) {
+      \::interface;
+      .exitReached = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+      .configuration = configuration;
+      .parsedClasses = \[List<[DainaClass]>]:empty;
+   }
+
+   ++@@-+-@@ exitReached *->[Boolean]{}-> \.exitReached:get
+
+   |++ exit *{
+      \.exitReached:set (\[Boolean]:true);
+      \[Debug]:log (\[String]:as "Exit\n");
+   }
+
+   |++ parseSourceFile *([String] path) {
+      \[Debug]:log (\[String]:as "parse from ");
+      \[Debug]:log path;
+      \[Debug]:log (\[String]:as "...\n");
+
+      [Maybe<[InputStream]>] maybeSourceInput = \.configuration:sourceFileInput path;
+      [Boolean] sourceFileSuccess = \maybeSourceInput:is *([InputStream] sourceInput) -> [Boolean] {
+         [Parser] parser = \[Parser]:withSourceNameAndInput path sourceInput;
+         [List<[DainaClass]>] parsedClasses = \[DainaClass]:parseClasses parser;
+         [List<[Error]>] errors = \parser:errors;
+         [Boolean] parseSuccess = \errors:isEmpty;
+         \parseSuccess:ifElse *{
+            \parsedClasses:iterate *([DainaClass] parsedClass) {
+               \.parsedClasses:append parsedClass;
+            };
+         } *{
+            \errors:iterate *([Error] error) {
+               \.configuration:outputError error;
+            };
+         };
+      } -> \[Boolean]:true;
+      \sourceFileSuccess:ifElse *{} *{
+         \.configuration:outputError (\[Error]:sourceFileNotAccessible path);
+      };
+   }
+
+   |++ compileToFile *([String] path) {
+      \[Debug]:log (\[String]:as "compile to ");
+      \[Debug]:log path;
+      \[Debug]:log (\[String]:as "...\n");
+
+      [Maybe<[OutputStream]>] maybeOutputFile = \.configuration:compilationFileOutput path;
+      \maybeOutputFile:ifNothing *{
+         \[Debug]:log (\[String]:as "Can't output to file.\n");
+      };
+      \maybeOutputFile:ifIs *([OutputStream] outputFile) {
+         [DLangSynthesizer] dlang = \[DLangSynthesizer]:to outputFile;
+         \dlang:synthesizeClasses .parsedClasses;
+
+         \[Debug]:log (\[String]:as "Done!\n");
+      };
+      
+   }
+
+   |++ invalidCommand *{
+      \[Debug]:log (\[String]:as "Invalid command\n");
+   }
+
+}
 
 @@
 Analysis: analysing class - InternalValue...
@@ -2187,14 +4174,14 @@ Analysis: analysing class - DainaGenericDeclarationList...
 Analysis: analysing class - DainaDependancyStructure...
 Analysis: analysing class - DainaClassIdentifier...
 
-Analysis: analysing class - DainaType...
-Analysis: analysing class - DainaObjectDeclaration...
-Analysis: analysing class - DainaClassMethod...
-Analysis: analysing class - DainaCompilerInjection...
-Analysis: analysing class - DainaExpression...
-Analysis: analysing class - DainaClass...
-Analysis: analysing class - DLangSynthesizer...
-Analysis: analysing class - Daina...
+*Analysis: analysing class - DainaType...
+*Analysis: analysing class - DainaObjectDeclaration...
+*Analysis: analysing class - DainaClassMethod...
+*Analysis: analysing class - DainaCompilerInjection...
+*Analysis: analysing class - DainaExpression...
+*Analysis: analysing class - DainaClass...
+*Analysis: analysing class - DLangSynthesizer...
+*Analysis: analysing class - Daina...
 
 
 @@
