@@ -1,4 +1,388 @@
 
+[Conjecture] (Boolean, Object)
+   [Boolean] knownToBeTrue
+   [Boolean] knownToBeFalse
+{
+   ~ propose *{
+      .knownToBeTrue = \[Boolean]:false;
+      .knownToBeFalse = \[Boolean]:false;
+   }
+
+   ~ assume *{
+      .knownToBeFalse = \[Boolean]:false;
+      .knownToBeTrue = \[Boolean]:true;
+   }
+
+   ~ reject *{
+      .knownToBeTrue = \[Boolean]:false;
+      .knownToBeFalse = \[Boolean]:true;
+   }
+
+   ~ declareAs *([Boolean] booleanForThisConjectureToBeDeclaredAs) {
+      .knownToBeFalse = \[Boolean]:not booleanForThisConjectureToBeDeclaredAs;
+      .knownToBeTrue = booleanForThisConjectureToBeDeclaredAs;
+   }
+
+   ++ declareTrue *{
+      .knownToBeTrue = \[Boolean]:true;
+      .knownToBeFalse = \[Boolean]:false;
+   }
+   ++ declareFalse *{
+      .knownToBeFalse = \[Boolean]:true;
+      .knownToBeTrue = \[Boolean]:false;
+   }
+
+   @++ isDecided *-> \[Boolean]:or .knownToBeTrue .knownToBeFalse
+
+   ++ isTrue *-> .knownToBeTrue
+   ++ isFalse *-> .knownToBeFalse
+
+   ++ notFalse *-> \[Boolean]:not .knownToBeFalse
+   ++ notTrue *-> \[Boolean]:not .knownToBeTrue
+}
+
+
+@@
+
+   
+Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
+   :: newEmptyMapping [ -> [Mapping]]
+   ++ mapKeyToValue [[&KEY],[&VALUE] -> ]
+   ++ unmapKey [[&KEY] -> ]
+   ++ retriveMappedValueWithKey [[&KEY],[[&VALUE] -> ] -> ]
+
+
+@@
+
+
+
+
+[Mapping<KEY, VALUE>] (
+               BinaryTree, MappingBucket, Object, SetObject 
+               ,Integer, Data, String, Container, Boolean, Conjecture, Maybe, Variable
+               ) 
+   [BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] treeOfMappedKeyValuePairs
+{
+
+   ~ newEmptyMapping *{
+      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
+                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
+   }  !{
+         [MappingBucket<[&KEY][&VALUE]>] initialTopLevelEmptyBucket
+            = \[MappingBucket<[&KEY][&VALUE]>]
+               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier
+
+         !{
+            [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
+         };
+         
+      }
+
+
+   ~ empty *{
+      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
+                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
+   }  !{
+         [MappingBucket<[&KEY][&VALUE]>] initialTopLevelEmptyBucket
+            = \[MappingBucket<[&KEY][&VALUE]>]
+               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier
+
+         !{
+            [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
+         };
+         
+      }
+
+
+
+   ++ mapKeyToValue *([&KEY] key, [&VALUE] value) {
+      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+      \:retriveBucketWithIdentifierCreatingNewBucketIfItDoesntExist bucketIdentifierForKey 
+         *([MappingBucket<[&KEY][&VALUE]>] bucketToInsertKeyAndValue) {
+            \bucketToInsertKeyAndValue:insertKeyValuePairIntoBucket key value;
+         };
+   }
+
+   ++ unmapKey *([&KEY] key) {
+      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+      \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
+         *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
+            \bucketMatchingIdentifier:removeKeyFromBucket key;
+         };
+   }
+
+   ++ retriveMappedValueWithKey *([&KEY] key, [[&VALUE] -> ] valueRetriver) {
+      [Container<[&VALUE]>] containerWithFoundValueMatchingKey = \[Container<[&VALUE]>]:newEmptyContainer;
+      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+      \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
+         *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
+            \bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
+               \containerWithFoundValueMatchingKey:store theValueThatWasFoundMatchingKey;
+            };
+         };
+      \containerWithFoundValueMatchingKey:retrive valueRetriver;
+   }  
+
+   ++ maybeRetriveMappedValueWithKey *([&KEY] key) -> [Maybe<[&VALUE]>] {
+      [Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:nothing);
+      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+      \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
+         *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
+            \bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
+               \foundValueMatchingKey:set (\[Maybe<[&VALUE]>]:as theValueThatWasFoundMatchingKey);
+            };
+         };
+   }  -> \foundValueMatchingKey:get
+
+   ++ get *([&KEY] key) -> [Maybe<[&VALUE]>] {
+      [Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:nothing);
+      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
+      \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
+         *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
+            \bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
+               \foundValueMatchingKey:set (\[Maybe<[&VALUE]>]:as theValueThatWasFoundMatchingKey);
+            };
+         };
+   }  -> \foundValueMatchingKey:get
+
+
+   - retriveBucketWithIdentifierIfItExists 
+      *([Integer] bucketIdentifier, [[MappingBucket<[&KEY][&VALUE]>]->] bucketRetriver) {
+         \:retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist 
+            bucketIdentifier bucketRetriver flagForNewBucketShouldNoBeCreated 
+               !{[Boolean] flagForNewBucketShouldNoBeCreated = \[Boolean]:false;};
+         
+      }
+
+
+   - retriveBucketWithIdentifierCreatingNewBucketIfItDoesntExist
+      *([Integer] bucketIdentifier, [[MappingBucket<[&KEY][&VALUE]>]->] bucketRetriver) {
+         \:retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist 
+            bucketIdentifier bucketRetriver flagForNewBucketShouldBeCreatedIfItDoesntExist
+               !{[Boolean] flagForNewBucketShouldBeCreatedIfItDoesntExist = \[Boolean]:true;};
+      }
+
+   - retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist *(
+      [Integer] bucketIdentifier, [[MappingBucket<[&KEY][&VALUE]>]->] bucketRetriver, 
+      [Boolean] newBucketShouldBeCreatedIfItDoesntExist) {
+   
+      \:retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist
+         .treeOfMappedKeyValuePairs bucketIdentifier bucketRetriver newBucketShouldBeCreatedIfItDoesntExist;
+   }
+
+   - retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist *(
+      [BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] theTreeInQuestion,
+      [Integer] bucketIdentifier, [[MappingBucket<[&KEY][&VALUE]>]->] bucketRetriver, 
+      [Boolean] newBucketShouldBeCreatedIfItDoesntExist) {
+
+      [MappingBucket<[&KEY][&VALUE]>] bucketAtTheRootOfThisTree = \theTreeInQuestion:lookAtTheFruit;
+      {\bucketAtTheRootOfThisTree:branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger bucketIdentifier
+         retriveThisBucket
+         keepLookingDownLeftBranch  !{
+                        [->] keepLookingDownLeftBranch = 
+                           *{\continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction
+                              (theTreeInQuestion:observeLeftBranch)
+                              (theTreeInQuestion:connectTreeToLeftBranch)};
+                     }
+         keepLookingDownRightBranch !{
+                        [->] keepLookingDownRightBranch = 
+                           *{\continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction 
+                              (theTreeInQuestion:observeRightBranch)
+                              (theTreeInQuestion:connectTreeToRightBranch)};
+                     }
+
+         }!{
+            [->] retriveThisBucket = *{\bucketRetriver bucketAtTheRootOfThisTree;};
+
+            [[[[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->]->][[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->]->] continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction
+               = *([[[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->]->] observeTreeDownBranch,
+                  [[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->] insertTreeOnBranch) {{
+
+               [Conjecture] treeExistsDownBranch = \[Conjecture]:propose;
+               \observeTreeDownBranch *([BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] treeFoundOnBranch) {
+                  \treeExistsDownBranch:declareTrue;
+                  \continueSearchTreeDownThisBranch   !{
+
+                                    [->] continueSearchTreeDownThisBranch = *{\:retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist
+                                       treeFoundOnBranch bucketIdentifier bucketRetriver newBucketShouldBeCreatedIfItDoesntExist;};
+                                 };
+               };
+   
+               [Boolean] shouldCreateNewTreeWithBucketOnThisBranch = 
+                  \[Boolean]:and (\treeExistsDownBranch:notTrue) (newBucketShouldBeCreatedIfItDoesntExist);
+               \shouldCreateNewTreeWithBucketOnThisBranch:ifOrElse 
+                  createAndRetriveNewTreeWithBucketOnThisBranch *{}
+
+            }  !{
+                  [->] createAndRetriveNewTreeWithBucketOnThisBranch = *{
+                     [MappingBucket<[&KEY][&VALUE]>] newBucket = \[MappingBucket<[&KEY][&VALUE]>]:newEmptyBucketWithIdentifier bucketIdentifier;
+                     [BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] newTreeToInsert = 
+                        \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]:binaryTreeWithFruit newBucket;
+                     \insertTreeOnBranch newTreeToInsert;
+                     \bucketRetriver newBucket;
+                  };
+               }}
+         }
+   }  
+
+
+
+   - getBucketIdentifierForKey *([&KEY] theSetObjectInQuestion) 
+       -> \[Integer]:as ##0##
+
+}
+
+
+
+
+[MappingBucket<KEY, VALUE>] (
+                     Object, Integer, Train, SingleMapping, Boolean,
+                     SetObject, Container, Conjecture
+                     ) -> (Mapping)
+   [Integer] bucketIdentifier
+   [Train<[SingleMapping<[&KEY][&VALUE]>]>] mappingsStoredInBucket
+{
+   ~ newEmptyBucketWithIdentifier *([Integer] bucketIdentifier) {
+      .bucketIdentifier = bucketIdentifier;
+      .mappingsStoredInBucket = \[Train<[SingleMapping<[&KEY][&VALUE]>]>]:newEmptyTrain;
+   }
+
+   ++ insertKeyValuePairIntoBucket *([String] keyInQuestion, [&VALUE] valueInQuestion) {
+      [Conjecture] keyExistsInBucket = \[Conjecture]:propose;
+      \.mappingsStoredInBucket:iterateThroughObjectsOnTrain determineIfKeyExistsAndSetTheValueInQuestionAccordingly
+         !{
+            [[SingleMapping<[&KEY][&VALUE]>]->] determineIfKeyExistsAndSetTheValueInQuestionAccordingly = *([SingleMapping<[&KEY][&VALUE]>] singleMappingInBucket) {
+               [Boolean] keyOfMappingMatchesKeyInQuestion = \keyInQuestion:isEqualTo (\singleMappingInBucket:getKey);
+               \keyOfMappingMatchesKeyInQuestion:ifOrElse
+                  *{
+                     \keyExistsInBucket:declareTrue;
+                     \singleMappingInBucket:setValue valueInQuestion;
+                  } *{}
+            }
+         };
+
+      [Boolean] weShouldAddKeyValueAsNewPairInMappings = \keyExistsInBucket:notTrue;
+      \weShouldAddKeyValueAsNewPairInMappings:ifOrElse *{
+         \.mappingsStoredInBucket:pushToFront 
+            (\[SingleMapping<[&KEY][&VALUE]>]:newSingleMappingWithKeyAndValue keyInQuestion valueInQuestion);
+      } *{};
+      
+   }  
+
+   ++ removeKeyFromBucket  *([String] keyInQuestion) {
+      \.mappingsStoredInBucket:deleteObjectsOnTrainWhenPrediateIsTrue
+         *([SingleMapping<[&KEY][&VALUE]>] mappingInBucket) -> (\keyInQuestion:isEqualTo \mappingInBucket:getKey);
+      
+   }
+
+   ++ retriveValueForKeyIfItExists  *([String] keyInQuestion, [[&VALUE]->] valueRetriver) {
+      \.mappingsStoredInBucket:iterateThroughObjectsOnTrain *([SingleMapping<[&KEY][&VALUE]>] mappingInBucket) {
+         [Boolean] keyInQuestionMatchesThisMappingInBucket = \keyInQuestion:isEqualTo \mappingInBucket:getKey;
+         \keyInQuestionMatchesThisMappingInBucket:ifOrElse *{\valueRetriver \mappingInBucket:getValue}
+      } *{};
+   }
+   
+   ++ branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger *(
+      [Integer] bucketIdentifierToCompare, [->] matchesIdentifier, 
+      [->] lessThanIdentifier, [->]greaterThenIdentifier) {
+
+      [Boolean] isGreaterThenIdentifier = \bucketIdentifierToCompare:isGreaterThan .bucketIdentifier;
+      [Boolean] isLessThenIdentifier = \.bucketIdentifier:isGreaterThan bucketIdentifierToCompare;
+      [Boolean] isEqualToIdentifier = \.bucketIdentifier:isEqualTo bucketIdentifierToCompare;
+      
+      \isGreaterThenIdentifier:ifOrElse greaterThenIdentifier *{};
+      \isLessThenIdentifier:ifOrElse lessThanIdentifier *{};
+      \isEqualToIdentifier:ifOrElse matchesIdentifier *{};
+   }
+
+}
+
+[SingleMapping<KEY, VALUE>] (Object) -> (MappingBucket)
+   [&KEY] key
+   [&VALUE] value
+{
+   ~ newSingleMappingWithKeyAndValue *([&KEY] key, [&VALUE] value) {
+      .key = key;
+      .value = value;
+   }
+
+   ++ getKey *->.key
+   ++ getValue *->.value
+
+   ++ setValue *([&VALUE] newValue) {.value = newValue}
+}
+
+
+
+
+
+
+[BinaryTree<E>] (Object, Container) -> (Mapping)
+   [&E] fruitOnThisTree
+   [Container<[BinaryTree<[&E]>]>] leftBranchContainer
+   [Container<[BinaryTree<[&E]>]>] rightBranchContainer
+{
+
+   ~ binaryTreeWithFruit *([&E] aFruitToPutOnThisTreeNotWhatYouWouldUsuallyExpectHa) {
+      .fruitOnThisTree = aFruitToPutOnThisTreeNotWhatYouWouldUsuallyExpectHa;
+      .leftBranchContainer = \[Container<[BinaryTree<[&E]>]>]:newEmptyContainer;
+      .rightBranchContainer = \[Container<[BinaryTree<[&E]>]>]:newEmptyContainer;
+   }
+
+   ++ connectTreeToRightBranch *([BinaryTree<[&E]>] treeToConnect) {
+      \.rightBranchContainer:store treeToConnect;
+   }
+
+   ++ connectTreeToLeftBranch *([BinaryTree<[&E]>] treeToConnect) {
+      \.leftBranchContainer:store treeToConnect;
+   }
+
+   ++ disconnectRightBranch *{.rightBranchContainer = \[Container<[BinaryTree<[&E]>]>]:newEmptyContainer;}
+   ++ disconnectLeftBranch *{.leftBranchContainer = \[Container<[BinaryTree<[&E]>]>]:newEmptyContainer;}
+
+   ++ lookAtTheFruit *->.fruitOnThisTree
+
+   ++ observeLeftBranch
+      *([[BinaryTree<[&E]>]->] branchObserver) {
+      \.leftBranchContainer:retrive branchObserver;
+   }
+
+   ++ observeRightBranch
+      *([[BinaryTree<[&E]>]->] branchObserver) {
+      \.rightBranchContainer:retrive branchObserver;
+   }
+}
+
+[Container<E>] (Object, Boolean)
+   [[[&E]->]->] storedObjectProvider
+   [Boolean] objectIsStored
+{
+   ~ newEmptyContainer * {
+      .objectIsStored = \[Boolean]:false;
+      .storedObjectProvider = *([[&E]->]_){};
+   }
+
+   ++ store *([&E] objectToStoreInContainer) {
+      .objectIsStored = \[Boolean]:true;
+      .storedObjectProvider = *([[&E]->] provideObject){\provideObject objectToStoreInContainer};
+   }
+
+   ++ retrive *([[&E]->] objectTaker) {
+      \.storedObjectProvider objectTaker
+   }
+
+   ++ transformStoredObject *([[&E]->[&E]] transformation) {
+      \:retrive *([&E] theObjectInQuestion) {
+         [&E] transformedObject = \transformation theObjectInQuestion;
+         \:store transformedObject;
+      };
+   }
+
+   ++ isEmpty * -> [Boolean] {} -> (\[Boolean]:not .objectIsStored)
+
+}
+
+
 @@
 [] (Daina, Configuration) {
    ^ *{
@@ -3202,6 +3586,11 @@
 
 
 
+
+
+
+
+
 [DLangSynthesizer] (
          Object, 
          Parser, 
@@ -3255,7 +3644,7 @@
    - outputNextTemporaryVariableName *{
       .temporaryNumber = \.temporaryNumber:adding (\[Integer]:as ##1##);
       \:output (\[String]:as ##temp##);
-      \:output (\[String]:stringRepresentationOfInteger .temporaryNumber);
+      \:output (\[String]:stringFormatOf .temporaryNumber);
    }
 
    - output *([String] string) {
@@ -3449,7 +3838,7 @@
       };
       \:output (\[String]:as ## ##);
       \:output (\[String]:as ##PARENT_##);
-      \:output (\[String]:stringRepresentationOfInteger parentNumber);
+      \:output (\[String]:stringFormatOf parentNumber);
       \:output (\[String]:as ## = new ##);
       \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
          \:output (\[String]:as ##CLASSIMPL_##);
@@ -3464,7 +3853,7 @@
          \:outputTabbed (\[String]:as ##override OBJECT IMETHOD_##);
          \:output (\unoverridenMethodIdentifier:content);
          \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters) { return PARENT_##);
-         \:output (\[String]:stringRepresentationOfInteger parentNumber);
+         \:output (\[String]:stringFormatOf parentNumber);
          \:output (\[String]:as ##.IMETHOD_##);
          \:output (\unoverridenMethodIdentifier:content);
          \:output (\[String]:as ##(caller, parameters); }\n##);
@@ -3542,9 +3931,9 @@
          \:outputTabbed (\[String]:as ##OBJECT LOBJECT_##);
          \:output (\id:content);
          \:output (\[String]:as ## = parameters.length > ##);
-         \:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
+         \:output (\[String]:stringFormatOf (\paramNumber:get));
          \:output (\[String]:as ## ? parameters[##);
-         \:output (\[String]:stringRepresentationOfInteger (\paramNumber:get));
+         \:output (\[String]:stringFormatOf (\paramNumber:get));
          \:output (\[String]:as ##] : null;\n##);
          \paramNumber:set (\one:adding (\paramNumber:get));
       };
@@ -3697,7 +4086,7 @@
                };
             } *{
                \:outputTabbed (\[String]:as ##PARENT_##);
-               \:output (\[String]:stringRepresentationOfInteger parentNumber);
+               \:output (\[String]:stringFormatOf parentNumber);
                \[O]:ifElse isPointerConstructor *{
                   \:output (\[String]:as ## = ##);
                   \:synthesizeMethodInputs inputs;
@@ -3706,7 +4095,7 @@
                   \:output (\[String]:as ##.CMETHOD_##);
                   \:output (\identifier:content);
                   \:output (\[String]:as ##(PARENT_##);
-                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:stringFormatOf parentNumber);
                   \:output (\[String]:as ##, [##);
                   \:synthesizeMethodInputs inputs;
                   \:output (\[String]:as ##]);\n##);
@@ -3892,7 +4281,7 @@
                   \:output (\[String]:as ##self.IMETHOD_##);
                } *{
                   \:output (\[String]:as ##PARENT_##);
-                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:stringFormatOf parentNumber);
                   \:output (\[String]:as ##.IMETHOD_##);
                };
                \:output (\identifier:content);
@@ -3904,10 +4293,10 @@
                   \:outputTabbed (\[String]:as ##return self.IMETHOD_##);
                } *{
                   \:outputTabbed (\[String]:as ##OBJECT instance = PARENT_##);
-                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:stringFormatOf parentNumber);
                   \:output (\[String]:as ##;\n##);
                   \:outputTabbed (\[String]:as ##return PARENT_##);
-                  \:output (\[String]:stringRepresentationOfInteger parentNumber);
+                  \:output (\[String]:stringFormatOf parentNumber);
                   \:output (\[String]:as ##.IMETHOD_##);
                };
                \:output (\identifier:content);
