@@ -857,7 +857,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          }
       ##;
    }
-
+@asdf--
    ++ appendContents *([Data] toAppend) {
       [] _ = <<dlang ##
          if (!this.file.isOpen) {
@@ -869,7 +869,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       ##;
    }
 
-   ++ readContents *([Natural] chunkSize, [[Data]->] readChunk) {
+   @@++ readContents *([Natural] chunkSize, [[Data]->] readChunk) {
       [] _ = <<dlang ##
          BigInt chunkSize = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_chunkSize).IMETHOD_internalInteger(null, []))).it;
          if (this.file.isOpen) {
@@ -890,7 +890,31 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             this.file.close();
          }
       ##;
-   }
+   }@@
+
+   ++ readContents *([Natural] chunkSize) -> [Data] {
+      [Variable<[Data]>] theChunk = \[Variable<[Data]>]:as \[Data]:empty;
+      [] _ = <<dlang ##
+         BigInt chunkSize = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_chunkSize).IMETHOD_internalInteger(null, []))).it;
+         if (this.file.isOpen) {
+            this.file.close();
+         }
+         this.file.open(this.fileName, "rb");
+         if (this.file.isOpen) {
+            foreach (ubyte[] buffer; this.file.byChunk(chunkSize.toLong())) {
+      ##;
+      [Data] chunk = << dlang ##
+               CLASSIMPL_Data LOBJECT_chunk = new CLASSIMPL_Data();
+               LOBJECT_chunk.value = new WRAP!(ubyte[])(buffer);
+      ##;
+      \theChunk:set chunk;
+      [] _ = <<dlang ##
+         
+            }
+            this.file.close();
+         }
+      ##;
+   } -> \theChunk:get
 
    ++ close *{
       [] _ = <<dlang ##
@@ -2030,9 +2054,24 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[StandardIO]:stdout \(\error:description):ascii;
       \[StandardIO]:stdout \(\[String]:as ##\n##):ascii;
    }
-   @++ commandInput *->[InputStream] {} -> \[SystemInputOutput]:stdin
-   @++ compilationFileOutput *([String] filePath)-> [Maybe<[OutputStream]>] {} -> \[SystemInputOutput]:maybeOutputStreamForFileWithFilename filePath
-   @++ sourceFileInput *([String] filePath)-> [Maybe<[InputStream]>] {} -> \[SystemInputOutput]:maybeInputStreamForFileWithFilename filePath
+   ++ commandInput *->[->[Data]] {} -> \[StandardIO]:stdin
+
+   @asdf+
+
+   
+   ++ compilationFileOutput *([String] filePath)-> [Maybe<[[Data]->]>] {
+         [File] file = \[File]:atPath filePath;
+         \file:clearContents;
+         [Boolean] fileExists = \file:exists;
+      } -> \fileExists:ifOrElse (*->\[Maybe<[[Data]->]>]:as (file:appendContents)) (\[Maybe<[[Data]->]>]:nothing)
+   
+@++ readContents *([Natural] chunkSize) -> [Data] {
+
+   @@++ sourceFileInput *([String] filePath)-> [Maybe<[->[Maybe<[Byte]>]]>] {
+         [File] file = \[File]:atPath filePath;
+         \file:clearContents;
+         [Boolean] fileExists = \file:exists;
+      } -> \[SystemInputOutput]:maybeInputStreamForFileWithFilename filePath@@
 }
 
 
@@ -2862,6 +2901,15 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    :: ifElse *([Boolean] b, [->] if, [->] else) {
       \b:ifOrElse if else;
    } 
+
+   :: selectOrDefault *([[->]->] select, [->] default) {
+      [Variable<[Boolean]>] wasSelected = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+      \select *{
+         \wasSelected:set (\[Boolean]:true);
+      };
+      [Boolean] b =  (\wasSelected:get);
+      \b:ifOrElse (*{}) default;
+   }
 }
 
 
@@ -4149,7 +4197,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          \:output (\[String]:as ## {\n##); \:incrementTab;
          \compilerInjections:iterate *([DainaCompilerInjection] compilerInjection) {
             [String] dlang = \[String]:as ##dlang##;
-            \[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+            \[O]:ifElse (\dlang:isEqualTo (\compilerInjection:identifierString)) *{
                \:output (\[String]:as ##/* dlang injection start */##);
                \:output (\compilerInjection:dataSegment);
                \:output (\[String]:as ##/* dlang injection end */\n##);
@@ -4369,7 +4417,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                \assginedExpression:ifCompilerInjection *([DainaCompilerInjection] compilerInjection) {
                   \_select;
                   [String] dlang = \[String]:as ##dlang##;
-                  \[O]:ifElse (\dlang:equals (\compilerInjection:identifierString)) *{
+                  \[O]:ifElse (\dlang:isEqualTo (\compilerInjection:identifierString)) *{
                      \:output (\[String]:as ##/* dlang injection start */##);
                      \:output (\compilerInjection:dataSegment);
                      \:output (\[String]:as ##/* dlang injection end */\n##);
@@ -4381,7 +4429,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                [String] nothing = \[String]:as ####;
                [DainaGeneralIdentifier] identifier = \declaration:identifier;
                \:outputTabbed (\[String]:as ####);
-               \[O]:ifElse (\nothing:equals (\identifier:content)) *{} *{
+               \[O]:ifElse (\nothing:isEqualTo (\identifier:content)) *{} *{
                   \:addLocalObjectToScope declaration;
                   \:output (\[String]:as ##OBJECT LOBJECT_##);
                   \:output (\identifier:content);
@@ -4415,7 +4463,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          };
          \statement:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
             \select;
-            \[O]:ifElse (\parentNumber:equals (\[Integer]:as ##0##)) *{
+            \[O]:ifElse (\parentNumber:isEqualTo (\[Integer]:as ##0##)) *{
                \[O]:ifElse isPointerConstructor *{
                   \:outputTabbed (\[String]:as ##caller = ##);
                   \:synthesizeMethodInputs inputs;
@@ -4625,7 +4673,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          \expression:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
             \select;
             \[O]:ifElse (usedAsInstantMethod) *{
-               \[O]:ifElse (\parentNumber:equals (\[Integer]:as ##0##)) *{
+               \[O]:ifElse (\parentNumber:isEqualTo (\[Integer]:as ##0##)) *{
                   \:output (\[String]:as ##self.IMETHOD_##);
                } *{
                   \:output (\[String]:as ##PARENT_##);
@@ -4636,7 +4684,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             } *{
                \:output (\[String]:as ##(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n##);
                \:incrementTab;
-               \[O]:ifElse (\parentNumber:equals (\[Integer]:as ##0##)) *{
+               \[O]:ifElse (\parentNumber:isEqualTo (\[Integer]:as ##0##)) *{
                   \:outputTabbed (\[String]:as ##OBJECT instance = self;\n##);
                   \:outputTabbed (\[String]:as ##return self.IMETHOD_##);
                } *{
@@ -4672,7 +4720,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             [String] instanceObjectIdentifierString = \instanceObjectIdentifier:content;
             \.selfInstanceObjects:iterate *([DainaObjectDeclaration] decl) {
                [DainaGeneralIdentifier] thisId = \decl:identifier;
-               \[O]:ifElse (\instanceObjectIdentifierString:equals (\thisId:content)) *{
+               \[O]:ifElse (\instanceObjectIdentifierString:isEqualTo (\thisId:content)) *{
                   .synthesizedExpressionType = \decl:type;
                } *{};
             };
@@ -4787,7 +4835,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
 
    -+- exitReached *->[Boolean]{}-> \.exitReached:get
-@asdf --
+
    |++ exit *{
       \.exitReached:set (\[Boolean]:true);
       \[Debug]:log (\[String]:as ##Exit\n##);
@@ -4799,12 +4847,12 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[Debug]:log (\[String]:as ##...\n##);
 
       [Maybe<[InputStream]>] maybeSourceInput = \.configuration:sourceFileInput path;
-      [Boolean] sourceFileSuccess = \maybeSourceInput:is *([InputStream] sourceInput) -> [Boolean] {
+      [Boolean] sourceFileSuccess = \maybeSourceInput:isOrElse *([InputStream] sourceInput) -> [Boolean] {
          [Parser] parser = \[Parser]:withSourceNameAndInput path sourceInput;
          [List<[DainaClass]>] parsedClasses = \[DainaClass]:parseClasses parser;
          [List<[Error]>] errors = \parser:errors;
-         [Boolean] parseSuccess = \errors:isEmpty;
-         \parseSuccess:ifElse *{
+         [Boolean] parseSuccess = \(\[Integer]:as ##0##):isEqualTo (\errors:length);
+         \parseSuccess:ifOrElse *{
             \parsedClasses:iterate *([DainaClass] parsedClass) {
                \.parsedClasses:append parsedClass;
             };
@@ -4813,8 +4861,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                \.configuration:outputError error;
             };
          };
-      } -> \[Boolean]:true;
-      \sourceFileSuccess:ifElse *{} *{
+      } -> \[Boolean]:true (*->\[Boolean]:false);
+      \sourceFileSuccess:ifOrElse *{} *{
          \.configuration:outputError (\[Error]:sourceFileNotAccessible path);
       };
    }
