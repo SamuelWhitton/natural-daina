@@ -857,7 +857,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          }
       ##;
    }
-@asdf--
+
    ++ appendContents *([Data] toAppend) {
       [] _ = <<dlang ##
          if (!this.file.isOpen) {
@@ -2056,7 +2056,6 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
    ++ commandInput *->[->[Data]] {} -> \[StandardIO]:stdin
 
-   @asdf+
 
    
    ++ compilationFileOutput *([String] filePath)-> [Maybe<[[Data]->]>] {
@@ -2065,13 +2064,15 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          [Boolean] fileExists = \file:exists;
       } -> \fileExists:ifOrElse (*->\[Maybe<[[Data]->]>]:as (file:appendContents)) (\[Maybe<[[Data]->]>]:nothing)
    
-@++ readContents *([Natural] chunkSize) -> [Data] {
 
-   @@++ sourceFileInput *([String] filePath)-> [Maybe<[->[Maybe<[Byte]>]]>] {
+   ++ sourceFileInput *([String] filePath)-> [Maybe<[->[Maybe<[Byte]>]]>] {
          [File] file = \[File]:atPath filePath;
-         \file:clearContents;
          [Boolean] fileExists = \file:exists;
-      } -> \[SystemInputOutput]:maybeInputStreamForFileWithFilename filePath@@
+      } -> \fileExists:ifOrElse (*->\[Maybe<[->[Maybe<[Byte]>]]>]:as (
+            *-> [Maybe<[Byte]>] {
+               [Data] data = \file:readContents (\[Natural]:as ##1##);
+            } -> (\data:atIndex (\[Natural]:as ##0##))
+         )) (\[Maybe<[[Data]->]>]:nothing)
 }
 
 
