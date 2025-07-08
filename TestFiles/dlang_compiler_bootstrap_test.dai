@@ -1,7 +1,7 @@
 
 [Debug] (OutputStream, String, SystemInputOutput){
    :: log *([String] s){
-      [[Data]->] out = \[StandardIO]:stdout;
+      [[Data]->] out = [StandardIO]:stdout;
       \out \s:ascii;
    }
 }
@@ -733,6 +733,11 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 [] (StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
 
+\[Debug]:log (\[String]:as ##asdf:0\n##);
+
+
+      \[Daina]:run \[Configuration]:init;
+
       @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
       @[Maybe<[String]>] y2 = \[Maybe<[String]>]:as \[String]:as ##Hello Worl!##;
       
@@ -748,7 +753,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          \[SystemIO]:stdout \(\[String]:as ##Hello World!!\n##):ascii;
          \[SystemIO]:stdout \(\[String]:asASCII \[SystemIO]:stdin):ascii;
       };@@
-      [SourcePosition] asdf = \[SourcePosition]:initialPositionIn (\[String]:as ##sadf/asdf/filenametest.h##) (\[String]:as ##This is a line....##);
+      @@@@@@@@
+      @@[SourcePosition] asdf = \[SourcePosition]:initialPositionIn (\[String]:as ##sadf/asdf/filenametest.h##) (\[String]:as ##This is a line....##);
       [SourcePosition] asdf2 = \asdf:startOfNextLine (\[String]:as ##This is a line2....##);
       [SourcePosition] asdf3 = \asdf2:startOfNextLine (\[String]:as ##This is a line3....##);
       [SourcePosition] asdf4 = \asdf3:nextColumn;
@@ -764,6 +770,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          \[StandardIO]:stdout \(\[String]:stringFormatOf value):ascii;
          \[StandardIO]:stdout \(\[String]:as ##\n##):ascii;
       };
+      @@
       
       @\(\[File]:atPath \[String]:as ##TestFiles/dlang_compiler_bootstrap_test.dai##):readContents (\[Natural]:as ##1000##) [StandardIO]:stdout;
       @[File] outputFile = (\[File]:atPath \[String]:as ##TestFiles/testwrite.txt##);
@@ -4822,9 +4829,13 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 {
 
    :: run *([Configuration] configuration) {
+      \[Debug]:log (\[String]:as ##asdf:1\n##);
       [Daina] daina = \[Daina]:init configuration;
+      \[Debug]:log (\[String]:as ##asdf:2\n##);
       [Commands] commands = \[Commands]:from (\configuration:commandInput);
+      \[Debug]:log (\[String]:as ##asdf:3\n##);
       \[Loops]:while (*->(\[Boolean]:not \daina:exitReached)) *{
+         \[Debug]:log (\[String]:as ##asdf:4\n##);
          \commands:readNext daina;
       };
    }
