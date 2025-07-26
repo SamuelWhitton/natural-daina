@@ -2061,7 +2061,10 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[StandardIO]:stdout \(\error:description):ascii;
       \[StandardIO]:stdout \(\[String]:as ##\n##):ascii;
    }
-   ++ commandInput *->[->[Data]] {} -> \[StandardIO]:stdin
+   ++ commandInput *->[Maybe<[Data]>] {
+      [Data] input = \[StandardIO]:stdin;
+      [Boolean] emptyInput = (\0:isEqualTo (\input:length)) !{[Natural] 0 = (\[Natural]:as ##0##)};
+   } -> \emptyInput:ifOrElse (\[Maybe<[[Data]->]>]:nothing) (*->\[Maybe<[Data]>]:as input)
 
 
    
@@ -2652,7 +2655,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
 
    - readNextCharacter *{
-      .currentCharacter = \(\.inputStream):isOrElse ([Character]:fromASCII) ([Maybe<[Character]>]:nothing);
+      [Maybe<[Byte]>] input = (\.inputStream);
+      .currentCharacter = \input:isOrElse ([Character]:fromASCII) ([Maybe<[Character]>]:nothing);
    }
 
    - readNextString *([[Character]->[Boolean]] inString) -> [String] {
@@ -4829,10 +4833,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 {
 
    :: run *([Configuration] configuration) {
-      \[Debug]:log (\[String]:as ##asdf:1\n##);
       [Daina] daina = \[Daina]:init configuration;
-      \[Debug]:log (\[String]:as ##asdf:2\n##);
-      [Commands] commands = \[Commands]:from (\configuration:commandInput);
+      [Commands] commands = \[Commands]:from (configuration:commandInput);
       \[Debug]:log (\[String]:as ##asdf:3\n##);
       \[Loops]:while (*->(\[Boolean]:not \daina:exitReached)) *{
          \[Debug]:log (\[String]:as ##asdf:4\n##);
