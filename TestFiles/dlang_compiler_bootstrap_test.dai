@@ -2626,7 +2626,9 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
 
    ++ readNext *([CommandReader] reader) {
+      \[Debug]:log (\[String]:as ##asdf:5\n##);
       \:eatWhitespaceCharacters;
+      \[Debug]:log (\[String]:as ##asdf:6\n##);
       \.currentCharacter:isOrElse *([Character] character) {
          [Boolean] exit = (\character:isSemicolon);
          \exit:ifOrElse reader:exit *{};
@@ -2656,7 +2658,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 
    - readNextCharacter *{
       [Maybe<[Byte]>] input = (\.inputStream);
-      .currentCharacter = \input:isOrElse ([Character]:fromASCII) ([Maybe<[Character]>]:nothing);
+      .currentCharacter = \input:isOrElse (*([Byte] b)->(\[Maybe<[Character]>]:as (\[Character]:fromASCII b))) ([Maybe<[Character]>]:nothing);
    }
 
    - readNextString *([[Character]->[Boolean]] inString) -> [String] {
@@ -2682,9 +2684,15 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    - eatWhitespaceCharacters *{
       \[Loops]:while (*->[Boolean]{
          [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+         \[Debug]:log (\[String]:as ##asdf:7\n##);
          \.currentCharacter:isOrElse *([Character] character) {
+            \[Debug]:log (\[String]:as ##asdf:8\n##);
             \isWhitespace:set (\character:isWhitespace);
-         } *{};
+            \[Debug]:log (\[String]:as ##asdf:9\n##);
+         } *{
+            \[Debug]:log (\[String]:as ##asdf:10\n##);
+         };
+         \[Debug]:log (\[String]:as ##asdf:11\n##);
       } -> \isWhitespace:get) (:readNextCharacter);
    }
 }
@@ -4839,6 +4847,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[Loops]:while (*->(\[Boolean]:not \daina:exitReached)) *{
          \[Debug]:log (\[String]:as ##asdf:4\n##);
          \commands:readNext daina;
+         \[Debug]:log (\[String]:as ##asdf:4e\n##);
       };
    }
    
