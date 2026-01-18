@@ -2049,7 +2049,12 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    } -> \[Boolean]:or (\[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:0x30) (\[Byte]:0x39)) (\.asciiByte:inclusiveBetween (\[Byte]:0x41) (\[Byte]:0x5A))) (\.asciiByte:inclusiveBetween (\[Byte]:0x61) (\[Byte]:0x7A))
 
    ++ isWhitespace *->[Boolean] {
-   } -> \[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:0x09) (\[Byte]:0x0D)) (\.asciiByte:isEqualTo (\[Byte]:0x20))
+      \[Debug]:log (\[String]:as ##asdf:91\n##);
+      [Byte] b = (\[Byte]:0x09);
+      \[Debug]:log (\[String]:as ##asdf:92\n##);
+      [Boolean] thing = (\.asciiByte:inclusiveBetween b (\[Byte]:0x0D));
+      \[Debug]:log (\[String]:as ##asdf:93\n##);
+   } -> \[Boolean]:or thing (\.asciiByte:isEqualTo (\[Byte]:0x20))
 }
 
 
@@ -2061,6 +2066,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[StandardIO]:stdout \(\error:description):ascii;
       \[StandardIO]:stdout \(\[String]:as ##\n##):ascii;
    }
+
    ++ commandInput *->[Maybe<[Data]>] {
       [Data] input = \[StandardIO]:stdin;
       [Boolean] emptyInput = (\0:isEqualTo (\input:length)) !{[Natural] 0 = (\[Natural]:as ##0##)};
@@ -2619,8 +2625,37 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    [->[Maybe<[Byte]>]] inputStream
    [Maybe<[Character]>] currentCharacter
 {
-   ~ from *([->[Maybe<[Byte]>]] inputStream) {
-      .inputStream = inputStream;
+   ~ from *([->[Maybe<[Data]>]] dataInputStream) {
+      [Variable<[Maybe<[Data]>]>] varCurrentData = \[Variable<[Maybe<[Data]>]>]:as \[Maybe<[Data]>]:nothing;
+      [Variable<[Natural]>] currentIndex = \[Variable<[Natural]>]:as \[Natural]:as ##0##;
+      [Natural] 1 = \[Natural]:as ##1##;
+      [Natural] 0 = \[Natural]:as ##0##;
+      .inputStream = * -> [Maybe<[Byte]>] {
+         [Variable<[Maybe<[Byte]>]>] nextByte = \[Variable<[Maybe<[Byte]>]>]:as \[Maybe<[Byte]>]:nothing;
+         [Maybe<[Data]>] maybeCurrentData = (\varCurrentData:get);
+         [->] gotoNextData = *{
+            \varCurrentData:set \dataInputStream;
+            \currentIndex:set 0;
+         };
+         \maybeCurrentData:isOrElse *([Data] currentData){
+            [Maybe<[Byte]>] inCurrentData = \currentData:atIndex \currentIndex:get;
+            \inCurrentData:isOrElse (*([Byte] b) {
+            }) gotoNextData;
+         } gotoNextData;
+         [Maybe<[Data]>] maybeCurrentData2 = (\varCurrentData:get);
+         \maybeCurrentData2:isOrElse *([Data] currentData){
+         
+            [Maybe<[Byte]>] inCurrentData = \currentData:atIndex \currentIndex:get;
+            \inCurrentData:isOrElse (*([Byte] b) {
+               \nextByte:set \[Maybe<[Byte]>]:as b;
+               \currentIndex:set \1:adding \currentIndex:get;
+            }) *{};
+
+         } *{};
+            
+         
+      } -> \nextByte:get;
+
       .currentCharacter = \[Maybe<[Character]>]:nothing;
       \:readNextCharacter;
    }
@@ -4868,7 +4903,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[Debug]:log (\[String]:as ##parse from ##);
       \[Debug]:log path;
       \[Debug]:log (\[String]:as ##...\n##);
-
+@[->[Maybe<[Byte]>]] == [InputStream]
       [Maybe<[InputStream]>] maybeSourceInput = \.configuration:sourceFileInput path;
       [Boolean] sourceFileSuccess = \maybeSourceInput:isOrElse *([InputStream] sourceInput) -> [Boolean] {
          [Parser] parser = \[Parser]:withSourceNameAndInput path sourceInput;
