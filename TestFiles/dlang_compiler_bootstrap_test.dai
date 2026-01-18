@@ -2665,12 +2665,16 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \:eatWhitespaceCharacters;
       \[Debug]:log (\[String]:as ##asdf:6\n##);
       \.currentCharacter:isOrElse *([Character] character) {
+         \[Debug]:log (\[String]:as ##asdf:61\n##);
          [Boolean] exit = (\character:isSemicolon);
          \exit:ifOrElse reader:exit *{};
+         \[Debug]:log (\[String]:as ##asdf:62\n##);
          [Variable<[Boolean]>] validCommand = \[Variable<[Boolean]>]:as exit;
          [Boolean] parseSourceFile = (\character:isPlus);
          \parseSourceFile:ifOrElse *{
+            \[Debug]:log (\[String]:as ##asdf:63\n##);
             \reader:parseSourceFile (\:readNextFilePath);
+            \[Debug]:log (\[String]:as ##asdf:64\n##);
             \validCommand:set (\[Boolean]:true);
          } *{};
          [Boolean] compileToFile = (\character:isTilde);
@@ -2697,6 +2701,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
 
    - readNextString *([[Character]->[Boolean]] inString) -> [String] {
+      \[Debug]:log (\[String]:as ##asdf:67\n##);
       \:eatWhitespaceCharacters;
       [List<[Byte]>] asciiString = \[List<[Byte]>]:empty;
       \[Loops]:while (*->[Boolean]{
@@ -2713,7 +2718,9 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    } -> \[String]:asASCII \[Data]:copy asciiString
 
    - readNextFilePath *-> [String] {
+      \[Debug]:log (\[String]:as ##asdf:65\n##);
    } -> \:readNextString *([Character] c) ->[Boolean] {
+      \[Debug]:log (\[String]:as ##asdf:66\n##);
       } -> \[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\c:isAlphanumeric) (\c:isFullstop)) (\c:isForwardslash)) (\c:isBackslash)) (\c:isUnderscore)
 
    - eatWhitespaceCharacters *{
@@ -4623,6 +4630,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                \:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
                \:output (\[String]:as ##).IMETHOD_##);
                \:output (\identifier:content);
+               \:output (\[String]:as ##(caller##);
             } *{
                \:output (\[String]:as ##(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n##);
                \:incrementTab;
@@ -4667,6 +4675,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                };
                \:output (\[String]:as ##TMETHOD_##);
                \:output (\identifier:content);
+               \:output (\[String]:as ##(caller##);
             } *{
                \:output (\[String]:as ##(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n##);
                \:incrementTab;
@@ -4703,7 +4712,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             \[O]:ifElse (\isInstantMethod:get) *{
                \:synthesizeInPlaceExpression (\[Boolean]:true) method;
                \invokedExpressionType:set .synthesizedExpressionType;
-               \:output (\[String]:as ##(caller, cast(OBJECT[])[##);
+               \:output (\[String]:as ##, cast(OBJECT[])[##);
                \:synthesizeMethodInputs params;
                \:output (\[String]:as ##])##);
             } *{
@@ -4736,6 +4745,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                   \:output (\[String]:as ##.IMETHOD_##);
                };
                \:output (\identifier:content);
+               \:output (\[String]:as ##(self##);
             } *{
                \:output (\[String]:as ##(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n##);
                \:incrementTab;

@@ -581,6 +581,7 @@
 					\:synthesizeInPlaceExpression (\[Boolean]:false)  instanceExpression;
 					\:output (\[String]:as ").IMETHOD_");
 					\:output (\identifier:content);
+					\:output (\[String]:as "(caller");
 				} *{
 					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
 					\:incrementTab;
@@ -625,6 +626,7 @@
 					};
 					\:output (\[String]:as "TMETHOD_");
 					\:output (\identifier:content);
+					\:output (\[String]:as "(caller");
 				} *{
 					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
 					\:incrementTab;
@@ -661,7 +663,7 @@
 				\[O]:ifElse (\isInstantMethod:get) *{
 					\:synthesizeInPlaceExpression (\[Boolean]:true) method;
 					\invokedExpressionType:set .synthesizedExpressionType;
-					\:output (\[String]:as "(caller, cast(OBJECT[])[");
+					\:output (\[String]:as ", cast(OBJECT[])[");
 					\:synthesizeMethodInputs params;
 					\:output (\[String]:as "])");
 				} *{
@@ -694,6 +696,7 @@
 						\:output (\[String]:as ".IMETHOD_");
 					};
 					\:output (\identifier:content);
+					\:output (\[String]:as "(self");
 				} *{
 					\:output (\[String]:as "(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n");
 					\:incrementTab;
