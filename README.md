@@ -227,7 +227,7 @@ asdf change ```[:?] [*?] [$$?]``` to ```[?:] [?*] [?$$]```
 asdf ! binds strongly to the left, still weak on the right
 asdf << compiler injection for local assignment instead of general statement compiler, if valid; compiler determines what the object's expression result is
 asdf anonymous class method can refer to . instance obejcts in containing class, but not instance methods : which are refering to the anonymous class object instead
-asdf class inside class body only accessible by outer class, can be recused class inside class inside class etc
+asdf class inside class body only accessible by outer class, can be recused class inside class inside class etc, names of innerclass overlap in naming scope with dependancies, cannot put inner class in an anonymous class object
 
 ---
 
