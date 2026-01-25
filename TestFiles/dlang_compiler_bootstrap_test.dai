@@ -2088,7 +2088,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             *-> [Maybe<[Byte]>] {
                [Data] data = \file:readContents (\[Natural]:as ##1##);
             } -> (\data:atIndex (\[Natural]:as ##0##))
-         )) (\[Maybe<[[Data]->]>]:nothing)
+         )) (*->\[Maybe<[[Data]->]>]:nothing)
 }
 
 
@@ -4929,7 +4929,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                \.configuration:outputError error;
             };
          };
-      } -> \[Boolean]:true (*->\[Boolean]:false);
+      } -> \[Boolean]:true) (*->\[Boolean]:false);
       \sourceFileSuccess:ifOrElse *{} *{
          \.configuration:outputError (\[Error]:sourceFileNotAccessible path);
       };
