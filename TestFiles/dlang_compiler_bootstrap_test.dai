@@ -2261,7 +2261,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    - getCopyOfNextLine *->[String] {
       [String] line = \:stringFromCharacters *([[Character]->] useCharacter) {
          \[Loops]:until *([->] stop) {
-            [Maybe<[Character]>] nextChar = \(\.inputStream):isOrElse ([Character]:fromASCII) ([Maybe<[Character]>]:nothing);
+            [Maybe<[Character]>] nextChar = \(\.inputStream):isOrElse (*([Byte] b) -> [Maybe<[Character]>] {} -> \[Maybe<[Character]>]:as \[Character]:fromASCII b) ([Maybe<[Character]>]:nothing);
             \nextChar:isOrElse *([Character] c) {
                @\c:debugLog;
                \.buffer:append c;
