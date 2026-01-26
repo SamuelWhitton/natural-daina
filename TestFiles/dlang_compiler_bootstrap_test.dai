@@ -2241,7 +2241,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    [Variable<[SourcePosition]>] currentTokenPosition
    [Variable<[[[Maybe<[Token]>][SourcePosition]->][->]->]>] ifNextTokenOrElse
    [Variable<[Maybe<[Character]>]>] currentCharacter
-   [Variable<[SourcePosition]>] currentCharacterPosition
+   [SourcePosition] currentCharacterPosition
    [List<[Character]>] buffer
 {
    ~ withSourceNameAndInput *([String] sourceName, [->[Maybe<[Byte]>]] inputStream) {
@@ -2251,7 +2251,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       .buffer = \[List<[Character]>]:empty;
       .currentCharacter = \[Variable<[?]>]:as \[Maybe<[Character]>]:nothing;
       [SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName (\:getCopyOfNextLine);
-      .currentCharacterPosition = \[Variable<[?]>]:as initialPosition;
+      .currentCharacterPosition = initialPosition;
       .currentTokenPosition = \[Variable<[?]>]:as initialPosition;
       .ifNextTokenOrElse = \[Variable<[?]>]:as *([]a,[->]else){\else};
       \:gotoNextCharacterTrue;
