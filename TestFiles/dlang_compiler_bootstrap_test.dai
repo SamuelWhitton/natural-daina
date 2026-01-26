@@ -1281,7 +1281,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 
    ++ inclusiveBetween *([Byte] from, [Byte] to)-> [Boolean] {
       [Boolean] isInclusiveBetween = << dlang ## 
-         bool isInclusiveBetween = (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_from).IMETHOD_internalByte(null, []))).it >= this.value.it && this.value.it <= (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_to).IMETHOD_internalByte(null, []))).it;
+         bool isInclusiveBetween = (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_from).IMETHOD_internalByte(null, []))).it <= this.value.it && this.value.it <= (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_to).IMETHOD_internalByte(null, []))).it;
          OBJECT LOBJECT_isInclusiveBetween = isInclusiveBetween ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
       ##;
    } -> isInclusiveBetween
