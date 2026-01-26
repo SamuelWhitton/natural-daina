@@ -733,9 +733,6 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 [] (StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
 
-\[Debug]:log (\[String]:as ##asdf:0\n##);
-
-
       \[Daina]:run \[Configuration]:init;
 
       @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
@@ -2049,11 +2046,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    } -> \[Boolean]:or (\[Boolean]:or (\.asciiByte:inclusiveBetween (\[Byte]:0x30) (\[Byte]:0x39)) (\.asciiByte:inclusiveBetween (\[Byte]:0x41) (\[Byte]:0x5A))) (\.asciiByte:inclusiveBetween (\[Byte]:0x61) (\[Byte]:0x7A))
 
    ++ isWhitespace *->[Boolean] {
-      \[Debug]:log (\[String]:as ##asdf:91\n##);
       [Byte] b = (\[Byte]:0x09);
-      \[Debug]:log (\[String]:as ##asdf:92\n##);
       [Boolean] thing = (\.asciiByte:inclusiveBetween b (\[Byte]:0x0D));
-      \[Debug]:log (\[String]:as ##asdf:93\n##);
    } -> \[Boolean]:or thing (\.asciiByte:isEqualTo (\[Byte]:0x20))
 }
 
@@ -2287,16 +2281,16 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          } -> \[String]:asASCII \[Data]:copy asciiString
 
     - gotoNextCharacter *{
-      [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
+      [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
       \currentCharacter:isOrElse *([Character] t) {
          \(\t:isNULL):ifOrElse *{} *{\:gotoNextCharacterTrue;};
       } *{};
     }
 
    - gotoNextCharacterTrue *{
-      [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
-      [Boolean] isNewline = \currentCharacter:isOrElse (*([Character] c) -> [Boolean] {} -> \c:isNewline) *{};
-      [SourcePosition] currentCharacterPosition = \.currentCharacterPosition:get;
+      [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
+      [Boolean] isNewline = \currentCharacter:isOrElse (*([Character] c) -> [Boolean] {} -> \c:isNewline) (*->\[Boolean]:false);
+      [SourcePosition] currentCharacterPosition = .currentCharacterPosition;
       \isNewline:ifOrElse *{
          .currentCharacterPosition = \currentCharacterPosition:startOfNextLine (\:getCopyOfNextLine);
       } *{
@@ -2312,7 +2306,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    - eatWhitespaceCharacters *{
       \[Loops]:while (*->[Boolean]{
          [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
-         [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
+         [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
          \currentCharacter:isOrElse *([Character] character) {
             \isWhitespace:set (\character:isWhitespace);
          } *{};
@@ -2407,7 +2401,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                [Variable<[Character]>] variablePreviousCharacter = \[Variable<[Character]>]:as (\[Character]:space);
                \[Loops]:until *([->] stop) {
                   [Character] previousCharacter = \variablePreviousCharacter:get;
-                  [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
+                  [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
                   \currentCharacter:isOrElse *([Character] char) {\variablePreviousCharacter:set char} *{};
                   \ifElse (previousCharacter:isHash) *{
                      \ifHashOrElse stop *{
@@ -2435,7 +2429,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             \:addError (\[Error]:expectingSecondHashForDataSegmentAnchor position1);
          }; 
         } *{
-         [Maybe<[Character]>] currentCharacter = (.currentCharacter:get);
+         [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
          \currentCharacter:isOrElse *([Character] character1) {
          [SourcePosition] position1 = .currentCharacterPosition;
          \:gotoNextCharacter;
@@ -2511,7 +2505,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                   } *{};
             };
 
-         [Maybe<[Character]>] currentCharacter2 = (.currentCharacter:get);
+         [Maybe<[Character]>] currentCharacter2 = (\.currentCharacter:get);
          \currentCharacter2:isOrElse *([Character] character2) {
             [SourcePosition] position2 = .currentCharacterPosition;
                 \if (character1:isDash) *{
@@ -2661,20 +2655,14 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
 
    ++ readNext *([CommandReader] reader) {
-      \[Debug]:log (\[String]:as ##asdf:5\n##);
       \:eatWhitespaceCharacters;
-      \[Debug]:log (\[String]:as ##asdf:6\n##);
       \.currentCharacter:isOrElse *([Character] character) {
-         \[Debug]:log (\[String]:as ##asdf:61\n##);
          [Boolean] exit = (\character:isSemicolon);
          \exit:ifOrElse reader:exit *{};
-         \[Debug]:log (\[String]:as ##asdf:62\n##);
          [Variable<[Boolean]>] validCommand = \[Variable<[Boolean]>]:as exit;
          [Boolean] parseSourceFile = (\character:isPlus);
          \parseSourceFile:ifOrElse *{
-            \[Debug]:log (\[String]:as ##asdf:63\n##);
             \reader:parseSourceFile (\:readNextFilePath);
-            \[Debug]:log (\[String]:as ##asdf:64\n##);
             \validCommand:set (\[Boolean]:true);
          } *{};
          [Boolean] compileToFile = (\character:isTilde);
@@ -2701,7 +2689,6 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    }
 
    - readNextString *([[Character]->[Boolean]] inString) -> [String] {
-      \[Debug]:log (\[String]:as ##asdf:67\n##);
       \:eatWhitespaceCharacters;
       [List<[Byte]>] asciiString = \[List<[Byte]>]:empty;
       \[Loops]:while (*->[Boolean]{
@@ -2718,23 +2705,16 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    } -> \[String]:asASCII \[Data]:copy asciiString
 
    - readNextFilePath *-> [String] {
-      \[Debug]:log (\[String]:as ##asdf:65\n##);
    } -> \:readNextString *([Character] c) ->[Boolean] {
-      \[Debug]:log (\[String]:as ##asdf:66\n##);
       } -> \[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\[Boolean]:or (\c:isAlphanumeric) (\c:isFullstop)) (\c:isForwardslash)) (\c:isBackslash)) (\c:isUnderscore)
 
    - eatWhitespaceCharacters *{
       \[Loops]:while (*->[Boolean]{
          [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
-         \[Debug]:log (\[String]:as ##asdf:7\n##);
          \.currentCharacter:isOrElse *([Character] character) {
-            \[Debug]:log (\[String]:as ##asdf:8\n##);
             \isWhitespace:set (\character:isWhitespace);
-            \[Debug]:log (\[String]:as ##asdf:9\n##);
          } *{
-            \[Debug]:log (\[String]:as ##asdf:10\n##);
          };
-         \[Debug]:log (\[String]:as ##asdf:11\n##);
       } -> \isWhitespace:get) (:readNextCharacter);
    }
 }
@@ -4888,11 +4868,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    :: run *([Configuration] configuration) {
       [Daina] daina = \[Daina]:init configuration;
       [Commands] commands = \[Commands]:from (configuration:commandInput);
-      \[Debug]:log (\[String]:as ##asdf:3\n##);
       \[Loops]:while (*->(\[Boolean]:not \daina:exitReached)) *{
-         \[Debug]:log (\[String]:as ##asdf:4\n##);
          \commands:readNext daina;
-         \[Debug]:log (\[String]:as ##asdf:4e\n##);
       };
    }
    
@@ -4915,7 +4892,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       \[Debug]:log (\[String]:as ##...\n##);
 @[->[Maybe<[Byte]>]] == [InputStream]
       [Maybe<[InputStream]>] maybeSourceInput = \.configuration:sourceFileInput path;
-      [Boolean] sourceFileSuccess = \maybeSourceInput:isOrElse *([InputStream] sourceInput) -> [Boolean] {
+      [Boolean] sourceFileSuccess = \maybeSourceInput:isOrElse (*([InputStream] sourceInput) -> [Boolean] {
          [Parser] parser = \[Parser]:withSourceNameAndInput path sourceInput;
          [List<[DainaClass]>] parsedClasses = \[DainaClass]:parseClasses parser;
          [List<[Error]>] errors = \parser:errors;
