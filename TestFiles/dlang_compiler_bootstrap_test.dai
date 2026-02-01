@@ -789,6 +789,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 
       \outputFile:close;@@
 
+      @ link source file to group, export from group, import group to group@@@@
+
    } @!{[String] nothingStr = \[String]:as ##<NOTHING>##}
 }
 
@@ -1614,7 +1616,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    ++ removeFirst *-> [Maybe<[&E]>] {
       [Maybe<[ListNode<[&E]>]>] first = \.first:get;
    } -> \first:isOrElse (*([ListNode<[&E]>] node) -> [Maybe<[&E]>] {
-         \.first:set \node:next;
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] nextNode = \node:next;
+         \.first:set \nextNode:get;
          [Natural] length = \.length:get;
          \.length:set \[Natural]:clampTo0 \length:subtracting \[Natural]:as ##1##;
       } -> \[Maybe<[?]>]:as \node:value) (*->\[Maybe<[&E]>]:nothing)
