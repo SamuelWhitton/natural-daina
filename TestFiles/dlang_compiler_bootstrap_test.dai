@@ -2297,7 +2297,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          .currentCharacterPosition = \currentCharacterPosition:nextColumn;
       };
       [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;
-      .currentCharacter = bufferedChar;
+      \.currentCharacter:set bufferedChar;
       @\bufferedChar:isOrElse *{} *{
          @.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
       @};
