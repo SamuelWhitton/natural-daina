@@ -145,6 +145,7 @@ Goals
 - no reserve keywords
 - low footprint language
 - multi use language features
+- copy paste homogeneity
 
 ```
 
