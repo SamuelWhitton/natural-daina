@@ -1620,6 +1620,10 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          \.first:set \nextNode:get;
          [Natural] length = \.length:get;
          \.length:set \[Natural]:clampTo0 \length:subtracting \[Natural]:as ##1##;
+         [Boolean] lastNode = \length:isEqualTo \[Natural]:as ##1##;
+         \lastNode:ifOrElse *{
+            \.last:set \[Maybe<[ListNode<[&E]>]>]:nothing;
+         } *{};
       } -> \[Maybe<[?]>]:as \node:value) (*->\[Maybe<[&E]>]:nothing)
    
    ++ prepend *([&E] value) {
