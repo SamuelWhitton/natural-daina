@@ -2085,10 +2085,27 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    ++ sourceFileInput *([String] filePath)-> [Maybe<[->[Maybe<[Byte]>]]>] {
          [File] file = \[File]:atPath filePath;
          [Boolean] fileExists = \file:exists;
-      } -> \fileExists:ifOrElse (*->\[Maybe<[->[Maybe<[Byte]>]]>]:as (
+      } -> \fileExists:ifOrElse (*->[Maybe<[->[Maybe<[Byte]>]]>]{
+            [Data] data = \file:readContents (\[Natural]:as ##1000000##);
+            [Variable<[Natural]>] pos = \[Variable<[Natural]>]:as \[Natural]:as ##0##;
+         }->\[Maybe<[->[Maybe<[Byte]>]]>]:as (
             *-> [Maybe<[Byte]>] {
-               [Data] data = \file:readContents (\[Natural]:as ##1##);
-            } -> (\data:atIndex (\[Natural]:as ##0##))
+               [Natural] thisPos = \pos:get;
+               [Maybe<[Byte]>] bbite = (\data:atIndex thisPos);
+               \pos:set \thisPos:adding \[Natural]:as ##1##;
+               \bbite:isOrElse *([Byte] bbbbite) {
+@\[Debug]:log (\[String]:as ##B::\n##);
+                  } *{
+@\[Debug]:log (\[String]:as ##B::nil\n##);
+                  };
+               @@
+
+import std.stdio;writeln("B::");
+            writeln(LOBJECT_bbite);
+            writeln((cast(CLASSIMPL_Byte)LOBJECT_bbite).value.it);
+
+               @@
+            } -> bbite
          )) (*->\[Maybe<[[Data]->]>]:nothing)
 }
 
