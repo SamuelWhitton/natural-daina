@@ -2267,7 +2267,7 @@ import std.stdio;writeln("B::");
       .errors = \[List<[Error]>]:empty;
       .currentToken = \[Variable<[?]>]:as (\[Maybe<[Token]>]:nothing);
       .buffer = \[List<[Character]>]:empty;
-      .currentCharacter = \[Variable<[?]>]:as \[Maybe<[Character]>]:nothing;
+      .currentCharacter = \[Maybe<[Character]>]:nothing;
       [SourcePosition] initialPosition = \[SourcePosition]:initialPositionIn sourceName (\:getCopyOfNextLine);
       .currentCharacterPosition = initialPosition;
       .currentTokenPosition = \[Variable<[?]>]:as initialPosition;
@@ -2281,7 +2281,6 @@ import std.stdio;writeln("B::");
          \[Loops]:until *([->] stop) {
             [Maybe<[Character]>] nextChar = \(\.inputStream):isOrElse (*([Byte] b) -> [Maybe<[Character]>] {} -> \[Maybe<[Character]>]:as \[Character]:fromASCII b) ([Maybe<[Character]>]:nothing);
             \nextChar:isOrElse *([Character] c) {
-               @\c:debugLog;
                \.buffer:append c;
                [Boolean] notEndOfLine = \[Boolean]:not (\c:isNewline);
                \notEndOfLine:ifOrElse *{
@@ -2305,23 +2304,31 @@ import std.stdio;writeln("B::");
          } -> \[String]:asASCII \[Data]:copy asciiString
 
     - gotoNextCharacter *{
-      [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
+      [Maybe<[Character]>] currentCharacter = .currentCharacter;
       \currentCharacter:isOrElse *([Character] t) {
          \(\t:isNULL):ifOrElse *{} *{\:gotoNextCharacterTrue;};
       } *{};
     }
 
    - gotoNextCharacterTrue *{
-      [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
-      [Boolean] isNewline = \currentCharacter:isOrElse (*([Character] c) -> [Boolean] {} -> \c:isNewline) (*->\[Boolean]:false);
+      [Maybe<[Character]>] currentCharacter = .currentCharacter;
+      [Boolean] isNewline = \currentCharacter:isOrElse (*([Character] c) -> [Boolean] {
+         } -> \c:isNewline) (*->\[Boolean]:false);
       [SourcePosition] currentCharacterPosition = .currentCharacterPosition;
       \isNewline:ifOrElse *{
          .currentCharacterPosition = \currentCharacterPosition:startOfNextLine (\:getCopyOfNextLine);
       } *{
          .currentCharacterPosition = \currentCharacterPosition:nextColumn;
       };
-      [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;
-      \.currentCharacter:set bufferedChar;
+      [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;@asdfasdfasdf
+      \bufferedChar:isOrElse *([Character] chaa){
+         @\[Debug]:log (\[String]:as ##aChar: ##);
+         @\[Debug]:log (\chaa:description);
+         @\[Debug]:log (\[String]:as ##\n##);
+      } *{
+         @\[Debug]:log (\[String]:as ##nilChar\n##);
+      };
+      .currentCharacter = bufferedChar;
       @\bufferedChar:isOrElse *{} *{
          @.currentCharacter = \[Maybe<[Byte][Character]>]:map ([Character]:asASCII) (\.sourceInput:readNextByte);
       @};
@@ -2330,7 +2337,7 @@ import std.stdio;writeln("B::");
    - eatWhitespaceCharacters *{
       \[Loops]:while (*->[Boolean]{
          [Variable<[Boolean]>] isWhitespace = \[Variable<[Boolean]>]:as (\[Boolean]:false);
-         [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
+         [Maybe<[Character]>] currentCharacter = .currentCharacter;
          \currentCharacter:isOrElse *([Character] character) {
             \isWhitespace:set (\character:isWhitespace);
          } *{};
@@ -2383,7 +2390,7 @@ import std.stdio;writeln("B::");
 
       \ifStrudelOrElse *{
          \[Loops]:while (*->[Boolean]{
-                  [Maybe<[Character]>] currentCharacter = \.currentCharacter:get;
+                  [Maybe<[Character]>] currentCharacter = .currentCharacter;
                }->\currentCharacter:isOrElse (*([Character] c)->\c:isStrudel) (*->\[Boolean]:false)) *{
             \:gotoNextCharacter;
             \ifStrudelOrElse *{
@@ -2425,7 +2432,7 @@ import std.stdio;writeln("B::");
                [Variable<[Character]>] variablePreviousCharacter = \[Variable<[Character]>]:as (\[Character]:space);
                \[Loops]:until *([->] stop) {
                   [Character] previousCharacter = \variablePreviousCharacter:get;
-                  [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
+                  [Maybe<[Character]>] currentCharacter = .currentCharacter;
                   \currentCharacter:isOrElse *([Character] char) {\variablePreviousCharacter:set char} *{};
                   \ifElse (previousCharacter:isHash) *{
                      \ifHashOrElse stop *{
@@ -2453,11 +2460,10 @@ import std.stdio;writeln("B::");
             \:addError (\[Error]:expectingSecondHashForDataSegmentAnchor position1);
          }; 
         } *{
-         [Maybe<[Character]>] currentCharacter = (\.currentCharacter:get);
+         [Maybe<[Character]>] currentCharacter = .currentCharacter;
          \currentCharacter:isOrElse *([Character] character1) {
          [SourcePosition] position1 = .currentCharacterPosition;
          \:gotoNextCharacter;
-         
          [Boolean] isIdentifier = \[Boolean]:or (\character1:isAlphanumeric) (\character1:isUnderscore);
          \isIdentifier:ifOrElse *{
             [String] identifierString = \stringFromCharacters *([[Character]->] useCharacter) {
@@ -2469,7 +2475,6 @@ import std.stdio;writeln("B::");
             };
             \setToken position1 (\[Token]:identifier identifierString);
          } *{};
-
          \if (character1:isDollarSign) *{
                   [Variable<[Integer]>] repetitionCount = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
                   \scanToken *([Character] thisCharacter, [->] continueScanning) {
@@ -2480,7 +2485,6 @@ import std.stdio;writeln("B::");
                   };
                   \setToken position1 (\[Token]:parentIdentifier (\repetitionCount:get));
             };
-
             \if (*->\[Boolean]:or (\character1:isDash) (\character1:isPlus)) *{
                   \ifPlusOrDashOrElse (\[Maybe<[Character]>]:as character1) *{
                      \ifPlusOrDashOrElse .currentCharacter *{
@@ -2493,6 +2497,7 @@ import std.stdio;writeln("B::");
                            \setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:true) (\[Boolean]:true));
                         };
                      } *{
+                       
                         \:gotoNextCharacter;
                         \ifPlusOrDashOrElse .currentCharacter *{
                            \:gotoNextCharacter;\setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:true) (\[Boolean]:false) (\[Boolean]:true));
@@ -2502,6 +2507,7 @@ import std.stdio;writeln("B::");
                            \:addError (\[Error]:invalidVisibilityIndicator position1);
                         };
                      } *{
+
                         \setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:true));
                      };
                   } *{
@@ -2526,10 +2532,11 @@ import std.stdio;writeln("B::");
                      } *{
                         \setToken position1 (\[Token]:visibilityIndicator (\[Boolean]:false) (\[Boolean]:false) (\[Boolean]:false));
                      };
-                  } *{};
+                     
+                  } *{
+                  };
             };
-
-         [Maybe<[Character]>] currentCharacter2 = (\.currentCharacter:get);
+         [Maybe<[Character]>] currentCharacter2 = .currentCharacter;
          \currentCharacter2:isOrElse *([Character] character2) {
             [SourcePosition] position2 = .currentCharacterPosition;
                 \if (character1:isDash) *{
@@ -2600,7 +2607,7 @@ import std.stdio;writeln("B::");
             [Variable<[Boolean]>] continuing = \[Variable<[Boolean]>]:as (\[Boolean]:true);
             \[Loops]:while (continuing:get) *{
                \continuing:set (\[Boolean]:false);
-               [Maybe<[Character]>] maybeCurrentCharacter = \.currentCharacter:get;
+               [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
                \maybeCurrentCharacter:isOrElse *([Character] character) {
                   \provideCharacterAndContinueScannning character *{
                      \continuing:set (\[Boolean]:true);
@@ -2616,13 +2623,13 @@ import std.stdio;writeln("B::");
             };
          } -> \[String]:asASCII \[Data]:copy asciiString;
          [[->][->]->] ifStrudelOrElse = *([->] action, [->] else) {
-            [Maybe<[Character]>] maybeCurrentCharacter = \.currentCharacter:get;
+            [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
             \maybeCurrentCharacter:isOrElse *([Character] currentCharacter) {
                \ifElse (currentCharacter:isStrudel) action else;
             } else;
          };
          [[->][->]->] ifHashOrElse = *([->] action, [->] else) {
-            [Maybe<[Character]>] maybeCurrentCharacter = \.currentCharacter:get;
+            [Maybe<[Character]>] maybeCurrentCharacter = .currentCharacter;
             \maybeCurrentCharacter:isOrElse *([Character] currentCharacter) {
                \ifElse (currentCharacter:isHash) action else;
             } else;
