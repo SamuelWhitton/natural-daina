@@ -150,65 +150,61 @@
 
 
    ++ popFromFront *([[&E]->] cargoReceiver) {
-         \.frontCarriage:retriveCargoWithReceiver cargoReceiver;
-      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
-      \dropFrontCarriageIfItIsNotTheLastCarriage;
-   
-   }  !{
-         [->] dropFrontCarriageIfItIsNotTheLastCarriage = *{
+      [->] dropFrontCarriageIfItIsNotTheLastCarriage = *{
             \.frontCarriage:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
                .frontCarriage = carriageCoupledToBack;
                \.frontCarriage:disconnectFrontCoupler;
             };
          };
-      }
+         \.frontCarriage:retriveCargoWithReceiver cargoReceiver;
+      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
+      \dropFrontCarriageIfItIsNotTheLastCarriage;
+   
+   }  
 
 
    ++ popFromBack *([[&E]->] cargoReceiver) {
-         \.backCarriage:retriveCargoWithReceiver cargoReceiver;
-      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
-      \dropBackCarriageIfItIsNotTheLastCarriage;
-      
-
-   }  !{
-         [->] dropBackCarriageIfItIsNotTheLastCarriage = *{
+      [->] dropBackCarriageIfItIsNotTheLastCarriage = *{
             \.backCarriage:retriveCarriageCoupledToFront *([TrainCarriage<[&E]>] carriageCoupledToFront) {
                .backCarriage = carriageCoupledToFront;
                \.backCarriage:disconnectBackCoupler;
             };
          };
-      }
+         \.backCarriage:retriveCargoWithReceiver cargoReceiver;
+      \:emptyTrainIfThereIsOnlyOneCarriageLeft;
+      \dropBackCarriageIfItIsNotTheLastCarriage;
+      
+
+   } 
 
 
 
    ++ pushToFront *([&E] cargo) {
-      \getFrontCarriageReadyForNewCargo;
-      \.frontCarriage:store cargo;
-      
-   }  !{
-         [->] getFrontCarriageReadyForNewCargo = *{
+      [->] getFrontCarriageReadyForNewCargo = *{
             \.frontCarriage:performActionIfCarriageIsFull *{
                [TrainCarriage<[&E]>] newFrontCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
                \:coupleCarriagesWithFrontAndBackCarriage newFrontCarriage .frontCarriage;
                .frontCarriage = newFrontCarriage;
             };
          };
-      }
+      \getFrontCarriageReadyForNewCargo;
+      \.frontCarriage:store cargo;
+      
+   }
 
 
    ++ pushToBack *([&E] cargo) {
-      \getBackCarriageReadyForNewCargo;
-      \.backCarriage:store cargo;
-   
-   }  !{
-         [->] getBackCarriageReadyForNewCargo = *{
+      [->] getBackCarriageReadyForNewCargo = *{
             \.backCarriage:performActionIfCarriageIsFull *{
                [TrainCarriage<[&E]>] newBackCarriage = \[TrainCarriage<[&E]>]:newEmptyCarriage;
                \:coupleCarriagesWithFrontAndBackCarriage .backCarriage newBackCarriage;
                .backCarriage = newBackCarriage;
             };
          };
-      }
+      \getBackCarriageReadyForNewCargo;
+      \.backCarriage:store cargo;
+   
+   } 
 
 
    - coupleCarriagesWithFrontAndBackCarriage *([TrainCarriage<[&E]>] frontCarriage, [TrainCarriage<[&E]>] backCarriage) {
@@ -217,26 +213,26 @@
    }
 
    - iterateThroughCarriages *([[TrainCarriage<[&E]>]->] carriageReceiver) {
-      \[Loops]:until *([->] stop) {
-         \carriageReceiver currentCarriageWeAreLookingAt;
-         [Boolean] moreCarrigesToLookInside = \checkIfThereAreMoreCarriagesToLookInside;
-         \moreCarrigesToLookInside:ifOrElse moveToNextCarriage stop;
-         
-      }  !{
+      [Wrapper<[TrainCarriage<[&E]>]>] wrappedCurrentCarriage = \[Wrapper<[TrainCarriage<[&E]>]>]:wrapperWithObject .frontCarriage;
+         [->[TrainCarriage<[&E]>]] getCurrentCarriageWeAreLookingAt = wrappedCurrentCarriage:unwrap;
+         [->[Boolean]] checkIfThereAreMoreCarriagesToLookInside = *-> [Boolean] {
             [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
+         } -> \currentCarriageWeAreLookingAt:backCouplingIsConnectedToACarriage;
+
+         [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
             [->] moveToNextCarriage = *{
                \currentCarriageWeAreLookingAt:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
                   \wrappedCurrentCarriage:store carriageCoupledToBack;
                };
             };
-         };
-   }  !{
-         [Wrapper<[TrainCarriage<[&E]>]>] wrappedCurrentCarriage = \[Wrapper<[TrainCarriage<[&E]>]>]:wrapperWithObject .frontCarriage;
-         [->[TrainCarriage<[&E]>]] getCurrentCarriageWeAreLookingAt = wrappedCurrentCarriage:unwrap;
-         [->[Boolean]] checkIfThereAreMoreCarriagesToLookInside = *-> [Boolean] {
-            [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
-         } -> \currentCarriageWeAreLookingAt:backCouplingIsConnectedToACarriage;
-      }
+
+      \[Loops]:until *([->] stop) {
+         \carriageReceiver currentCarriageWeAreLookingAt;
+         [Boolean] moreCarrigesToLookInside = \checkIfThereAreMoreCarriagesToLookInside;
+         \moreCarrigesToLookInside:ifOrElse moveToNextCarriage stop;
+         
+      };
+   }  
 
 
    ++ iterateThroughObjectsOnTrain *([[&E]->] cargoReceiver) {
@@ -588,17 +584,19 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 
    ++ insertKeyValuePairIntoBucket *([String] keyInQuestion, [&VALUE] valueInQuestion) {
       [Conjecture] keyExistsInBucket = \[Conjecture]:propose;
-      \.mappingsStoredInBucket:iterateThroughObjectsOnTrain determineIfKeyExistsAndSetTheValueInQuestionAccordingly
-         !{
-            [[SingleMapping<[&KEY][&VALUE]>]->] determineIfKeyExistsAndSetTheValueInQuestionAccordingly = *([SingleMapping<[&KEY][&VALUE]>] singleMappingInBucket) {
+
+      [[SingleMapping<[&KEY][&VALUE]>]->] determineIfKeyExistsAndSetTheValueInQuestionAccordingly = *([SingleMapping<[&KEY][&VALUE]>] singleMappingInBucket) {
                [Boolean] keyOfMappingMatchesKeyInQuestion = \keyInQuestion:isEqualTo (\singleMappingInBucket:getKey);
                \keyOfMappingMatchesKeyInQuestion:ifOrElse
                   *{
                      \keyExistsInBucket:declareTrue;
                      \singleMappingInBucket:setValue valueInQuestion;
-                  } *{}
-            }
-         };
+                  } *{
+                  }
+            };
+
+      \.mappingsStoredInBucket:iterateThroughObjectsOnTrain determineIfKeyExistsAndSetTheValueInQuestionAccordingly;
+
 
       [Boolean] weShouldAddKeyValueAsNewPairInMappings = \keyExistsInBucket:notTrue;
       \weShouldAddKeyValueAsNewPairInMappings:ifOrElse *{
