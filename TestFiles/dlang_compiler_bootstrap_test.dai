@@ -218,15 +218,16 @@
          [->[Boolean]] checkIfThereAreMoreCarriagesToLookInside = *-> [Boolean] {
             [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
          } -> \currentCarriageWeAreLookingAt:backCouplingIsConnectedToACarriage;
-
-         [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
+         
             [->] moveToNextCarriage = *{
+               [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
                \currentCarriageWeAreLookingAt:retriveCarriageCoupledToBack *([TrainCarriage<[&E]>] carriageCoupledToBack) {
                   \wrappedCurrentCarriage:store carriageCoupledToBack;
                };
             };
 
       \[Loops]:until *([->] stop) {
+         [TrainCarriage<[&E]>] currentCarriageWeAreLookingAt = \getCurrentCarriageWeAreLookingAt;
          \carriageReceiver currentCarriageWeAreLookingAt;
          [Boolean] moreCarrigesToLookInside = \checkIfThereAreMoreCarriagesToLookInside;
          \moreCarrigesToLookInside:ifOrElse moveToNextCarriage stop;
@@ -400,33 +401,25 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 {
 
    ~ newEmptyMapping *{
-      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
-                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
-   }  !{
+            [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
          [MappingBucket<[&KEY][&VALUE]>] initialTopLevelEmptyBucket
             = \[MappingBucket<[&KEY][&VALUE]>]
-               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier
+               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier;
 
-         !{
-            [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
-         };
-         
-      }
+      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
+                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
+   } 
 
 
    ~ empty *{
-      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
-                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
-   }  !{
+      [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
          [MappingBucket<[&KEY][&VALUE]>] initialTopLevelEmptyBucket
             = \[MappingBucket<[&KEY][&VALUE]>]
-               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier
+               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier;
 
-         !{
-            [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
-         };
-         
-      }
+      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
+                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
+   }
 
 
 
@@ -483,18 +476,20 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 
    - retriveBucketWithIdentifierIfItExists 
       *([Integer] bucketIdentifier, [[MappingBucket<[&KEY][&VALUE]>]->] bucketRetriver) {
+         [Boolean] flagForNewBucketShouldNoBeCreated = \[Boolean]:false;
+
          \:retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist 
             bucketIdentifier bucketRetriver flagForNewBucketShouldNoBeCreated 
-               !{[Boolean] flagForNewBucketShouldNoBeCreated = \[Boolean]:false;};
+               ;
          
       }
 
 
    - retriveBucketWithIdentifierCreatingNewBucketIfItDoesntExist
       *([Integer] bucketIdentifier, [[MappingBucket<[&KEY][&VALUE]>]->] bucketRetriver) {
+         [Boolean] flagForNewBucketShouldBeCreatedIfItDoesntExist = \[Boolean]:true;
          \:retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist 
-            bucketIdentifier bucketRetriver flagForNewBucketShouldBeCreatedIfItDoesntExist
-               !{[Boolean] flagForNewBucketShouldBeCreatedIfItDoesntExist = \[Boolean]:true;};
+            bucketIdentifier bucketRetriver flagForNewBucketShouldBeCreatedIfItDoesntExist;
       }
 
    - retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist *(
@@ -511,53 +506,59 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       [Boolean] newBucketShouldBeCreatedIfItDoesntExist) {
 
       [MappingBucket<[&KEY][&VALUE]>] bucketAtTheRootOfThisTree = \theTreeInQuestion:lookAtTheFruit;
-      {\bucketAtTheRootOfThisTree:branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger bucketIdentifier
-         retriveThisBucket
-         keepLookingDownLeftBranch  !{
-                        [->] keepLookingDownLeftBranch = 
-                           *{\continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction
-                              (theTreeInQuestion:observeLeftBranch)
-                              (theTreeInQuestion:connectTreeToLeftBranch)};
-                     }
-         keepLookingDownRightBranch !{
-                        [->] keepLookingDownRightBranch = 
-                           *{\continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction 
-                              (theTreeInQuestion:observeRightBranch)
-                              (theTreeInQuestion:connectTreeToRightBranch)};
-                     }
 
-         }!{
-            [->] retriveThisBucket = *{\bucketRetriver bucketAtTheRootOfThisTree;};
+      [->] retriveThisBucket = *{
+               \[Debug]:log (\[String]:as ##asdf:b\n##);
+
+         \bucketRetriver bucketAtTheRootOfThisTree;
+               \[Debug]:log (\[String]:as ##asdf:c\n##);
+
+      };
 
             [[[[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->]->][[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->]->] continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction
                = *([[[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->]->] observeTreeDownBranch,
-                  [[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->] insertTreeOnBranch) {{
+                  [[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]->] insertTreeOnBranch) {
 
-               [Conjecture] treeExistsDownBranch = \[Conjecture]:propose;
-               \observeTreeDownBranch *([BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] treeFoundOnBranch) {
-                  \treeExistsDownBranch:declareTrue;
-                  \continueSearchTreeDownThisBranch   !{
 
-                                    [->] continueSearchTreeDownThisBranch = *{\:retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist
-                                       treeFoundOnBranch bucketIdentifier bucketRetriver newBucketShouldBeCreatedIfItDoesntExist;};
-                                 };
-               };
-   
-               [Boolean] shouldCreateNewTreeWithBucketOnThisBranch = 
-                  \[Boolean]:and (\treeExistsDownBranch:notTrue) (newBucketShouldBeCreatedIfItDoesntExist);
-               \shouldCreateNewTreeWithBucketOnThisBranch:ifOrElse 
-                  createAndRetriveNewTreeWithBucketOnThisBranch *{}
-
-            }  !{
-                  [->] createAndRetriveNewTreeWithBucketOnThisBranch = *{
+[->] createAndRetriveNewTreeWithBucketOnThisBranch = *{
                      [MappingBucket<[&KEY][&VALUE]>] newBucket = \[MappingBucket<[&KEY][&VALUE]>]:newEmptyBucketWithIdentifier bucketIdentifier;
                      [BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] newTreeToInsert = 
                         \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]:binaryTreeWithFruit newBucket;
                      \insertTreeOnBranch newTreeToInsert;
                      \bucketRetriver newBucket;
                   };
-               }}
-         }
+
+               [Conjecture] treeExistsDownBranch = \[Conjecture]:propose;
+               \observeTreeDownBranch *([BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] treeFoundOnBranch) {
+                  [->] continueSearchTreeDownThisBranch = *{\:retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist
+                                       treeFoundOnBranch bucketIdentifier bucketRetriver newBucketShouldBeCreatedIfItDoesntExist;};
+                  \treeExistsDownBranch:declareTrue;
+                  \continueSearchTreeDownThisBranch;
+               };
+   
+               [Boolean] shouldCreateNewTreeWithBucketOnThisBranch = 
+                  \[Boolean]:and (\treeExistsDownBranch:notTrue) (newBucketShouldBeCreatedIfItDoesntExist);
+               \shouldCreateNewTreeWithBucketOnThisBranch:ifOrElse 
+                  createAndRetriveNewTreeWithBucketOnThisBranch *{};
+
+            };
+
+
+[->] keepLookingDownRightBranch = 
+                           *{
+                              \continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction 
+                              (theTreeInQuestion:observeRightBranch)
+                              (theTreeInQuestion:connectTreeToRightBranch)};
+      [->] keepLookingDownLeftBranch = 
+                           *{
+                              \continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction
+                              (theTreeInQuestion:observeLeftBranch)
+                              (theTreeInQuestion:connectTreeToLeftBranch)};
+
+      \bucketAtTheRootOfThisTree:branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger bucketIdentifier
+         retriveThisBucket
+         keepLookingDownLeftBranch
+         keepLookingDownRightBranch;
    }  
 
 
