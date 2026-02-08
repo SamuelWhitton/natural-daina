@@ -508,10 +508,8 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       [MappingBucket<[&KEY][&VALUE]>] bucketAtTheRootOfThisTree = \theTreeInQuestion:lookAtTheFruit;
 
       [->] retriveThisBucket = *{
-               \[Debug]:log (\[String]:as ##asdf:b\n##);
 
          \bucketRetriver bucketAtTheRootOfThisTree;
-               \[Debug]:log (\[String]:as ##asdf:c\n##);
 
       };
 
@@ -616,7 +614,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    ++ retriveValueForKeyIfItExists  *([String] keyInQuestion, [[&VALUE]->] valueRetriver) {
       \.mappingsStoredInBucket:iterateThroughObjectsOnTrain *([SingleMapping<[&KEY][&VALUE]>] mappingInBucket) {
          [Boolean] keyInQuestionMatchesThisMappingInBucket = \keyInQuestion:isEqualTo \mappingInBucket:getKey;
-         \keyInQuestionMatchesThisMappingInBucket:ifOrElse *{\valueRetriver \mappingInBucket:getValue}
+         \keyInQuestionMatchesThisMappingInBucket:ifOrElse *{\valueRetriver \mappingInBucket:getValue} *{};
       } *{};
    }
    
