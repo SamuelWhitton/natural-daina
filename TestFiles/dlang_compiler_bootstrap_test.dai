@@ -439,25 +439,42 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       
    }
 
-@@
-   override OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
-      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_nothingTest = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
-      OBJECT LOBJECT_somethingTest = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_asdfasdfasdf]);
-      return LOBJECT_nothingTest;
+}
+
+
+
+[Mapping<KEY, VALUE>] (
+               BinaryTree, MappingBucket, Object, SetObject 
+               ,Integer, Data, String, Container, Boolean, Conjecture, Maybe, Variable
+               ) 
+   [Index<[&VALUE]>] index
+{
+
+
+   ~ empty *{
+      .index = \[Index<[&VALUE]>]:empty;
    }
-   override OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
-      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_value = parameters.length > 1 ? parameters[1] : null;
-      return caller;
-   }@@
+
+
+
+   ++ mapKeyToValue *([&KEY] key, [&VALUE] value) {
+      \.index:set key \[Maybe<[&VALUE]>]:as value;
+   }
+
+
+   ++ retriveMappedValueWithKey *([&KEY] key, [[&VALUE] -> ] valueRetriver) {
+      [Maybe<[&VALUE]>] maybeValue = \:maybeRetriveMappedValueWithKey key;
+      \maybeValue:isOrElse valueRetriver *{};
+   }  
+
+   ++ maybeRetriveMappedValueWithKey *([&KEY] key) -> [Maybe<[&VALUE]>] {
+   }  -> \.index:get key
 
 
 }
 
 
+@@
 
 [Mapping<KEY, VALUE>] (
                BinaryTree, MappingBucket, Object, SetObject 
@@ -486,14 +503,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             \bucketToInsertKeyAndValue:insertKeyValuePairIntoBucket key value;
          };
    }
-@@
-   ++ unmapKey *([&KEY] key) {
-      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
-      \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
-         *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
-            \bucketMatchingIdentifier:removeKeyFromBucket key;
-         };
-   }@@
+
 
    ++ retriveMappedValueWithKey *([&KEY] key, [[&VALUE] -> ] valueRetriver) {
       [Container<[&VALUE]>] containerWithFoundValueMatchingKey = \[Container<[&VALUE]>]:newEmptyContainer;
@@ -518,16 +528,6 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          };
    }  -> \foundValueMatchingKey:get
 
-   @@++ get *([&KEY] key) -> [Maybe<[&VALUE]>] {
-      [Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:nothing);
-      [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
-      \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
-         *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
-            \bucketMatchingIdentifier:retriveValueForKeyIfItExists key *([&VALUE] theValueThatWasFoundMatchingKey) {
-               \foundValueMatchingKey:set (\[Maybe<[&VALUE]>]:as theValueThatWasFoundMatchingKey);
-            };
-         };
-   }  -> \foundValueMatchingKey:get@@
 
 
    - retriveBucketWithIdentifierIfItExists 
@@ -620,7 +620,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
    - getBucketIdentifierForKey *([&KEY] theSetObjectInQuestion) 
        -> \[Integer]:as ##0##
 
-}
+}@@
 
 
 
