@@ -249,7 +249,6 @@ interface CLASSTYPE_Train : OBJECT, LAMBDA {
    OBJECT IMETHOD_coupleCarriagesWithFrontAndBackCarriage(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_iterateThroughCarriages(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_iterateThroughObjectsOnTrain(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_deleteObjectsOnTrainWhenPrediateIsTrue(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_transformObjectsOnTrain(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_newTrainBySelectingObjectsWhenPrediateIsTrue(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_fuseTrainObjectsWithFushionRuleAndDefaultOnEmptyTrain(OBJECT caller, OBJECT[] parameters);
@@ -312,115 +311,99 @@ class CLASSIMPL_Train : CLASSTYPE_Train {
    }
    override OBJECT IMETHOD_popFromFront(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_dropFrontCarriageIfItIsNotTheLastCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      OBJECT LOBJECT_cargoReceiver = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_dropFrontCarriageIfItIsNotTheLastCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = IOBJECT_frontCarriage;
+            return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToBack(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_carriageCoupledToBack = parameters.length > 0 ? parameters[0] : null;
+            IOBJECT_frontCarriage = LOBJECT_carriageCoupledToBack;
             (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = IOBJECT_frontCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToBack(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_carriageCoupledToBack = parameters.length > 0 ? parameters[0] : null;
-               IOBJECT_frontCarriage = LOBJECT_carriageCoupledToBack;
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = IOBJECT_frontCarriage;
-                  return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_disconnectFrontCoupler(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[]);
-               return caller;
-            } })]);
+               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_disconnectFrontCoupler(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
             return caller;
-         } });
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_cargoReceiver = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_frontCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCargoWithReceiver(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[LOBJECT_cargoReceiver]);
-            self.IMETHOD_emptyTrainIfThereIsOnlyOneCarriageLeft(self, cast(OBJECT[])[]);
-            (cast(LAMBDA)LOBJECT_dropFrontCarriageIfItIsNotTheLastCarriage).method(caller, cast(OBJECT[])[]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
+         } })]);
+         return caller;
+      } });
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_frontCarriage;
+         return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCargoWithReceiver(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_cargoReceiver]);
+      self.IMETHOD_emptyTrainIfThereIsOnlyOneCarriageLeft(self, cast(OBJECT[])[]);
+      (cast(LAMBDA)LOBJECT_dropFrontCarriageIfItIsNotTheLastCarriage).method(caller, cast(OBJECT[])[]);
+      return caller;
    }
    override OBJECT IMETHOD_popFromBack(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_dropBackCarriageIfItIsNotTheLastCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      OBJECT LOBJECT_cargoReceiver = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_dropBackCarriageIfItIsNotTheLastCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = IOBJECT_backCarriage;
+            return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToFront(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_carriageCoupledToFront = parameters.length > 0 ? parameters[0] : null;
+            IOBJECT_backCarriage = LOBJECT_carriageCoupledToFront;
             (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = IOBJECT_backCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToFront(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_carriageCoupledToFront = parameters.length > 0 ? parameters[0] : null;
-               IOBJECT_backCarriage = LOBJECT_carriageCoupledToFront;
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = IOBJECT_backCarriage;
-                  return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_disconnectBackCoupler(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[]);
-               return caller;
-            } })]);
+               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_disconnectBackCoupler(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
             return caller;
-         } });
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_cargoReceiver = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_backCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCargoWithReceiver(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[LOBJECT_cargoReceiver]);
-            self.IMETHOD_emptyTrainIfThereIsOnlyOneCarriageLeft(self, cast(OBJECT[])[]);
-            (cast(LAMBDA)LOBJECT_dropBackCarriageIfItIsNotTheLastCarriage).method(caller, cast(OBJECT[])[]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
+         } })]);
+         return caller;
+      } });
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_backCarriage;
+         return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCargoWithReceiver(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_cargoReceiver]);
+      self.IMETHOD_emptyTrainIfThereIsOnlyOneCarriageLeft(self, cast(OBJECT[])[]);
+      (cast(LAMBDA)LOBJECT_dropBackCarriageIfItIsNotTheLastCarriage).method(caller, cast(OBJECT[])[]);
+      return caller;
    }
    override OBJECT IMETHOD_pushToFront(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_getFrontCarriageReadyForNewCargo = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_frontCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_performActionIfCarriageIsFull(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_newFrontCarriage = CLASSIMPL_TrainCarriage.TMETHOD_newEmptyCarriage(caller, cast(OBJECT[])[]);
-               self.IMETHOD_coupleCarriagesWithFrontAndBackCarriage(self, cast(OBJECT[])[LOBJECT_newFrontCarriage, IOBJECT_frontCarriage]);
-               IOBJECT_frontCarriage = LOBJECT_newFrontCarriage;
-               return caller;
-            } })]);
+      OBJECT LOBJECT_cargo = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_getFrontCarriageReadyForNewCargo = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = IOBJECT_frontCarriage;
+            return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_performActionIfCarriageIsFull(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_newFrontCarriage = CLASSIMPL_TrainCarriage.TMETHOD_newEmptyCarriage(caller, cast(OBJECT[])[]);
+            self.IMETHOD_coupleCarriagesWithFrontAndBackCarriage(self, cast(OBJECT[])[LOBJECT_newFrontCarriage, IOBJECT_frontCarriage]);
+            IOBJECT_frontCarriage = LOBJECT_newFrontCarriage;
             return caller;
-         } });
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_cargo = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)LOBJECT_getFrontCarriageReadyForNewCargo).method(caller, cast(OBJECT[])[]);
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_frontCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_store(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[LOBJECT_cargo]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
+         } })]);
+         return caller;
+      } });
+      (cast(LAMBDA)LOBJECT_getFrontCarriageReadyForNewCargo).method(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_frontCarriage;
+         return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_store(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_cargo]);
+      return caller;
    }
    override OBJECT IMETHOD_pushToBack(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_getBackCarriageReadyForNewCargo = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_backCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_performActionIfCarriageIsFull(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_newBackCarriage = CLASSIMPL_TrainCarriage.TMETHOD_newEmptyCarriage(caller, cast(OBJECT[])[]);
-               self.IMETHOD_coupleCarriagesWithFrontAndBackCarriage(self, cast(OBJECT[])[IOBJECT_backCarriage, LOBJECT_newBackCarriage]);
-               IOBJECT_backCarriage = LOBJECT_newBackCarriage;
-               return caller;
-            } })]);
+      OBJECT LOBJECT_cargo = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_getBackCarriageReadyForNewCargo = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = IOBJECT_backCarriage;
+            return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_performActionIfCarriageIsFull(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_newBackCarriage = CLASSIMPL_TrainCarriage.TMETHOD_newEmptyCarriage(caller, cast(OBJECT[])[]);
+            self.IMETHOD_coupleCarriagesWithFrontAndBackCarriage(self, cast(OBJECT[])[IOBJECT_backCarriage, LOBJECT_newBackCarriage]);
+            IOBJECT_backCarriage = LOBJECT_newBackCarriage;
             return caller;
-         } });
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_cargo = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)LOBJECT_getBackCarriageReadyForNewCargo).method(caller, cast(OBJECT[])[]);
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_backCarriage;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_store(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[LOBJECT_cargo]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
+         } })]);
+         return caller;
+      } });
+      (cast(LAMBDA)LOBJECT_getBackCarriageReadyForNewCargo).method(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_backCarriage;
+         return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_store(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_cargo]);
+      return caller;
    }
    override OBJECT IMETHOD_coupleCarriagesWithFrontAndBackCarriage(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
@@ -438,51 +421,46 @@ class CLASSIMPL_Train : CLASSTYPE_Train {
    }
    override OBJECT IMETHOD_iterateThroughCarriages(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_wrappedCurrentCarriage = CLASSIMPL_Wrapper.TMETHOD_wrapperWithObject(caller, cast(OBJECT[])[IOBJECT_frontCarriage]);
-         OBJECT LOBJECT_getCurrentCarriageWeAreLookingAt = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_wrappedCurrentCarriage;
-            return (cast(CLASSTYPE_Wrapper)instance).IMETHOD_unwrap(instance, parameters);
-         } });
-         OBJECT LOBJECT_checkIfThereAreMoreCarriagesToLookInside = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_currentCarriageWeAreLookingAt = (cast(LAMBDA)LOBJECT_getCurrentCarriageWeAreLookingAt).method(caller, cast(OBJECT[])[]);
-            return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_currentCarriageWeAreLookingAt;
-               return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_backCouplingIsConnectedToACarriage(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[]);
-         } });
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_carriageReceiver = parameters.length > 0 ? parameters[0] : null;
-            CLASSIMPL_Loops.TMETHOD_until(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_currentCarriageWeAreLookingAt = (cast(LAMBDA)LOBJECT_getCurrentCarriageWeAreLookingAt).method(caller, cast(OBJECT[])[]);
-               OBJECT LOBJECT_moveToNextCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_currentCarriageWeAreLookingAt;
-                     return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToBack(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT LOBJECT_carriageCoupledToBack = parameters.length > 0 ? parameters[0] : null;
-                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                        OBJECT instance = LOBJECT_wrappedCurrentCarriage;
-                        return (cast(CLASSTYPE_Wrapper)instance).IMETHOD_store(instance, parameters);
-                     } })).method(caller, cast(OBJECT[])[LOBJECT_carriageCoupledToBack]);
-                     return caller;
-                  } })]);
-                  return caller;
-               } });
-               return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT LOBJECT_stop = parameters.length > 0 ? parameters[0] : null;
-                  (cast(LAMBDA)LOBJECT_carriageReceiver).method(caller, cast(OBJECT[])[LOBJECT_currentCarriageWeAreLookingAt]);
-                  OBJECT LOBJECT_moreCarrigesToLookInside = (cast(LAMBDA)LOBJECT_checkIfThereAreMoreCarriagesToLookInside).method(caller, cast(OBJECT[])[]);
-                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_moreCarrigesToLookInside;
-                     return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[LOBJECT_moveToNextCarriage, LOBJECT_stop]);
-                  return caller;
-               } });
-            } }).method(caller, [])]);
+      OBJECT LOBJECT_carriageReceiver = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_wrappedCurrentCarriage = CLASSIMPL_Wrapper.TMETHOD_wrapperWithObject(caller, cast(OBJECT[])[IOBJECT_frontCarriage]);
+      OBJECT LOBJECT_getCurrentCarriageWeAreLookingAt = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_wrappedCurrentCarriage;
+         return (cast(CLASSTYPE_Wrapper)instance).IMETHOD_unwrap(instance, parameters);
+      } });
+      OBJECT LOBJECT_checkIfThereAreMoreCarriagesToLookInside = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_currentCarriageWeAreLookingAt = (cast(LAMBDA)LOBJECT_getCurrentCarriageWeAreLookingAt).method(caller, cast(OBJECT[])[]);
+         return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_currentCarriageWeAreLookingAt;
+            return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_backCouplingIsConnectedToACarriage(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[]);
+      } });
+      OBJECT LOBJECT_moveToNextCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_currentCarriageWeAreLookingAt = (cast(LAMBDA)LOBJECT_getCurrentCarriageWeAreLookingAt).method(caller, cast(OBJECT[])[]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_currentCarriageWeAreLookingAt;
+            return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToBack(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_carriageCoupledToBack = parameters.length > 0 ? parameters[0] : null;
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_wrappedCurrentCarriage;
+               return (cast(CLASSTYPE_Wrapper)instance).IMETHOD_store(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_carriageCoupledToBack]);
             return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
+         } })]);
+         return caller;
+      } });
+      CLASSIMPL_Loops.TMETHOD_until(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_stop = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_currentCarriageWeAreLookingAt = (cast(LAMBDA)LOBJECT_getCurrentCarriageWeAreLookingAt).method(caller, cast(OBJECT[])[]);
+         (cast(LAMBDA)LOBJECT_carriageReceiver).method(caller, cast(OBJECT[])[LOBJECT_currentCarriageWeAreLookingAt]);
+         OBJECT LOBJECT_moreCarrigesToLookInside = (cast(LAMBDA)LOBJECT_checkIfThereAreMoreCarriagesToLookInside).method(caller, cast(OBJECT[])[]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_moreCarrigesToLookInside;
+            return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[LOBJECT_moveToNextCarriage, LOBJECT_stop]);
+         return caller;
+      } })]);
+      return caller;
    }
    override OBJECT IMETHOD_iterateThroughObjectsOnTrain(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
@@ -496,107 +474,6 @@ class CLASSIMPL_Train : CLASSTYPE_Train {
          return caller;
       } })]);
       return caller;
-   }
-   override OBJECT IMETHOD_deleteObjectsOnTrainWhenPrediateIsTrue(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_removeCargoFromTrainWithCarriage = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_carriageToRemoveCargo = parameters.length > 0 ? parameters[0] : null;
-            OBJECT LOBJECT_pullCarriageAwayFromTrainAndReconnectTrain = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_theCarriageInQuestion = LOBJECT_carriageToRemoveCargo;
-               OBJECT LOBJECT_removeCarriageFromMiddleOfTrain = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_theCarriageInQuestion;
-                     return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToFront(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT LOBJECT_frontCoupledCarriage = parameters.length > 0 ? parameters[0] : null;
-                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                        OBJECT instance = LOBJECT_theCarriageInQuestion;
-                        return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCarriageCoupledToBack(instance, parameters);
-                     } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                        OBJECT LOBJECT_backCoupledCarriage = parameters.length > 0 ? parameters[0] : null;
-                        self.IMETHOD_coupleCarriagesWithFrontAndBackCarriage(self, cast(OBJECT[])[LOBJECT_frontCoupledCarriage, LOBJECT_backCoupledCarriage]);
-                        return caller;
-                     } })]);
-                     return caller;
-                  } })]);
-                  return caller;
-               } });
-               OBJECT LOBJECT_removeCarriageFromBackOfTrain = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  self.IMETHOD_popFromBack(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT LOBJECT_poppedObject = parameters.length > 0 ? parameters[0] : null;
-                     return caller;
-                  } })]);
-                  return caller;
-               } });
-               OBJECT LOBJECT_removeCarriageFromFrontOfTrain = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  self.IMETHOD_popFromFront(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT LOBJECT_poppedObject = parameters.length > 0 ? parameters[0] : null;
-                     return caller;
-                  } })]);
-                  return caller;
-               } });
-               return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT LOBJECT_carriageIsConnectedAtFront = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_carriageToRemoveCargo;
-                     return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_frontCouplingIsConnectedToACarriage(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[]);
-                  OBJECT LOBJECT_carriageIsConnectedAtBack = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_carriageToRemoveCargo;
-                     return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_backCouplingIsConnectedToACarriage(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[]);
-                  OBJECT LOBJECT_carriageIsInTheMiddleOfTheTrain = CLASSIMPL_Boolean.TMETHOD_and(caller, cast(OBJECT[])[LOBJECT_carriageIsConnectedAtFront, LOBJECT_carriageIsConnectedAtBack]);
-                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_carriageIsInTheMiddleOfTheTrain;
-                     return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[LOBJECT_removeCarriageFromMiddleOfTrain, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                        OBJECT instance = LOBJECT_carriageIsConnectedAtFront;
-                        return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-                     } })).method(caller, cast(OBJECT[])[LOBJECT_removeCarriageFromBackOfTrain, LOBJECT_removeCarriageFromFrontOfTrain]);
-                     return caller;
-                  } })]);
-                  return caller;
-               } });
-            } }).method(caller, []);
-            {
-               self.IMETHOD_emptyTrainIfThereIsOnlyOneCarriageLeft(self, cast(OBJECT[])[]);
-               OBJECT LOBJECT_trainIsCompletelyEmptyNow = self.IMETHOD_isEmpty(self, cast(OBJECT[])[]);
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_trainIsCompletelyEmptyNow;
-                  return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  return caller;
-               } }), LOBJECT_pullCarriageAwayFromTrainAndReconnectTrain]);
-            }
-            return caller;
-         } });
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_determineIfWeShouldRemoveCargoFromTrain = parameters.length > 0 ? parameters[0] : null;
-            self.IMETHOD_iterateThroughCarriages(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_carriage = parameters.length > 0 ? parameters[0] : null;
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_carriage;
-                  return (cast(CLASSTYPE_TrainCarriage)instance).IMETHOD_retriveCargoWithReceiver(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT LOBJECT_cargo = parameters.length > 0 ? parameters[0] : null;
-                  OBJECT LOBJECT_weShouldDeleteThisCargo = (cast(LAMBDA)LOBJECT_determineIfWeShouldRemoveCargoFromTrain).method(caller, cast(OBJECT[])[LOBJECT_cargo]);
-                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = LOBJECT_weShouldDeleteThisCargo;
-                     return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     (cast(LAMBDA)LOBJECT_removeCargoFromTrainWithCarriage).method(caller, cast(OBJECT[])[LOBJECT_carriage]);
-                     return caller;
-                  } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     return caller;
-                  } })]);
-                  return caller;
-               } })]);
-               return caller;
-            } })]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
    }
    override OBJECT IMETHOD_transformObjectsOnTrain(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Train self = cast(CLASSTYPE_Train)caller;
@@ -771,281 +648,121 @@ class CLASSIMPL_Conjecture : CLASSTYPE_Conjecture {
    }
 }
 
+/* *** CLASS: Index *** */
+interface CLASSTYPE_Index : OBJECT, LAMBDA {
+   OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters);
+}
+class CLASSIMPL_Index : CLASSTYPE_Index {
+/* dlang injection start */
+         import std.string : assumeUTF;
+         OBJECT[string] index;
+      /* dlang injection end */
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   static OBJECT TMETHOD_empty(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Index newInstance = new CLASSIMPL_Index(); return newInstance.CMETHOD_empty(newInstance, parameters); }
+   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
+      return caller;
+   }
+   override OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
+      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_ascii = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_key;
+         return (cast(CLASSTYPE_String)instance).IMETHOD_ascii(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
+/* dlang injection start */
+         OBJECT LOBJECT_foundInIndex = null;
+         string key = (cast(CLASSIMPL_Data)LOBJECT_ascii).value.it.assumeUTF;
+         if (auto valuePtr = key in index) {
+            LOBJECT_foundInIndex = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[*valuePtr]);
+         } else {
+            LOBJECT_foundInIndex = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+         }
+      /* dlang injection end */
+      return LOBJECT_foundInIndex;
+   }
+   override OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
+      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_maybeValue = parameters.length > 1 ? parameters[1] : null;
+      OBJECT LOBJECT_ascii = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_key;
+         return (cast(CLASSTYPE_String)instance).IMETHOD_ascii(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
+/* dlang injection start */
+         string key = (cast(CLASSIMPL_Data)LOBJECT_ascii).value.it.assumeUTF;
+      /* dlang injection end */
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_maybeValue;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_value = parameters.length > 0 ? parameters[0] : null;
+/* dlang injection start */
+            index[key] = LOBJECT_value;
+         /* dlang injection end */
+         return caller;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+/* dlang injection start */
+            index.remove(key);
+         /* dlang injection end */
+         return caller;
+      } })]);
+      return caller;
+   }
+}
+
 /* *** CLASS: Mapping *** */
 interface CLASSTYPE_Mapping : OBJECT, LAMBDA {
    OBJECT IMETHOD_mapKeyToValue(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_unmapKey(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_retriveMappedValueWithKey(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_maybeRetriveMappedValueWithKey(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_retriveBucketWithIdentifierIfItExists(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_retriveBucketWithIdentifierCreatingNewBucketIfItDoesntExist(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_getBucketIdentifierForKey(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_Mapping : CLASSTYPE_Mapping {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
-   private OBJECT IOBJECT_treeOfMappedKeyValuePairs = null;
-   static OBJECT TMETHOD_newEmptyMapping(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Mapping newInstance = new CLASSIMPL_Mapping(); return newInstance.CMETHOD_newEmptyMapping(newInstance, parameters); }
-   OBJECT CMETHOD_newEmptyMapping(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_initialTopLevelEmptyBucket = CLASSIMPL_MappingBucket.TMETHOD_newEmptyBucketWithIdentifier(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_initialArbitraryIntegerIdentifier = CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
-            return LOBJECT_initialArbitraryIntegerIdentifier;
-         } }).method(caller, [])]);
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            IOBJECT_treeOfMappedKeyValuePairs = CLASSIMPL_BinaryTree.TMETHOD_binaryTreeWithFruit(caller, cast(OBJECT[])[LOBJECT_initialTopLevelEmptyBucket]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
-   }
+   private OBJECT IOBJECT_index = null;
    static OBJECT TMETHOD_empty(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Mapping newInstance = new CLASSIMPL_Mapping(); return newInstance.CMETHOD_empty(newInstance, parameters); }
    OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_initialTopLevelEmptyBucket = CLASSIMPL_MappingBucket.TMETHOD_newEmptyBucketWithIdentifier(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_initialArbitraryIntegerIdentifier = CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
-            return LOBJECT_initialArbitraryIntegerIdentifier;
-         } }).method(caller, [])]);
-         return (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            IOBJECT_treeOfMappedKeyValuePairs = CLASSIMPL_BinaryTree.TMETHOD_binaryTreeWithFruit(caller, cast(OBJECT[])[LOBJECT_initialTopLevelEmptyBucket]);
-            return caller;
-         } });
-      } }).method(caller, [])).method(caller, []);
+      IOBJECT_index = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      return caller;
    }
    override OBJECT IMETHOD_mapKeyToValue(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
       OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_value = parameters.length > 1 ? parameters[1] : null;
-      OBJECT LOBJECT_bucketIdentifierForKey = self.IMETHOD_getBucketIdentifierForKey(self, cast(OBJECT[])[LOBJECT_key]);
-      self.IMETHOD_retriveBucketWithIdentifierCreatingNewBucketIfItDoesntExist(self, cast(OBJECT[])[LOBJECT_bucketIdentifierForKey, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_bucketToInsertKeyAndValue = parameters.length > 0 ? parameters[0] : null;
-         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_bucketToInsertKeyAndValue;
-            return (cast(CLASSTYPE_MappingBucket)instance).IMETHOD_insertKeyValuePairIntoBucket(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[LOBJECT_key, LOBJECT_value]);
-         return caller;
-      } })]);
-      return caller;
-   }
-   override OBJECT IMETHOD_unmapKey(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_bucketIdentifierForKey = self.IMETHOD_getBucketIdentifierForKey(self, cast(OBJECT[])[LOBJECT_key]);
-      self.IMETHOD_retriveBucketWithIdentifierIfItExists(self, cast(OBJECT[])[LOBJECT_bucketIdentifierForKey, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_bucketMatchingIdentifier = parameters.length > 0 ? parameters[0] : null;
-         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_bucketMatchingIdentifier;
-            return (cast(CLASSTYPE_MappingBucket)instance).IMETHOD_removeKeyFromBucket(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[LOBJECT_key]);
-         return caller;
-      } })]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_index;
+         return (cast(CLASSTYPE_Index)instance).IMETHOD_set(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_key, CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_value])]);
       return caller;
    }
    override OBJECT IMETHOD_retriveMappedValueWithKey(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
       OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_valueRetriver = parameters.length > 1 ? parameters[1] : null;
-      OBJECT LOBJECT_containerWithFoundValueMatchingKey = CLASSIMPL_Container.TMETHOD_newEmptyContainer(caller, cast(OBJECT[])[]);
-      OBJECT LOBJECT_bucketIdentifierForKey = self.IMETHOD_getBucketIdentifierForKey(self, cast(OBJECT[])[LOBJECT_key]);
-      self.IMETHOD_retriveBucketWithIdentifierIfItExists(self, cast(OBJECT[])[LOBJECT_bucketIdentifierForKey, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_bucketMatchingIdentifier = parameters.length > 0 ? parameters[0] : null;
-         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_bucketMatchingIdentifier;
-            return (cast(CLASSTYPE_MappingBucket)instance).IMETHOD_retriveValueForKeyIfItExists(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[LOBJECT_key, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_theValueThatWasFoundMatchingKey = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_containerWithFoundValueMatchingKey;
-               return (cast(CLASSTYPE_Container)instance).IMETHOD_store(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[LOBJECT_theValueThatWasFoundMatchingKey]);
-            return caller;
-         } })]);
+      OBJECT LOBJECT_maybeValue = self.IMETHOD_maybeRetriveMappedValueWithKey(self, cast(OBJECT[])[LOBJECT_key]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_maybeValue;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_valueRetriver, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return caller;
       } })]);
-      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_containerWithFoundValueMatchingKey;
-         return (cast(CLASSTYPE_Container)instance).IMETHOD_retrive(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[LOBJECT_valueRetriver]);
       return caller;
    }
    override OBJECT IMETHOD_maybeRetriveMappedValueWithKey(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
       OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_foundValueMatchingKey = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
-      OBJECT LOBJECT_bucketIdentifierForKey = self.IMETHOD_getBucketIdentifierForKey(self, cast(OBJECT[])[LOBJECT_key]);
-      self.IMETHOD_retriveBucketWithIdentifierIfItExists(self, cast(OBJECT[])[LOBJECT_bucketIdentifierForKey, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_bucketMatchingIdentifier = parameters.length > 0 ? parameters[0] : null;
-         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_bucketMatchingIdentifier;
-            return (cast(CLASSTYPE_MappingBucket)instance).IMETHOD_retriveValueForKeyIfItExists(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[LOBJECT_key, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_theValueThatWasFoundMatchingKey = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_foundValueMatchingKey;
-               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_theValueThatWasFoundMatchingKey])]);
-            return caller;
-         } })]);
-         return caller;
-      } })]);
       return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_foundValueMatchingKey;
-         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[]);
-   }
-   override OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_foundValueMatchingKey = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
-      OBJECT LOBJECT_bucketIdentifierForKey = self.IMETHOD_getBucketIdentifierForKey(self, cast(OBJECT[])[LOBJECT_key]);
-      self.IMETHOD_retriveBucketWithIdentifierIfItExists(self, cast(OBJECT[])[LOBJECT_bucketIdentifierForKey, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_bucketMatchingIdentifier = parameters.length > 0 ? parameters[0] : null;
-         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_bucketMatchingIdentifier;
-            return (cast(CLASSTYPE_MappingBucket)instance).IMETHOD_retriveValueForKeyIfItExists(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[LOBJECT_key, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_theValueThatWasFoundMatchingKey = parameters.length > 0 ? parameters[0] : null;
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_foundValueMatchingKey;
-               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_theValueThatWasFoundMatchingKey])]);
-            return caller;
-         } })]);
-         return caller;
-      } })]);
-      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_foundValueMatchingKey;
-         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[]);
-   }
-   override OBJECT IMETHOD_retriveBucketWithIdentifierIfItExists(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_bucketIdentifier = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_bucketRetriver = parameters.length > 1 ? parameters[1] : null;
-      self.IMETHOD_retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(self, cast(OBJECT[])[LOBJECT_bucketIdentifier, LOBJECT_bucketRetriver, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_flagForNewBucketShouldNoBeCreated = CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
-         return LOBJECT_flagForNewBucketShouldNoBeCreated;
-      } }).method(caller, [])]);
-      return caller;
-   }
-   override OBJECT IMETHOD_retriveBucketWithIdentifierCreatingNewBucketIfItDoesntExist(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_bucketIdentifier = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_bucketRetriver = parameters.length > 1 ? parameters[1] : null;
-      self.IMETHOD_retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(self, cast(OBJECT[])[LOBJECT_bucketIdentifier, LOBJECT_bucketRetriver, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_flagForNewBucketShouldBeCreatedIfItDoesntExist = CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]);
-         return LOBJECT_flagForNewBucketShouldBeCreatedIfItDoesntExist;
-      } }).method(caller, [])]);
-      return caller;
-   }
-   override OBJECT IMETHOD_retriveBucketWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_bucketIdentifier = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_bucketRetriver = parameters.length > 1 ? parameters[1] : null;
-      OBJECT LOBJECT_newBucketShouldBeCreatedIfItDoesntExist = parameters.length > 2 ? parameters[2] : null;
-      self.IMETHOD_retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(self, cast(OBJECT[])[IOBJECT_treeOfMappedKeyValuePairs, LOBJECT_bucketIdentifier, LOBJECT_bucketRetriver, LOBJECT_newBucketShouldBeCreatedIfItDoesntExist]);
-      return caller;
-   }
-   override OBJECT IMETHOD_retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_theTreeInQuestion = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_bucketIdentifier = parameters.length > 1 ? parameters[1] : null;
-      OBJECT LOBJECT_bucketRetriver = parameters.length > 2 ? parameters[2] : null;
-      OBJECT LOBJECT_newBucketShouldBeCreatedIfItDoesntExist = parameters.length > 3 ? parameters[3] : null;
-      OBJECT LOBJECT_bucketAtTheRootOfThisTree = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_theTreeInQuestion;
-         return (cast(CLASSTYPE_BinaryTree)instance).IMETHOD_lookAtTheFruit(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[]);
-      OBJECT LOBJECT_retriveThisBucket = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         (cast(LAMBDA)LOBJECT_bucketRetriver).method(caller, cast(OBJECT[])[LOBJECT_bucketAtTheRootOfThisTree]);
-         return caller;
-      } });
-      OBJECT LOBJECT_continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_observeTreeDownBranch = parameters.length > 0 ? parameters[0] : null;
-         OBJECT LOBJECT_insertTreeOnBranch = parameters.length > 1 ? parameters[1] : null;
-         OBJECT LOBJECT_createAndRetriveNewTreeWithBucketOnThisBranch = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_newBucket = CLASSIMPL_MappingBucket.TMETHOD_newEmptyBucketWithIdentifier(caller, cast(OBJECT[])[LOBJECT_bucketIdentifier]);
-            OBJECT LOBJECT_newTreeToInsert = CLASSIMPL_BinaryTree.TMETHOD_binaryTreeWithFruit(caller, cast(OBJECT[])[LOBJECT_newBucket]);
-            (cast(LAMBDA)LOBJECT_insertTreeOnBranch).method(caller, cast(OBJECT[])[LOBJECT_newTreeToInsert]);
-            (cast(LAMBDA)LOBJECT_bucketRetriver).method(caller, cast(OBJECT[])[LOBJECT_newBucket]);
-            return caller;
-         } });
-         {
-            OBJECT LOBJECT_treeExistsDownBranch = CLASSIMPL_Conjecture.TMETHOD_propose(caller, cast(OBJECT[])[]);
-            (cast(LAMBDA)LOBJECT_observeTreeDownBranch).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_treeFoundOnBranch = parameters.length > 0 ? parameters[0] : null;
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_treeExistsDownBranch;
-                  return (cast(CLASSTYPE_Conjecture)instance).IMETHOD_declareTrue(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[]);
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT LOBJECT_continueSearchTreeDownThisBranch = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     self.IMETHOD_retriveBucketFromTreeWithIdentifierAndShouldNewBucketBeCreatedIfItDoesntExist(self, cast(OBJECT[])[LOBJECT_treeFoundOnBranch, LOBJECT_bucketIdentifier, LOBJECT_bucketRetriver, LOBJECT_newBucketShouldBeCreatedIfItDoesntExist]);
-                     return caller;
-                  } });
-                  return LOBJECT_continueSearchTreeDownThisBranch;
-               } }).method(caller, [])).method(caller, cast(OBJECT[])[]);
-               return caller;
-            } })]);
-            OBJECT LOBJECT_shouldCreateNewTreeWithBucketOnThisBranch = CLASSIMPL_Boolean.TMETHOD_and(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_treeExistsDownBranch;
-               return (cast(CLASSTYPE_Conjecture)instance).IMETHOD_notTrue(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[]), LOBJECT_newBucketShouldBeCreatedIfItDoesntExist]);
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_shouldCreateNewTreeWithBucketOnThisBranch;
-               return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[LOBJECT_createAndRetriveNewTreeWithBucketOnThisBranch, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               return caller;
-            } })]);
-         }
-         return caller;
-      } });
-      {
-         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_bucketAtTheRootOfThisTree;
-            return (cast(CLASSTYPE_MappingBucket)instance).IMETHOD_branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[LOBJECT_bucketIdentifier, LOBJECT_retriveThisBucket, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_keepLookingDownLeftBranch = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               (cast(LAMBDA)LOBJECT_continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_theTreeInQuestion;
-                  return (cast(CLASSTYPE_BinaryTree)instance).IMETHOD_observeLeftBranch(instance, parameters);
-               } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_theTreeInQuestion;
-                  return (cast(CLASSTYPE_BinaryTree)instance).IMETHOD_connectTreeToLeftBranch(instance, parameters);
-               } })]);
-               return caller;
-            } });
-            return LOBJECT_keepLookingDownLeftBranch;
-         } }).method(caller, []), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_keepLookingDownRightBranch = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               (cast(LAMBDA)LOBJECT_continueLookingDownBranchWithBranchObserverActionAndBranchInsertionAction).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_theTreeInQuestion;
-                  return (cast(CLASSTYPE_BinaryTree)instance).IMETHOD_observeRightBranch(instance, parameters);
-               } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_theTreeInQuestion;
-                  return (cast(CLASSTYPE_BinaryTree)instance).IMETHOD_connectTreeToRightBranch(instance, parameters);
-               } })]);
-               return caller;
-            } });
-            return LOBJECT_keepLookingDownRightBranch;
-         } }).method(caller, [])]);
-      }
-      return caller;
-   }
-   override OBJECT IMETHOD_getBucketIdentifierForKey(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
-      OBJECT LOBJECT_theSetObjectInQuestion = parameters.length > 0 ? parameters[0] : null;
-      return CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
+         OBJECT instance = IOBJECT_index;
+         return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_key]);
    }
 }
 
 /* *** CLASS: MappingBucket *** */
 interface CLASSTYPE_MappingBucket : OBJECT, LAMBDA {
    OBJECT IMETHOD_insertKeyValuePairIntoBucket(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_removeKeyFromBucket(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_retriveValueForKeyIfItExists(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_branchOnBucketIdentifierMatchesIsLessThanOrIsGreaterThanInteger(OBJECT caller, OBJECT[] parameters);
 }
@@ -1066,39 +783,37 @@ class CLASSIMPL_MappingBucket : CLASSTYPE_MappingBucket {
       OBJECT LOBJECT_keyInQuestion = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_valueInQuestion = parameters.length > 1 ? parameters[1] : null;
       OBJECT LOBJECT_keyExistsInBucket = CLASSIMPL_Conjecture.TMETHOD_propose(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_determineIfKeyExistsAndSetTheValueInQuestionAccordingly = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_singleMappingInBucket = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_keyOfMappingMatchesKeyInQuestion = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_keyInQuestion;
+            return (cast(CLASSTYPE_String)instance).IMETHOD_isEqualTo(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_singleMappingInBucket;
+            return (cast(CLASSTYPE_SingleMapping)instance).IMETHOD_getKey(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_keyOfMappingMatchesKeyInQuestion;
+            return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_keyExistsInBucket;
+               return (cast(CLASSTYPE_Conjecture)instance).IMETHOD_declareTrue(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_singleMappingInBucket;
+               return (cast(CLASSTYPE_SingleMapping)instance).IMETHOD_setValue(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_valueInQuestion]);
+            return caller;
+         } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return caller;
+         } })]);
+         return caller;
+      } });
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = IOBJECT_mappingsStoredInBucket;
          return (cast(CLASSTYPE_Train)instance).IMETHOD_iterateThroughObjectsOnTrain(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_determineIfKeyExistsAndSetTheValueInQuestionAccordingly = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_singleMappingInBucket = parameters.length > 0 ? parameters[0] : null;
-            OBJECT LOBJECT_keyOfMappingMatchesKeyInQuestion = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_keyInQuestion;
-               return (cast(CLASSTYPE_String)instance).IMETHOD_isEqualTo(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_singleMappingInBucket;
-               return (cast(CLASSTYPE_SingleMapping)instance).IMETHOD_getKey(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[])]);
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_keyOfMappingMatchesKeyInQuestion;
-               return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_keyExistsInBucket;
-                  return (cast(CLASSTYPE_Conjecture)instance).IMETHOD_declareTrue(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[]);
-               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_singleMappingInBucket;
-                  return (cast(CLASSTYPE_SingleMapping)instance).IMETHOD_setValue(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[LOBJECT_valueInQuestion]);
-               return caller;
-            } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               return caller;
-            } })]);
-            return caller;
-         } });
-         return LOBJECT_determineIfKeyExistsAndSetTheValueInQuestionAccordingly;
-      } }).method(caller, [])]);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_determineIfKeyExistsAndSetTheValueInQuestionAccordingly]);
       OBJECT LOBJECT_weShouldAddKeyValueAsNewPairInMappings = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_keyExistsInBucket;
          return (cast(CLASSTYPE_Conjecture)instance).IMETHOD_notTrue(instance, parameters);
@@ -1114,24 +829,6 @@ class CLASSIMPL_MappingBucket : CLASSTYPE_MappingBucket {
          return caller;
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return caller;
-      } })]);
-      return caller;
-   }
-   override OBJECT IMETHOD_removeKeyFromBucket(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_MappingBucket self = cast(CLASSTYPE_MappingBucket)caller;
-      OBJECT LOBJECT_keyInQuestion = parameters.length > 0 ? parameters[0] : null;
-      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = IOBJECT_mappingsStoredInBucket;
-         return (cast(CLASSTYPE_Train)instance).IMETHOD_deleteObjectsOnTrainWhenPrediateIsTrue(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_mappingInBucket = parameters.length > 0 ? parameters[0] : null;
-         return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_keyInQuestion;
-            return (cast(CLASSTYPE_String)instance).IMETHOD_isEqualTo(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_mappingInBucket;
-            return (cast(CLASSTYPE_SingleMapping)instance).IMETHOD_getKey(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[])]);
       } })]);
       return caller;
    }
@@ -1159,6 +856,8 @@ class CLASSIMPL_MappingBucket : CLASSTYPE_MappingBucket {
                OBJECT instance = LOBJECT_mappingInBucket;
                return (cast(CLASSTYPE_SingleMapping)instance).IMETHOD_getValue(instance, parameters);
             } })).method(caller, cast(OBJECT[])[])]);
+            return caller;
+         } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             return caller;
          } })]);
          return caller;
@@ -3898,12 +3597,16 @@ class CLASSIMPL_List : CLASSTYPE_List {
          return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
       } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_node = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_nextNode = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_node;
+            return (cast(CLASSTYPE_ListNode)instance).IMETHOD_next(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[]);
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = IOBJECT_first;
             return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
          } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_node;
-            return (cast(CLASSTYPE_ListNode)instance).IMETHOD_next(instance, parameters);
+            OBJECT instance = LOBJECT_nextNode;
+            return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
          } })).method(caller, cast(OBJECT[])[])]);
          OBJECT LOBJECT_length = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = IOBJECT_length;
@@ -3916,6 +3619,22 @@ class CLASSIMPL_List : CLASSTYPE_List {
             OBJECT instance = LOBJECT_length;
             return (cast(CLASSTYPE_Natural)instance).IMETHOD_subtracting(instance, parameters);
          } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])])])]);
+         OBJECT LOBJECT_lastNode = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_length;
+            return (cast(CLASSTYPE_Natural)instance).IMETHOD_isEqualTo(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_lastNode;
+            return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_last;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
+            return caller;
+         } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return caller;
+         } })]);
          return CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_node;
             return (cast(CLASSTYPE_ListNode)instance).IMETHOD_value(instance, parameters);
@@ -5316,15 +5035,37 @@ class CLASSIMPL_Configuration : CLASSTYPE_Configuration {
          OBJECT instance = LOBJECT_fileExists;
          return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
       } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_data = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_file;
+            return (cast(CLASSTYPE_File)instance).IMETHOD_readContents(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1000000")])]);
+         OBJECT LOBJECT_pos = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")])]);
          return CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT LOBJECT_data = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_file;
-               return (cast(CLASSTYPE_File)instance).IMETHOD_readContents(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])]);
-            return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_thisPos = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_pos;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+            OBJECT LOBJECT_bbite = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_data;
                return (cast(CLASSTYPE_Data)instance).IMETHOD_atIndex(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")])]);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_thisPos]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_pos;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_thisPos;
+               return (cast(CLASSTYPE_Natural)instance).IMETHOD_adding(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])])]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_bbite;
+               return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT LOBJECT_bbbbite = parameters.length > 0 ? parameters[0] : null;
+               return caller;
+            } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               return caller;
+            } })]);
+            return LOBJECT_bbite;
          } })]);
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
@@ -5740,16 +5481,16 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
       IOBJECT_errors = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_currentToken = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_buffer = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
-      IOBJECT_currentCharacter = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
+      IOBJECT_currentCharacter = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
       OBJECT LOBJECT_initialPosition = CLASSIMPL_SourcePosition.TMETHOD_initialPositionIn(caller, cast(OBJECT[])[LOBJECT_sourceName, self.IMETHOD_getCopyOfNextLine(self, cast(OBJECT[])[])]);
       IOBJECT_currentCharacterPosition = LOBJECT_initialPosition;
       IOBJECT_currentTokenPosition = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_initialPosition]);
-      IOBJECT_ifNextTokenOrElse = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+      IOBJECT_ifNextTokenOrElse = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
          OBJECT LOBJECT_else = parameters.length > 1 ? parameters[1] : null;
          (cast(LAMBDA)LOBJECT_else).method(caller, cast(OBJECT[])[]);
          return caller;
-      } })]);
+      } });
       self.IMETHOD_gotoNextCharacterTrue(self, cast(OBJECT[])[]);
       self.IMETHOD_gotoNextToken(self, cast(OBJECT[])[]);
       return caller;
@@ -5829,10 +5570,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
    }
    override OBJECT IMETHOD_gotoNextCharacter(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Parser self = cast(CLASSTYPE_Parser)caller;
-      OBJECT LOBJECT_currentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = IOBJECT_currentCharacter;
-         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_currentCharacter = IOBJECT_currentCharacter;
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_currentCharacter;
          return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -5858,10 +5596,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
    }
    override OBJECT IMETHOD_gotoNextCharacterTrue(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Parser self = cast(CLASSTYPE_Parser)caller;
-      OBJECT LOBJECT_currentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = IOBJECT_currentCharacter;
-         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-      } })).method(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_currentCharacter = IOBJECT_currentCharacter;
       OBJECT LOBJECT_isNewline = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_currentCharacter;
          return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -5895,6 +5630,15 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
          OBJECT instance = IOBJECT_buffer;
          return (cast(CLASSTYPE_List)instance).IMETHOD_removeFirst(instance, parameters);
       } })).method(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_bufferedChar;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_chaa = parameters.length > 0 ? parameters[0] : null;
+         return caller;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         return caller;
+      } })]);
       IOBJECT_currentCharacter = LOBJECT_bufferedChar;
       return caller;
    }
@@ -5902,10 +5646,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
       CLASSTYPE_Parser self = cast(CLASSTYPE_Parser)caller;
       CLASSIMPL_Loops.TMETHOD_while(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_isWhitespace = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[])]);
-         OBJECT LOBJECT_currentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = IOBJECT_currentCharacter;
-            return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[]);
+         OBJECT LOBJECT_currentCharacter = IOBJECT_currentCharacter;
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_currentCharacter;
             return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6120,10 +5861,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
                   OBJECT instance = LOBJECT_continuing;
                   return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
                } })).method(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[])]);
-               OBJECT LOBJECT_maybeCurrentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = IOBJECT_currentCharacter;
-                  return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[]);
+               OBJECT LOBJECT_maybeCurrentCharacter = IOBJECT_currentCharacter;
                (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                   OBJECT instance = LOBJECT_maybeCurrentCharacter;
                   return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6164,10 +5902,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
          OBJECT LOBJECT_ifStrudelOrElse = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT LOBJECT_action = parameters.length > 0 ? parameters[0] : null;
             OBJECT LOBJECT_else = parameters.length > 1 ? parameters[1] : null;
-            OBJECT LOBJECT_maybeCurrentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_currentCharacter;
-               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[]);
+            OBJECT LOBJECT_maybeCurrentCharacter = IOBJECT_currentCharacter;
             (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_maybeCurrentCharacter;
                return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6184,10 +5919,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
          OBJECT LOBJECT_ifHashOrElse = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT LOBJECT_action = parameters.length > 0 ? parameters[0] : null;
             OBJECT LOBJECT_else = parameters.length > 1 ? parameters[1] : null;
-            OBJECT LOBJECT_maybeCurrentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = IOBJECT_currentCharacter;
-               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[]);
+            OBJECT LOBJECT_maybeCurrentCharacter = IOBJECT_currentCharacter;
             (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_maybeCurrentCharacter;
                return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6254,10 +5986,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
                self.IMETHOD_eatWhitespaceCharacters(self, cast(OBJECT[])[]);
                (cast(LAMBDA)LOBJECT_ifStrudelOrElse).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                   CLASSIMPL_Loops.TMETHOD_while(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT LOBJECT_currentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                        OBJECT instance = IOBJECT_currentCharacter;
-                        return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-                     } })).method(caller, cast(OBJECT[])[]);
+                     OBJECT LOBJECT_currentCharacter = IOBJECT_currentCharacter;
                      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                         OBJECT instance = LOBJECT_currentCharacter;
                         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6351,10 +6080,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
                               OBJECT instance = LOBJECT_variablePreviousCharacter;
                               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
                            } })).method(caller, cast(OBJECT[])[]);
-                           OBJECT LOBJECT_currentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                              OBJECT instance = IOBJECT_currentCharacter;
-                              return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-                           } })).method(caller, cast(OBJECT[])[]);
+                           OBJECT LOBJECT_currentCharacter = IOBJECT_currentCharacter;
                            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                               OBJECT instance = LOBJECT_currentCharacter;
                               return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6436,10 +6162,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
                   } })]);
                   return caller;
                } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT LOBJECT_currentCharacter = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                     OBJECT instance = IOBJECT_currentCharacter;
-                     return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-                  } })).method(caller, cast(OBJECT[])[]);
+                  OBJECT LOBJECT_currentCharacter = IOBJECT_currentCharacter;
                   (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                      OBJECT instance = LOBJECT_currentCharacter;
                      return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
@@ -6614,10 +6337,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
                         } })]);
                         return caller;
                      } })]);
-                     OBJECT LOBJECT_currentCharacter2 = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                        OBJECT instance = IOBJECT_currentCharacter;
-                        return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-                     } })).method(caller, cast(OBJECT[])[]);
+                     OBJECT LOBJECT_currentCharacter2 = IOBJECT_currentCharacter;
                      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                         OBJECT instance = LOBJECT_currentCharacter2;
                         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
