@@ -241,7 +241,7 @@
          \carriage:retriveCargoWithReceiver cargoReceiver;
       };
    }
-   
+   @@
    ++ deleteObjectsOnTrainWhenPrediateIsTrue *([[&E]->[Boolean]] determineIfWeShouldRemoveCargoFromTrain) {
       \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
          \carriage:retriveCargoWithReceiver *([&E] cargo) {
@@ -283,7 +283,7 @@
                   };
             };}
       }
-
+@@
 
    ++ transformObjectsOnTrain *([[&E]->[&E]] cargoTransformer) {
       \:iterateThroughCarriages *([TrainCarriage<[&E]>] carriage) {
@@ -391,6 +391,72 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
 @@
 
 
+@Index
+
+
+
+[Index<E>] (
+               BinaryTree, MappingBucket, Object, SetObject 
+               ,Integer, Data, String, Container, Boolean, Conjecture, Maybe, Variable
+               ) 
+{
+
+   <<dlang ##
+         import std.string : assumeUTF;
+         OBJECT[string] index;
+      ##
+
+
+   ~ empty *{}
+
+   ++ get *([String] key) -> [Maybe<[&E]>] {
+      [Data] ascii = \key:ascii;
+      [Maybe<[&E]>] foundInIndex = << dlang ##
+         OBJECT LOBJECT_foundInIndex = null;
+         string key = (cast(CLASSIMPL_Data)LOBJECT_ascii).value.it.assumeUTF;
+         if (auto valuePtr = key in index) {
+            LOBJECT_foundInIndex = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[*valuePtr]);
+         } else {
+            LOBJECT_foundInIndex = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+         }
+      ##;
+   } -> foundInIndex
+
+   ++ set *([String] key, [Maybe<[&E]>] maybeValue) {
+      [Data] ascii = \key:ascii;
+      [] _ = << dlang ##
+         string key = (cast(CLASSIMPL_Data)LOBJECT_ascii).value.it.assumeUTF;
+      ##;
+      \maybeValue:isOrElse *([&E] value) {
+         [] _ = << dlang ##
+            index[key] = LOBJECT_value;
+         ##;
+      } *{
+         [] _ = << dlang ##
+            index.remove(key);
+         ##;
+      };
+      
+   }
+
+@@
+   override OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
+      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_nothingTest = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_somethingTest = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_asdfasdfasdf]);
+      return LOBJECT_nothingTest;
+   }
+   override OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
+      OBJECT LOBJECT_key = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_value = parameters.length > 1 ? parameters[1] : null;
+      return caller;
+   }@@
+
+
+}
+
 
 
 [Mapping<KEY, VALUE>] (
@@ -399,16 +465,6 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                ) 
    [BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>] treeOfMappedKeyValuePairs
 {
-
-   ~ newEmptyMapping *{
-            [Integer] initialArbitraryIntegerIdentifier = \[Integer]:as ##0##;
-         [MappingBucket<[&KEY][&VALUE]>] initialTopLevelEmptyBucket
-            = \[MappingBucket<[&KEY][&VALUE]>]
-               :newEmptyBucketWithIdentifier initialArbitraryIntegerIdentifier;
-
-      .treeOfMappedKeyValuePairs = \[BinaryTree<[MappingBucket<[&KEY][&VALUE]>]>]
-                  :binaryTreeWithFruit initialTopLevelEmptyBucket;
-   } 
 
 
    ~ empty *{
@@ -430,14 +486,14 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
             \bucketToInsertKeyAndValue:insertKeyValuePairIntoBucket key value;
          };
    }
-
+@@
    ++ unmapKey *([&KEY] key) {
       [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
       \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
          *([MappingBucket<[&KEY][&VALUE]>] bucketMatchingIdentifier) {
             \bucketMatchingIdentifier:removeKeyFromBucket key;
          };
-   }
+   }@@
 
    ++ retriveMappedValueWithKey *([&KEY] key, [[&VALUE] -> ] valueRetriver) {
       [Container<[&VALUE]>] containerWithFoundValueMatchingKey = \[Container<[&VALUE]>]:newEmptyContainer;
@@ -462,7 +518,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
          };
    }  -> \foundValueMatchingKey:get
 
-   ++ get *([&KEY] key) -> [Maybe<[&VALUE]>] {
+   @@++ get *([&KEY] key) -> [Maybe<[&VALUE]>] {
       [Variable<[Maybe<[&VALUE]>]>] foundValueMatchingKey = \[Variable<[Maybe<[&VALUE]>]>]:as (\[Maybe<[&VALUE]>]:nothing);
       [Integer] bucketIdentifierForKey = \:getBucketIdentifierForKey key;
       \:retriveBucketWithIdentifierIfItExists bucketIdentifierForKey 
@@ -471,7 +527,7 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
                \foundValueMatchingKey:set (\[Maybe<[&VALUE]>]:as theValueThatWasFoundMatchingKey);
             };
          };
-   }  -> \foundValueMatchingKey:get
+   }  -> \foundValueMatchingKey:get@@
 
 
    - retriveBucketWithIdentifierIfItExists 
@@ -604,12 +660,12 @@ Mapping<KEY:[SetObject],VALUE:[Object]> : [Object]
       } *{};
       
    }  
-
+@@
    ++ removeKeyFromBucket  *([String] keyInQuestion) {
       \.mappingsStoredInBucket:deleteObjectsOnTrainWhenPrediateIsTrue
          *([SingleMapping<[&KEY][&VALUE]>] mappingInBucket) -> (\keyInQuestion:isEqualTo \mappingInBucket:getKey);
       
-   }
+   }@@
 
    ++ retriveValueForKeyIfItExists  *([String] keyInQuestion, [[&VALUE]->] valueRetriver) {
       \.mappingsStoredInBucket:iterateThroughObjectsOnTrain *([SingleMapping<[&KEY][&VALUE]>] mappingInBucket) {
