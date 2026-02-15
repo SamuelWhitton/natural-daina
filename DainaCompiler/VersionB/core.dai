@@ -1,0 +1,924 @@
+
+[StandardIO] (String) {
+      <<dlang ##
+            import std.stdio;
+            import std.bigint;
+         ##
+
+   :: stdout *([Data] data) {
+      [] _ = <<dlang ##
+            write(cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it));
+         ##;
+   }
+
+   :: stdin *-> [Data] {
+      [Data] readedData = \[Data]:empty;
+      [] _ = << dlang ##
+         string rawLine = readln();
+         if (rawLine == null) {
+            rawLine = "";
+         }
+         ubyte[] line = cast(ubyte[])(rawLine);
+         (cast(CLASSIMPL_Data)LOBJECT_readedData).value = new WRAP!(ubyte[])(line);
+      ##;
+@chunks(stdin, 4096)
+@
+@foreach (ubyte[] buffer; chunks(stdin, 4096))
+ @   {
+  @      ... use buffer ...
+  @  }
+@
+   } -> readedData
+
+
+}
+
+[File] (String, Natural, Data, Boolean) 
+{
+   <<dlang ##
+         import std.stdio;
+         import std.file;
+         import std.bigint;
+         string fileName = null;
+         File file;
+      ##
+
+   ~ atPath *([String] filePath) {
+      [Data] asciiFilePath = \filePath:ascii;
+      [] _ = <<dlang ##
+         this.fileName = cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_asciiFilePath).IMETHOD_internalData(null, []))).it);
+      ##;
+   }
+
+   ++ exists *->[Boolean] {
+      [Boolean] exists = <<dlang ##
+         bool fileExists = this.fileName.exists && this.fileName.isFile;
+         OBJECT LOBJECT_exists = fileExists ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> exists
+
+   ++ clearContents *{
+      [] _ = <<dlang ##
+         if (this.file.isOpen) {
+            this.file.close();
+         }
+         this.file.open(this.fileName, "wb");
+         if (this.file.isOpen) {
+            this.file.write("");
+         }
+      ##;
+   }
+
+   ++ appendContents *([Data] toAppend) {
+      [] _ = <<dlang ##
+         if (!this.file.isOpen) {
+            this.file.open(this.fileName, "ab");
+         }
+         if (this.file.isOpen) {
+            this.file.rawWrite((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_toAppend).IMETHOD_internalData(null, []))).it);
+         }
+      ##;
+   }
+
+   @@++ readContents *([Natural] chunkSize, [[Data]->] readChunk) {
+      [] _ = <<dlang ##
+         BigInt chunkSize = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_chunkSize).IMETHOD_internalInteger(null, []))).it;
+         if (this.file.isOpen) {
+            this.file.close();
+         }
+         this.file.open(this.fileName, "rb");
+         if (this.file.isOpen) {
+            foreach (ubyte[] buffer; this.file.byChunk(chunkSize.toLong())) {
+      ##;
+      [Data] chunk = << dlang ##
+               CLASSIMPL_Data LOBJECT_chunk = new CLASSIMPL_Data();
+               LOBJECT_chunk.value = new WRAP!(ubyte[])(buffer);
+      ##;
+      \readChunk chunk;
+      [] _ = <<dlang ##
+         
+            }
+            this.file.close();
+         }
+      ##;
+   }@@
+
+   ++ readContents *([Natural] chunkSize) -> [Data] {
+      [Variable<[Data]>] theChunk = \[Variable<[Data]>]:as \[Data]:empty;
+      [] _ = <<dlang ##
+         BigInt chunkSize = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_chunkSize).IMETHOD_internalInteger(null, []))).it;
+         if (this.file.isOpen) {
+            this.file.close();
+         }
+         this.file.open(this.fileName, "rb");
+         if (this.file.isOpen) {
+            foreach (ubyte[] buffer; this.file.byChunk(chunkSize.toLong())) {
+      ##;
+      [Data] chunk = << dlang ##
+               CLASSIMPL_Data LOBJECT_chunk = new CLASSIMPL_Data();
+               LOBJECT_chunk.value = new WRAP!(ubyte[])(buffer);
+      ##;
+      \theChunk:set chunk;
+      [] _ = <<dlang ##
+         
+            }
+            this.file.close();
+         }
+      ##;
+   } -> \theChunk:get
+
+   ++ close *{
+      [] _ = <<dlang ##
+         this.file.close();
+      ##;
+   }
+}
+
+
+[Data :[Sequence<[Byte]>]] (Byte, Sequence, Loops, Natural)
+{
+   <<dlang ##
+         import std.bigint;
+         import std.format;
+         WRAP!(ubyte[]) value;
+      ##
+
+   ~ empty *{
+      [] _ = <<dlang ##
+         this.value = new WRAP!(ubyte[])([]);
+      ##;
+   }
+
+   ~ copy *([Sequence<[Byte]>] bytes) {
+      [] _ = <<dlang ##
+         ubyte[] copiedData;
+      ##;
+      \[Loops]:iterate bytes *([] _, [Byte] byte) {
+         [] _ = <<dlang ##
+            ubyte thisByte = (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_byte).IMETHOD_internalByte(null, []))).it;
+            copiedData ~= thisByte;
+         ##;
+      };
+      [] _ = <<dlang ##
+         this.value = new WRAP!(ubyte[])(copiedData);
+      ##;
+   }
+
+   ~ concatenate *([Sequence<[Data]>] datas) {
+      [] _ = <<dlang ##
+         ubyte[] concatedData;
+      ##;
+      \[Loops]:iterate datas *([]_, [Data] data) {
+         [] _ = <<dlang ##
+            ubyte[] thisData = (cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_data).IMETHOD_internalData(null, []))).it;
+            concatedData ~= thisData;
+         ##;
+      };
+      [] _ = <<dlang ##
+         this.value = new WRAP!(ubyte[])(concatedData);
+      ##;
+   }
+
+   |++ length *-> [Natural] {
+      [Natural] length = << dlang ##
+         OBJECT LOBJECT_length = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", this.value.it.length))]);
+      ##;
+   } -> length
+
+   |++ atIndex *([Natural] index) -> [Maybe<[Byte]>] {
+      [Maybe<[Byte]>] byteAtIndex = << dlang ##
+         OBJECT LOBJECT_byteAtIndex = null;
+         BigInt index = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_index).IMETHOD_internalInteger(null, []))).it;
+         if (this.value.it.length > index) {
+            CLASSIMPL_Byte rawByte = new CLASSIMPL_Byte();
+            rawByte.value = new WRAP!(ubyte)(this.value.it[index.toLong()]);
+            LOBJECT_byteAtIndex = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[rawByte]);
+         } else {
+            LOBJECT_byteAtIndex = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+         }
+      ##;
+   } -> byteAtIndex
+
+
+   - internalData *{
+      [] _ = <<dlang ##
+            return this.value;
+         ##;
+   }
+}
+
+[Byte]
+{
+   <<dlang ##
+         WRAP!(ubyte) value;
+      ##
+
+   ~ 0x00 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x00); ##; }
+   ~ 0x01 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x01); ##; }
+   ~ 0x02 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x02); ##; }
+   ~ 0x03 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x03); ##; }
+   ~ 0x04 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x04); ##; }
+   ~ 0x05 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x05); ##; }
+   ~ 0x06 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x06); ##; }
+   ~ 0x07 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x07); ##; }
+   ~ 0x08 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x08); ##; }
+   ~ 0x09 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x09); ##; }
+   ~ 0x0A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0A); ##; }
+   ~ 0x0B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0B); ##; }
+   ~ 0x0C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0C); ##; }
+   ~ 0x0D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0D); ##; }
+   ~ 0x0E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0E); ##; }
+   ~ 0x0F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x0F); ##; }
+   ~ 0x10 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x10); ##; }
+   ~ 0x11 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x11); ##; }
+   ~ 0x12 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x12); ##; }
+   ~ 0x13 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x13); ##; }
+   ~ 0x14 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x14); ##; }
+   ~ 0x15 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x15); ##; }
+   ~ 0x16 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x16); ##; }
+   ~ 0x17 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x17); ##; }
+   ~ 0x18 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x18); ##; }
+   ~ 0x19 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x19); ##; }
+   ~ 0x1A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1A); ##; }
+   ~ 0x1B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1B); ##; }
+   ~ 0x1C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1C); ##; }
+   ~ 0x1D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1D); ##; }
+   ~ 0x1E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1E); ##; }
+   ~ 0x1F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x1F); ##; }
+   ~ 0x20 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x20); ##; }
+   ~ 0x21 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x21); ##; }
+   ~ 0x22 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x22); ##; }
+   ~ 0x23 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x23); ##; }
+   ~ 0x24 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x24); ##; }
+   ~ 0x25 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x25); ##; }
+   ~ 0x26 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x26); ##; }
+   ~ 0x27 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x27); ##; }
+   ~ 0x28 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x28); ##; }
+   ~ 0x29 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x29); ##; }
+   ~ 0x2A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2A); ##; }
+   ~ 0x2B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2B); ##; }
+   ~ 0x2C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2C); ##; }
+   ~ 0x2D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2D); ##; }
+   ~ 0x2E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2E); ##; }
+   ~ 0x2F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x2F); ##; }
+   ~ 0x30 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x30); ##; }
+   ~ 0x31 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x31); ##; }
+   ~ 0x32 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x32); ##; }
+   ~ 0x33 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x33); ##; }
+   ~ 0x34 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x34); ##; }
+   ~ 0x35 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x35); ##; }
+   ~ 0x36 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x36); ##; }
+   ~ 0x37 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x37); ##; }
+   ~ 0x38 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x38); ##; }
+   ~ 0x39 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x39); ##; }
+   ~ 0x3A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3A); ##; }
+   ~ 0x3B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3B); ##; }
+   ~ 0x3C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3C); ##; }
+   ~ 0x3D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3D); ##; }
+   ~ 0x3E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3E); ##; }
+   ~ 0x3F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x3F); ##; }
+   ~ 0x40 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x40); ##; }
+   ~ 0x41 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x41); ##; }
+   ~ 0x42 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x42); ##; }
+   ~ 0x43 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x43); ##; }
+   ~ 0x44 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x44); ##; }
+   ~ 0x45 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x45); ##; }
+   ~ 0x46 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x46); ##; }
+   ~ 0x47 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x47); ##; }
+   ~ 0x48 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x48); ##; }
+   ~ 0x49 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x49); ##; }
+   ~ 0x4A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4A); ##; }
+   ~ 0x4B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4B); ##; }
+   ~ 0x4C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4C); ##; }
+   ~ 0x4D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4D); ##; }
+   ~ 0x4E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4E); ##; }
+   ~ 0x4F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x4F); ##; }
+   ~ 0x50 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x50); ##; }
+   ~ 0x51 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x51); ##; }
+   ~ 0x52 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x52); ##; }
+   ~ 0x53 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x53); ##; }
+   ~ 0x54 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x54); ##; }
+   ~ 0x55 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x55); ##; }
+   ~ 0x56 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x56); ##; }
+   ~ 0x57 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x57); ##; }
+   ~ 0x58 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x58); ##; }
+   ~ 0x59 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x59); ##; }
+   ~ 0x5A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5A); ##; }
+   ~ 0x5B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5B); ##; }
+   ~ 0x5C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5C); ##; }
+   ~ 0x5D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5D); ##; }
+   ~ 0x5E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5E); ##; }
+   ~ 0x5F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x5F); ##; }
+   ~ 0x60 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x60); ##; }
+   ~ 0x61 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x61); ##; }
+   ~ 0x62 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x62); ##; }
+   ~ 0x63 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x63); ##; }
+   ~ 0x64 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x64); ##; }
+   ~ 0x65 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x65); ##; }
+   ~ 0x66 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x66); ##; }
+   ~ 0x67 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x67); ##; }
+   ~ 0x68 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x68); ##; }
+   ~ 0x69 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x69); ##; }
+   ~ 0x6A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6A); ##; }
+   ~ 0x6B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6B); ##; }
+   ~ 0x6C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6C); ##; }
+   ~ 0x6D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6D); ##; }
+   ~ 0x6E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6E); ##; }
+   ~ 0x6F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x6F); ##; }
+   ~ 0x70 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x70); ##; }
+   ~ 0x71 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x71); ##; }
+   ~ 0x72 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x72); ##; }
+   ~ 0x73 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x73); ##; }
+   ~ 0x74 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x74); ##; }
+   ~ 0x75 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x75); ##; }
+   ~ 0x76 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x76); ##; }
+   ~ 0x77 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x77); ##; }
+   ~ 0x78 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x78); ##; }
+   ~ 0x79 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x79); ##; }
+   ~ 0x7A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7A); ##; }
+   ~ 0x7B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7B); ##; }
+   ~ 0x7C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7C); ##; }
+   ~ 0x7D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7D); ##; }
+   ~ 0x7E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7E); ##; }
+   ~ 0x7F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x7F); ##; }
+   ~ 0x80 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x80); ##; }
+   ~ 0x81 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x81); ##; }
+   ~ 0x82 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x82); ##; }
+   ~ 0x83 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x83); ##; }
+   ~ 0x84 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x84); ##; }
+   ~ 0x85 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x85); ##; }
+   ~ 0x86 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x86); ##; }
+   ~ 0x87 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x87); ##; }
+   ~ 0x88 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x88); ##; }
+   ~ 0x89 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x89); ##; }
+   ~ 0x8A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8A); ##; }
+   ~ 0x8B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8B); ##; }
+   ~ 0x8C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8C); ##; }
+   ~ 0x8D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8D); ##; }
+   ~ 0x8E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8E); ##; }
+   ~ 0x8F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x8F); ##; }
+   ~ 0x90 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x90); ##; }
+   ~ 0x91 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x91); ##; }
+   ~ 0x92 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x92); ##; }
+   ~ 0x93 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x93); ##; }
+   ~ 0x94 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x94); ##; }
+   ~ 0x95 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x95); ##; }
+   ~ 0x96 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x96); ##; }
+   ~ 0x97 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x97); ##; }
+   ~ 0x98 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x98); ##; }
+   ~ 0x99 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x99); ##; }
+   ~ 0x9A *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9A); ##; }
+   ~ 0x9B *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9B); ##; }
+   ~ 0x9C *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9C); ##; }
+   ~ 0x9D *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9D); ##; }
+   ~ 0x9E *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9E); ##; }
+   ~ 0x9F *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0x9F); ##; }
+   ~ 0xA0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA0); ##; }
+   ~ 0xA1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA1); ##; }
+   ~ 0xA2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA2); ##; }
+   ~ 0xA3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA3); ##; }
+   ~ 0xA4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA4); ##; }
+   ~ 0xA5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA5); ##; }
+   ~ 0xA6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA6); ##; }
+   ~ 0xA7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA7); ##; }
+   ~ 0xA8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA8); ##; }
+   ~ 0xA9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xA9); ##; }
+   ~ 0xAA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAA); ##; }
+   ~ 0xAB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAB); ##; }
+   ~ 0xAC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAC); ##; }
+   ~ 0xAD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAD); ##; }
+   ~ 0xAE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAE); ##; }
+   ~ 0xAF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xAF); ##; }
+   ~ 0xB0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB0); ##; }
+   ~ 0xB1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB1); ##; }
+   ~ 0xB2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB2); ##; }
+   ~ 0xB3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB3); ##; }
+   ~ 0xB4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB4); ##; }
+   ~ 0xB5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB5); ##; }
+   ~ 0xB6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB6); ##; }
+   ~ 0xB7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB7); ##; }
+   ~ 0xB8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB8); ##; }
+   ~ 0xB9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xB9); ##; }
+   ~ 0xBA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBA); ##; }
+   ~ 0xBB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBB); ##; }
+   ~ 0xBC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBC); ##; }
+   ~ 0xBD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBD); ##; }
+   ~ 0xBE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBE); ##; }
+   ~ 0xBF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xBF); ##; }
+   ~ 0xC0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC0); ##; }
+   ~ 0xC1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC1); ##; }
+   ~ 0xC2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC2); ##; }
+   ~ 0xC3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC3); ##; }
+   ~ 0xC4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC4); ##; }
+   ~ 0xC5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC5); ##; }
+   ~ 0xC6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC6); ##; }
+   ~ 0xC7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC7); ##; }
+   ~ 0xC8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC8); ##; }
+   ~ 0xC9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xC9); ##; }
+   ~ 0xCA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCA); ##; }
+   ~ 0xCB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCB); ##; }
+   ~ 0xCC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCC); ##; }
+   ~ 0xCD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCD); ##; }
+   ~ 0xCE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCE); ##; }
+   ~ 0xCF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xCF); ##; }
+   ~ 0xD0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD0); ##; }
+   ~ 0xD1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD1); ##; }
+   ~ 0xD2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD2); ##; }
+   ~ 0xD3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD3); ##; }
+   ~ 0xD4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD4); ##; }
+   ~ 0xD5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD5); ##; }
+   ~ 0xD6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD6); ##; }
+   ~ 0xD7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD7); ##; }
+   ~ 0xD8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD8); ##; }
+   ~ 0xD9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xD9); ##; }
+   ~ 0xDA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDA); ##; }
+   ~ 0xDB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDB); ##; }
+   ~ 0xDC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDC); ##; }
+   ~ 0xDD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDD); ##; }
+   ~ 0xDE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDE); ##; }
+   ~ 0xDF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xDF); ##; }
+   ~ 0xE0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE0); ##; }
+   ~ 0xE1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE1); ##; }
+   ~ 0xE2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE2); ##; }
+   ~ 0xE3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE3); ##; }
+   ~ 0xE4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE4); ##; }
+   ~ 0xE5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE5); ##; }
+   ~ 0xE6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE6); ##; }
+   ~ 0xE7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE7); ##; }
+   ~ 0xE8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE8); ##; }
+   ~ 0xE9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xE9); ##; }
+   ~ 0xEA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEA); ##; }
+   ~ 0xEB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEB); ##; }
+   ~ 0xEC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEC); ##; }
+   ~ 0xED *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xED); ##; }
+   ~ 0xEE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEE); ##; }
+   ~ 0xEF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xEF); ##; }
+   ~ 0xF0 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF0); ##; }
+   ~ 0xF1 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF1); ##; }
+   ~ 0xF2 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF2); ##; }
+   ~ 0xF3 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF3); ##; }
+   ~ 0xF4 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF4); ##; }
+   ~ 0xF5 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF5); ##; }
+   ~ 0xF6 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF6); ##; }
+   ~ 0xF7 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF7); ##; }
+   ~ 0xF8 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF8); ##; }
+   ~ 0xF9 *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xF9); ##; }
+   ~ 0xFA *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFA); ##; }
+   ~ 0xFB *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFB); ##; }
+   ~ 0xFC *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFC); ##; }
+   ~ 0xFD *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFD); ##; }
+   ~ 0xFE *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFE); ##; }
+   ~ 0xFF *{ [] _ = <<dlang ## this.value = new WRAP!(ubyte)(0xFF); ##; }
+
+   - internalByte *{
+      [] _ = <<dlang ##
+            return this.value;
+         ##;
+   }
+
+   ++ isEqualTo *([Byte] otherByte)-> [Boolean] {
+      [Boolean] isEqualTo = << dlang ## 
+         bool isEqualTo = this.value.it == (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_otherByte).IMETHOD_internalByte(null, []))).it;
+         OBJECT LOBJECT_isEqualTo = isEqualTo ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isEqualTo
+
+   ++ inclusiveBetween *([Byte] from, [Byte] to)-> [Boolean] {
+      [Boolean] isInclusiveBetween = << dlang ## 
+         bool isInclusiveBetween = (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_from).IMETHOD_internalByte(null, []))).it <= this.value.it && this.value.it <= (cast(WRAP!(ubyte))((cast(CLASSTYPE_Byte)LOBJECT_to).IMETHOD_internalByte(null, []))).it;
+         OBJECT LOBJECT_isInclusiveBetween = isInclusiveBetween ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isInclusiveBetween
+
+}
+
+[String] (Data, Sequence, List) 
+   [Data] ascii
+{
+   <<dlang ##
+         import std.bigint;
+         import std.format;
+      ##
+
+   ~ as *([%STRING] literal) {
+      .ascii = \[Data]:empty;
+      [] _ = <<dlang ##
+         ubyte[] literalBytes = cast(ubyte[])((cast(WRAP!(string))LOBJECT_literal).it);
+         (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(literalBytes);
+      ##;
+   }
+
+   ~ asASCII *([Data] ascii) {
+      .ascii = ascii
+   }
+
+   ~ concatenate *([Sequence<[String]>] strings) {
+      [Sequence<[Data]>] asciis = [:[Sequence<[Data]>]] { 
+         |++ length *->\strings:length
+         |++ atIndex *([Natural] i)->\(\strings:atIndex i):isOrElse (*([String] s)->\[Maybe<[?]>]:as \s:ascii) [Maybe<[?]>]:nothing
+      };
+      \:~asASCII \[Data]:concatenate asciis
+   }
+
+   ~ stringFormatOf *([Integer] integer) {
+      .ascii = \[Data]:empty;
+      [] _ = << dlang ##
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
+         ubyte[] bytes = cast(ubyte[])(format("%d", integer));
+         (cast(CLASSIMPL_Data)IOBJECT_ascii).value = new WRAP!(ubyte[])(bytes);
+      ##;
+   }
+
+   ++ isEqualTo *([String] otherString)-> [Boolean] {
+      [Data] thisAscii = \:ascii;
+      [Data] otherAscii = \otherString:ascii;
+      [Boolean] isEqualTo = << dlang ## 
+         bool isEqualTo = cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_thisAscii).IMETHOD_internalData(null, []))).it) == cast(string)((cast(WRAP!(ubyte[]))((cast(CLASSTYPE_Data)LOBJECT_otherAscii).IMETHOD_internalData(null, []))).it);
+         OBJECT LOBJECT_isEqualTo = isEqualTo ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isEqualTo
+
+   ++ appending *([String] other) -> [String] {
+      [String] this = ^;
+      [Sequence<[String]>] both = [:[Sequence<[String]>]] { 
+         |++ length *->\[Natural]:as ##2##
+         |++ atIndex *([Natural] index)->[Maybe<[String]>]{
+            [Boolean] indexIs0 = \index:isEqualTo (\[Natural]:as ##0##);
+         }->\[Maybe<[String]>]:as \indexIs0:ifOrElse (*->this) (*->other)
+      }
+   } -> \[String]:concatenate both
+
+   ++ ascii *->.ascii
+}
+
+
+[Loops] (Sequence, Natural, Variable, Boolean)
+{
+   :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
+      [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
+      \[?:]:while ((*->((\index:isLessThan \sequence:length)!{[Natural] index = \currentIndex:get}))) *{
+         {
+            \element:isOrElse *(e){
+               \getNext index e;
+            } *{};
+            @\getNext index element;
+            \currentIndex:set \index:adding (\[Natural]:as ##1##);
+         }!{
+            [Natural] index = \currentIndex:get;
+            [Maybe<['E]>] element = \sequence:atIndex index;
+         }
+      }
+   }
+
+   :: while *([->[Boolean]] condition, [->] action) {
+      \[?:]:until *([->] stop) {
+         \(\condition):ifOrElse action stop
+      }
+   }
+
+   :: until *([[['E]->]->['E]] actionWithStop) -> ['E] { @add
+      ['E] result = <<dlang ##
+         bool continueActions = true;
+         OBJECT LOBJECT_result = null;
+         while (continueActions) {
+      ##;
+      \actionWithStop *(["E] resultFromAction) {
+         [] _ = <<dlang ##
+            continueActions = false;
+            LOBJECT_result = LOBJECT_resultFromAction;
+         ##
+      };
+      [] _ = <<dlang
+      ##
+         }
+      ##;
+   } -> result
+}
+
+[Variable<E>]
+   [&E] variableObject
+{
+   ~ as *([&E] initialInstantiation) {
+      .variableObject = initialInstantiation;
+   }
+
+   ++ get *->.variableObject
+
+   ++ set *([&E] newInstantiation) {
+      [] _ = << dlang ##
+         IOBJECT_variableObject = LOBJECT_newInstantiation;
+      ##;
+   }
+}
+
+
+[Sequence<E>] (Maybe, Natural)
+{
+   ++ length [->[Natural]]
+   ++ atIndex [[Natural]->[Maybe<[&E]>]]
+}
+
+
+[Natural :[Integer]] (Integer)
+{
+   <<dlang ##
+         import std.format;
+         import std.conv;
+         import std.bigint;
+      ##
+   
+
+   ~ as *([%NATURAL] literal) {
+      [Integer] integerRepresentation = <<dlang ##
+         CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_literal]);
+      ##;
+      \$~>integerRepresentation;
+   }
+
+   ~ clampTo0 *([Integer] integer) {
+      [Integer] integerRepresentation = <<dlang ##
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
+         if (integer < BigInt("0")) {
+            integer = BigInt("0");
+         }
+         CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", integer))]);
+      ##;
+      \$~>integerRepresentation;
+   }
+
+   ~ magnitudeOf *([Integer] integer) {
+      [Integer] integerRepresentation = <<dlang ##
+         BigInt integer = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_integer).IMETHOD_internalInteger(null, []))).it;
+         if (integer < BigInt("0")) {
+            integer = integer*BigInt("-1");
+         }
+         CLASSIMPL_Integer LOBJECT_integerRepresentation = cast(CLASSIMPL_Integer)CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", integer))]);
+      ##;
+      \$~>integerRepresentation;
+   }
+
+   ++ adding *([Natural] toAdd) -> [Natural] {
+      [Natural] result = << dlang ##
+         BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
+         BigInt toAddBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         BigInt bigIntResult = thisBigInt + toAddBigInt;
+         OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
+      ##;
+   } -> result
+}
+
+
+[Maybe<E>] 
+{
+   ~ nothing *{
+      :isOrElse = *([[&E]->['O]] is, [->['O]] else) -> \else
+   }
+
+   ~ as *([&E] it) {
+      :isOrElse = *([[&E]->['O]] is, [->['O]] else) -> \is it
+   }
+
+   ++ isOrElse [[[&E]->['O]][->['O]]->['O]]
+}
+
+[Boolean] 
+{
+   ~ false *{
+      :ifOrElse = *([->['O]] if, [->['O]] else) -> \else
+   }
+
+   ~ true *{
+      :ifOrElse = *([->['O]] if, [->['O]] else) -> \if
+   }
+
+   ++ ifOrElse [[->['O]][->['O]]->['O]]
+
+   ~ or *([Boolean] b1, [Boolean] b2) {
+      :ifOrElse = *([->["O]] if, [->["O]] else) 
+         -> \b1:ifOrElse if *->\b2:ifOrElse if else
+   }
+
+   ~ and *([Boolean] b1, [Boolean] b2) {
+      :ifOrElse = *([->["O]] if, [->["O]] else) 
+         -> \b1:ifOrElse (*->\b2:ifOrElse if else) else
+   }
+
+   ~ not *([Boolean] b1) {
+      :ifOrElse = *([->["O]] if, [->["O]] else) 
+         -> \b1:ifOrElse else if
+   }
+}
+
+
+[Integer] (Boolean)
+{
+   <<dlang ##
+            import std.conv;
+            import std.bigint;
+            import std.format;
+            WRAP!(BigInt) value;
+         ##
+
+   ~ as *([%INTEGER] literal) {
+      [] _ = <<dlang ##
+         this.value = new WRAP!(BigInt)(BigInt((cast(WRAP!(string))LOBJECT_literal).it));
+      ##;
+   }
+
+   ++ isLessThan *([Integer] otherInteger)-> [Boolean] {
+      [Boolean] isLessThan = << dlang ## 
+         bool isLessThan = this.value.it < (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_otherInteger).IMETHOD_internalInteger(null, []))).it;
+         OBJECT LOBJECT_isLessThan = isLessThan ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isLessThan
+
+   ++ isEqualTo *([Integer] otherInteger)-> [Boolean] {
+      [Boolean] isEqualTo = << dlang ## 
+         bool isEqualTo = this.value.it == (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_otherInteger).IMETHOD_internalInteger(null, []))).it;
+         OBJECT LOBJECT_isEqualTo = isEqualTo ? CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]) : CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      ##;
+   } -> isEqualTo
+
+   ++ subtracting *([Integer] toSubtract) -> [Integer] {
+      [Integer] result = << dlang ##
+         BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
+         BigInt toSubtractBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toSubtract).IMETHOD_internalInteger(null, []))).it;
+         BigInt bigIntResult = thisBigInt - toSubtractBigInt;
+         OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
+      ##;
+   } -> result
+
+   ++ adding *([Integer] toAdd) -> [Natural] {
+      [Natural] result = << dlang ##
+         BigInt thisBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)self).IMETHOD_internalInteger(null, []))).it;
+         BigInt toAddBigInt = (cast(WRAP!(BigInt))((cast(CLASSTYPE_Integer)LOBJECT_toAdd).IMETHOD_internalInteger(null, []))).it;
+         BigInt bigIntResult = thisBigInt + toAddBigInt;
+         OBJECT LOBJECT_result = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(format("%d", bigIntResult))]);
+      ##;
+   } -> result
+   
+
+   - internalInteger *{
+      [] _ = <<dlang ##
+            return this.value;
+         ##;
+   }
+
+}
+
+
+[ListNode<E>] () -> (List)
+{
+   ~ withValue *([&E] value) {
+      :value = *-> value;
+      :next = (*-> next) ! [?] next = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      :previous = (*-> previous) ! [?] previous = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+   }
+
+   ++ value [->[&E]]
+   ++ next [->[Variable<[Maybe<[ListNode<[&E]>]>]>]]
+   ++ previous [->[Variable<[Maybe<[ListNode<[&E]>]>]>]]
+}
+
+[List<E> : [Sequence<[&E]>]] (ListNode, Boolean, Maybe, Variable, Sequence, Natural, Loops)
+   [Variable<[Maybe<[ListNode<[&E]>]>]>] first
+   [Variable<[Maybe<[ListNode<[&E]>]>]>] last
+   [Variable<[Natural]>] length
+{
+   ~ empty *{
+      .first = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      .last = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
+      .length = \[Variable<[?]>]:as \[Natural]:as ##0##;
+   }
+
+   ++ iterate *([[&E]->] getE) {
+      \[Loops]:iterate ^ *([] _, [&E] e) {
+         \getE e; 
+      }
+   }
+
+   @ copy [Sequence<[&E]>]
+
+   ++ length *->\.length:get
+
+   ++ atIndex *([Natural] index) -> [Maybe<[&E]>] {
+      [Variable<[Natural]>] varCurrentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
+      [Variable<[Maybe<[ListNode<[&E]>]>]>] varCurrentNode = \[Variable<[?]>]:as \.first:get;
+      [Maybe<[&E]>] atIndex = \[Loops]:until *([[Maybe<[&E]>]->] choose) {
+         [Natural] currentIndex = \varCurrentIndex:get;
+         [Maybe<[ListNode<[&E]>]>] currentNode = \varCurrentNode:get;
+         \varCurrentNode:set \currentNode:isOrElse (*([ListNode<[&E]>] n)-> [Maybe<[ListNode<[&E]>]>] {
+               [Boolean] sameIndex = (\currentIndex:isEqualTo index);
+               \sameIndex:ifOrElse *{
+                  \choose \[Maybe<[&E]>]:as \n:value;
+               } *{};
+            } ->\(\n:next):get) 
+         (*->[Maybe<[ListNode<[&E]>]>]{\choose \[Maybe<[&E]>]:nothing}->\[Maybe<[ListNode<[&E]>]>]:nothing);
+         \varCurrentIndex:set \currentIndex:adding \[Natural]:as ##1##;
+      };
+   } -> atIndex
+
+   ++ removeFirst *-> [Maybe<[&E]>] {
+      [Maybe<[ListNode<[&E]>]>] first = \.first:get;
+   } -> \first:isOrElse (*([ListNode<[&E]>] node) -> [Maybe<[&E]>] {
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] nextNode = \node:next;
+         \.first:set \nextNode:get;
+         [Natural] length = \.length:get;
+         \.length:set \[Natural]:clampTo0 \length:subtracting \[Natural]:as ##1##;
+         [Boolean] lastNode = \length:isEqualTo \[Natural]:as ##1##;
+         \lastNode:ifOrElse *{
+            \.last:set \[Maybe<[ListNode<[&E]>]>]:nothing;
+         } *{};
+      } -> \[Maybe<[?]>]:as \node:value) (*->\[Maybe<[&E]>]:nothing)
+   
+   ++ prepend *([&E] value) {
+      [Natural] length = \.length:get;
+      \.length:set \length:adding \[Natural]:as ##1##;
+      [ListNode<[&E]>] newNode = \[ListNode<[&E]>]:withValue value;
+      [Maybe<[ListNode<[&E]>]>] first = \.first:get;
+      \first:isOrElse *([ListNode<[&E]>] firstNode) {
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] firstNodePrevious = \firstNode:previous;
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodeNext = \newNode:next;
+         \newNodeNext:set first;
+         \firstNodePrevious:set \[Maybe<[?]>]:as newNode;
+      } *{
+         \.last:set \[Maybe<[?]>]:as newNode;
+      };
+      \.first:set \[Maybe<[?]>]:as newNode;
+   }
+
+   ++ removeLast *-> [Maybe<[&E]>] {
+      [Maybe<[ListNode<[&E]>]>] last = \.last:get;
+   } -> \last:isOrElse (*([ListNode<[&E]>] node) -> [Maybe<[&E]>] {
+         \.last:set \node:previous;
+         [Natural] length = \.length:get;
+         \.length:set \[Natural]:clampTo0 \length:subtracting \[Natural]:as ##1##;
+      } -> \[Maybe<[?]>]:as \node:value) (*->\[Maybe<[&E]>]:nothing)
+
+   ++ append *([&E] value) {
+      [Natural] length = \.length:get;
+      \.length:set \length:adding \[Natural]:as ##1##;
+      [ListNode<[&E]>] newNode = \[ListNode<[&E]>]:withValue value;
+      [Maybe<[ListNode<[&E]>]>] last = \.last:get;
+      \last:isOrElse *([ListNode<[&E]>] lastNode) {
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] newNodePrevious = \newNode:previous;
+         [Variable<[Maybe<[ListNode<[&E]>]>]>] lastNodeNext = \lastNode:next;
+         \newNodePrevious:set last;
+         \lastNodeNext:set \[Maybe<[?]>]:as newNode;
+      } *{
+         \.first:set \[Maybe<[?]>]:as newNode;
+      };
+      \.last:set \[Maybe<[?]>]:as newNode;
+   }
+}
+
+
+
+
+[Index<E>] (
+               BinaryTree, MappingBucket, Object, SetObject 
+               ,Integer, Data, String, Container, Boolean, Conjecture, Maybe, Variable
+               ) 
+{
+
+   <<dlang ##
+         import std.string : assumeUTF;
+         OBJECT[string] index;
+      ##
+
+
+   ~ empty *{}
+
+   ++ get *([String] key) -> [Maybe<[&E]>] {
+      [Data] ascii = \key:ascii;
+      [Maybe<[&E]>] foundInIndex = << dlang ##
+         OBJECT LOBJECT_foundInIndex = null;
+         string key = (cast(CLASSIMPL_Data)LOBJECT_ascii).value.it.assumeUTF;
+         if (auto valuePtr = key in index) {
+            LOBJECT_foundInIndex = CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[*valuePtr]);
+         } else {
+            LOBJECT_foundInIndex = CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+         }
+      ##;
+   } -> foundInIndex
+
+   ++ set *([String] key, [Maybe<[&E]>] maybeValue) {
+      [Data] ascii = \key:ascii;
+      [] _ = << dlang ##
+         string key = (cast(CLASSIMPL_Data)LOBJECT_ascii).value.it.assumeUTF;
+      ##;
+      \maybeValue:isOrElse *([&E] value) {
+         [] _ = << dlang ##
+            index[key] = LOBJECT_value;
+         ##;
+      } *{
+         [] _ = << dlang ##
+            index.remove(key);
+         ##;
+      };
+      
+   }
+
+}
+
+

@@ -1,0 +1,48 @@
+
+
+[O] {
+   :: ifElse *([Boolean] b, [->] if, [->] else) {
+      \b:ifOrElse if else;
+   } 
+
+   :: selectOrDefault *([[->]->] select, [->] default) {
+      [Variable<[Boolean]>] wasSelected = \[Variable<[Boolean]>]:as (\[Boolean]:false);
+      \select *{
+         \wasSelected:set (\[Boolean]:true);
+      };
+      [Boolean] b =  (\wasSelected:get);
+      \b:ifOrElse (*{}) default;
+   }
+}
+
+
+
+[Mapping<KEY, VALUE>] (
+               BinaryTree, MappingBucket, Object, SetObject 
+               ,Integer, Data, String, Container, Boolean, Conjecture, Maybe, Variable
+               ) 
+   [Index<[&VALUE]>] index
+{
+
+
+   ~ empty *{
+      .index = \[Index<[&VALUE]>]:empty;
+   }
+
+
+
+   ++ mapKeyToValue *([&KEY] key, [&VALUE] value) {
+      \.index:set key \[Maybe<[&VALUE]>]:as value;
+   }
+
+
+   ++ retriveMappedValueWithKey *([&KEY] key, [[&VALUE] -> ] valueRetriver) {
+      [Maybe<[&VALUE]>] maybeValue = \:maybeRetriveMappedValueWithKey key;
+      \maybeValue:isOrElse valueRetriver *{};
+   }  
+
+   ++ maybeRetriveMappedValueWithKey *([&KEY] key) -> [Maybe<[&VALUE]>] {
+   }  -> \.index:get key
+
+
+}

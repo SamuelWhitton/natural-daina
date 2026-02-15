@@ -1,6 +1,6 @@
 #!/bin/sh
 originalDir=$(pwd)
-codeVersion=VersionB
+codeVersion=VersionC
 buildStage=2
 cd ./DainaCompiler/$(echo $codeVersion);
 ./../../DainaCompiler_Build/Binary/Stage$(( buildStage - 1 ))/daina < daina_compilation_script.dai-compilation

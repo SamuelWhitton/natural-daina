@@ -1,0 +1,122 @@
+
+
+[DainaType] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Integer,
+         Maybe,
+         String,
+         Error, M, O,
+         Variable,
+         DainaClassIdentifier,
+         DainaGeneralIdentifier,
+
+         Debug
+      )
+   [[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstantiation
+
+   [[[List<[DainaType]>][Maybe<[DainaType]>]->]->] ifMethodInputsAndOutput
+   [[[List<[DainaType]>]->]->] ifDisjoint
+   [[[DainaGeneralIdentifier]->]->] ifClassGeneric
+   [[[Integer][DainaGeneralIdentifier]->]->] ifMethodGenericLevelAndIdentifier
+   [[[DainaGeneralIdentifier]->]->] ifDataSegment
+   [[->]->] ifInferredMethod
+   [[->]->] ifInferredSelf
+   [[->]->] ifInferred
+   [[[Integer]->]->] ifInferredParent
+{
+   :: isFirstToken *([Token] token) -> [Boolean] {
+   } -> (\[Token]:equals token \[Token]:squareBracketOpen)
+
+   ++ ifClassNameAndGenericInstantiation *([[DainaClassIdentifier][List<[DainaType]>]->] get) {
+      \.ifClassNameAndGenericInstantiation get;
+   }
+
+   ++ ifMethodInputsAndOutput *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {
+      \.ifMethodInputsAndOutput get;
+   }
+
+   ~ base *{
+      .ifClassNameAndGenericInstantiation = *([]a){};
+
+      .ifMethodInputsAndOutput = *([]a){};
+      .ifDisjoint = *([]a){};
+      .ifClassGeneric = *([]a){};
+      .ifMethodGenericLevelAndIdentifier = *([]a){};
+      .ifDataSegment = *([]a){};
+      .ifInferredMethod = *([]a){};
+      .ifInferredSelf = *([]a){};
+      .ifInferredParent = *([]a){};
+      .ifInferred = *([->]a){\a};
+   }
+
+   ++ setAsMethodWithOutputType *([DainaType] outputType) {
+      .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
+   }
+
+   ++ setAsClassName *([DainaClassIdentifier] className) {
+      .ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->]get){\get className (\[List<[DainaType]>]:empty)};
+   }
+
+   ++ parse *([Parser] parser) {
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+         \parser:gotoNextToken;
+         \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
+            [DainaClassIdentifier] className = \[DainaClassIdentifier]:base;
+            \className:parse parser;
+            [List<[DainaType]>] genericInstantiations = \[List<[DainaType]>]:empty;
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
+               \parser:gotoNextToken;
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+                     [DainaType] genericInstantiation = \[DainaType]:base;
+                     \genericInstantiation:parse parser;
+                     \genericInstantiations:append genericInstantiation;
+                     \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{} stop;
+                  } *{
+                     \parser:addError (\[Error]:expectingOneOrMoreTypesForClassGenericInstantiation (\parser:position));
+                     \stop;
+                  };
+               };
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose) *{
+                  \parser:gotoNextToken;
+               } *{
+                  \parser:addError (\[Error]:expectingClosingBracketForClassGenericInstantiations (\parser:position));
+               };
+            } *{};
+            .ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->] get) {\get className genericInstantiations};
+         } *{
+            @ bla my way through
+            \[Loops]:until *([->] stop) {
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+                  [DainaType] subtype = \[DainaType]:base;
+                  \subtype:parse parser;
+                  \.ifMethodInputsAndOutput *([List<[DainaType]>] a, [Maybe<[DainaType]>]b) {
+                     .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as subtype)};
+                  };
+               } *{
+                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow) *{
+                     \parser:gotoNextToken;
+                     .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:nothing)};
+                  } *{
+                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) stop *{
+                        \parser:gotoNextToken;
+                     };
+                  };
+               };
+            };
+         };
+         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+            \parser:gotoNextToken;
+         } *{
+            \parser:addError (\[Error]:expectingClosingBracketForType (\parser:position));
+         };
+      } *{
+         \parser:addError (\[Error]:expectingType (\parser:position));
+      };
+   }
+}
