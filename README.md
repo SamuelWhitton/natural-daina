@@ -229,6 +229,7 @@ asdf ! binds strongly to the left, still weak on the right
 asdf << compiler injection for local assignment instead of general statement compiler, if valid; compiler determines what the object's expression result is
 asdf anonymous class method can refer to . instance obejcts in containing class, but not instance methods : which are refering to the anonymous class object instead
 asdf class inside class body only accessible by outer class, can be recused class inside class inside class etc, names of innerclass overlap in naming scope with dependancies, cannot put inner class in an anonymous class object
+asdf _ is also root/blank/anonymous value with type []
 
 ---
 
@@ -9260,10 +9261,10 @@ When a type method has no external, class or inherited visibility (written as **
         [[Container<[&E]>]->[&E]] uncontain = *([Container<[&E]>] c) -> [&E] {} -> \c:get;
     } -> \[Container<[Container<[&E]>]>]:map uncontain containerContainer     @ map is visible here
 
-    :: --- map *([[&E]->['M]] f, [Container<[&E]>] c) -> [Container<['M]>] {  @ map has --- visibility
+    :: --- map *([[&E]->["M]] f, [Container<[&E]>] c) -> [Container<["M]>] {  @ map has --- visibility
         [&E] original = \c:get;
-        ['M] transformed = \f original;
-    } -> \[Container<['M]>]:as transformed
+        ["M] transformed = \f original;
+    } -> \[Container<["M]>]:as transformed
 
     ++ get *->[&E] {
         @ map is not visible here
