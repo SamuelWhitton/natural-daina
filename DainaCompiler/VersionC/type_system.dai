@@ -1,5 +1,18 @@
 
 [DainaTypeEnum<E>] (List, DainaGeneralIdentifier, Natural) {
+   :: default *([&E] default) -> [:[DainaTypeEnum<[&E]>]] {
+      |++ root *->default
+      |++ classAndGenerics *->default
+      |++ method *->default
+      |++ disjoint *->default
+      |++ classGeneric *->default
+      |++ methodGeneric *->default
+      |++ dataSegment *->default
+      |++ inferred *->default
+      |++ inferredMethodContext *->default
+      |++ inferredSelfContext *->default
+      |++ inferredParentContext *->default
+   }
    ++ root [->[&E]] @ []
    ++ classAndGenerics [[DainaGeneralIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [Array<[Bob]>] [Omp] [Transform<[A][B]>]
    ++ method [[List<[[DainaTypeEnum<['A]>]->['A]]>][[DainaTypeEnum<['A]>]->['A]]->[&E]] @ [[A]->[B]] [[G][H]->[]] [->[]]
@@ -8,9 +21,9 @@
    ++ methodGeneric [[Natural][DainaGeneralIdentifier]->[&E]] @ ["E] ["BOB] ['B] ['C] [''C] ['''C]
    ++ dataSegment [[DainaGeneralIdentifier]->[&E]] @ [%INTEGER] [%BLA_BLA] [%JSON]
    ++ inferred [->[&E]] @ [?]
-   ++ inferredMethodContext [->[&E]] @ [*?]
-   ++ inferredSelfContext [->[&E]] @ [:?]
-   ++ inferredParentContext [[Natural]->[&E]] @ [$?] [$$?] [$$$?]
+   ++ inferredMethodContext [->[&E]] @ [?*]
+   ++ inferredSelfContext [->[&E]] @ [?:]
+   ++ inferredParentContext [[Natural]->[&E]] @ [?$] [?$$] [?$$$]
 }
 
 [DainaType] (
@@ -27,6 +40,7 @@
          Variable,
          DainaClassIdentifier,
          DainaGeneralIdentifier,
+         DainaTypeEnum,
 
          Debug
       )
@@ -65,6 +79,12 @@
       .ifInferredSelf = *([]a){};
       .ifInferredParent = *([]a){};
       .ifInferred = *([->]a){\a};
+
+      [[DainaTypeEnum<['A]>]->['A]] rootType = *([DainaTypeEnum<["A]>] e) -> \e:root;
+      @@[Boolean] isDisjointType = @@\rootType [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default _;
+         |++ disjoint *{}
+      };
    }
 
    ++ setAsMethodWithOutputType *([DainaType] outputType) {

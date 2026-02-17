@@ -3196,6 +3196,7 @@ class CLASSIMPL_Commands : CLASSTYPE_Commands {
 /* *** CLASS: DainaGeneralIdentifier *** */
 interface CLASSTYPE_DainaGeneralIdentifier : OBJECT, LAMBDA {
    OBJECT IMETHOD_content(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_isVoidIdentifier(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaGeneralIdentifier : CLASSTYPE_DainaGeneralIdentifier {
@@ -3230,6 +3231,13 @@ class CLASSIMPL_DainaGeneralIdentifier : CLASSTYPE_DainaGeneralIdentifier {
    override OBJECT IMETHOD_content(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGeneralIdentifier self = cast(CLASSTYPE_DainaGeneralIdentifier)caller;
       return IOBJECT_content;
+   }
+   override OBJECT IMETHOD_isVoidIdentifier(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaGeneralIdentifier self = cast(CLASSTYPE_DainaGeneralIdentifier)caller;
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_content;
+         return (cast(CLASSTYPE_String)instance).IMETHOD_isEqualTo(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("_")])]);
    }
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGeneralIdentifier self = cast(CLASSTYPE_DainaGeneralIdentifier)caller;
@@ -6757,6 +6765,26 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
          return caller;
       } })]);
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("();\n")])]);
+      self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("void PARENT_")])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("_SET(OBJECT parent) { ")])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("PARENT_")])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(" = cast(")])]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_parentType;
+         return (cast(CLASSTYPE_DainaType)instance).IMETHOD_ifClassNameAndGenericInstantiation(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_parentTypeIdentifier = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_genericInstantiation = parameters.length > 1 ? parameters[1] : null;
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("CLASSIMPL_")])]);
+         self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_parentTypeIdentifier;
+            return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])]);
+         return caller;
+      } })]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(")parent; }\n")])]);
       return caller;
    }
    override OBJECT IMETHOD_synthesizeParentUnoverridenMethod(OBJECT caller, OBJECT[] parameters) {
@@ -7272,9 +7300,9 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
                self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("PARENT_")])]);
                self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
                CLASSIMPL_O.TMETHOD_ifElse(caller, cast(OBJECT[])[LOBJECT_isPointerConstructor, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(" = ")])]);
+                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("_SET(")])]);
                   self.IMETHOD_synthesizeMethodInputs(self, cast(OBJECT[])[LOBJECT_inputs]);
-                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(";\n")])]);
+                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(");\n")])]);
                   return caller;
                } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                   self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(".CMETHOD_")])]);
@@ -7368,11 +7396,24 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
          } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT LOBJECT_identifier = parameters.length > 0 ? parameters[0] : null;
             (cast(LAMBDA)LOBJECT_select).method(caller, cast(OBJECT[])[]);
-            self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("LOBJECT_")])]);
-            self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_isVoidIdentifier = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_identifier;
-               return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[])]);
+               return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_isVoidIdentifier(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_isVoidIdentifier;
+               return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("new class OBJECT {}")])]);
+               return caller;
+            } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("LOBJECT_")])]);
+               self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_identifier;
+                  return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[])]);
+               return caller;
+            } })]);
             IOBJECT_synthesizedExpressionType = self.IMETHOD_getLocalObjectType(self, cast(OBJECT[])[LOBJECT_identifier]);
             return caller;
          } })]);

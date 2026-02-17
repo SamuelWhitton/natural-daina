@@ -724,7 +724,7 @@ import std.stdio;writeln("B::");
       } *{
          .currentCharacterPosition = \currentCharacterPosition:nextColumn;
       };
-      [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;@asdfasdfasdf
+      [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;@asdfasdf
       \bufferedChar:isOrElse *([Character] chaa){
          @\[Debug]:log (\[String]:as ##aChar: ##);
          @\[Debug]:log (\chaa:description);
@@ -1185,6 +1185,8 @@ import std.stdio;writeln("B::");
    }
 
    ++ content *->.content
+
+   ++ isVoidIdentifier *-> \.content:isEqualTo \[String]:as ##_##
 
    ++ parse *([Parser] parser) {
       [Token] identifierToken = \parser:token;
@@ -2580,6 +2582,17 @@ import std.stdio;writeln("B::");
          \:output (\parentTypeIdentifier:content);
       };
       \:output (\[String]:as ##();\n##);
+      \:outputTabbed (\[String]:as ##void PARENT_##);
+      \:output (\[String]:stringFormatOf parentNumber);
+      \:output (\[String]:as ##_SET(OBJECT parent) { ##);
+      \:output (\[String]:as ##PARENT_##);
+      \:output (\[String]:stringFormatOf parentNumber);
+      \:output (\[String]:as ## = cast(##);
+      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+         \:output (\[String]:as ##CLASSIMPL_##);
+         \:output (\parentTypeIdentifier:content);
+      };
+      \:output (\[String]:as ##)parent; }\n##);
    }
 
    - synthesizeParentUnoverridenMethod *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] unoverridenMethod) {
@@ -2823,9 +2836,9 @@ import std.stdio;writeln("B::");
                \:outputTabbed (\[String]:as ##PARENT_##);
                \:output (\[String]:stringFormatOf parentNumber);
                \[O]:ifElse isPointerConstructor *{
-                  \:output (\[String]:as ## = ##);
+                  \:output (\[String]:as ##_SET(##);
                   \:synthesizeMethodInputs inputs;
-                  \:output (\[String]:as ##;\n##);
+                  \:output (\[String]:as ##);\n##);
                } *{
                   \:output (\[String]:as ##.CMETHOD_##);
                   \:output (\identifier:content);
@@ -2875,8 +2888,13 @@ import std.stdio;writeln("B::");
          };
          \expression:ifLocalObject *([DainaGeneralIdentifier] identifier) {
             \select;
-            \:output (\[String]:as ##LOBJECT_##);
-            \:output (\identifier:content);
+            [Boolean] isVoidIdentifier = \identifier:isVoidIdentifier;
+            \isVoidIdentifier:ifOrElse *{
+               \:output (\[String]:as ##new class OBJECT {}##);
+            } *{
+               \:output (\[String]:as ##LOBJECT_##);
+               \:output (\identifier:content);
+            };
             .synthesizedExpressionType = \:getLocalObjectType identifier;
          };
          \expression:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
