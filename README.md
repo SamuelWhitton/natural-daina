@@ -4574,7 +4574,7 @@ If a class and none of its parents has a constructor, then we say it has implici
 [AB :[A] :[B]] (A, B) {
     ||++ methodB *{}
     ||++ unimplementedMethodA [->]
-    :: |++ inheritedTypeMethodB *{}
+    |:: ++ inheritedTypeMethodB *{}
 }
 
 [A] {
@@ -7879,6 +7879,7 @@ Inside an [anonymous class object](#anonymous-class-objects), **^** refers to th
     +++ getSelf * -> [Pig] {} -> ^
     :: newPig * -> [Pig] {
         [Pig] aNewPig1 = [:[Pig]] {
+                \$~new;
                 |+++ getSelf * -> [Pig] {
                     [Pig] aNewPig2 = ^;  @ Here ^ refers to the anonymous class object named aNewPig1
                 } -> aNewPig2
@@ -9568,7 +9569,7 @@ Type methods can override other type methods which have been inherited. Just lik
         [Berry] berry = \[Berry]:createFruit;  @ referring to the overriden createFruit method in Berry
     }
 
-    :: |+++ createFruit *->[Fruit] {            @ overriding the createFruit method
+    |:: +++ createFruit *->[Fruit] {            @ overriding the createFruit method
     } -> \[Fruit]:new
 }
 
