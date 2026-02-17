@@ -11062,6 +11062,79 @@ class CLASSIMPL_Mapping : CLASSTYPE_Mapping {
    }
 }
 
+/* *** CLASS: DainaTypeEnum *** */
+interface CLASSTYPE_DainaTypeEnum : OBJECT, LAMBDA {
+   OBJECT IMETHOD_root(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_classAndGenerics(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_method(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_disjoint(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_classGeneric(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_methodGeneric(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_dataSegment(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_inferred(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_inferredMethodContext(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_inferredSelfContext(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_inferredParentContext(OBJECT caller, OBJECT[] parameters);
+}
+class CLASSIMPL_DainaTypeEnum : CLASSTYPE_DainaTypeEnum {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   private LAMBDA ASSIGNIMETHOD_root = null;
+   override OBJECT IMETHOD_root(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_root.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_classAndGenerics = null;
+   override OBJECT IMETHOD_classAndGenerics(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_classAndGenerics.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_method = null;
+   override OBJECT IMETHOD_method(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_method.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_disjoint = null;
+   override OBJECT IMETHOD_disjoint(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_disjoint.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_classGeneric = null;
+   override OBJECT IMETHOD_classGeneric(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_classGeneric.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_methodGeneric = null;
+   override OBJECT IMETHOD_methodGeneric(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_methodGeneric.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_dataSegment = null;
+   override OBJECT IMETHOD_dataSegment(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_dataSegment.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_inferred = null;
+   override OBJECT IMETHOD_inferred(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_inferred.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_inferredMethodContext = null;
+   override OBJECT IMETHOD_inferredMethodContext(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_inferredMethodContext.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_inferredSelfContext = null;
+   override OBJECT IMETHOD_inferredSelfContext(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_inferredSelfContext.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_inferredParentContext = null;
+   override OBJECT IMETHOD_inferredParentContext(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+      return ASSIGNIMETHOD_inferredParentContext.method(caller, parameters);
+   }
+}
+
 /* *** CLASS: DainaType *** */
 interface CLASSTYPE_DainaType : OBJECT, LAMBDA {
    OBJECT IMETHOD_ifClassNameAndGenericInstantiation(OBJECT caller, OBJECT[] parameters);

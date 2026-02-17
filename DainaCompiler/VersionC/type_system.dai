@@ -1,4 +1,17 @@
 
+[DainaTypeEnum<E>] (List, DainaGeneralIdentifier, Natural) {
+   ++ root [->[&E]] @ []
+   ++ classAndGenerics [[DainaGeneralIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [Array<[Bob]>] [Omp] [Transform<[A][B]>]
+   ++ method [[List<[[DainaTypeEnum<['A]>]->['A]]>][[DainaTypeEnum<['A]>]->['A]]->[&E]] @ [[A]->[B]] [[G][H]->[]] [->[]]
+   ++ disjoint [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [&BOB] [&B] [&M]
+   ++ classGeneric [[DainaGeneralIdentifier]->[&E]] @ [&BOB] [&B] [&M]
+   ++ methodGeneric [[Natural][DainaGeneralIdentifier]->[&E]] @ ["E] ["BOB] ['B] ['C] [''C] ['''C]
+   ++ dataSegment [[DainaGeneralIdentifier]->[&E]] @ [%INTEGER] [%BLA_BLA] [%JSON]
+   ++ inferred [->[&E]] @ [?]
+   ++ inferredMethodContext [->[&E]] @ [*?]
+   ++ inferredSelfContext [->[&E]] @ [:?]
+   ++ inferredParentContext [[Natural]->[&E]] @ [$?] [$$?] [$$$?]
+}
 
 [DainaType] (
          Object, 
