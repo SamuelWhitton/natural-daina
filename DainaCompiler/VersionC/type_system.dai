@@ -44,7 +44,8 @@
 
          Debug
       )
-   [[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstantiation
+   [Variable<[[DainaTypeEnum<['A]>]->['A]]>] representedType
+   @@[[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstantiation
 
    [[[List<[DainaType]>][Maybe<[DainaType]>]->]->] ifMethodInputsAndOutput
    [[[List<[DainaType]>]->]->] ifDisjoint
@@ -54,21 +55,14 @@
    [[->]->] ifInferredMethod
    [[->]->] ifInferredSelf
    [[->]->] ifInferred
-   [[[Integer]->]->] ifInferredParent
+   [[[Integer]->]->] ifInferredParent@@
 {
    :: isFirstToken *([Token] token) -> [Boolean] {
    } -> (\[Token]:equals token \[Token]:squareBracketOpen)
 
-   ++ ifClassNameAndGenericInstantiation *([[DainaClassIdentifier][List<[DainaType]>]->] get) {
-      \.ifClassNameAndGenericInstantiation get;
-   }
-
-   ++ ifMethodInputsAndOutput *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {
-      \.ifMethodInputsAndOutput get;
-   }
-
-   ~ base *{
-      .ifClassNameAndGenericInstantiation = *([]a){};
+   ~ root *{
+      \:~as \[Variable<[?]>]:as *([DainaTypeEnum<["A]>] e) -> \e:root;
+      @@.ifClassNameAndGenericInstantiation = *([]a){};
 
       .ifMethodInputsAndOutput = *([]a){};
       .ifDisjoint = *([]a){};
@@ -78,21 +72,53 @@
       .ifInferredMethod = *([]a){};
       .ifInferredSelf = *([]a){};
       .ifInferredParent = *([]a){};
-      .ifInferred = *([->]a){\a};
+      .ifInferred = *([->]a){\a};@@
 
-      [[DainaTypeEnum<['A]>]->['A]] rootType = *([DainaTypeEnum<["A]>] e) -> \e:root;
-      @@[Boolean] isDisjointType = @@\rootType [:[DainaTypeEnum<[]>]] {
+      @@[[DainaTypeEnum<['A]>]->['A]] rootType = *([DainaTypeEnum<["A]>] e) -> \e:root;
+      \rootType [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default _;
          |++ disjoint *{}
+      };@@
+   }
+
+   ~ as *([[DainaTypeEnum<['A]>]->['A]] enum) {
+      .representedType = enum;
+   } 
+
+   @++ set *([[DainaTypeEnum<['A]>]->['A]] representedType) \.representedType:set representedType
+   @++ get *-> \.representedType:get
+
+   ++ set .representedType:set
+   ++ get .representedType:get
+
+   ++ ifClassNameAndGenericInstantiation *([[DainaClassIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->] get) {
+      \(\:get) [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default _;
+         |++ classAndGenerics get
+      };
+
+      @@\(\:get) [:[DainaTypeEnum<[]>]] {
+         \$~> \[?:]:default _;
+         |++ classAndGenerics get
+      };@@
+   }
+
+   ++ ifMethodInputsAndOutput *([[List<[[DainaTypeEnum<['A]>]->['A]]>][[DainaTypeEnum<['A]>]->['A]]->] get) {
+      @\.ifMethodInputsAndOutput get;
+      \(\:get) [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default _;
+         |++ method get
       };
    }
 
-   ++ setAsMethodWithOutputType *([DainaType] outputType) {
-      .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
+   ++ setAsMethodWithOutputType *([[DainaTypeEnum<['A]>]->['A]] outputType) {
+      \:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) outputType;
+      @.ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
    }
 
    ++ setAsClassName *([DainaClassIdentifier] className) {
-      .ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->]get){\get className (\[List<[DainaType]>]:empty)};
+      \:set *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics className (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty);
+      @.ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->]get){\get className (\[List<[DainaType]>]:empty)};
    }
 
    ++ parse *([Parser] parser) {
@@ -101,14 +127,14 @@
          \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
             [DainaClassIdentifier] className = \[DainaClassIdentifier]:base;
             \className:parse parser;
-            [List<[DainaType]>] genericInstantiations = \[List<[DainaType]>]:empty;
+            [List<[?]>] genericInstantiations = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
             \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
                \parser:gotoNextToken;
                \[Loops]:until *([->] stop) {
                   \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
-                     [DainaType] genericInstantiation = \[DainaType]:base;
+                     [DainaType] genericInstantiation = \[DainaType]:root;
                      \genericInstantiation:parse parser;
-                     \genericInstantiations:append genericInstantiation;
+                     \genericInstantiations:append \genericInstantiation:get;
                      \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{} stop;
                   } *{
                      \parser:addError (\[Error]:expectingOneOrMoreTypesForClassGenericInstantiation (\parser:position));
@@ -121,20 +147,22 @@
                   \parser:addError (\[Error]:expectingClosingBracketForClassGenericInstantiations (\parser:position));
                };
             } *{};
-            .ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->] get) {\get className genericInstantiations};
+            \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics className genericInstantiations;
          } *{
-            @ bla my way through
             \[Loops]:until *([->] stop) {
                \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
-                  [DainaType] subtype = \[DainaType]:base;
+                  [DainaType] subtype = \[DainaType]:root;
                   \subtype:parse parser;
-                  \.ifMethodInputsAndOutput *([List<[DainaType]>] a, [Maybe<[DainaType]>]b) {
-                     .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as subtype)};
+                  \(\.representedType:get) [:[DainaTypeEnum<[]>]] {
+                     \$~> \[DainaTypeEnum<[]>]:default _;
+                     |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] _a, [[DainaTypeEnum<['A]>]->['A]] _b) {
+                        \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \subtype:get;
+                     }
                   };
                } *{
                   \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow) *{
                      \parser:gotoNextToken;
-                     .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:nothing)};
+                     \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \[DainaType]:root;
                   } *{
                      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) stop *{
                         \parser:gotoNextToken;
