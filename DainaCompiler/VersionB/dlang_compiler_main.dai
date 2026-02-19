@@ -2570,7 +2570,7 @@ import std.stdio;writeln("B::");
    - synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
       \:outputTabbed (\[String]:as ####);
       \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
-         \:output (\[String]:as ##CLASSIMPL_##);
+         \:output (\[String]:as ##CLASSTYPE_##);
          \:output (\parentTypeIdentifier:content);
       };
       \:output (\[String]:as ## ##);
@@ -2589,7 +2589,7 @@ import std.stdio;writeln("B::");
       \:output (\[String]:stringFormatOf parentNumber);
       \:output (\[String]:as ## = cast(##);
       \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
-         \:output (\[String]:as ##CLASSIMPL_##);
+         \:output (\[String]:as ##CLASSTYPE_##);
          \:output (\parentTypeIdentifier:content);
       };
       \:output (\[String]:as ##)parent; }\n##);
