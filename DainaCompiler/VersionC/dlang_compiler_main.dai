@@ -2733,7 +2733,7 @@ import std.stdio;writeln("B::");
       } *{
          \:outputTabbed (\[String]:as ##return (cast(LAMBDA)##);
          \:synthesizeInPlaceExpression (\[Boolean]:false)  methodExpression;
-         \:output (\[String]:as ##).method(caller, []);\n##);
+         \:output (\[String]:as ##).method(caller, parameters);\n##);
       };
    }
 

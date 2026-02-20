@@ -2852,7 +2852,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
             } })]);
             return caller;
          } });
-      } }).method(caller, [])).method(caller, []);
+      } }).method(caller, [])).method(caller, parameters);
    }
 }
 
@@ -7090,7 +7090,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("return (cast(LAMBDA)")])]);
          self.IMETHOD_synthesizeInPlaceExpression(self, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]), LOBJECT_methodExpression]);
-         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(").method(caller, []);\n")])]);
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(").method(caller, parameters);\n")])]);
          return caller;
       } })]);
       return caller;
@@ -11286,18 +11286,19 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
       return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = IOBJECT_representedType;
          return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
-      } })).method(caller, []);
+      } })).method(caller, parameters);
    }
    override OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = IOBJECT_representedType;
          return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
-      } })).method(caller, []);
+      } })).method(caller, parameters);
    }
    override OBJECT IMETHOD_ifClassNameAndGenericInstantiation(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       OBJECT LOBJECT_get = parameters.length > 0 ? parameters[0] : null;
+      CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("C\n")])]);
       (cast(LAMBDA)self.IMETHOD_get(self, cast(OBJECT[])[])).method(caller, cast(OBJECT[])[((){
          CLASSTYPE_DainaTypeEnum PARENT_1 = new CLASSIMPL_DainaTypeEnum();
          void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaTypeEnum)parent; }
@@ -11316,19 +11317,22 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
             override OBJECT IMETHOD_inferredParentContext(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_inferredParentContext(caller, parameters); }
             override OBJECT IMETHOD_classAndGenerics(OBJECT caller, OBJECT[] parameters) {
                CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
-               return (cast(LAMBDA)LOBJECT_get).method(caller, []);
+               return (cast(LAMBDA)LOBJECT_get).method(caller, parameters);
             }
          };
          caller = anonymousClassObject;
          CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+         CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("C1\n")])]);
          PARENT_1_SET(CLASSIMPL_DainaTypeEnum.TMETHOD_default(caller, cast(OBJECT[])[new class OBJECT {}]));
          return anonymousClassObject;
       })()]);
+      CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("D\n")])]);
       return caller;
    }
    override OBJECT IMETHOD_ifMethodInputsAndOutput(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       OBJECT LOBJECT_get = parameters.length > 0 ? parameters[0] : null;
+      CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("A\n")])]);
       (cast(LAMBDA)self.IMETHOD_get(self, cast(OBJECT[])[])).method(caller, cast(OBJECT[])[((){
          CLASSTYPE_DainaTypeEnum PARENT_1 = new CLASSIMPL_DainaTypeEnum();
          void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaTypeEnum)parent; }
@@ -11347,7 +11351,7 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
             override OBJECT IMETHOD_inferredParentContext(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_inferredParentContext(caller, parameters); }
             override OBJECT IMETHOD_method(OBJECT caller, OBJECT[] parameters) {
                CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
-               return (cast(LAMBDA)LOBJECT_get).method(caller, []);
+               return (cast(LAMBDA)LOBJECT_get).method(caller, parameters);
             }
          };
          caller = anonymousClassObject;
@@ -11355,6 +11359,7 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
          PARENT_1_SET(CLASSIMPL_DainaTypeEnum.TMETHOD_default(caller, cast(OBJECT[])[new class OBJECT {}]));
          return anonymousClassObject;
       })()]);
+      CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("B\n")])]);
       return caller;
    }
    override OBJECT IMETHOD_setAsMethodWithOutputType(OBJECT caller, OBJECT[] parameters) {
