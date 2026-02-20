@@ -3019,10 +3019,8 @@ import std.stdio;writeln("B::");
                \:output (\[String]:as ##])##);
             };
             [DainaType] _invokedExpressionType = \invokedExpressionType:get;
-            \_invokedExpressionType:ifMethodInputsAndOutput *([List<[DainaType]>] asd,[Maybe<[DainaType]>] MoutputType) {
-               \MoutputType:isOrElse *([DainaType] outputType) {
-                  .synthesizedExpressionType = outputType;
-               } *{};
+            \_invokedExpressionType:ifMethodInputsAndOutput *([] _, [[DainaTypeEnum<['A]>]->['A]] MoutputType) {
+               .synthesizedExpressionType = \[DainaType]:as MoutputType;
             };
          };
          \expression:ifProxyObject *([DainaExpression] object) {
