@@ -1,4 +1,10 @@
 
+
+      @[] _ = << dlang ##import std.stdio;writeln(IOBJECT_representedType);writeln(self);##;
+@\[Debug]:log (\[String]:as ##D\n##);
+
+
+
 [DainaTypeEnum<E>] (List, DainaGeneralIdentifier, Natural) {
    :: default *([&E] default) -> [:[DainaTypeEnum<[&E]>]] {
       |++ root *->default
@@ -45,48 +51,17 @@
          Debug
       )
    [Variable<[[DainaTypeEnum<['A]>]->['A]]>] representedType
-   @@[[[DainaClassIdentifier][List<[DainaType]>]->]->] ifClassNameAndGenericInstantiation
-
-   [[[List<[DainaType]>][Maybe<[DainaType]>]->]->] ifMethodInputsAndOutput
-   [[[List<[DainaType]>]->]->] ifDisjoint
-   [[[DainaGeneralIdentifier]->]->] ifClassGeneric
-   [[[Integer][DainaGeneralIdentifier]->]->] ifMethodGenericLevelAndIdentifier
-   [[[DainaGeneralIdentifier]->]->] ifDataSegment
-   [[->]->] ifInferredMethod
-   [[->]->] ifInferredSelf
-   [[->]->] ifInferred
-   [[[Integer]->]->] ifInferredParent@@
 {
    :: isFirstToken *([Token] token) -> [Boolean] {
    } -> (\[Token]:equals token \[Token]:squareBracketOpen)
 
    ~ root *{
       \:~as \[Variable<[?]>]:as *([DainaTypeEnum<["A]>] e) -> \e:root;
-      @@.ifClassNameAndGenericInstantiation = *([]a){};
-
-      .ifMethodInputsAndOutput = *([]a){};
-      .ifDisjoint = *([]a){};
-      .ifClassGeneric = *([]a){};
-      .ifMethodGenericLevelAndIdentifier = *([]a){};
-      .ifDataSegment = *([]a){};
-      .ifInferredMethod = *([]a){};
-      .ifInferredSelf = *([]a){};
-      .ifInferredParent = *([]a){};
-      .ifInferred = *([->]a){\a};@@
-
-      @@[[DainaTypeEnum<['A]>]->['A]] rootType = *([DainaTypeEnum<["A]>] e) -> \e:root;
-      \rootType [:[DainaTypeEnum<[]>]] {
-         \$~> \[DainaTypeEnum<[]>]:default _;
-         |++ disjoint *{}
-      };@@
    }
 
    ~ as *([[DainaTypeEnum<['A]>]->['A]] enum) {
-      .representedType = enum;
+      .representedType = \[Variable<[?]>]:as enum;
    } 
-
-   @++ set *([[DainaTypeEnum<['A]>]->['A]] representedType) \.representedType:set representedType
-   @++ get *-> \.representedType:get
 
    ++ set .representedType:set
    ++ get .representedType:get
@@ -96,29 +71,21 @@
          \$~> \[DainaTypeEnum<[]>]:default _;
          |++ classAndGenerics get
       };
-
-      @@\(\:get) [:[DainaTypeEnum<[]>]] {
-         \$~> \[?:]:default _;
-         |++ classAndGenerics get
-      };@@
    }
 
    ++ ifMethodInputsAndOutput *([[List<[[DainaTypeEnum<['A]>]->['A]]>][[DainaTypeEnum<['A]>]->['A]]->] get) {
-      @\.ifMethodInputsAndOutput get;
       \(\:get) [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default _;
          |++ method get
       };
    }
 
-   ++ setAsMethodWithOutputType *([[DainaTypeEnum<['A]>]->['A]] outputType) {
-      \:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) outputType;
-      @.ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->]get){\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as outputType)};
+   ++ setAsMethodWithOutputType *([DainaType] outputType) {
+      \:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \outputType:get;
    }
 
    ++ setAsClassName *([DainaClassIdentifier] className) {
       \:set *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics className (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty);
-      @.ifClassNameAndGenericInstantiation = *([[DainaClassIdentifier][List<[DainaType]>]->]get){\get className (\[List<[DainaType]>]:empty)};
    }
 
    ++ parse *([Parser] parser) {
@@ -155,7 +122,7 @@
                   \subtype:parse parser;
                   \(\.representedType:get) [:[DainaTypeEnum<[]>]] {
                      \$~> \[DainaTypeEnum<[]>]:default _;
-                     |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] _a, [[DainaTypeEnum<['A]>]->['A]] _b) {
+                     |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] _, [[DainaTypeEnum<['A]>]->['A]] __) {
                         \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \subtype:get;
                      }
                   };
