@@ -2768,16 +2768,16 @@ A class type of the inheriting class itself can be used in the generic type inst
     [['A]['A]->['A]] ifTrueIfFalse
 {
     ~ true *{
-        .ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifTrue;
+        .ifTrueIfFalse = *(["A] ifTrue, ["A] ifFalse) -> ["A] {} -> ifTrue;
         \$~new;
     }
 
     ~ false *{
-        .ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifFalse;
+        .ifTrueIfFalse = *(["A] ifTrue, ["A] ifFalse) -> ["A] {} -> ifFalse;
         \$~new;
     }
 
-    ++ ifTrueIfFalse *(['A] ifTrue, ['A] ifFalse) -> ['A] {
+    ++ ifTrueIfFalse *(["A] ifTrue, ["A] ifFalse) -> ["A] {
     } -> \.ifTrueIfFalse ifTrue ifFalse
 
 
@@ -7109,19 +7109,19 @@ Class generics, method generics underloading and overloading ([see overloading a
 
     ||++ convert *([&M] m) -> [&E] {} -> \conversionBackwards m
 
-    ||++ join *([Converter<[&M]['C]>] otherConverter) -> [Converter<[&E]['C]>] {
+    ||++ join *([Converter<[&M]["C]>] otherConverter) -> [Converter<[&E]["C]>] {
         
-        [[&E]->['C]] joinedForwards = *([&E] e) -> ['C] {
+        [[&E]->["C]] joinedForwards = *([&E] e) -> ["C] {
             [&M] intermediate = \:convert e;
-            ['C] result = \otherConverter:convert intermediate;
+            ["C] result = \otherConverter:convert intermediate;
         } -> result
 
-        [['C]->[&E]] joinedBackwards = *(['C] c) -> [&E] {
+        [["C]->[&E]] joinedBackwards = *(["C] c) -> [&E] {
             [&M] intermediate = \otherConverter:convert c;
             [&E] result = \:convert intermediate;
         } -> result
 
-    } -> (\[LambdaConversions<[&E]['C]>]:using joinedForwards joinedBackwards)
+    } -> (\[LambdaConversions<[&E]["C]>]:using joinedForwards joinedBackwards)
 }
 
 [DoNothing< N > :[Converter<[&N][&N]>]] (Converter) {
@@ -7806,7 +7806,7 @@ A generic can be instantiated with **[]** when the input lambda has no output. F
 ```
 [] (Beetle, Bug) {
     *{
-        [[->['E]]->['E]] invoke = *([->['E]] lambda) -> ['E] {} -> \lambda;
+        [[->['E]]->['E]] invoke = *([->["E]] lambda) -> ["E] {} -> \lambda;
         [->[Beetle]] newBeetle = *-> [Beetle] {} -> \[Beetle]:new;
         [->] doNothing = *{};
         [Beetle] beetle = \invoke newBeetle;   @ Outputs a [Beetle]; newBeetle instantiates ['E] with [Beetle]
@@ -10395,12 +10395,12 @@ extra???
 [Boolean : [Comparable<[Boolean]>]] (Comparable, ComparisonResult) {
 
     ~ true *{
-        :ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifTrue;
+        :ifTrueIfFalse = *(["A] ifTrue, ["A] ifFalse) -> ['A] {} -> ifTrue;
         \$~new;
     }
 
     ~ false *{
-        :ifTrueIfFalse = *(['A] ifTrue, ['A] ifFalse) -> ['A] {} -> ifFalse;
+        :ifTrueIfFalse = *(["A] ifTrue, ["A] ifFalse) -> ["A] {} -> ifFalse;
         \$~new;
     }
 

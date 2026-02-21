@@ -89,26 +89,26 @@
    }
 
    ++ parse *([Parser] parser) {
-      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+      \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen)@@ifOrElse@@ *{
          \parser:gotoNextToken;
-         \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token)) *{
+         \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token))@@ifOrElse@@ *{
             [DainaClassIdentifier] className = \[DainaClassIdentifier]:base;
             \className:parse parser;
             [List<[?]>] genericInstantiations = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
-            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen) *{
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen)@@ifOrElse@@ *{
                \parser:gotoNextToken;
                \[Loops]:until *([->] stop) {
-                  \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
+                  \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token))@@ifOrElse@@ *{
                      [DainaType] genericInstantiation = \[DainaType]:root;
                      \genericInstantiation:parse parser;
                      \genericInstantiations:append \genericInstantiation:get;
-                     \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{} stop;
+                     \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token))@@ifOrElse@@ *{} stop;
                   } *{
                      \parser:addError (\[Error]:expectingOneOrMoreTypesForClassGenericInstantiation (\parser:position));
                      \stop;
                   };
                };
-               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose) *{
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrowBracketClose)@@ifOrElse@@ *{
                   \parser:gotoNextToken;
                } *{
                   \parser:addError (\[Error]:expectingClosingBracketForClassGenericInstantiations (\parser:position));
@@ -117,7 +117,7 @@
             \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics className genericInstantiations;
          } *{
             \[Loops]:until *([->] stop) {
-               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
+               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen)@@ifOrElse@@ *{
                   [DainaType] subtype = \[DainaType]:root;
                   \subtype:parse parser;
                   \(\.representedType:get) [:[DainaTypeEnum<[]>]] {
@@ -127,18 +127,18 @@
                      }
                   };
                } *{
-                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow) *{
+                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow)@@ifOrElse@@ *{
                      \parser:gotoNextToken;
                      \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \[DainaType]:root;
                   } *{
-                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) stop *{
+                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose)@@ifOrElse@@ stop *{
                         \parser:gotoNextToken;
                      };
                   };
                };
             };
          };
-         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
+         \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose)@@ifOrElse@@ *{
             \parser:gotoNextToken;
          } *{
             \parser:addError (\[Error]:expectingClosingBracketForType (\parser:position));
