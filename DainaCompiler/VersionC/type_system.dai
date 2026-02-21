@@ -115,29 +115,98 @@
                };
             } *{};
             \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics className genericInstantiations;
-         } *{
-            \[Loops]:until *([->] stop) {
-               \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen)@@ifOrElse@@ *{
-                  [DainaType] subtype = \[DainaType]:root;
-                  \subtype:parse parser;
-                  \(\.representedType:get) [:[DainaTypeEnum<[]>]] {
-                     \$~> \[DainaTypeEnum<[]>]:default _;
-                     |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] _, [[DainaTypeEnum<['A]>]->['A]] __) {
-                        \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \subtype:get;
-                     }
-                  };
-               } *{
-                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow)@@ifOrElse@@ *{
+         } *\[O]:ifElse (\[Boolean]:or (\[DainaType]:isFirstToken (\parser:token)) (\[Token]:equals (\parser:token) \[Token]:arrow))@@ifOrElse@@ *{
+            [List<[?]>] subtypeList = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+            \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+               [DainaType] firstSubtype = \[DainaType]:root;
+               \firstSubtype:parse parser;
+               \subtypeList:append \firstSubtype:get;
+            } *{};
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:forwardSlash) *{
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:forwardSlash)@@ifOrElse@@ *{
                      \parser:gotoNextToken;
-                     \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty) \[DainaType]:root;
+                     [DainaType] subtype = \[DainaType]:root;
+                     \subtype:parse parser;
+                     \subtypeList:append \subtype:get;
+                  } stop;
+               };
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:disjoint subtypeList;
+            } *{
+               \[Loops]:until *([->] stop) {
+                  \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+                     [DainaType] subtype = \[DainaType]:root;
+                     \subtype:parse parser;
+                     \subtypeList:append \subtype:get;
                   } *{
-                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose)@@ifOrElse@@ stop *{
+                     \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:arrow)@@ifOrElse@@ *{
                         \parser:gotoNextToken;
+                        [DainaType] returnType = \[DainaType]:root;
+                        \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+                           \returnType:parse parser;
+                        } *{};
+                        \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method subtypeList returnType;
+                     } *{
+                        \parser:addError (\[Error]:expectingTypeOrArrowForMethodType (\parser:position));
                      };
+                     \stop;
                   };
                };
             };
-         };
+         } *\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:ampersand)@@ifOrElse@@ *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+               [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+               \identifier:parse parser;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:classGeneric identifier;
+            } *{
+               \parser:addError (\[Error]:expectingIdentifierForClassGenericType (\parser:position));
+            };
+         } *\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:percentSign)@@ifOrElse@@ *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+               [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+               \identifier:parse parser;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:dataSegment identifier;
+            } *{
+               \parser:addError (\[Error]:expectingIdentifierForDataSegmentType (\parser:position));
+            };
+         } *\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:doubleApostrophe)@@ifOrElse@@ *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+               [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+               \identifier:parse parser;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:methodGeneric (\[Natural]:as ##0##) identifier;
+            } *{
+               \parser:addError (\[Error]:expectingIdentifierForMethodGenericType (\parser:position));
+            };
+         } *\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:singleApostrophe)@@ifOrElse@@ *{
+            [Natural] count = \parser:gotoNextSameTokens \[Token]:singleApostrophe;
+            \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token))@@ifOrElse@@ *{
+               [DainaGeneralIdentifier] identifier = \[DainaGeneralIdentifier]:base;
+               \identifier:parse parser;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:methodGeneric count identifier;
+            } *{
+               \parser:addError (\[Error]:expectingIdentifierForMethodGenericType (\parser:position));
+            };
+         } *\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:questionMark)@@ifOrElse@@ *{
+            \parser:gotoNextToken;
+            \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:asterisk)@@ifOrElse@@ *{
+               \parser:gotoNextToken;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:inferredMethodContext;
+            } *\[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:colon)@@ifOrElse@@ *{
+               \parser:gotoNextToken;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:inferredSelfContext;
+            } *\[O]:ifElse (\[Token]:isParentIdentifier (\parser:token))@@ifOrElse@@ *{
+               [Token] parentIdentifierToken = (\parser:token);
+               [Natural] parentIdentifierNumber = \parentIdentifierToken:secondId;
+               \parser:gotoNextToken;
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:inferredParentContext parentIdentifierNumber;
+            } *{
+               \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:inferred;
+            };
+         } *{};
+
          \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose)@@ifOrElse@@ *{
             \parser:gotoNextToken;
          } *{

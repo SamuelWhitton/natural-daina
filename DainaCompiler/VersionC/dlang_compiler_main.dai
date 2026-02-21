@@ -11,7 +11,6 @@
 
 [] (StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
-
       \[Daina]:run \[Configuration]:init;
 
       @[Maybe<[String]>] y1 = \[Maybe<[String]>]:nothing;
@@ -383,6 +382,21 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting constructor identifier##) context)
 
+   :: expectingTypeOrArrowForMethodType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting type or arrow for method type##) context)
+
+   :: expectingIdentifierForClassGenericType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for class generic type##) context)
+
+   :: expectingIdentifierForMethodGenericType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for method generic type##) context)
+
+   :: expectingIdentifierForDataSegmentType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for data segment type##) context)
 
 }
 
@@ -782,6 +796,18 @@ import std.stdio;writeln("B::");
          \m:isOrElse *([Token] t) {\token:set t} *{};
       } *{};
    } -> \token:get
+
+   ++ gotoNextSameTokens *([Token] token) -> [Natural] {
+      [Variable<[Natural]>] number = \[Variable<[Natural]>]:as \[Natural]:as ##0##;
+      [Natural] 1 = \[Natural]:as ##1##;
+      \[Loops]:until *([->] stop) {
+         [Boolean] nextTokenIsSame = \[Token]:equals (\:token) token;
+         \nextTokenIsSame:ifOrElse *{
+            \:gotoNextToken;
+            \number:set \1:adding \number:get;
+         } stop;
+      };
+   } -> \number:get
 
    ++ gotoNextToken *{
       \.ifNextTokenOrElse *([Maybe<[Token]>] m, [SourcePosition] p) {
