@@ -20,7 +20,7 @@
       |++ inferredParentContext *->default
    }
    ++ root [->[&E]] @ []
-   ++ classAndGenerics [[DainaGeneralIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [Array<[Bob]>] [Omp] [Transform<[A][B]>]
+   ++ classAndGenerics [[DainaClassIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [Array<[Bob]>] [Omp] [Transform<[A][B]>]
    ++ method [[List<[[DainaTypeEnum<['A]>]->['A]]>][[DainaTypeEnum<['A]>]->['A]]->[&E]] @ [[A]->[B]] [[G][H]->[]] [->[]]
    ++ disjoint [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [&BOB] [&B] [&M]
    ++ classGeneric [[DainaGeneralIdentifier]->[&E]] @ [&BOB] [&B] [&M]
@@ -62,6 +62,47 @@
    ~ as *([[DainaTypeEnum<['A]>]->['A]] enum) {
       .representedType = \[Variable<[?]>]:as enum;
    } 
+
+   ++ description *-> [String] {
+      [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[String]] descriptionOfTypeList = *([List<[[DainaTypeEnum<['A]>]->['A]]>] typeList) -> [String] {
+            [Variable<[String]>] description = \[Variable<[String]>]:as \[String]:as ####;
+            \typeList:iterate *([[DainaTypeEnum<['A]>]->['A]] typeEnum) {
+               [String] current = \description:get;
+               [DainaType] type = \[DainaType]:as typeEnum;
+               \description:set \current:appending \type:description;
+            }
+         } -> \description:get;
+      [String] description = \(\.representedType:get) [:[DainaTypeEnum<[&E]>]] {
+         |++ root *->\[String]:as ##[]##
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [String] {
+            [String] className = \id:content;
+            [String] desc1 = \[String]:as ##[##;
+            [String] desc2 = \desc1:appending className;
+            [String] desc3 = \desc2:appending \[String]:as ##<##;
+            [String] desc4 = \desc3:appending \descriptionOfTypeList generics;
+            [String] desc5 = \desc4:appending \[String]:as ##>]##;
+         } -> desc5
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputs, [[DainaTypeEnum<['A]>]->['A]] outputEnum) -> [String] {
+            [String] desc1 = \[String]:as ##[##;
+            [String] desc2 = \desc1:appending \descriptionOfTypeList inputs;
+            [String] desc3 = \desc2:appending \[String]:as ##->##;
+            [DainaType] output = \[DainaType]:as outputEnum;
+            [String] desc4 = \desc3:appending \output:description;
+         } -> desc4
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes) -> [String] {
+            [String] desc1 = \[String]:as ##[//##;
+            [String] desc2 = \desc1:appending \descriptionOfTypeList subtypes;
+            [String] desc3 = \desc2:appending \[String]:as ##]##;
+         } -> desc3
+         |++ classGeneric *->\[String]:as ##[&GEN*]##
+         |++ methodGeneric *->\[String]:as ##['*GEN*]##
+         |++ dataSegment *->\[String]:as ##[%SEG*]##
+         |++ inferred *->\[String]:as ##[?]##
+         |++ inferredMethodContext *->\[String]:as ##[?*]##
+         |++ inferredSelfContext *->\[String]:as ##[?:]##
+         |++ inferredParentContext *->\[String]:as ##[?$n]##
+      }
+   } -> description
 
    ++ set .representedType:set
    ++ get .representedType:get

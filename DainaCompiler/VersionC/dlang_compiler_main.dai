@@ -738,7 +738,7 @@ import std.stdio;writeln("B::");
       } *{
          .currentCharacterPosition = \currentCharacterPosition:nextColumn;
       };
-      [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;@asdfasdf
+      [Maybe<[Character]>] bufferedChar = \.buffer:removeFirst;
       \bufferedChar:isOrElse *([Character] chaa){
          @\[Debug]:log (\[String]:as ##aChar: ##);
          @\[Debug]:log (\chaa:description);
@@ -1479,12 +1479,15 @@ import std.stdio;writeln("B::");
    [[Parser][&DainaExpression]->] parseExpression
    [[Token]->[Boolean]] isExpressionFirstToken
    [DainaType] unimplementedType
+   [Boolean] overriding
 {
    ++ isInstanceTypeOrConstructor *([->] isInstance,[->] isType,[->] isConstructor) {
       \.isInstanceTypeOrConstructor isInstance isType isConstructor;
    }
 
    ++ isUnimplementedMethod *->(\.unimplementedMethod:get)
+
+   ++ isOverridingMethod *->(.overriding)
 
    ++ unimplementedType *->(.unimplementedType)
 
@@ -1503,6 +1506,7 @@ import std.stdio;writeln("B::");
       .parseExpression = parseExpression;
       .isExpressionFirstToken = isExpressionFirstToken;
       .unimplementedType = \[DainaType]:root;
+      .overriding = \[Boolean]:false;
    }
 
    ++ parse *([Parser] parser) {
@@ -1517,6 +1521,7 @@ import std.stdio;writeln("B::");
          } *{};
       };
       \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:pipe)) *{
+         .overriding = \[Boolean]:true;
          \parser:gotoNextToken;
       } *{};
       \.isInstanceTypeOrConstructor *{
@@ -2581,7 +2586,9 @@ import std.stdio;writeln("B::");
          };
          \instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
          \:iterateUnoverridenInstanceMethods class (:synthesizeParentUnoverridenMethod);
-         \classMethods:iterate :synthesizeClassMethodImplementation;
+         \classMethods:iterate *([List<[DainaClassMethod<[DainaExpression]>]>] classMethod) {
+            \:synthesizeClassMethodImplementation classMethod (\[Boolean]:false);
+         };
          \:decrementTab; \:output (\[String]:as ##}\n\n##);
       };
    }
@@ -2634,7 +2641,6 @@ import std.stdio;writeln("B::");
       } *{} *{};
    }
 
-
    - synthesizeClassMethodInterface *([DainaClassMethod<[DainaExpression]>] classMethod) {
       [DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
       \classMethod:isInstanceTypeOrConstructor *{
@@ -2649,7 +2655,7 @@ import std.stdio;writeln("B::");
       };
    }
 
-   - synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod) {
+   - synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod, [Boolean] anonymousClass) {
       [DainaGeneralIdentifier] classMethodIdentifier = \classMethod:identifier;
       \[O]:ifElse (\classMethod:isUnimplementedMethod) *{
          \:outputTabbed (\[String]:as ##private LAMBDA ASSIGNIMETHOD_##);
@@ -2657,7 +2663,16 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ## = null;\n##);
       } *{};
       \classMethod:isInstanceTypeOrConstructor *{
-         \:outputTabbed (\[String]:as ##override OBJECT IMETHOD_##);
+         \anonymousClass:ifOrElse *{
+            [Boolean] overriding = \classMethod:isOverridingMethod;
+            \overriding:ifOrElse *{
+               \:outputTabbed (\[String]:as ##override OBJECT IMETHOD_##);
+            } *{
+               \:outputTabbed (\[String]:as ##OBJECT IMETHOD_##);
+            };
+         } *{
+            \:outputTabbed (\[String]:as ##override OBJECT IMETHOD_##);
+         };
       } *{
          \:outputTabbed (\[String]:as ##static OBJECT TMETHOD_##);
       } *{
@@ -3105,7 +3120,12 @@ import std.stdio;writeln("B::");
             \.selfInstanceObjects:iterate *([DainaObjectDeclaration] decl) {
                [DainaGeneralIdentifier] thisId = \decl:identifier;
                \[O]:ifElse (\instanceObjectIdentifierString:isEqualTo (\thisId:content)) *{
-                  .synthesizedExpressionType = \decl:type;
+                  .synthesizedExpressionType = \decl:type; 
+                  \[Debug]:log instanceObjectIdentifierString;
+                  \[Debug]:log (\[String]:as ##:##);
+                  \[Debug]:log \.synthesizedExpressionType:description;
+                  \[Debug]:log (\[String]:as ##\n##);
+                  @asdfasdfasdf
                } *{};
             };
          };
@@ -3147,7 +3167,9 @@ import std.stdio;writeln("B::");
             \:output (\[String]:as ## {\n##); \:incrementTab;
             \:outputTabbed (\[String]:as ##override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }\n##);
             \:iterateUnoverridenInstanceMethodsAnon classMethods parents (:synthesizeParentUnoverridenMethod);
-            \classMethods:iterate :synthesizeClassMethodImplementation;
+            \classMethods:iterate *([List<[DainaClassMethod<[DainaExpression]>]>] classMethod) {
+               \:synthesizeClassMethodImplementation classMethod (\[Boolean]:true);
+            };
             \:decrementTab; \:outputTabbed (\[String]:as ##};\n##);
 
             

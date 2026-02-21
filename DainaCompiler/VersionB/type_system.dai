@@ -40,7 +40,7 @@
       \.ifMethodInputsAndOutput get;
    }
 
-   ~ base *{
+   ~ root *{
       .ifClassNameAndGenericInstantiation = *([]a){};
 
       .ifMethodInputsAndOutput = *([]a){};
@@ -73,7 +73,7 @@
                \parser:gotoNextToken;
                \[Loops]:until *([->] stop) {
                   \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{
-                     [DainaType] genericInstantiation = \[DainaType]:base;
+                     [DainaType] genericInstantiation = \[DainaType]:root;
                      \genericInstantiation:parse parser;
                      \genericInstantiations:append genericInstantiation;
                      \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token)) *{} stop;
@@ -93,7 +93,7 @@
             @ bla my way through
             \[Loops]:until *([->] stop) {
                \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen) *{
-                  [DainaType] subtype = \[DainaType]:base;
+                  [DainaType] subtype = \[DainaType]:root;
                   \subtype:parse parser;
                   \.ifMethodInputsAndOutput *([List<[DainaType]>] a, [Maybe<[DainaType]>]b) {
                      .ifMethodInputsAndOutput = *([[List<[DainaType]>][Maybe<[DainaType]>]->] get) {\get (\[List<[DainaType]>]:empty) (\[Maybe<[DainaType]>]:as subtype)};
