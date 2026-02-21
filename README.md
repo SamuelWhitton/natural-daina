@@ -230,6 +230,7 @@ asdf << compiler injection for local assignment instead of general statement com
 asdf anonymous class method can refer to . instance obejcts in containing class, but not instance methods : which are refering to the anonymous class object instead
 asdf class inside class body only accessible by outer class, can be recused class inside class inside class etc, names of innerclass overlap in naming scope with dependancies, cannot put inner class in an anonymous class object
 asdf _ is also root/blank/anonymous value with type []
+asdf using ":: |+++" and "~ -+-" now instead of +-+ ~ and |+++ :: 
 
 ---
 
@@ -4574,7 +4575,7 @@ If a class and none of its parents has a constructor, then we say it has implici
 [AB :[A] :[B]] (A, B) {
     ||++ methodB *{}
     ||++ unimplementedMethodA [->]
-    |:: ++ inheritedTypeMethodB *{}
+    :: |++ inheritedTypeMethodB *{}
 }
 
 [A] {
@@ -4612,7 +4613,7 @@ If a constructor is introduced to the class **B** then **B** is no longer implic
     }                          
     ||++ methodB *{}
     ||++ unimplementedMethodA [->]
-    ||:: ++ inheritedTypeMethodB *{}
+    :: |++ inheritedTypeMethodB *{}
 }
 
 [A] {
@@ -6765,7 +6766,7 @@ Underloading can be used to resolve conflicts when there are multiple inherited 
 Underloading can also be used with type methods. The following is like the prior example except using type methods instead of instance methods ([see inheritance of type methods](#visibility-and-inheritance-of-constructor-and-type-methods)):
 ```
 [CandyCrusherWrapper :[CandyCrusher] :[CandyWrapper]] (WrappedCandy, Candy, CandyCrusher, CandyWrapper, CrushedCandy, WrappedAndCrushedCandy) {
-    |::++ process *([Candy] candy) -> [[WrappedCandy]/[CrushedCandy]] {
+    ::|++ process *([Candy] candy) -> [[WrappedCandy]/[CrushedCandy]] {
         [[WrappedCandy]/[CrushedCandy]] crushedAndWrappedCandy = \[WrappedAndCrushedCandy]:wrappedAndCrushed candy;
     } -> crushedAndWrappedCandy
 }
@@ -9569,7 +9570,7 @@ Type methods can override other type methods which have been inherited. Just lik
         [Berry] berry = \[Berry]:createFruit;  @ referring to the overriden createFruit method in Berry
     }
 
-    |:: +++ createFruit *->[Fruit] {            @ overriding the createFruit method
+    :: |+++ createFruit *->[Fruit] {            @ overriding the createFruit method
     } -> \[Fruit]:new
 }
 
