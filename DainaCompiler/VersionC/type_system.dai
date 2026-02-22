@@ -2,7 +2,10 @@
 
       @[] _ = << dlang ##import std.stdio;writeln(IOBJECT_representedType);writeln(self);##;
 @\[Debug]:log (\[String]:as ##D\n##);
-
+@@\[Debug]:log instanceObjectIdentifierString;
+                  \[Debug]:log (\[String]:as ##:##);
+                  \[Debug]:log \.synthesizedExpressionType:description;
+                  \[Debug]:log (\[String]:as ##\n##);@@
 
 
 [DainaTypeEnum<E>] (List, DainaGeneralIdentifier, Natural) {
@@ -56,7 +59,7 @@
    } -> (\[Token]:equals token \[Token]:squareBracketOpen)
 
    ~ root *{
-      \:~as \[Variable<[?]>]:as *([DainaTypeEnum<["A]>] e) -> \e:root;
+      \:~as *([DainaTypeEnum<["A]>] e) -> \e:root;
    }
 
    ~ as *([[DainaTypeEnum<['A]>]->['A]] enum) {

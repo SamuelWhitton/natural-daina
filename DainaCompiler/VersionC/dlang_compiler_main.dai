@@ -3121,11 +3121,6 @@ import std.stdio;writeln("B::");
                [DainaGeneralIdentifier] thisId = \decl:identifier;
                \[O]:ifElse (\instanceObjectIdentifierString:isEqualTo (\thisId:content)) *{
                   .synthesizedExpressionType = \decl:type; 
-                  \[Debug]:log instanceObjectIdentifierString;
-                  \[Debug]:log (\[String]:as ##:##);
-                  \[Debug]:log \.synthesizedExpressionType:description;
-                  \[Debug]:log (\[String]:as ##\n##);
-                  @asdfasdfasdf
                } *{};
             };
          };
