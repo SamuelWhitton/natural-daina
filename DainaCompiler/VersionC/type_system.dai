@@ -186,7 +186,7 @@
                         \[O]:ifElse (\[DainaType]:isFirstToken (\parser:token))@@ifOrElse@@ *{
                            \returnType:parse parser;
                         } *{};
-                        \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method subtypeList returnType;
+                        \.representedType:set *([DainaTypeEnum<["A]>] e) -> \e:method subtypeList \returnType:get;
                      } *{
                         \parser:addError (\[Error]:expectingTypeOrArrowForMethodType (\parser:position));
                      };
