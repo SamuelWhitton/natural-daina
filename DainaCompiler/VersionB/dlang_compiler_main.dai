@@ -2555,9 +2555,17 @@ import std.stdio;writeln("B::");
          [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
          \inheritedParentTypes:iterate *([DainaType] parentType) {
             [Integer] curr = \parentNumber:get;
-            \:synthesizeParentObjectDeclaration curr parentType;
+            \:synthesizeParentObjectDeclaration curr parentType \[Boolean]:false;
             \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
          };
+         \:outputTabbed (\[String]:as ##this() {\n##); \:incrementTab;
+         \parentNumber:set (\[Integer]:as ##1##);
+         \inheritedParentTypes:iterate *([DainaType] parentType) {
+            [Integer] curr = \parentNumber:get;
+            \:synthesizeParentObjectAssignment curr parentType;
+            \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
+         };
+         \:decrementTab; \:outputTabbed (\[String]:as ##}\n##);
          \instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
          \:iterateUnoverridenInstanceMethods class (:synthesizeParentUnoverridenMethod);
          \classMethods:iterate *([List<[DainaClassMethod<[DainaExpression]>]>] classMethod) {
@@ -2574,7 +2582,7 @@ import std.stdio;writeln("B::");
       \:output (\[String]:as ## = null;\n##);
    }
 
-   - synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
+   - synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType, [Boolean] includeAssignment) {
       \:outputTabbed (\[String]:as ####);
       \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
          \:output (\[String]:as ##CLASSTYPE_##);
@@ -2583,12 +2591,16 @@ import std.stdio;writeln("B::");
       \:output (\[String]:as ## ##);
       \:output (\[String]:as ##PARENT_##);
       \:output (\[String]:stringFormatOf parentNumber);
-      \:output (\[String]:as ## = new ##);
-      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
-         \:output (\[String]:as ##CLASSIMPL_##);
-         \:output (\parentTypeIdentifier:content);
+      \includeAssignment:ifOrElse *{
+         \:output (\[String]:as ## = new ##);
+         \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+            \:output (\[String]:as ##CLASSIMPL_##);
+            \:output (\parentTypeIdentifier:content);
+         };
+         \:output (\[String]:as ##();\n##);
+      } *{
+         \:output (\[String]:as ##;\n##);
       };
-      \:output (\[String]:as ##();\n##);
       \:outputTabbed (\[String]:as ##void PARENT_##);
       \:output (\[String]:stringFormatOf parentNumber);
       \:output (\[String]:as ##_SET(OBJECT parent) { ##);
@@ -2600,6 +2612,17 @@ import std.stdio;writeln("B::");
          \:output (\parentTypeIdentifier:content);
       };
       \:output (\[String]:as ##)parent; }\n##);
+   }
+
+   - synthesizeParentObjectAssignment *([Integer] parentNumber, [DainaType] parentType) {
+      \:outputTabbed (\[String]:as ##PARENT_##);
+      \:output (\[String]:stringFormatOf parentNumber);
+      \:output (\[String]:as ## = new ##);
+      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+         \:output (\[String]:as ##CLASSIMPL_##);
+         \:output (\parentTypeIdentifier:content);
+      };
+      \:output (\[String]:as ##();\n##);
    }
 
    - synthesizeParentUnoverridenMethod *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] unoverridenMethod) {
@@ -3096,7 +3119,7 @@ import std.stdio;writeln("B::");
             \.selfInstanceObjects:iterate *([DainaObjectDeclaration] decl) {
                [DainaGeneralIdentifier] thisId = \decl:identifier;
                \[O]:ifElse (\instanceObjectIdentifierString:isEqualTo (\thisId:content)) *{
-                  .synthesizedExpressionType = \decl:type;
+                  .synthesizedExpressionType = \decl:type; 
                } *{};
             };
          };
@@ -3118,7 +3141,7 @@ import std.stdio;writeln("B::");
             [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
             \parents:iterate *([DainaType] parentType) {
                [Integer] curr = \parentNumber:get;
-               \:synthesizeParentObjectDeclaration curr parentType;
+               \:synthesizeParentObjectDeclaration curr parentType \[Boolean]:true;
                \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
                \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] a) {
                   .selfClassName = parentTypeIdentifier;

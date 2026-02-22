@@ -96,16 +96,8 @@
       ) 
    [Variable<[SourcePosition]>] startPosition
 {
-   <<dlang ##
-   import std.stdio;
-this() {
-        writeln("AddressGGG");
-        //writeln("AddressGGG: ", cast(void*)this);
-    }
-   ##
-   ~ base *{
-      [] _ = << dlang ##import std.stdio;writeln("AddressM: ", cast(void*)this);##;
 
+   ~ base *{
       .startPosition = \[Variable<[SourcePosition]>]:as \[SourcePosition]:initialPositionIn (\[String]:as ##< UNKNOWN SOURCE >##) (\[String]:as ####)
    }
 
@@ -113,9 +105,6 @@ this() {
 
    ++ parse *([Parser] parser) {
       \.startPosition:set (\parser:position);
-      [SourcePosition] pos = (\.startPosition:get);
-      \[Debug]:log \pos:description;
-      \[Debug]:log (\[String]:as ##\n##); 
    }
 
    ++ analyze *([Analyzer] analyzer) {}
@@ -164,7 +153,7 @@ this() {
       };
       [String] curr = \linePositionArrow:get;
       \linePositionArrow:set (\curr:appending (\[String]:as ##^##));
-   } -> (\.sourceName:appending (\colon:appending (\line:appending (\pos:appending (\column:appending (\tabulation:appending (\.lineContent:appending (\tabulation:appending (\linePositionArrow:get)))))))))
+   } -> (\.sourceName:appending (\colon:appending (\line:appending (\pos:appending (\column:appending \colon:appending (\tabulation:appending (\.lineContent:appending (\tabulation:appending (\linePositionArrow:get)))))))))
 
    ++ nextColumn *-> [SourcePosition] {
    } -> \[SourcePosition]:lineAndColumnIn (.line) (\.column:adding (\[Natural]:as ##1##)) (.sourceName) (.lineContent)
@@ -189,12 +178,16 @@ this() {
    ~ -+- errorWithContext *([String] errorString, [List<[SourcePosition]>] context) {
       [Variable<[String]>] errorWithContext = \[Variable<[String]>]:as errorString;
       \[Loops]:iterate context *([] _, [SourcePosition] sourcePosition) {
+         \errorWithContext:set (\prefix:appending \[String]:as ##\n##) !{
+            [String] prefix = \errorWithContext:get;
+         };
          [String] addedContext = (\prefix:appending (\sourcePosition:description)) !{
                [String] prefix = \[String]:as ## - ##;
             };
          \errorWithContext:set (\prefix:appending addedContext) !{
                [String] prefix = \errorWithContext:get;
             };
+
       };
       .errorString = \errorWithContext:get;
    }
@@ -2647,9 +2640,17 @@ import std.stdio;writeln("B::");
          [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
          \inheritedParentTypes:iterate *([DainaType] parentType) {
             [Integer] curr = \parentNumber:get;
-            \:synthesizeParentObjectDeclaration curr parentType;
+            \:synthesizeParentObjectDeclaration curr parentType \[Boolean]:false;
             \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
          };
+         \:outputTabbed (\[String]:as ##this() {\n##); \:incrementTab;
+         \parentNumber:set (\[Integer]:as ##1##);
+         \inheritedParentTypes:iterate *([DainaType] parentType) {
+            [Integer] curr = \parentNumber:get;
+            \:synthesizeParentObjectAssignment curr parentType;
+            \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
+         };
+         \:decrementTab; \:outputTabbed (\[String]:as ##}\n##);
          \instanceObjects:iterate :synthesizeInstanceObjectDeclaration;
          \:iterateUnoverridenInstanceMethods class (:synthesizeParentUnoverridenMethod);
          \classMethods:iterate *([List<[DainaClassMethod<[DainaExpression]>]>] classMethod) {
@@ -2666,7 +2667,7 @@ import std.stdio;writeln("B::");
       \:output (\[String]:as ## = null;\n##);
    }
 
-   - synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType) {
+   - synthesizeParentObjectDeclaration *([Integer] parentNumber, [DainaType] parentType, [Boolean] includeAssignment) {
       \:outputTabbed (\[String]:as ####);
       \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
          \:output (\[String]:as ##CLASSTYPE_##);
@@ -2675,12 +2676,16 @@ import std.stdio;writeln("B::");
       \:output (\[String]:as ## ##);
       \:output (\[String]:as ##PARENT_##);
       \:output (\[String]:stringFormatOf parentNumber);
-      \:output (\[String]:as ## = new ##);
-      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
-         \:output (\[String]:as ##CLASSIMPL_##);
-         \:output (\parentTypeIdentifier:content);
+      \includeAssignment:ifOrElse *{
+         \:output (\[String]:as ## = new ##);
+         \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+            \:output (\[String]:as ##CLASSIMPL_##);
+            \:output (\parentTypeIdentifier:content);
+         };
+         \:output (\[String]:as ##();\n##);
+      } *{
+         \:output (\[String]:as ##;\n##);
       };
-      \:output (\[String]:as ##();\n##);
       \:outputTabbed (\[String]:as ##void PARENT_##);
       \:output (\[String]:stringFormatOf parentNumber);
       \:output (\[String]:as ##_SET(OBJECT parent) { ##);
@@ -2692,6 +2697,17 @@ import std.stdio;writeln("B::");
          \:output (\parentTypeIdentifier:content);
       };
       \:output (\[String]:as ##)parent; }\n##);
+   }
+
+   - synthesizeParentObjectAssignment *([Integer] parentNumber, [DainaType] parentType) {
+      \:outputTabbed (\[String]:as ##PARENT_##);
+      \:output (\[String]:stringFormatOf parentNumber);
+      \:output (\[String]:as ## = new ##);
+      \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+         \:output (\[String]:as ##CLASSIMPL_##);
+         \:output (\parentTypeIdentifier:content);
+      };
+      \:output (\[String]:as ##();\n##);
    }
 
    - synthesizeParentUnoverridenMethod *([Integer] parentNumber, [DainaClassMethod<[DainaExpression]>] unoverridenMethod) {
@@ -3208,7 +3224,7 @@ import std.stdio;writeln("B::");
             [Variable<[Integer]>] parentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
             \parents:iterate *([DainaType] parentType) {
                [Integer] curr = \parentNumber:get;
-               \:synthesizeParentObjectDeclaration curr parentType;
+               \:synthesizeParentObjectDeclaration curr parentType \[Boolean]:true;
                \parentNumber:set (\curr:adding (\[Integer]:as ##1##));
                \parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] a) {
                   .selfClassName = parentTypeIdentifier;

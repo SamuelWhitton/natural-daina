@@ -313,17 +313,6 @@
                *{\.entryPoint:set \[Maybe<[DainaClass]>]:as class};
          } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
             [String] className = \classId:content;
-
-      \[Debug]:log className;
-      \[Debug]:log (\[String]:as ##\n##); 
-
-      [SourcePosition] pos = ( \class:position);
-      \[Debug]:log \pos:description;
-      \[Debug]:log (\[String]:as ##\n##); 
-
-[] _ = << dlang ##import std.stdio;writeln("Address: ", cast(void*)LOBJECT_pos);writeln("Address2: ", cast(void*)((cast(CLASSIMPL_DainaClass)LOBJECT_class).PARENT_1));writeln("Address3: ", cast(void*)((cast(CLASSIMPL_DainaClass)LOBJECT_class)));##;
-
-
             [Maybe<[?]>] existingClass = \.classIndex:get className;
             \existingClass:isOrElse
                *([DainaClass] original){\:addError (\[Error]:duplicateClassName (\class:position) (\original:position))} 

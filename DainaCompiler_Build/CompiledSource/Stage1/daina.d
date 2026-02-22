@@ -6132,6 +6132,7 @@ interface CLASSTYPE_DLangSynthesizer : OBJECT, LAMBDA {
    OBJECT IMETHOD_synthesizeClass(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_synthesizeInstanceObjectDeclaration(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_synthesizeParentObjectDeclaration(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_synthesizeParentObjectAssignment(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_synthesizeParentUnoverridenMethod(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_synthesizeClassMethodInterface(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_synthesizeClassMethodImplementation(OBJECT caller, OBJECT[] parameters);
@@ -6688,7 +6689,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
                OBJECT instance = LOBJECT_parentNumber;
                return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
             } })).method(caller, cast(OBJECT[])[]);
-            self.IMETHOD_synthesizeParentObjectDeclaration(self, cast(OBJECT[])[LOBJECT_curr, LOBJECT_parentType]);
+            self.IMETHOD_synthesizeParentObjectDeclaration(self, cast(OBJECT[])[LOBJECT_curr, LOBJECT_parentType, CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[])]);
             (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_parentNumber;
                return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
@@ -6698,6 +6699,33 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
             } })).method(caller, cast(OBJECT[])[CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])])]);
             return caller;
          } })]);
+         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("this() {\n")])]);
+         self.IMETHOD_incrementTab(self, cast(OBJECT[])[]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_parentNumber;
+            return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_inheritedParentTypes;
+            return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_parentType = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_curr = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_parentNumber;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+            self.IMETHOD_synthesizeParentObjectAssignment(self, cast(OBJECT[])[LOBJECT_curr, LOBJECT_parentType]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_parentNumber;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_curr;
+               return (cast(CLASSTYPE_Integer)instance).IMETHOD_adding(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])])]);
+            return caller;
+         } })]);
+         self.IMETHOD_decrementTab(self, cast(OBJECT[])[]);
+         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("}\n")])]);
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_instanceObjects;
             return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
@@ -6742,6 +6770,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
       CLASSTYPE_DLangSynthesizer self = cast(CLASSTYPE_DLangSynthesizer)caller;
       OBJECT LOBJECT_parentNumber = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_parentType = parameters.length > 1 ? parameters[1] : null;
+      OBJECT LOBJECT_includeAssignment = parameters.length > 2 ? parameters[2] : null;
       self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("")])]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_parentType;
@@ -6759,21 +6788,30 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(" ")])]);
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("PARENT_")])]);
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
-      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(" = new ")])]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_parentType;
-         return (cast(CLASSTYPE_DainaType)instance).IMETHOD_ifClassNameAndGenericInstantiation(instance, parameters);
+         OBJECT instance = LOBJECT_includeAssignment;
+         return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
       } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_parentTypeIdentifier = parameters.length > 0 ? parameters[0] : null;
-         OBJECT LOBJECT_genericInstantiation = parameters.length > 1 ? parameters[1] : null;
-         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("CLASSIMPL_")])]);
-         self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_parentTypeIdentifier;
-            return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[])]);
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(" = new ")])]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_parentType;
+            return (cast(CLASSTYPE_DainaType)instance).IMETHOD_ifClassNameAndGenericInstantiation(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_parentTypeIdentifier = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_genericInstantiation = parameters.length > 1 ? parameters[1] : null;
+            self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("CLASSIMPL_")])]);
+            self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_parentTypeIdentifier;
+               return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[])]);
+            return caller;
+         } })]);
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("();\n")])]);
+         return caller;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(";\n")])]);
          return caller;
       } })]);
-      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("();\n")])]);
       self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("void PARENT_")])]);
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("_SET(OBJECT parent) { ")])]);
@@ -6794,6 +6832,29 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
          return caller;
       } })]);
       self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(")parent; }\n")])]);
+      return caller;
+   }
+   override OBJECT IMETHOD_synthesizeParentObjectAssignment(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DLangSynthesizer self = cast(CLASSTYPE_DLangSynthesizer)caller;
+      OBJECT LOBJECT_parentNumber = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_parentType = parameters.length > 1 ? parameters[1] : null;
+      self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("PARENT_")])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(" = new ")])]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_parentType;
+         return (cast(CLASSTYPE_DainaType)instance).IMETHOD_ifClassNameAndGenericInstantiation(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_parentTypeIdentifier = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_genericInstantiation = parameters.length > 1 ? parameters[1] : null;
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("CLASSIMPL_")])]);
+         self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_parentTypeIdentifier;
+            return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])]);
+         return caller;
+      } })]);
+      self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("();\n")])]);
       return caller;
    }
    override OBJECT IMETHOD_synthesizeParentUnoverridenMethod(OBJECT caller, OBJECT[] parameters) {
@@ -8001,7 +8062,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
                   OBJECT instance = LOBJECT_parentNumber;
                   return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
                } })).method(caller, cast(OBJECT[])[]);
-               self.IMETHOD_synthesizeParentObjectDeclaration(self, cast(OBJECT[])[LOBJECT_curr, LOBJECT_parentType]);
+               self.IMETHOD_synthesizeParentObjectDeclaration(self, cast(OBJECT[])[LOBJECT_curr, LOBJECT_parentType, CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[])]);
                (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                   OBJECT instance = LOBJECT_parentNumber;
                   return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
