@@ -2623,9 +2623,9 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);
       } *{
       } *{
-         @@\:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
+         \:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
          \:output (\classMethodIdentifier:content);
-         \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);@@
+         \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);
       };
    }
 
@@ -2661,7 +2661,7 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ##(); return newInstance.CMETHOD_##);
          \:output (\classMethodIdentifier:content);
          \:output (\[String]:as ##(newInstance, parameters); }\n##);
-         \:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
+         \:outputTabbed (\[String]:as ##override OBJECT CMETHOD_##);
       };
       \:output (\classMethodIdentifier:content);
       \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters)##);

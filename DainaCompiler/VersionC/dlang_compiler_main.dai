@@ -74,7 +74,56 @@
 
 
 
+
+
 @ DAINA COMPILER -------
+
+
+
+[DainaASTComponent] (
+         Object, 
+         Parser, 
+         List,
+         Loops,
+         Token,
+         Boolean,
+         Maybe,
+         String,
+         Error, M, O,
+         Maybe,
+
+         Debug
+      ) 
+   [Variable<[SourcePosition]>] startPosition
+{
+   <<dlang ##
+   import std.stdio;
+this() {
+        writeln("AddressGGG");
+        //writeln("AddressGGG: ", cast(void*)this);
+    }
+   ##
+   ~ base *{
+      [] _ = << dlang ##import std.stdio;writeln("AddressM: ", cast(void*)this);##;
+
+      .startPosition = \[Variable<[SourcePosition]>]:as \[SourcePosition]:initialPositionIn (\[String]:as ##< UNKNOWN SOURCE >##) (\[String]:as ####)
+   }
+
+   ++ position .startPosition:get
+
+   ++ parse *([Parser] parser) {
+      \.startPosition:set (\parser:position);
+      [SourcePosition] pos = (\.startPosition:get);
+      \[Debug]:log \pos:description;
+      \[Debug]:log (\[String]:as ##\n##); 
+   }
+
+   ++ analyze *([Analyzer] analyzer) {}
+}
+
+
+
+
 
 [SourcePosition] (
          Natural,
@@ -397,6 +446,20 @@
    :: expectingIdentifierForDataSegmentType *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting identifier for data segment type##) context)
+
+
+
+
+
+   @ analyzer errors
+
+   :: duplicateEntryPointClass *([SourcePosition] position1, [SourcePosition] position2) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate entry point class##) context)
+
+   :: duplicateClassName *([SourcePosition] position1, [SourcePosition] position2) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate class name##) context)
 
 }
 
@@ -1283,49 +1346,50 @@ import std.stdio;writeln("B::");
          Error, M, O,
          DainaGeneralIdentifier,
          SourcePosition,
+         DainaClassIdentifier,
 
          Debug
       )
-   [List<[DainaGeneralIdentifier]>] dependancies
-   [List<[DainaGeneralIdentifier]>] dependanciesWithDerivatives
-   [List<[DainaGeneralIdentifier]>] reverseDependancies
+   [List<[DainaClassIdentifier]>] dependancies
+   [List<[DainaClassIdentifier]>] dependanciesWithDerivatives
+   [List<[DainaClassIdentifier]>] reverseDependancies
 {
    ~ base *{
-      .dependancies = \[List<[DainaGeneralIdentifier]>]:empty;
-      .reverseDependancies = \[List<[DainaGeneralIdentifier]>]:empty;
-      .dependanciesWithDerivatives = \[List<[DainaGeneralIdentifier]>]:empty;
+      .dependancies = \[List<[DainaClassIdentifier]>]:empty;
+      .reverseDependancies = \[List<[DainaClassIdentifier]>]:empty;
+      .dependanciesWithDerivatives = \[List<[DainaClassIdentifier]>]:empty;
    }
 
    ++ parse *([Parser] parser) {{
       \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
-         \parseIDList .dependancies ([Error]:expectingDependancy) (\[Maybe<[List<[DainaGeneralIdentifier]>]>]:as .dependanciesWithDerivatives);
+         \parseIDList .dependancies ([Error]:expectingDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:as .dependanciesWithDerivatives);
          \(\[Token]:equals (\parser:token) (\[Token]:arrow)):ifOrElse *{
             \parser:gotoNextToken;
             \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
-               \parseIDList .reverseDependancies ([Error]:expectingReverseDependancy) (\[Maybe<[List<[DainaGeneralIdentifier]>]>]:nothing);
+               \parseIDList .reverseDependancies ([Error]:expectingReverseDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:nothing);
             } *{
                \parser:addError (\[Error]:expectingReverseDependancyList (\parser:position));
             };
          } *{};
       } *{};
    }  !{
-         [[List<[DainaGeneralIdentifier]>][[SourcePosition]->[Error]][Maybe<[List<[DainaGeneralIdentifier]>]>]->] parseIDList = *([List<[DainaGeneralIdentifier]>] list, [[SourcePosition]->[Error]] missingIDError, [Maybe<[List<[DainaGeneralIdentifier]>]>] maybeDerivativeList) {
+         [[List<[DainaClassIdentifier]>][[SourcePosition]->[Error]][Maybe<[List<[DainaClassIdentifier]>]>]->] parseIDList = *([List<[DainaClassIdentifier]>] list, [[SourcePosition]->[Error]] missingIDError, [Maybe<[List<[DainaClassIdentifier]>]>] maybeDerivativeList) {
             \parser:gotoNextToken;
-            \(\[DainaGeneralIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
+            \(\[DainaClassIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
                \[Loops]:until *([->] stop) {
-                  \(\[DainaGeneralIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
-                     [DainaGeneralIdentifier] id = \[DainaGeneralIdentifier]:base;
+                  \(\[DainaClassIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
+                     [DainaClassIdentifier] id = \[DainaClassIdentifier]:base;
                      \id:parse parser;
                      \list:append id;
                      \(\[Token]:equals (\parser:token) \[Token]:comma):ifOrElse *{
                         \parser:gotoNextToken;
                      } stop;
                   } *{
-                     \maybeDerivativeList:isOrElse *([List<[DainaGeneralIdentifier]>] derivativeList) {
+                     \maybeDerivativeList:isOrElse *([List<[DainaClassIdentifier]>] derivativeList) {
                         \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
                            \parser:gotoNextToken;
-                           \(\[DainaGeneralIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
-                              [DainaGeneralIdentifier] id = \[DainaGeneralIdentifier]:base;
+                           \(\[DainaClassIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
+                              [DainaClassIdentifier] id = \[DainaClassIdentifier]:base;
                               \id:parse parser;
                               \list:append id;
                               \derivativeList:append id;
@@ -1379,7 +1443,8 @@ import std.stdio;writeln("B::");
    :: isFirstToken *([Token] token) -> [Boolean] {
       [Variable<[Boolean]>] isIdentifier = \[Variable<[Boolean]>]:as \[Boolean]:false;
       \token:ifIdentifier *([String] s) {
-         \isIdentifier:set \[Boolean]:true;
+         [Boolean] usingVoidIdentifier = \s:isEqualTo \[String]:as ##_##;
+         \usingVoidIdentifier:ifOrElse *{} *\isIdentifier:set \[Boolean]:true;
       };
    } -> (\isIdentifier:get)
 
@@ -2183,7 +2248,7 @@ import std.stdio;writeln("B::");
 
 
 
-[DainaClass] (
+[DainaClass :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -2202,6 +2267,7 @@ import std.stdio;writeln("B::");
          DainaObjectDeclaration,
          DainaClassMethod,
          DainaCompilerInjection,
+         DainaASTComponent,
 
          Debug
       )
@@ -2251,6 +2317,7 @@ import std.stdio;writeln("B::");
    } -> (\[Token]:equals token \[Token]:squareBracketOpen)
 
    ~ base *{
+      \$~base;
       .isEntryPointClass = \[Variable<[Boolean]>]:as (\[Boolean]:false);
       .dependancyStructure = \[DainaDependancyStructure]:base;
       .entryPointMethod = \[DainaExpression]:base;
@@ -2262,7 +2329,8 @@ import std.stdio;writeln("B::");
       .compilerInjections = \[List<[DainaCompilerInjection]>]:empty;
    }
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       \parser:gotoNextToken;
       \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketClose) *{
          \.isEntryPointClass:set (\[Boolean]:true);
@@ -2348,8 +2416,6 @@ import std.stdio;writeln("B::");
       };
    }
 }
-
-
 
 
 
@@ -2649,9 +2715,9 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);
       } *{
       } *{
-         @@\:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
+         \:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
          \:output (\classMethodIdentifier:content);
-         \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);@@
+         \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);
       };
    }
 
@@ -2687,7 +2753,7 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ##(); return newInstance.CMETHOD_##);
          \:output (\classMethodIdentifier:content);
          \:output (\[String]:as ##(newInstance, parameters); }\n##);
-         \:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
+         \:outputTabbed (\[String]:as ##override OBJECT CMETHOD_##);
       };
       \:output (\classMethodIdentifier:content);
       \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters)##);
@@ -3269,21 +3335,30 @@ import std.stdio;writeln("B::");
    }
 
    |++ compileToFile *([String] path) {
-      \[Debug]:log (\[String]:as ##compile to ##);
-      \[Debug]:log path;
-      \[Debug]:log (\[String]:as ##...\n##);
-
-      [Maybe<[OutputStream]>] maybeOutputFile = \.configuration:compilationFileOutput path;
-      \maybeOutputFile:isOrElse *{} *{
-         \[Debug]:log (\[String]:as ##Can't output to file.\n##);
+      \[Debug]:log (\[String]:as ##starting analysis...\n##);
+      [Analyzer] analyzer = \[Analyzer]:new;
+      \analyzer:analyze .parsedClasses;
+      [List<[Error]>] errors = \analyzer:errors;
+      [Boolean] analysisSuccess = \(\[Integer]:as ##0##):isEqualTo (\errors:length);
+      \analysisSuccess:ifOrElse *{
+         \[Debug]:log (\[String]:as ##analysis succeeded :)\n##);
+         \[Debug]:log (\[String]:as ##compile to ##);
+         \[Debug]:log path;
+         \[Debug]:log (\[String]:as ##...\n##);
+         [Maybe<[OutputStream]>] maybeOutputFile = \.configuration:compilationFileOutput path;
+         \maybeOutputFile:isOrElse *([OutputStream] outputFile) {
+            [DLangSynthesizer] dlang = \[DLangSynthesizer]:to outputFile;
+            \dlang:synthesizeClasses .parsedClasses;
+            \[Debug]:log (\[String]:as ##Done!\n##);
+         } *{
+            \[Debug]:log (\[String]:as ##Can't output to file.\n##);
+         };
+      } *{
+         \errors:iterate *([Error] error) {
+            \.configuration:outputError error;
+         };
+         \[Debug]:log (\[String]:as ##analysis failed :(\n##);
       };
-      \maybeOutputFile:isOrElse *([OutputStream] outputFile) {
-         [DLangSynthesizer] dlang = \[DLangSynthesizer]:to outputFile;
-         \dlang:synthesizeClasses .parsedClasses;
-
-         \[Debug]:log (\[String]:as ##Done!\n##);
-      } *{};
-      
    }
 
    |++ invalidCommand *{

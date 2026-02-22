@@ -35,6 +35,7 @@
    ++ inferredParentContext [[Natural]->[&E]] @ [?$] [?$$] [?$$$]
 }
 
+
 [DainaType] (
          Object, 
          Parser, 
@@ -261,3 +262,87 @@
       };
    }
 }
+
+
+@[]{*{}}
+
+@[DainaType]{}
+
+
+[Analyzer] (
+         String,
+         Maybe,
+         List,
+         Error,
+         Character,
+         Byte,
+         Token,
+         SourcePosition,
+         Boolean,
+         Variable,
+         Loops,
+         Data,
+         Integer,
+         DainaClass,
+         Index
+      ) 
+   [List<[Error]>] errors
+   [Variable<[Maybe<[DainaClass]>]>] entryPoint
+   [Index<[DainaClass]>] classIndex
+{
+   ~ new *{
+      .errors = \[List<[Error]>]:empty;
+      .entryPoint = \[Variable<[?]>]:as \[Maybe<[DainaClass]>]:nothing;
+      .classIndex = \[Index<[DainaClass]>]:empty;
+   }
+
+   ++ hasErrors *-> [Boolean] {} -> (\[Boolean]:not (\0:isEqualTo (\.errors:length)) !{[Natural] 0 = (\[Natural]:as ##0##)})
+
+   ++ errors *-> [List<[Error]>] {} -> .errors
+
+   ++ addError *([Error] error) {
+      \.errors:append error;
+   }
+
+   ++ analyze *([List<[DainaClass]>] classes) {
+      \classes:iterate *([DainaClass] class) {
+         \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+            [Maybe<[DainaClass]>] entryPoint = \.entryPoint:get;
+            \entryPoint:isOrElse 
+               *([DainaClass] original){\:addError (\[Error]:duplicateEntryPointClass (\class:position) (\original:position))} 
+               *{\.entryPoint:set \[Maybe<[DainaClass]>]:as class};
+         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+            [String] className = \classId:content;
+
+      \[Debug]:log className;
+      \[Debug]:log (\[String]:as ##\n##); 
+
+      [SourcePosition] pos = ( \class:position);
+      \[Debug]:log \pos:description;
+      \[Debug]:log (\[String]:as ##\n##); 
+
+[] _ = << dlang ##import std.stdio;writeln("Address: ", cast(void*)LOBJECT_pos);writeln("Address2: ", cast(void*)((cast(CLASSIMPL_DainaClass)LOBJECT_class).PARENT_1));writeln("Address3: ", cast(void*)((cast(CLASSIMPL_DainaClass)LOBJECT_class)));##;
+
+
+            [Maybe<[?]>] existingClass = \.classIndex:get className;
+            \existingClass:isOrElse
+               *([DainaClass] original){\:addError (\[Error]:duplicateClassName (\class:position) (\original:position))} 
+               *{\.classIndex:set className \[Maybe<[?]>]:as class};
+         };
+      };
+
+
+      
+      
+
+
+      @ dependancies, with derivatives, reverse dependancies, prevent looped structure
+
+      @ananlyze each class individualy
+   }
+}
+
+
+
+
+

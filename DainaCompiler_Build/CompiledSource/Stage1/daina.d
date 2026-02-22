@@ -6850,6 +6850,12 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return caller;
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("OBJECT CMETHOD_")])]);
+         self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_classMethodIdentifier;
+            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])]);
+         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("(OBJECT caller, OBJECT[] parameters);\n")])]);
          return caller;
       } })]);
       return caller;
@@ -6931,7 +6937,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
             return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
          } })).method(caller, cast(OBJECT[])[])]);
          self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("(newInstance, parameters); }\n")])]);
-         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("OBJECT CMETHOD_")])]);
+         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("override OBJECT CMETHOD_")])]);
          return caller;
       } })]);
       self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
