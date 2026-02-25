@@ -231,7 +231,6 @@ asdf anonymous class method can refer to . instance obejcts in containing class,
 asdf class inside class body only accessible by outer class, can be recused class inside class inside class etc, names of innerclass overlap in naming scope with dependancies, cannot put inner class in an anonymous class object
 asdf _ is also root/blank/anonymous value with type []
 asdf using ":: |+++" and "~ -+-" now instead of +-+ ~ and |+++ :: 
-asdf anonymous class object can access objects defined in the constructor part
 
 ---
 
