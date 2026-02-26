@@ -1353,6 +1353,10 @@ import std.stdio;writeln("B::");
       .dependanciesWithDerivatives = \[List<[DainaClassIdentifier]>]:empty;
    }
 
+   ++ dependancies *-> .dependancies
+   ++ dependanciesWithDerivatives *-> .dependanciesWithDerivatives
+   ++ reverseDependancies *-> .reverseDependancies
+
    ++ parse *([Parser] parser) {{
       \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
          \parseIDList .dependancies ([Error]:expectingDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:as .dependanciesWithDerivatives);

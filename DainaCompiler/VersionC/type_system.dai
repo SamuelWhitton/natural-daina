@@ -303,8 +303,36 @@
    ++ addError *([Error] error) {
       \.errors:append error;
    }
+@@
+   [Dependancy] {
+   ++
+}@@
+
+   - checkForCircularDependancies *([DainaClass] class, [List<[DainaClass]>] currentPath, [Index<[DainaClass]>] inCurrentPath, [Index<[DainaClass]>] visited) {
+
+   }
 
    ++ analyze *([List<[DainaClass]>] classes) {
+
+      [Index<[DainaClass]>] visited = \[Index<[DainaClass]>]:empty;
+      \classes:iterate *([DainaClass] class) {
+         \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
+            [Maybe<[DainaClass]>] entryPoint = \.entryPoint:get;
+            \entryPoint:isOrElse 
+               *([DainaClass] original){\:addError (\[Error]:duplicateEntryPointClass (\class:position) (\original:position))} 
+               *{\.entryPoint:set \[Maybe<[DainaClass]>]:as class};
+         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+            [String] className = \classId:content;
+            [Maybe<[?]>] existingClass = \.classIndex:get className;
+            \existingClass:isOrElse
+               *([DainaClass] original){\:addError (\[Error]:duplicateClassName (\class:position) (\original:position))} 
+               *{\.classIndex:set className \[Maybe<[?]>]:as class};
+         };
+         \:checkForCircularDependancies class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
+      };
+
+@@
+
       \classes:iterate *([DainaClass] class) {
          \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
             [Maybe<[DainaClass]>] entryPoint = \.entryPoint:get;
@@ -321,15 +349,21 @@
       };
 
 
-      
-      
 
+   [List<[DainaClassIdentifier]>] dependancies
+   [List<[DainaClassIdentifier]>] dependanciesWithDerivatives
+   [List<[DainaClassIdentifier]>] reverseDependancies@@
+      
+      
+   @duplicates check in parser
 
       @ dependancies, with derivatives, reverse dependancies, prevent looped structure
 
       @ananlyze each class individualy
+
    }
 }
+
 
 
 

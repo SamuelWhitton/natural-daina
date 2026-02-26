@@ -780,6 +780,13 @@
    ++ previous [->[Variable<[Maybe<[ListNode<[&E]>]>]>]]
 }
 
+[ListPosition<E>] (Boolean, Maybe, Variable, Sequence, Natural, Loops) {
+   ++ get [->[&E]]
+   ++ delete [->]
+   ++ insertBefore [[&E]->]
+   ++ insertAfter [[&E]->]
+}
+
 [List<E> : [Sequence<[&E]>]] (ListNode, Boolean, Maybe, Variable, Sequence, Natural, Loops)
    [Variable<[Maybe<[ListNode<[&E]>]>]>] first
    [Variable<[Maybe<[ListNode<[&E]>]>]>] last
@@ -792,10 +799,39 @@
    }
 
    ++ iterate *([[&E]->] getE) {
+      @@\[Loops]:iterate ^ *([] _, [&E] e) {
+         \getE e; 
+      }@@
+
+      [Variable<[Maybe<[ListNode<[&E]>]>]>] varCurrentNode = \[Variable<[?]>]:as \.first:get;
+      \[Loops]:until *([->] done) {
+         [Maybe<[ListNode<[&E]>]>] currentNode = \varCurrentNode:get;
+         \varCurrentNode:set \currentNode:isOrElse (*([ListNode<[&E]>] n)-> [Maybe<[ListNode<[&E]>]>] {
+               \getE \n:value;
+            } ->\(\n:next):get) 
+         (*->[Maybe<[ListNode<[&E]>]>]{\done}->\[Maybe<[ListNode<[&E]>]>]:nothing);
+      };
+   }
+@@
+   ++ iterate2 *([[ListPosition<[&E]>]->] getPosition) {
+      [Variable<[Maybe<[ListNode<[&E]>]>]>] varCurrentNode = \[Variable<[?]>]:as \.first:get;
+      [Maybe<[ListNode<[&E]>]>] maybeCurrentNode = \varCurrentNode:get;
+      \varCurrentNode:set \maybeCurrentNode:isOrElse (*([ListNode<[&E]>] currentNode)-> [Maybe<[ListNode<[&E]>]>] {
+         [&E] value = \currentNode:value;
+         \getPosition [:[ListPosition<[&E]>]] {
+            |++ get *-> value
+            |++ delete *{}
+            |++ insertBefore *([&E] toInsert) {}
+            |++ insertAfter *([&E] toInsert) {}
+         }
+      } ->\(\currentNode:next):get) 
+         *->\[Maybe<[ListNode<[&E]>]>]:nothing;
+
+
       \[Loops]:iterate ^ *([] _, [&E] e) {
          \getE e; 
       }
-   }
+   }@@
 
    @ copy [Sequence<[&E]>]
 
