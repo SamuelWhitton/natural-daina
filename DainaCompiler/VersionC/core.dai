@@ -616,6 +616,7 @@
 {
    ++ length [->[Natural]]
    ++ atIndex [[Natural]->[Maybe<[&E]>]]
+   
 }
 
 
@@ -668,7 +669,7 @@
 }
 
 
-[Maybe<E>] 
+[Maybe<E>] (Variable)
 {
    ~ nothing *{
       :isOrElse = *([[&E]->['O]] is, [->['O]] else) -> \else
@@ -677,6 +678,13 @@
    ~ as *([&E] it) {
       :isOrElse = *([[&E]->['O]] is, [->['O]] else) -> \is it
    }
+
+   :: if *([[[&E]->]->] receive) -> [Maybe<[&E]>] {
+      [Variable<[?]>] varIt = \[Variable<[?]>]:as \[Maybe<[&E]>]:nothing;
+      \receive *([&E] it) {
+         \varIt:set it;
+      };
+   } -> \varIt:get
 
    ++ isOrElse [[[&E]->['O]][->['O]]->['O]]
 }

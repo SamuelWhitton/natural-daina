@@ -308,9 +308,32 @@
    ++
 }@@
 
-   - checkForCircularDependancies *([DainaClass] class, [List<[DainaClass]>] currentPath, [Index<[DainaClass]>] inCurrentPath, [Index<[DainaClass]>] visited) {
-
-   }
+   - checkForCircularDependancies *([DainaClass] class, [List<[String]>] currentPathList, [Index<[DainaClass]>] currentPathIndex, [Index<[DainaClass]>] visited) {
+      [Maybe<[String]>] maybeClassName = \[Maybe<[String]>]:if *([[String]->] find) {
+         \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [] _, [] __, [] ___, [] ____) {
+            \find \classId:content;
+         };
+      };
+      [String] className = \maybeClassName:isOrElse (*([?]a)->a) (*->\[String]:as ##entry-point##);
+      [Maybe<[DainaClass]>] inCurrentPath = \currentPathIndex:get className;
+      \inCurrentPath:isOrElse *{
+         \addErrorDependancyRecursion className currentPathList;
+      } *{
+         [Maybe<[DainaClass]>] inVisited = \visited:get className;
+         \inVisited:isOrElse *{} *{
+            \visited:set className \[Maybe<[?]>]:as class;
+            \currentPathIndex:set className \[Maybe<[?]>]:as class;
+            \currentPathList:append className;
+            @\:checkForCircularDependancies class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
+            \currentPathIndex:set className \[Maybe<[?]>]:nothing;
+            [] _ = \currentPathList:removeLast;
+         };
+      };
+   } !{
+         [[List<[DainaClass]>]->] addErrorDependancyRecursion *([String] className, [List<[String]>] pathList) {
+            @error circ
+         };
+      }
 
    ++ analyze *([List<[DainaClass]>] classes) {
 
@@ -330,6 +353,8 @@
          };
          \:checkForCircularDependancies class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
       };
+
+
 
 @@
 
