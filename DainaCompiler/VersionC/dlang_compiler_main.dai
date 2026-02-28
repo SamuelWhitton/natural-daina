@@ -1433,7 +1433,7 @@ import std.stdio;writeln("B::");
 
 
 
-[DainaClassIdentifier] (
+[DainaClassIdentifier :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1458,12 +1458,14 @@ import std.stdio;writeln("B::");
    } -> (\isIdentifier:get)
 
    ~ base *{
+      \$~base;
       .content = \[String]:as ####;
    }
 
    ++ content *->.content
 
    ++ parse *([Parser] parser) {
+      \$parse parser;
       [Token] identifierToken = \parser:token;
       \identifierToken:ifIdentifier *([String] s) {
       .content = s;
