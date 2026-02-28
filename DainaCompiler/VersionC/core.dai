@@ -616,7 +616,7 @@
 {
    ++ length [->[Natural]]
    ++ atIndex [[Natural]->[Maybe<[&E]>]]
-   
+
 }
 
 
@@ -804,6 +804,13 @@
       .first = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
       .last = \[Variable<[?]>]:as \[Maybe<[ListNode<[&E]>]>]:nothing;
       .length = \[Variable<[?]>]:as \[Natural]:as ##0##;
+   }
+
+   ~ as *([Sequence<[&E]>] sequence) {
+      \:~empty;
+      \[Loops]:iterate sequence *([] _, [&E] e) {
+         \:append e;
+      };
    }
 
    ++ iterate *([[&E]->] getE) {

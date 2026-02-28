@@ -454,6 +454,13 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
    } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate class name##) context)
 
+   :: missingClass *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find class##) context)
+
+   :: foundDependancyRecursion *([List<[SourcePosition]>] circularDependanciesPath) -> [Error] {
+   } -> (\[Error]:errorWithContext (\[String]:as ##Dependancy recursion is not allowed##) circularDependanciesPath)
+
 }
 
 
@@ -1353,9 +1360,14 @@ import std.stdio;writeln("B::");
       .dependanciesWithDerivatives = \[List<[DainaClassIdentifier]>]:empty;
    }
 
-   ++ dependancies *-> .dependancies
-   ++ dependanciesWithDerivatives *-> .dependanciesWithDerivatives
-   ++ reverseDependancies *-> .reverseDependancies
+   @++ dependancies *-> .dependancies
+   @++ dependanciesWithDerivatives *-> .dependanciesWithDerivatives
+   @++ reverseDependancies *-> .reverseDependancies
+
+   ++ iterateDependancies *([[DainaClassIdentifier]->] getDependancy) {
+      \.dependancies:iterate getDependancy;
+      \.reverseDependancies:iterate getDependancy;
+   }
 
    ++ parse *([Parser] parser) {{
       \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
@@ -2412,6 +2424,8 @@ import std.stdio;writeln("B::");
          }; 
       };
    }
+
+   ++ dependancyStructure *->.dependancyStructure
 }
 
 

@@ -308,30 +308,40 @@
    ++
 }@@
 
-   - checkForCircularDependancies *([DainaClass] class, [List<[String]>] currentPathList, [Index<[DainaClass]>] currentPathIndex, [Index<[DainaClass]>] visited) {
+   - checkForCircularDependancies *([SourcePosition] dependancyOrigin, [DainaClass] class, [List<[SourcePosition]>] currentPathList, [Index<[DainaClass]>] currentPathIndex, [Index<[DainaClass]>] visited) {
       [Maybe<[String]>] maybeClassName = \[Maybe<[String]>]:if *([[String]->] find) {
          \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [] _, [] __, [] ___, [] ____) {
             \find \classId:content;
          };
       };
-      [String] className = \maybeClassName:isOrElse (*([?]a)->a) (*->\[String]:as ##entry-point##);
+      [String] className = \maybeClassName:isOrElse (*([?]a)->a) (*->\[String]:as ####);
       [Maybe<[DainaClass]>] inCurrentPath = \currentPathIndex:get className;
       \inCurrentPath:isOrElse *{
-         \addErrorDependancyRecursion className currentPathList;
+         \addErrorDependancyRecursion dependancyOrigin currentPathList;
       } *{
          [Maybe<[DainaClass]>] inVisited = \visited:get className;
          \inVisited:isOrElse *{} *{
             \visited:set className \[Maybe<[?]>]:as class;
             \currentPathIndex:set className \[Maybe<[?]>]:as class;
-            \currentPathList:append className;
-            @\:checkForCircularDependancies class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
+            \currentPathList:append dependancyOrigin;
+            [DainaDependancyStructure] dependancyStructure = \class:dependancyStructure;
+            \dependancyStructure:iterateDependancies *([DainaClassIdentifier] dependancyID) {
+               [Maybe<[DainaClass]>] maybeDependancy = \.classIndex:get \dependancyID:content;
+               \maybeDependancy:isOrElse *([DainaClass] dependancy) {
+                  \:checkForCircularDependancies (\dependancyID:position) dependancy currentPathList currentPathIndex visited;
+               } *{
+                  \:addError (\[Error]:missingClass (\class:position));
+               };
+            };
             \currentPathIndex:set className \[Maybe<[?]>]:nothing;
             [] _ = \currentPathList:removeLast;
          };
       };
    } !{
-         [[List<[DainaClass]>]->] addErrorDependancyRecursion *([String] className, [List<[String]>] pathList) {
-            @error circ
+         [[List<[DainaClass]>]->] addErrorDependancyRecursion = *([SourcePosition] dependancyOrigin, [List<[SourcePosition]>] pathList) {
+            [List<[?]>] circularDependanciesPath = \[List<[?]>]:as pathList;
+            \circularDependanciesPath:append dependancyOrigin;
+            \:addError \[Error]:foundDependancyRecursion circularDependanciesPath;
          };
       }
 
@@ -351,7 +361,9 @@
                *([DainaClass] original){\:addError (\[Error]:duplicateClassName (\class:position) (\original:position))} 
                *{\.classIndex:set className \[Maybe<[?]>]:as class};
          };
-         \:checkForCircularDependancies class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
+      };
+      \classes:iterate *([DainaClass] class) {
+         \:checkForCircularDependancies (\class:position) class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
       };
 
 
