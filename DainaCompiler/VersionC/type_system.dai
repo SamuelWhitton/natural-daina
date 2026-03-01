@@ -280,7 +280,7 @@
    ++ hasErrors [->[Boolean]]
    ++ errors [->[List<[Error]>]]
    ++ addError [[Error]->]
-   @++ findClass []
+   ++ findClass [[&ID]->[Maybe<[&CLASS]>]]
 }
 
 [DainaAnalyzerScope :[AnalyzerScope<[String][DainaClass][DainaObjectDeclaration]>]] (AnalyzerScope) {}
@@ -321,6 +321,9 @@
    |++ addError *([Error] error) {
       \.errors:append error;
    }
+
+   |++ findClass *([String] identifier) -> [Maybe<[DainaClass]>] {
+   } -> \.classIndex:get
 @@
    [Dependancy] {
    ++

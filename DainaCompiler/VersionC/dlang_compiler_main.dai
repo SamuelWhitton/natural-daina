@@ -106,8 +106,6 @@
    ++ parse *([Parser] parser) {
       \.startPosition:set (\parser:position);
    }
-
-   ++ analyze *([DainaAnalyzerScope] analyzer) {}
 }
 
 
@@ -460,6 +458,10 @@
 
    :: foundDependancyRecursion *([List<[SourcePosition]>] circularDependanciesPath) -> [Error] {
    } -> (\[Error]:errorWithContext (\[String]:as ##Dependancy recursion is not allowed##) circularDependanciesPath)
+
+   :: missingClassDependancy *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find class dependancy##) context)
 
 }
 
@@ -1448,6 +1450,7 @@ import std.stdio;writeln("B::");
       )
    @[Variable<[Maybe<[String]>]>]
    [String] content
+   [Variable<[DainaClass]>] link
 {
    :: isFirstToken *([Token] token) -> [Boolean] {
       [Variable<[Boolean]>] isIdentifier = \[Variable<[Boolean]>]:as \[Boolean]:false;
@@ -1460,6 +1463,7 @@ import std.stdio;writeln("B::");
    ~ base *{
       \$~base;
       .content = \[String]:as ####;
+      .link = \[Variable<[?]>]:as \[DainaClass]:base;
    }
 
    ++ content *->.content
@@ -1474,8 +1478,13 @@ import std.stdio;writeln("B::");
       \parser:gotoNextToken;
    }
 
-   |++ analyze *([DainaAnalyzerScope] analyzer) {
-      \$analyze analyzer;
+   ++ analyze *([DainaAnalyzerScope] analyzer) {
+      [Maybe<[DainaClass]>] foundClass = \analyzer:findClass .content;
+      \foundClass:isOrElse *([DainaClass] class) {
+         \.link:set class;
+      } *{
+         \analyzer:addError \[Error]:missingClassDependancy \:position;
+      };
    }
 }
 
@@ -2300,7 +2309,7 @@ import std.stdio;writeln("B::");
 {
    ++ dependancyStructure *->.dependancyStructure
 
-   
+
    :: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
       [List<[DainaClass]>] classes = \[List<[DainaClass]>]:empty;
       \[Loops]:until *([->] stop) {
@@ -2436,8 +2445,14 @@ import std.stdio;writeln("B::");
       };
    }
 
-   |++ analyze *([DainaAnalyzerScope] analyzer) {
-      \$analyze analyzer;
+   ++ analyze *([DainaAnalyzerScope] analyzer) {
+      @@[DainaExpression] entryPointMethod
+   [DainaClassIdentifier] className
+   [DainaGenericDeclarationList] genericDeclarationList
+   [List<[DainaType]>] inheritedParentTypes
+   [List<[DainaObjectDeclaration]>] instanceObjects
+   [List<[DainaClassMethod<[DainaExpression]>]>] classMethods
+   [List<[DainaCompilerInjection]>] compilerInjections@@
    }
 }
 
