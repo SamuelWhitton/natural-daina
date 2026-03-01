@@ -269,7 +269,24 @@
 @[DainaType]{}
 
 
-[Analyzer] (
+[AnalyzerScope<ID,CLASS,OBJECT>] (
+         String,
+         Maybe,
+         List,
+         Error,
+         Boolean
+      ) {
+
+   ++ hasErrors [->[Boolean]]
+   ++ errors [->[List<[Error]>]]
+   ++ addError [[Error]->]
+   @++ findClass []
+}
+
+[DainaAnalyzerScope :[AnalyzerScope<[String][DainaClass][DainaObjectDeclaration]>]] (AnalyzerScope) {}
+
+[DainaAnalyzer :[DainaAnalyzerScope]] (
+         DainaAnalyzerScope,
          String,
          Maybe,
          List,
@@ -284,7 +301,8 @@
          Data,
          Integer,
          DainaClass,
-         Index
+         Index,
+         Analyzer
       ) 
    [List<[Error]>] errors
    [Variable<[Maybe<[DainaClass]>]>] entryPoint
@@ -296,18 +314,18 @@
       .classIndex = \[Index<[DainaClass]>]:empty;
    }
 
-   ++ hasErrors *-> [Boolean] {} -> (\[Boolean]:not (\0:isEqualTo (\.errors:length)) !{[Natural] 0 = (\[Natural]:as ##0##)})
+   |++ hasErrors *-> [Boolean] {} -> (\[Boolean]:not (\0:isEqualTo (\.errors:length)) !{[Natural] 0 = (\[Natural]:as ##0##)})
 
-   ++ errors *-> [List<[Error]>] {} -> .errors
+   |++ errors *-> [List<[Error]>] {} -> .errors
 
-   ++ addError *([Error] error) {
+   |++ addError *([Error] error) {
       \.errors:append error;
    }
 @@
    [Dependancy] {
    ++
 }@@
-
+@@
    - checkForCircularDependancies *([SourcePosition] dependancyOrigin, [DainaClass] class, [List<[SourcePosition]>] currentPathList, [Index<[DainaClass]>] currentPathIndex, [Index<[DainaClass]>] visited) {
       [Maybe<[String]>] maybeClassName = \[Maybe<[String]>]:if *([[String]->] find) {
          \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [] _, [] __, [] ___, [] ____) {
@@ -343,7 +361,7 @@
             \circularDependanciesPath:append dependancyOrigin;
             \:addError \[Error]:foundDependancyRecursion circularDependanciesPath;
          };
-      }
+      }@@
 
    ++ analyze *([List<[DainaClass]>] classes) {
 
@@ -362,8 +380,13 @@
                *{\.classIndex:set className \[Maybe<[?]>]:as class};
          };
       };
-      \classes:iterate *([DainaClass] class) {
+      @@\classes:iterate *([DainaClass] class) {
          \:checkForCircularDependancies (\class:position) class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
+      };@@
+
+
+      \classes:iterate *([DainaClass] class) {
+         \class:analyze ^;
       };
 
 
