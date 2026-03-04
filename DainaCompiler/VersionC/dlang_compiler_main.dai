@@ -2268,12 +2268,16 @@ import std.stdio;writeln("B::");
       };@@
    }
 
-   ++ analyze *([DainaAnalyzerScope] analyzer) {
+   ++ analyze *([DainaAnalyzerScope<[DainaExpression]>] analyzer) {
       \.evaluatedType:set \[Maybe<[DainaType]>]:if *([[DainaType]->] determineType) {
          \:ifWithPrologueStatement *([DainaExpression] prelogue, [DainaExpression] prologue) {
             \prologue:analyze analyzer;
             \prelogue:analyze analyzer;
             @expecting statement prologue
+            [DainaType] prologueType = \prologue:evaluatedType;
+            \[Debug]:log (\[String]:as ##a:##);
+            \[Debug]:log \prologueType:description;
+            \[Debug]:log (\[String]:as ##\n##);
             \determineType \prelogue:evaluatedType;
          };
          \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
@@ -2477,10 +2481,27 @@ import std.stdio;writeln("B::");
       };
    }
 
-   ++ analyze *([DainaAnalyzerScope] analyzer) {
+   ++ analyze *([DainaAnalyzerScope<[DainaExpression]>] analyzer) {
       \:isEntryPointOrRegularClass *([] _, [DainaExpression] entryPointMethod) {
          \entryPointMethod:analyze analyzer;
       } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+         \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+            \classMethod:analyze analyzer;
+            [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
+            
+@@
+
+[Variable<[Boolean]>] unimplementedMethod
+   [DainaGeneralIdentifier] identifier
+   [&DainaExpression] methodExpression
+   [[->][->][->]->] isInstanceTypeOrConstructor
+   [DainaType] unimplementedType
+   [Boolean] overriding
+
+
+@@
+
+         };
       };
       @@[DainaExpression] entryPointMethod
    [DainaClassIdentifier] className

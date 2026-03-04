@@ -269,7 +269,7 @@
 @[DainaType]{}
 
 
-[AnalyzerScope<CLASS_ID,CLASS,OBJECT_ID,OBJECT>] (
+[AnalyzerScope<TYPE,CLASS_ID,GENERAL_ID,CLASS_METHOD,OBJECT_DECLARATION>] (@CLASS_ID,CLASS,
          String,
          Maybe,
          List,
@@ -280,12 +280,21 @@
    ++ hasErrors [->[Boolean]]
    ++ errors [->[List<[Error]>]]
    ++ addError [[Error]->]
-   ++ findClass [[&CLASS_ID]->[Maybe<[&CLASS]>]]
+   ++ pushScope [->]
+   ++ popScope [->]
+   ++ findLocalObject [[&GENERAL_ID]->[Maybe<[&OBJECT_DECLARATION]>]]
+   ++ addLocalObject [[&GENERAL_ID][&OBJECT_DECLARATION]->]
+   ++ findInstanceObject [[&GENERAL_ID]->[Maybe<[&OBJECT_DECLARATION]>]]
+   ++ findMethod [[&CLASS_ID][&GENERAL_ID]->[Maybe<[&CLASS_METHOD]>]]
 }
 
-[DainaAnalyzerScope :[AnalyzerScope<[DainaClassIdentifier][DainaClass][DainaGeneralIdentifier][DainaObjectDeclaration]>]] (AnalyzerScope) {}
+[DainaAnalyzerScope<DainaExpression> :[AnalyzerScope<[DainaType][DainaClassIdentifier][DainaGeneralIdentifier][DainaClassMethod<[&DainaExpression]>][DainaObjectDeclaration]>]] (@[DainaClassIdentifier][&DainaClass]
+   AnalyzerScope, 
+   DainaClassIdentifier,
+   DainaObjectDeclaration,
+   DainaGeneralIdentifier) {}
 
-[DainaAnalyzer :[DainaAnalyzerScope]] (
+[DainaAnalyzer :[DainaAnalyzerScope<[DainaExpression]>]] (
          DainaAnalyzerScope,
          String,
          Maybe,
@@ -321,14 +330,14 @@
    |++ addError *([Error] error) {
       \.errors:append error;
    }
-
+@@
    |++ findClass *([DainaClassIdentifier] identifier) -> [DainaClass] {
       [Maybe<[DainaClass]>] foundClass = \.classIndex:get \identifier:content;
    } -> (\foundClass:isOrElse (*([DainaClass] class) -> class) *-> [DainaClass] {
          \:addError \[Error]:missingClassDependancy \identifier:position;
       } -> \[DainaClass]:base)
 
-
+@@
 
 @@
    [Dependancy] {
@@ -395,6 +404,8 @@
 
 
       \classes:iterate *([DainaClass] class) {
+         @check instance objects and put them in scope
+         @check class methods and put them in scope
          \class:analyze ^;
       };
 
