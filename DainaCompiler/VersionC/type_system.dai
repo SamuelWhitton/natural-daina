@@ -269,7 +269,7 @@
 @[DainaType]{}
 
 
-[AnalyzerScope<ID,CLASS,OBJECT>] (
+[AnalyzerScope<CLASS_ID,CLASS,OBJECT_ID,OBJECT>] (
          String,
          Maybe,
          List,
@@ -280,10 +280,10 @@
    ++ hasErrors [->[Boolean]]
    ++ errors [->[List<[Error]>]]
    ++ addError [[Error]->]
-   ++ findClass [[&ID]->[Maybe<[&CLASS]>]]
+   ++ findClass [[&CLASS_ID]->[Maybe<[&CLASS]>]]
 }
 
-[DainaAnalyzerScope :[AnalyzerScope<[String][DainaClass][DainaObjectDeclaration]>]] (AnalyzerScope) {}
+[DainaAnalyzerScope :[AnalyzerScope<[DainaClassIdentifier][DainaClass][DainaGeneralIdentifier][DainaObjectDeclaration]>]] (AnalyzerScope) {}
 
 [DainaAnalyzer :[DainaAnalyzerScope]] (
          DainaAnalyzerScope,
@@ -322,8 +322,14 @@
       \.errors:append error;
    }
 
-   |++ findClass *([String] identifier) -> [Maybe<[DainaClass]>] {
-   } -> \.classIndex:get
+   |++ findClass *([DainaClassIdentifier] identifier) -> [DainaClass] {
+      [Maybe<[DainaClass]>] foundClass = \.classIndex:get \identifier:content;
+   } -> (\foundClass:isOrElse (*([DainaClass] class) -> class) *-> [DainaClass] {
+         \:addError \[Error]:missingClassDependancy \identifier:position;
+      } -> \[DainaClass]:base)
+
+
+
 @@
    [Dependancy] {
    ++

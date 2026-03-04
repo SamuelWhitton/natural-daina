@@ -40,7 +40,6 @@ interface CLASSTYPE_DainaASTComponent : OBJECT, LAMBDA {
    OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaASTComponent : CLASSTYPE_DainaASTComponent {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
@@ -70,11 +69,6 @@ class CLASSIMPL_DainaASTComponent : CLASSTYPE_DainaASTComponent {
          OBJECT instance = LOBJECT_parser;
          return (cast(CLASSTYPE_Parser)instance).IMETHOD_position(instance, parameters);
       } })).method(caller, cast(OBJECT[])[])]);
-      return caller;
-   }
-   override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_DainaASTComponent self = cast(CLASSTYPE_DainaASTComponent)caller;
-      OBJECT LOBJECT_analyzer = parameters.length > 0 ? parameters[0] : null;
       return caller;
    }
 }
@@ -946,6 +940,31 @@ class CLASSIMPL_Error : CLASSTYPE_Error {
          return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
       } })).method(caller, cast(OBJECT[])[LOBJECT_position2]);
       return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Duplicate class name")]), LOBJECT_context]);
+   }
+   static OBJECT TMETHOD_missingClass(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_position = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Cannot find class")]), LOBJECT_context]);
+   }
+   static OBJECT TMETHOD_foundDependancyRecursion(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_circularDependanciesPath = parameters.length > 0 ? parameters[0] : null;
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Dependancy recursion is not allowed")]), LOBJECT_circularDependanciesPath]);
+   }
+   static OBJECT TMETHOD_missingClassDependancy(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_position = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Cannot find class dependancy")]), LOBJECT_context]);
    }
 }
 
@@ -3568,9 +3587,7 @@ class CLASSIMPL_DainaGenericDeclarationList : CLASSTYPE_DainaGenericDeclarationL
 /* *** CLASS: DainaDependancyStructure *** */
 interface CLASSTYPE_DainaDependancyStructure : OBJECT, LAMBDA {
    OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_dependancies(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_dependanciesWithDerivatives(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_reverseDependancies(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_iterateDependancies(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaDependancyStructure : CLASSTYPE_DainaDependancyStructure {
@@ -3588,17 +3605,18 @@ class CLASSIMPL_DainaDependancyStructure : CLASSTYPE_DainaDependancyStructure {
       IOBJECT_dependanciesWithDerivatives = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
    }
-   override OBJECT IMETHOD_dependancies(OBJECT caller, OBJECT[] parameters) {
+   override OBJECT IMETHOD_iterateDependancies(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaDependancyStructure self = cast(CLASSTYPE_DainaDependancyStructure)caller;
-      return IOBJECT_dependancies;
-   }
-   override OBJECT IMETHOD_dependanciesWithDerivatives(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_DainaDependancyStructure self = cast(CLASSTYPE_DainaDependancyStructure)caller;
-      return IOBJECT_dependanciesWithDerivatives;
-   }
-   override OBJECT IMETHOD_reverseDependancies(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_DainaDependancyStructure self = cast(CLASSTYPE_DainaDependancyStructure)caller;
-      return IOBJECT_reverseDependancies;
+      OBJECT LOBJECT_getDependancy = parameters.length > 0 ? parameters[0] : null;
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_dependancies;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_getDependancy]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_reverseDependancies;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_getDependancy]);
+      return caller;
    }
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaDependancyStructure self = cast(CLASSTYPE_DainaDependancyStructure)caller;
@@ -3831,16 +3849,20 @@ class CLASSIMPL_DainaDependancyStructure : CLASSTYPE_DainaDependancyStructure {
 }
 
 /* *** CLASS: DainaClassIdentifier *** */
-interface CLASSTYPE_DainaClassIdentifier : OBJECT, LAMBDA {
+interface CLASSTYPE_DainaClassIdentifier : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_content(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaClassIdentifier : CLASSTYPE_DainaClassIdentifier {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_content = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassIdentifier self = cast(CLASSTYPE_DainaClassIdentifier)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
@@ -3876,6 +3898,7 @@ class CLASSIMPL_DainaClassIdentifier : CLASSTYPE_DainaClassIdentifier {
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaClassIdentifier newInstance = new CLASSIMPL_DainaClassIdentifier(); return newInstance.CMETHOD_base(newInstance, parameters); }
    override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassIdentifier self = cast(CLASSTYPE_DainaClassIdentifier)caller;
+      PARENT_1.CMETHOD_base(PARENT_1, []);
       IOBJECT_content = CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("")]);
       return caller;
    }
@@ -3886,6 +3909,7 @@ class CLASSIMPL_DainaClassIdentifier : CLASSTYPE_DainaClassIdentifier {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassIdentifier self = cast(CLASSTYPE_DainaClassIdentifier)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       OBJECT LOBJECT_identifierToken = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_parser;
          return (cast(CLASSTYPE_Parser)instance).IMETHOD_token(instance, parameters);
@@ -4332,9 +4356,9 @@ class CLASSIMPL_DainaCompilerInjection : CLASSTYPE_DainaCompilerInjection {
 }
 
 /* *** CLASS: DainaExpression *** */
-interface CLASSTYPE_DainaExpression : OBJECT, LAMBDA {
+interface CLASSTYPE_DainaExpression : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_toBase(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_evaluatedType(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_outputType(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_setOutputType(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_ifInvocation(OBJECT caller, OBJECT[] parameters);
@@ -4361,11 +4385,16 @@ interface CLASSTYPE_DainaExpression : OBJECT, LAMBDA {
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parseStrongBinding(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parseStrongestBinding(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
+   private OBJECT IOBJECT_evaluatedType = null;
    private OBJECT IOBJECT_outputType = null;
    private OBJECT IOBJECT_ifStatementGroup = null;
    private OBJECT IOBJECT_ifDataSegment = null;
@@ -4386,6 +4415,7 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
    private OBJECT IOBJECT_ifInternalInstanceObject = null;
    private OBJECT IOBJECT_ifSelfReference = null;
    private OBJECT IOBJECT_ifMethodSelfReference = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
@@ -4394,6 +4424,8 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaExpression newInstance = new CLASSIMPL_DainaExpression(); return newInstance.CMETHOD_base(newInstance, parameters); }
    override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
+      PARENT_1.CMETHOD_base(PARENT_1, []);
+      IOBJECT_evaluatedType = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_ifStatementGroup = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_get = parameters.length > 0 ? parameters[0] : null;
          return caller;
@@ -4473,86 +4505,12 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
       } });
       return caller;
    }
-   override OBJECT IMETHOD_toBase(OBJECT caller, OBJECT[] parameters) {
+   override OBJECT IMETHOD_evaluatedType(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
-      IOBJECT_ifStatementGroup = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_get = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifDataSegment = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifWithPrologueStatement = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifMethodExpression = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifAnonymousClassObject = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifInstanceMethod = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifLocalObjectAssignment = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifTypeMethod = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_outputType = CLASSIMPL_DainaType.TMETHOD_root(caller, cast(OBJECT[])[]);
-      IOBJECT_ifInvocation = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifConstructorInvocation = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifInstanceMethodAssignment = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifInstanceObjectAssignment = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifProxyObject = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifCompilerInjection = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifLocalObject = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifInternalInstanceMethod = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifInternalInstanceObject = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifSelfReference = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      IOBJECT_ifMethodSelfReference = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
-         return caller;
-      } });
-      return caller;
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_evaluatedType;
+         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, parameters);
    }
    override OBJECT IMETHOD_outputType(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
@@ -4775,6 +4733,7 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       OBJECT LOBJECT_left = CLASSIMPL_DainaExpression.TMETHOD_base(caller, cast(OBJECT[])[]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_left;
@@ -5969,13 +5928,95 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
       } })]);
       return caller;
    }
+   override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
+      OBJECT LOBJECT_analyzer = parameters.length > 0 ? parameters[0] : null;
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_evaluatedType;
+         return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_if(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_determineType = parameters.length > 0 ? parameters[0] : null;
+         self.IMETHOD_ifWithPrologueStatement(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_prelogue = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_prologue = parameters.length > 1 ? parameters[1] : null;
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_prologue;
+               return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_analyze(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_analyzer]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_prelogue;
+               return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_analyze(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_analyzer]);
+            (cast(LAMBDA)LOBJECT_determineType).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_prelogue;
+               return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_evaluatedType(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[])]);
+            return caller;
+         } })]);
+         self.IMETHOD_ifLocalObject(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_identifier = parameters.length > 0 ? parameters[0] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifMethodExpression(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_params = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_body = parameters.length > 1 ? parameters[1] : null;
+            OBJECT LOBJECT_output = parameters.length > 2 ? parameters[2] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifInstanceMethod(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_instanceExpression = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_identifier = parameters.length > 1 ? parameters[1] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifTypeMethod(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_type = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_identifier = parameters.length > 1 ? parameters[1] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifInvocation(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_method = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_params = parameters.length > 1 ? parameters[1] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifProxyObject(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_object = parameters.length > 0 ? parameters[0] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifInternalInstanceMethod(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_parentNumber = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_identifier = parameters.length > 1 ? parameters[1] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifInternalInstanceObject(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_instanceObjectIdentifier = parameters.length > 0 ? parameters[0] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifSelfReference(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return caller;
+         } })]);
+         self.IMETHOD_ifDataSegment(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_dataSegmentContent = parameters.length > 0 ? parameters[0] : null;
+            return caller;
+         } })]);
+         self.IMETHOD_ifAnonymousClassObject(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_parents = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_constructor = parameters.length > 1 ? parameters[1] : null;
+            OBJECT LOBJECT_classMethods = parameters.length > 2 ? parameters[2] : null;
+            return caller;
+         } })]);
+         return caller;
+      } })])]);
+      return caller;
+   }
 }
 
 /* *** CLASS: DainaClass *** */
 interface CLASSTYPE_DainaClass : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
+   OBJECT IMETHOD_dependancyStructure(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isEntryPointOrRegularClass(OBJECT caller, OBJECT[] parameters);
    OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
@@ -5994,7 +6035,10 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
    private OBJECT IOBJECT_classMethods = null;
    private OBJECT IOBJECT_compilerInjections = null;
    override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
-   override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_analyze(caller, parameters); }
+   override OBJECT IMETHOD_dependancyStructure(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
+      return IOBJECT_dependancyStructure;
+   }
    static OBJECT TMETHOD_parseClasses(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
@@ -6370,6 +6414,27 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
             } })).method(caller, cast(OBJECT[])[])])]);
             return caller;
          } })]);
+         return caller;
+      } })]);
+      return caller;
+   }
+   override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
+      OBJECT LOBJECT_analyzer = parameters.length > 0 ? parameters[0] : null;
+      self.IMETHOD_isEntryPointOrRegularClass(self, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT__ = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_entryPointMethod = parameters.length > 1 ? parameters[1] : null;
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_entryPointMethod;
+            return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_analyze(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[LOBJECT_analyzer]);
+         return caller;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_classId = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_inheritedParentTypes = parameters.length > 1 ? parameters[1] : null;
+         OBJECT LOBJECT_instanceObjects = parameters.length > 2 ? parameters[2] : null;
+         OBJECT LOBJECT_classMethods = parameters.length > 3 ? parameters[3] : null;
+         OBJECT LOBJECT_compilerInjections = parameters.length > 4 ? parameters[4] : null;
          return caller;
       } })]);
       return caller;
@@ -8558,14 +8623,14 @@ class CLASSIMPL_Daina : CLASSTYPE_Daina {
       CLASSTYPE_Daina self = cast(CLASSTYPE_Daina)caller;
       OBJECT LOBJECT_path = parameters.length > 0 ? parameters[0] : null;
       CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("starting analysis...\n")])]);
-      OBJECT LOBJECT_analyzer = CLASSIMPL_Analyzer.TMETHOD_new(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_analyzer = CLASSIMPL_DainaAnalyzer.TMETHOD_new(caller, cast(OBJECT[])[]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_analyzer;
-         return (cast(CLASSTYPE_Analyzer)instance).IMETHOD_analyze(instance, parameters);
+         return (cast(CLASSTYPE_DainaAnalyzer)instance).IMETHOD_analyze(instance, parameters);
       } })).method(caller, cast(OBJECT[])[IOBJECT_parsedClasses]);
       OBJECT LOBJECT_errors = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_analyzer;
-         return (cast(CLASSTYPE_Analyzer)instance).IMETHOD_errors(instance, parameters);
+         return (cast(CLASSTYPE_DainaAnalyzer)instance).IMETHOD_errors(instance, parameters);
       } })).method(caller, cast(OBJECT[])[]);
       OBJECT LOBJECT_analysisSuccess = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
@@ -11108,6 +11173,23 @@ class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
       } });
       return caller;
    }
+   static OBJECT TMETHOD_if(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Maybe self = cast(CLASSTYPE_Maybe)caller;
+      OBJECT LOBJECT_receive = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_varIt = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
+      (cast(LAMBDA)LOBJECT_receive).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_it = parameters.length > 0 ? parameters[0] : null;
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_varIt;
+            return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[LOBJECT_it]);
+         return caller;
+      } })]);
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_varIt;
+         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
+   }
    private LAMBDA ASSIGNIMETHOD_isOrElse = null;
    override OBJECT IMETHOD_isOrElse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Maybe self = cast(CLASSTYPE_Maybe)caller;
@@ -11371,6 +11453,7 @@ class CLASSIMPL_ListPosition : CLASSTYPE_ListPosition {
 /* *** CLASS: List *** */
 interface CLASSTYPE_List : OBJECT, LAMBDA, CLASSTYPE_Sequence {
    OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters);
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_iterate(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_length(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_atIndex(OBJECT caller, OBJECT[] parameters);
@@ -11395,6 +11478,19 @@ class CLASSIMPL_List : CLASSTYPE_List {
       IOBJECT_first = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_last = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_length = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")])]);
+      return caller;
+   }
+   static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_List newInstance = new CLASSIMPL_List(); return newInstance.CMETHOD_as(newInstance, parameters); }
+   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_List self = cast(CLASSTYPE_List)caller;
+      OBJECT LOBJECT_sequence = parameters.length > 0 ? parameters[0] : null;
+      (cast(CLASSIMPL_List)self).CMETHOD_empty(this, []);
+      CLASSIMPL_Loops.TMETHOD_iterate(caller, cast(OBJECT[])[LOBJECT_sequence, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT__ = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_e = parameters.length > 1 ? parameters[1] : null;
+         self.IMETHOD_append(self, cast(OBJECT[])[LOBJECT_e]);
+         return caller;
+      } })]);
       return caller;
    }
    override OBJECT IMETHOD_iterate(OBJECT caller, OBJECT[] parameters) {
@@ -12845,32 +12941,84 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
    }
 }
 
-/* *** CLASS: Analyzer *** */
-interface CLASSTYPE_Analyzer : OBJECT, LAMBDA {
+/* *** CLASS: AnalyzerScope *** */
+interface CLASSTYPE_AnalyzerScope : OBJECT, LAMBDA {
+   OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters);
+}
+class CLASSIMPL_AnalyzerScope : CLASSTYPE_AnalyzerScope {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   this() {
+   }
+   private LAMBDA ASSIGNIMETHOD_hasErrors = null;
+   override OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_hasErrors.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_errors = null;
+   override OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_errors.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_addError = null;
+   override OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_addError.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_findClass = null;
+   override OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_findClass.method(caller, parameters);
+   }
+}
+
+/* *** CLASS: DainaAnalyzerScope *** */
+interface CLASSTYPE_DainaAnalyzerScope : OBJECT, LAMBDA, CLASSTYPE_AnalyzerScope {
+}
+class CLASSIMPL_DainaAnalyzerScope : CLASSTYPE_DainaAnalyzerScope {
+   override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_AnalyzerScope PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_AnalyzerScope)parent; }
+   this() {
+      PARENT_1 = new CLASSIMPL_AnalyzerScope();
+   }
+   override OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_hasErrors(caller, parameters); }
+   override OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_errors(caller, parameters); }
+   override OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_addError(caller, parameters); }
+   override OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_findClass(caller, parameters); }
+}
+
+/* *** CLASS: DainaAnalyzer *** */
+interface CLASSTYPE_DainaAnalyzer : OBJECT, LAMBDA, CLASSTYPE_DainaAnalyzerScope {
    OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_checkForCircularDependancies(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
-class CLASSIMPL_Analyzer : CLASSTYPE_Analyzer {
+class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaAnalyzerScope PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaAnalyzerScope)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaAnalyzerScope();
    }
    private OBJECT IOBJECT_errors = null;
    private OBJECT IOBJECT_entryPoint = null;
    private OBJECT IOBJECT_classIndex = null;
-   static OBJECT TMETHOD_new(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Analyzer newInstance = new CLASSIMPL_Analyzer(); return newInstance.CMETHOD_new(newInstance, parameters); }
+   static OBJECT TMETHOD_new(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaAnalyzer newInstance = new CLASSIMPL_DainaAnalyzer(); return newInstance.CMETHOD_new(newInstance, parameters); }
    override OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Analyzer self = cast(CLASSTYPE_Analyzer)caller;
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       IOBJECT_errors = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_entryPoint = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_classIndex = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
    }
    override OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Analyzer self = cast(CLASSTYPE_Analyzer)caller;
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       return CLASSIMPL_Boolean.TMETHOD_not(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_0 = CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
          return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -12883,11 +13031,11 @@ class CLASSIMPL_Analyzer : CLASSTYPE_Analyzer {
       } }).method(caller, [])]);
    }
    override OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Analyzer self = cast(CLASSTYPE_Analyzer)caller;
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       return IOBJECT_errors;
    }
    override OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Analyzer self = cast(CLASSTYPE_Analyzer)caller;
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       OBJECT LOBJECT_error = parameters.length > 0 ? parameters[0] : null;
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = IOBJECT_errors;
@@ -12895,16 +13043,32 @@ class CLASSIMPL_Analyzer : CLASSTYPE_Analyzer {
       } })).method(caller, cast(OBJECT[])[LOBJECT_error]);
       return caller;
    }
-   override OBJECT IMETHOD_checkForCircularDependancies(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Analyzer self = cast(CLASSTYPE_Analyzer)caller;
-      OBJECT LOBJECT_class = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_currentPath = parameters.length > 1 ? parameters[1] : null;
-      OBJECT LOBJECT_inCurrentPath = parameters.length > 2 ? parameters[2] : null;
-      OBJECT LOBJECT_visited = parameters.length > 3 ? parameters[3] : null;
-      return caller;
+   override OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      OBJECT LOBJECT_identifier = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_foundClass = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_classIndex;
+         return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_identifier;
+         return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[])]);
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_foundClass;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_class = parameters.length > 0 ? parameters[0] : null;
+         return LOBJECT_class;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_missingClassDependancy(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_identifier;
+            return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_position(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])])]);
+         return CLASSIMPL_DainaClass.TMETHOD_base(caller, cast(OBJECT[])[]);
+      } })]);
    }
    override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) {
-      CLASSTYPE_Analyzer self = cast(CLASSTYPE_Analyzer)caller;
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       OBJECT LOBJECT_classes = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_visited = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -12979,7 +13143,17 @@ class CLASSIMPL_Analyzer : CLASSTYPE_Analyzer {
             } })]);
             return caller;
          } })]);
-         self.IMETHOD_checkForCircularDependancies(self, cast(OBJECT[])[LOBJECT_class, CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]), CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]), LOBJECT_visited]);
+         return caller;
+      } })]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_classes;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_class = parameters.length > 0 ? parameters[0] : null;
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_class;
+            return (cast(CLASSTYPE_DainaClass)instance).IMETHOD_analyze(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[caller]);
          return caller;
       } })]);
       return caller;
