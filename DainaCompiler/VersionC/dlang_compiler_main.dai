@@ -1699,7 +1699,7 @@ import std.stdio;writeln("B::");
 
 
 
-[DainaExpression] (
+[DainaExpression :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1716,9 +1716,12 @@ import std.stdio;writeln("B::");
          DainaGeneralIdentifier,
          Integer,
          DainaCompilerInjection,
+         DainaASTComponent,
 
          Debug
       )
+   [Variable<[Maybe<[DainaType]>]>] evaluatedType
+
    [DainaType] outputType
    [[[List<[DainaExpression]>]->]->] ifStatementGroup
    [[[String]->]->] ifDataSegment
@@ -1760,6 +1763,9 @@ import std.stdio;writeln("B::");
 
 
    ~ base *{
+      \$~base;
+      .evaluatedType = \[Variable<[?]>]:as \[Maybe<[DainaType]>]:nothing;
+
       .ifStatementGroup = *([[List<[DainaExpression]>]->]get){};
       .ifDataSegment = *([]a){};
       .ifWithPrologueStatement = *([]a){};
@@ -1783,7 +1789,9 @@ import std.stdio;writeln("B::");
       .ifMethodSelfReference = *([]a){};
    }
 
-   ++ toBase *{
+   ++ evaluatedType .evaluatedType:get
+
+   @@++ toBase *{
       .ifStatementGroup = *([[List<[DainaExpression]>]->]get){};
       .ifDataSegment = *([]a){};
       .ifWithPrologueStatement = *([]a){};
@@ -1805,7 +1813,7 @@ import std.stdio;writeln("B::");
       .ifInternalInstanceObject = *([]a){};
       .ifSelfReference = *([]a){};
       .ifMethodSelfReference = *([]a){};
-   }
+   }@@
 
    ++ outputType *->[DainaType]{}->.outputType
    ++ setOutputType *([DainaType] outputType) {.outputType = outputType}
@@ -1883,7 +1891,8 @@ import std.stdio;writeln("B::");
 
    ++ makeEmptyStatement *{.ifStatementGroup = *([[List<[DainaExpression]>]->] get){\get (\[List<[DainaExpression]>]:empty)}}
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       [DainaExpression] left = \[DainaExpression]:base;
       \left:parseStrongBinding parser;
       \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:exclamationMark) *{
@@ -2269,6 +2278,40 @@ import std.stdio;writeln("B::");
          } *{};
       };@@
    }
+
+   ++ analyze *([DainaAnalyzerScope] analyzer) {
+      \.evaluatedType:set \[Maybe<[DainaType]>]:if *([[DainaType]->] determineType) {
+         \:ifWithPrologueStatement *([DainaExpression] prelogue, [DainaExpression] prologue) {
+            \prologue:analyze analyzer;
+            \prelogue:analyze analyzer;
+            @expecting statement prologue
+            \determineType \prelogue:evaluatedType;
+         };
+         \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
+         };
+         \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+         };
+         \:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
+         };
+         \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
+         };
+         \:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
+         };
+         \:ifProxyObject *([DainaExpression] object) {
+         };
+         \:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
+         };
+         \:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
+         };
+         \:ifSelfReference *{
+         };
+         \:ifDataSegment *([String] dataSegmentContent) {
+         };
+         \:ifAnonymousClassObject *([List<[DainaType]>] parents, [List<[DainaExpression]>] constructor, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods) {
+         };
+      };
+
+   }
 }
 
 
@@ -2446,6 +2489,10 @@ import std.stdio;writeln("B::");
    }
 
    ++ analyze *([DainaAnalyzerScope] analyzer) {
+      \:isEntryPointOrRegularClass *([] _, [DainaExpression] entryPointMethod) {
+         \entryPointMethod:analyze analyzer;
+      } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+      };
       @@[DainaExpression] entryPointMethod
    [DainaClassIdentifier] className
    [DainaGenericDeclarationList] genericDeclarationList
