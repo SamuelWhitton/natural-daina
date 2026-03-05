@@ -282,10 +282,10 @@
    ++ addError [[Error]->]
    ++ pushScope [->]
    ++ popScope [->]
-   ++ findLocalObject [[&GENERAL_ID]->[Maybe<[&OBJECT_DECLARATION]>]]
+   ++ findLocalObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
    ++ addLocalObject [[&GENERAL_ID][&OBJECT_DECLARATION]->]
-   ++ findInstanceObject [[&GENERAL_ID]->[Maybe<[&OBJECT_DECLARATION]>]]
-   ++ findMethod [[&CLASS_ID][&GENERAL_ID]->[Maybe<[&CLASS_METHOD]>]]
+   ++ findInstanceObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
+   ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][List<[&TYPE]>]->[&CLASS_METHOD]]
 }
 
 [DainaAnalyzerScope<DainaExpression> :[AnalyzerScope<[DainaType][DainaClassIdentifier][DainaGeneralIdentifier][DainaClassMethod<[&DainaExpression]>][DainaObjectDeclaration]>]] (@[DainaClassIdentifier][&DainaClass]
@@ -316,11 +316,19 @@
    [List<[Error]>] errors
    [Variable<[Maybe<[DainaClass]>]>] entryPoint
    [Index<[DainaClass]>] classIndex
+   [Variable<[DainaClassIdentifier]>] classInScope
+   [Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
+   [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
+   [List<[Index<[DainaObjectDeclaration]>]>] localObjectScopeStack
 {
    ~ new *{
       .errors = \[List<[Error]>]:empty;
       .entryPoint = \[Variable<[?]>]:as \[Maybe<[DainaClass]>]:nothing;
       .classIndex = \[Index<[DainaClass]>]:empty;
+      .classInScope = \[Variable<[?]>]:as \[DainaClassIdentifier]:base;
+      .methodsPerClass = \[Index<[?]>]:empty;
+      .instanceObjectsPerClass = \[Index<[?]>]:empty;
+      .localObjectScopeStack = \[List<[?]>]:empty;
    }
 
    |++ hasErrors *-> [Boolean] {} -> (\[Boolean]:not (\0:isEqualTo (\.errors:length)) !{[Natural] 0 = (\[Natural]:as ##0##)})
@@ -330,6 +338,26 @@
    |++ addError *([Error] error) {
       \.errors:append error;
    }
+
+   |++ pushScope *{
+      \.localObjectScopeStack:prepend \[Index<[DainaObjectDeclaration]>]:empty;
+
+   }
+
+   |++ popScope *{
+      [Maybe<[?]>] firstInStack = \.localObjectScopeStack:removeFirst;
+      \firstInStack:isOrElse *{} *{
+         \[Error]:internalInconsistency \[String]:as ##scope escape failed##)
+      };
+   }
+
+   |++ findLocalObject [[DainaGeneralIdentifier]->[DainaObjectDeclaration]]
+   |++ addLocalObject [[DainaGeneralIdentifier][DainaObjectDeclaration]->]
+   |++ findInstanceObject [[DainaGeneralIdentifier]->[DainaObjectDeclaration]]
+   |++ findClassMethod [[DainaClassIdentifier][DainaGeneralIdentifier][List<[DainaType]>]->[DainaClassMethod<[DainaExpression]>]]
+
+
+
 @@
    |++ findClass *([DainaClassIdentifier] identifier) -> [DainaClass] {
       [Maybe<[DainaClass]>] foundClass = \.classIndex:get \identifier:content;
@@ -406,6 +434,14 @@
       \classes:iterate *([DainaClass] class) {
          @check instance objects and put them in scope
          @check class methods and put them in scope
+         @generic class types [List<[DainaGeneralIdentifier]>] genericDeclarationList
+
+         \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+            
+         };
+
+
+
          \class:analyze ^;
       };
 

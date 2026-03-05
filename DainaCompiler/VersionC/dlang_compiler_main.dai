@@ -444,6 +444,11 @@
 
    @ analyzer errors
 
+   :: internalInconsistency *([String] description) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty;
+      [String] pre = (\[String]:as ##Internal inconsistency - ##);
+   } -> (\[Error]:errorWithContext (\pre:appending description) context)
+
    :: duplicateEntryPointClass *([SourcePosition] position1, [SourcePosition] position2) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
    } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate entry point class##) context)
@@ -1309,6 +1314,8 @@ import std.stdio;writeln("B::");
    ~ base *{
       .generics = \[List<[DainaGeneralIdentifier]>]:empty;
    }
+
+   ++ get *->.generics
 
    ++ parse *([Parser] parser) {
       \(\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen):ifOrElse *{
@@ -2344,6 +2351,8 @@ import std.stdio;writeln("B::");
    [List<[DainaCompilerInjection]>] compilerInjections
 {
    ++ dependancyStructure *->.dependancyStructure
+
+   ++ genericDeclarationList *->\.genericDeclarationList:get
 
 
    :: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
