@@ -468,6 +468,14 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find class dependancy##) context)
 
+   :: localDeclarationNamesClash *([SourcePosition] position1, [SourcePosition] position2) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Local declaration names clash##) context)
+
+   :: cannotFindLocalDeclarationForIdentifier *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find local declaration for identifier##) context)
+
 }
 
 
@@ -1487,7 +1495,7 @@ import std.stdio;writeln("B::");
 
 
 
-[DainaObjectDeclaration] (
+[DainaObjectDeclaration :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1512,6 +1520,7 @@ import std.stdio;writeln("B::");
    ++ identifier*->.identifier
 
    ~ base *{
+      \$~base;
       .type = \[DainaType]:root;
       .identifier = \[DainaGeneralIdentifier]:base;
    }
@@ -1521,7 +1530,8 @@ import std.stdio;writeln("B::");
       .identifier = identifier;
    }
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
          \.identifier:parse parser;
       } *{

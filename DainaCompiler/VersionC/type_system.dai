@@ -283,7 +283,7 @@
    ++ pushScope [->]
    ++ popScope [->]
    ++ findLocalObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
-   ++ addLocalObject [[&GENERAL_ID][&OBJECT_DECLARATION]->]
+   ++ addLocalObject [[&OBJECT_DECLARATION]->]
    ++ findInstanceObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
    ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][List<[&TYPE]>]->[&CLASS_METHOD]]
 }
@@ -351,10 +351,42 @@
       };
    }
 
-   |++ findLocalObject [[DainaGeneralIdentifier]->[DainaObjectDeclaration]]
-   |++ addLocalObject [[DainaGeneralIdentifier][DainaObjectDeclaration]->]
+   - maybeFindLocalObject *([DainaGeneralIdentifier] identifier) -> [Maybe<[DainaObjectDeclaration]>] {
+      [Maybe<[?]>] localObjectDeclaration = [Maybe<[DainaObjectDeclaration]>]:if *([[DainaObjectDeclaration]->] foundLocalObject) {
+         \.localObjectScopeStack:iterate *([Index<[DainaObjectDeclaration]>] scopeLayer) {
+            [Maybe<[?]>] inScopeLayer = \scopeLayer:get \identifier:content;
+            \inScopeLayer:isOrElse foundLocalObject *{};
+         };
+      };
+   } -> localObjectDeclaration
+
+   |++ findLocalObject *([DainaGeneralIdentifier] identifier) -> [DainaObjectDeclaration] {
+      [Maybe<[?]>] localObjectDeclaration = \:maybeFindLocalObject identifier;
+   } -> \localObjectDeclaration:isOrElse (*([DainaObjectDeclaration] a) -> a) *->[DainaObjectDeclaration]{
+         \:addError \[Error]:cannotFindLocalDeclarationForIdentifier \identifier:position;
+      } -> \[DainaObjectDeclaration]:base
+
+   |++ addLocalObject *([DainaObjectDeclaration] localObjectDeclaration) {
+      [DainaGeneralIdentifier] identifier = \localObjectDeclaration:identifier;
+      [Maybe<[?]>] existingLocalObjectDeclaration = \:maybeFindLocalObject \identifier:content;
+      \existingLocalObjectDeclaration:isOrElse *([DainaObjectDeclaration] existingDeclaration) {
+         [DainaGeneralIdentifier] existingIdentifier = \existingDeclaration:identifier;
+         \:addError \[Error]:localDeclarationNamesClash (\identifier:position) (\existingIdentifier:position);
+      } *{
+         [Maybe<[?]>] firstInStack = \.localObjectScopeStack:atIndex \[Natural]:as ##0##;
+         \firstInStack:isOrElse *([Index<[DainaObjectDeclaration]>] firstScope) {
+            \firstScope:set (\identifier:content) localObjectDeclaration;
+         } *{
+            \[Error]:internalInconsistency \[String]:as ##scope not pushed##);
+         };
+      };
+   }
+
+@[Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
+ @  [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
    |++ findInstanceObject [[DainaGeneralIdentifier]->[DainaObjectDeclaration]]
    |++ findClassMethod [[DainaClassIdentifier][DainaGeneralIdentifier][List<[DainaType]>]->[DainaClassMethod<[DainaExpression]>]]
+
 
 
 
@@ -436,8 +468,10 @@
          @check class methods and put them in scope
          @generic class types [List<[DainaGeneralIdentifier]>] genericDeclarationList
 
-         \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
-            
+         \class:isEntryPointOrRegularClass *{
+            \.classInScope:set \[DainaClassIdentifier]:base;
+         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+            \.classInScope:set classId;
          };
 
 
