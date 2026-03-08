@@ -36,7 +36,7 @@
 }
 
 
-[DainaType] (
+[DainaType :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -59,11 +59,16 @@
    :: isFirstToken *([Token] token) -> [Boolean] {
    } -> (\[Token]:equals token \[Token]:squareBracketOpen)
 
+   ++ isParentOf *([DainaType] possibleChild) -> [Boolean] {
+
+   } -> \[Boolean]:true
+
    ~ root *{
       \:~as *([DainaTypeEnum<["A]>] e) -> \e:root;
    }
 
    ~ as *([[DainaTypeEnum<['A]>]->['A]] enum) {
+      \$~base;
       .representedType = \[Variable<[?]>]:as enum;
    } 
 
@@ -133,7 +138,8 @@
       \:set *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics className (\[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty);
    }
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:squareBracketOpen)@@ifOrElse@@ *{
          \parser:gotoNextToken;
          \[O]:ifElse (\[DainaClassIdentifier]:isFirstToken (\parser:token))@@ifOrElse@@ *{
@@ -285,7 +291,7 @@
    ++ findLocalObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
    ++ addLocalObject [[&OBJECT_DECLARATION]->]
    ++ findInstanceObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
-   ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][List<[&TYPE]>]->[&CLASS_METHOD]]
+   ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][List<[&TYPE]>]->[Maybe<[&CLASS_METHOD]>]]
 }
 
 [DainaAnalyzerScope<DainaExpression> :[AnalyzerScope<[DainaType][DainaClassIdentifier][DainaGeneralIdentifier][DainaClassMethod<[&DainaExpression]>][DainaObjectDeclaration]>]] (@[DainaClassIdentifier][&DainaClass]
@@ -390,7 +396,28 @@
          \:addError \[Error]:cannotFindInstanceObject \identifier:position;
       }->\[DainaObjectDeclaration]:base)
 
-   |++ findClassMethod [[DainaClassIdentifier][DainaGeneralIdentifier][List<[DainaType]>]->[DainaClassMethod<[DainaExpression]>]]
+   |++ findClassMethod *([DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [List<[DainaType]>] inputTypes) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+      [Maybe<[?]>] maybeMethods = \.methodsPerClass:get \classID:content;
+   } -> \methods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
+         [Maybe<[?]>] maybeMethodsMatchingID = \methods:get \methodID:content;
+      } -> \maybeMethodsMatchingID:isOrElse (*([List<[DainaClassMethod<[DainaExpression]>]>] methodsMatchingID)->[Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+            [Variable<[?]>] varMethodMatchingInputTypes = \[Variable<[?]>]:as \[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing;
+            \methodsMatchingID:iterate *([DainaClassMethod<[DainaExpression]>] methodMatchingID) {
+               [List<[?]>] inputTypeEnums = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+               \inputTypes:iterate *([DainaType] t) \inputTypeEnums:append \t:get;
+               [DainaType] accessType = *([DainaTypeEnum<["A]>] e) -> \e:method (inputTypeEnums) (*([DainaTypeEnum<["A]>] e) -> \e:root);
+               [Boolean] matchingInputTypes = \accessType:isParentOf \methodMatchingID:type;
+               \matchingInputTypes:ifOrElse *{
+                  \varMethodMatchingInputTypes:isOrElse *([DainaClassMethod<[DainaExpression]>] anotherMatchingMethod) {
+                     \:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\methodsMatchingID:position) (\anotherMatchingMethod:position);
+                  } *{
+                     \varMethodMatchingInputTypes:set methodMatchingID;
+                  };
+               } *{};
+            };
+         } -> \varMethodMatchingInputTypes:get) 
+            (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing))
+         (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing);
 
 
 
@@ -460,7 +487,20 @@
             [Maybe<[?]>] existingClass = \.classIndex:get className;
             \existingClass:isOrElse
                *([DainaClass] original){\:addError (\[Error]:duplicateClassName (\class:position) (\original:position))} 
-               *{\.classIndex:set className \[Maybe<[?]>]:as class};
+               *{
+                  \.classIndex:set className \[Maybe<[?]>]:as class
+                  [Index<[?]>] classMethodsIndex = \[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]:empty;
+                  \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+                     [DainaGeneralIdentifier] methodIdentifier = \classMethod:identifier;
+                     [Maybe<[?]>] existingList = \classMethodsIndex:get \methodIdentifier:content;
+                     [List<[?]>] listOfMethodsWithSameName = \existingList:isOrElse (*(e)->e) *->[List<[DainaClassMethod<[DainaExpression]>]>]{
+                        [List<[?]>] newList = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
+                        \classMethodsIndex:set (\methodIdentifier:content) newList;
+                     } -> newList;
+                     \listOfMethodsWithSameName:append classMethod;
+                  };
+                  \.methodsPerClass:set className classMethodsIndex;
+               };
          };
       };
       @@\classes:iterate *([DainaClass] class) {

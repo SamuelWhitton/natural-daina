@@ -483,6 +483,10 @@
    :: cannotFindInstanceObject *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find instance object##) context)
+
+   :: ambigousOverloadedMethodInvocation *([SourcePosition] positionInvocation, [SourcePosition] positionMethod1, [SourcePosition] positionMethod2) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append positionInvocation; \context:append positionMethod1; \context:append positionMethod2;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Ambigous overloaded method invocation, mutliple methods match invocation##) context)
    
 
 }
