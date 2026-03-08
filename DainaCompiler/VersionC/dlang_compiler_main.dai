@@ -226,6 +226,10 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting entry point method##) context)
 
+   :: duplicateInstanceObjectNames *([SourcePosition] position1, [SourcePosition] position2) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate instance object names##) context)
+
    :: expectingClosingBracketForClassBody *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for class body##) context)
@@ -475,6 +479,11 @@
    :: cannotFindLocalDeclarationForIdentifier *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find local declaration for identifier##) context)
+
+   :: cannotFindInstanceObject *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find instance object##) context)
+   
 
 }
 
@@ -1260,7 +1269,7 @@ import std.stdio;writeln("B::");
 
 
 
-[DainaGeneralIdentifier] (
+[DainaGeneralIdentifier :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1285,6 +1294,7 @@ import std.stdio;writeln("B::");
    } -> (\isIdentifier:get)
 
    ~ base *{
+      \$~base;
       .content = \[String]:as ####;
    }
 
@@ -1292,7 +1302,8 @@ import std.stdio;writeln("B::");
 
    ++ isVoidIdentifier *-> \.content:isEqualTo \[String]:as ##_##
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       [Token] identifierToken = \parser:token;
       \identifierToken:ifIdentifier *([String] s) {
       .content = s;
@@ -1303,7 +1314,7 @@ import std.stdio;writeln("B::");
 }
 
 
-[DainaGenericDeclarationList] (
+[DainaGenericDeclarationList :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1320,12 +1331,14 @@ import std.stdio;writeln("B::");
    [List<[DainaGeneralIdentifier]>] generics
 {
    ~ base *{
+      \$~base;
       .generics = \[List<[DainaGeneralIdentifier]>]:empty;
    }
 
    ++ get *->.generics
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       \(\[Token]:equals (\parser:token) \[Token]:arrowBracketOpen):ifOrElse *{
          \parser:gotoNextToken;
          \[Loops]:until *([->] stop) {
@@ -1351,7 +1364,7 @@ import std.stdio;writeln("B::");
 }
 
 
-[DainaDependancyStructure] (
+[DainaDependancyStructure :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1372,6 +1385,7 @@ import std.stdio;writeln("B::");
    [List<[DainaClassIdentifier]>] reverseDependancies
 {
    ~ base *{
+      \$~base;
       .dependancies = \[List<[DainaClassIdentifier]>]:empty;
       .reverseDependancies = \[List<[DainaClassIdentifier]>]:empty;
       .dependanciesWithDerivatives = \[List<[DainaClassIdentifier]>]:empty;
@@ -1386,7 +1400,9 @@ import std.stdio;writeln("B::");
       \.reverseDependancies:iterate getDependancy;
    }
 
-   ++ parse *([Parser] parser) {{
+   |++ parse *([Parser] parser) {
+      \$parse parser;
+      {
       \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
          \parseIDList .dependancies ([Error]:expectingDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:as .dependanciesWithDerivatives);
          \(\[Token]:equals (\parser:token) (\[Token]:arrow)):ifOrElse *{
@@ -1551,7 +1567,7 @@ import std.stdio;writeln("B::");
 @    class-method-classification: ( ( | | || )? method-visibility-indicator ) | ( ( ~ | :: ) ( | )? ( method-visibility-indicator )? )
 
 
-[DainaClassMethod<DainaExpression>] (
+[DainaClassMethod<DainaExpression> :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1594,6 +1610,7 @@ import std.stdio;writeln("B::");
    } -> (\[Boolean]:or (\[Boolean]:or (\[Token]:isVisibilityIndicator token) (\[Token]:equals token (\[Token]:pipe))) (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleColon)) (\[Token]:equals token (\[Token]:tilde))))
 
    ~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken){
+      \$~base;
       .isInstanceTypeOrConstructor = *([->]a,[]b,[]c){};
       .methodExpression = \getBase;
       .identifier = \[DainaGeneralIdentifier]:base;
@@ -1604,7 +1621,8 @@ import std.stdio;writeln("B::");
       .overriding = \[Boolean]:false;
    }
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       .isInstanceTypeOrConstructor = *([->]a,[]b,[]c){\a};
       \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:tilde)) *{
          \parser:gotoNextToken;
@@ -1657,7 +1675,7 @@ import std.stdio;writeln("B::");
 
 
 
-[DainaCompilerInjection] (
+[DainaCompilerInjection :[DainaASTComponent]] (
          Object, 
          Parser, 
          List,
@@ -1678,6 +1696,7 @@ import std.stdio;writeln("B::");
    } -> (\[Token]:equals token \[Token]:doubleLessThan)
 
    ~ base *{
+      \$~base;
       .identifier = \[DainaGeneralIdentifier]:base;
       .dataSegment = \[String]:as ####;
    }
@@ -1686,7 +1705,8 @@ import std.stdio;writeln("B::");
 
    ++ dataSegment *->.dataSegment
 
-   ++ parse *([Parser] parser) {
+   |++ parse *([Parser] parser) {
+      \$parse parser;
       \parser:gotoNextToken;
       \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
          \.identifier:parse parser;
@@ -2356,7 +2376,7 @@ import std.stdio;writeln("B::");
    [DainaClassIdentifier] className
    [DainaGenericDeclarationList] genericDeclarationList
    [List<[DainaType]>] inheritedParentTypes
-   [List<[DainaObjectDeclaration]>] instanceObjects
+   [Index<[DainaObjectDeclaration]>] instanceObjects
    [List<[DainaClassMethod<[DainaExpression]>]>] classMethods
    [List<[DainaCompilerInjection]>] compilerInjections
 {
@@ -2389,7 +2409,7 @@ import std.stdio;writeln("B::");
       }@@
    } -> classes
 
-   ++ isEntryPointOrRegularClass *([[DainaDependancyStructure][DainaExpression]->] getEntryPoint, [[DainaClassIdentifier][List<[DainaType]>][List<[DainaObjectDeclaration]>][List<[DainaClassMethod<[DainaExpression]>]>][List<[DainaCompilerInjection]>]->] getRegularClass) {
+   ++ isEntryPointOrRegularClass *([[DainaDependancyStructure][DainaExpression]->] getEntryPoint, [[DainaClassIdentifier][List<[DainaType]>][Index<[DainaObjectDeclaration]>][List<[DainaClassMethod<[DainaExpression]>]>][List<[DainaCompilerInjection]>]->] getRegularClass) {
       \[O]:ifElse (\.isEntryPointClass:get) *{
          \getEntryPoint .dependancyStructure .entryPointMethod;
       } *{
@@ -2459,7 +2479,23 @@ import std.stdio;writeln("B::");
                   \[O]:ifElse (\[DainaObjectDeclaration]:isFirstToken (\parser:token)) *{
                      [DainaObjectDeclaration] instanceObject = \[DainaObjectDeclaration]:base;
                      \instanceObject:parse parser;
-                     \.instanceObjects:append instanceObject;
+                     [DainaGeneralIdentifier] identifier = \instanceObject:identifier;
+                     @@[DainaType] type = \instanceObject:type;
+                     [Boolean] isConcreteType = \(\type:get) [:[DainaTypeEnum<[]>]] {
+                        \$~> \[DainaTypeEnum<[]>]:default _;
+                        |++ method get
+                     };
+
+                     \.instanceObjects:set asdfasdf@@
+                     @check instance object has concrete type, no inference
+                     @ instanceObject;
+                     [Maybe<[?]>] existing = \.instanceObjects:get (\identifier:content);
+                     \existing:isOrElse *([DainaObjectDeclaration] existingDecl) {
+                        [DainaGeneralIdentifier] existingIdentifier = \existingDecl:identifier;
+                        \parser:addError (\[Error]:duplicateInstanceObjectNames (\identifier:position) (\existingIdentifier:position));
+                        \stop;
+                     } *\.instanceObjects:set (\identifier:content) instanceObject;
+                     
                   } stop;
                };
                \[O]:ifElse (\[Token]:equals (\parser:token) \[Token]:curlyBracketOpen) *{

@@ -318,7 +318,7 @@
    [Index<[DainaClass]>] classIndex
    [Variable<[DainaClassIdentifier]>] classInScope
    [Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
-   [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
+   [Variable<[Index<[DainaObjectDeclaration]>]>] instanceObjects
    [List<[Index<[DainaObjectDeclaration]>]>] localObjectScopeStack
 {
    ~ new *{
@@ -327,7 +327,7 @@
       .classIndex = \[Index<[DainaClass]>]:empty;
       .classInScope = \[Variable<[?]>]:as \[DainaClassIdentifier]:base;
       .methodsPerClass = \[Index<[?]>]:empty;
-      .instanceObjectsPerClass = \[Index<[?]>]:empty;
+      .instanceObjects = \[Variable<[?]>]:as \[Index<[?]>]:empty;
       .localObjectScopeStack = \[List<[?]>]:empty;
    }
 
@@ -347,7 +347,7 @@
    |++ popScope *{
       [Maybe<[?]>] firstInStack = \.localObjectScopeStack:removeFirst;
       \firstInStack:isOrElse *{} *{
-         \[Error]:internalInconsistency \[String]:as ##scope escape failed##)
+         \:addError \[Error]:internalInconsistency \[String]:as ##scope escape failed##)
       };
    }
 
@@ -377,14 +377,19 @@
          \firstInStack:isOrElse *([Index<[DainaObjectDeclaration]>] firstScope) {
             \firstScope:set (\identifier:content) localObjectDeclaration;
          } *{
-            \[Error]:internalInconsistency \[String]:as ##scope not pushed##);
+            \:addError \[Error]:internalInconsistency \[String]:as ##scope not pushed##);
          };
       };
    }
 
-@[Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
- @  [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
-   |++ findInstanceObject [[DainaGeneralIdentifier]->[DainaObjectDeclaration]]
+   |++ findInstanceObject *([DainaGeneralIdentifier] identifier) -> [DainaObjectDeclaration] {
+      [Index<[DainaObjectDeclaration]>] instanceObjects = \.instanceObjects:get;
+      [Maybe<[?]>] maybeInstanceObject = \instanceObjects:get \identifier:content;
+   } -> \maybeInstanceObject:isOrElse (*(a)->a) 
+      (*->[DainaObjectDeclaration]{
+         \:addError \[Error]:cannotFindInstanceObject \identifier:position;
+      }->\[DainaObjectDeclaration]:base)
+
    |++ findClassMethod [[DainaClassIdentifier][DainaGeneralIdentifier][List<[DainaType]>]->[DainaClassMethod<[DainaExpression]>]]
 
 
@@ -450,7 +455,7 @@
             \entryPoint:isOrElse 
                *([DainaClass] original){\:addError (\[Error]:duplicateEntryPointClass (\class:position) (\original:position))} 
                *{\.entryPoint:set \[Maybe<[DainaClass]>]:as class};
-         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
             [String] className = \classId:content;
             [Maybe<[?]>] existingClass = \.classIndex:get className;
             \existingClass:isOrElse
@@ -470,8 +475,15 @@
 
          \class:isEntryPointOrRegularClass *{
             \.classInScope:set \[DainaClassIdentifier]:base;
-         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+            \.instanceObjects:set \[Index<[DainaObjectDeclaration]>]:empty;
+         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
             \.classInScope:set classId;
+            \.instanceObjects:set instanceObjects;
+
+@put these in, make sure methods fit and method include parent methodz
+            @[Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
+ @  [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
+
          };
 
 
