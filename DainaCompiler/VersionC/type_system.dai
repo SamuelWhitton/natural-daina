@@ -353,12 +353,12 @@
    |++ popScope *{
       [Maybe<[?]>] firstInStack = \.localObjectScopeStack:removeFirst;
       \firstInStack:isOrElse *{} *{
-         \:addError \[Error]:internalInconsistency \[String]:as ##scope escape failed##)
+         \:addError \[Error]:internalInconsistency \[String]:as ##scope escape failed##
       };
    }
 
    - maybeFindLocalObject *([DainaGeneralIdentifier] identifier) -> [Maybe<[DainaObjectDeclaration]>] {
-      [Maybe<[?]>] localObjectDeclaration = [Maybe<[DainaObjectDeclaration]>]:if *([[DainaObjectDeclaration]->] foundLocalObject) {
+      [Maybe<[?]>] localObjectDeclaration = \[Maybe<[DainaObjectDeclaration]>]:if *([[DainaObjectDeclaration]->] foundLocalObject) {
          \.localObjectScopeStack:iterate *([Index<[DainaObjectDeclaration]>] scopeLayer) {
             [Maybe<[?]>] inScopeLayer = \scopeLayer:get \identifier:content;
             \inScopeLayer:isOrElse foundLocalObject *{};
@@ -383,7 +383,7 @@
          \firstInStack:isOrElse *([Index<[DainaObjectDeclaration]>] firstScope) {
             \firstScope:set (\identifier:content) localObjectDeclaration;
          } *{
-            \:addError \[Error]:internalInconsistency \[String]:as ##scope not pushed##);
+            \:addError \[Error]:internalInconsistency \[String]:as ##scope not pushed##;
          };
       };
    }
@@ -417,7 +417,7 @@
             };
          } -> \varMethodMatchingInputTypes:get) 
             (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing))
-         (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing);
+         (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing)
 
 
 
