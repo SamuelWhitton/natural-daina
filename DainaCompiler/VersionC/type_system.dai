@@ -398,7 +398,7 @@
 
    |++ findClassMethod *([DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [List<[DainaType]>] inputTypes) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
       [Maybe<[?]>] maybeMethods = \.methodsPerClass:get \classID:content;
-   } -> \methods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
+   } -> \maybeMethods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
          [Maybe<[?]>] maybeMethodsMatchingID = \methods:get \methodID:content;
       } -> \maybeMethodsMatchingID:isOrElse (*([List<[DainaClassMethod<[DainaExpression]>]>] methodsMatchingID)->[Maybe<[DainaClassMethod<[DainaExpression]>]>] {
             [Variable<[?]>] varMethodMatchingInputTypes = \[Variable<[?]>]:as \[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing;
@@ -408,8 +408,9 @@
                [DainaType] accessType = *([DainaTypeEnum<["A]>] e) -> \e:method (inputTypeEnums) (*([DainaTypeEnum<["A]>] e) -> \e:root);
                [Boolean] matchingInputTypes = \accessType:isParentOf \methodMatchingID:type;
                \matchingInputTypes:ifOrElse *{
-                  \varMethodMatchingInputTypes:isOrElse *([DainaClassMethod<[DainaExpression]>] anotherMatchingMethod) {
-                     \:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\methodsMatchingID:position) (\anotherMatchingMethod:position);
+                  [Maybe<[DainaClassMethod<[DainaExpression]>]>] methodMatchingInputTypes = \varMethodMatchingInputTypes:get;
+                  \methodMatchingInputTypes:isOrElse *([DainaClassMethod<[DainaExpression]>] anotherMatchingMethod) {
+                     \:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\methodMatchingID:position) (\anotherMatchingMethod:position);
                   } *{
                      \varMethodMatchingInputTypes:set methodMatchingID;
                   };
@@ -488,7 +489,7 @@
             \existingClass:isOrElse
                *([DainaClass] original){\:addError (\[Error]:duplicateClassName (\class:position) (\original:position))} 
                *{
-                  \.classIndex:set className \[Maybe<[?]>]:as class
+                  \.classIndex:set className \[Maybe<[?]>]:as class;
                   [Index<[?]>] classMethodsIndex = \[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]:empty;
                   \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
                      [DainaGeneralIdentifier] methodIdentifier = \classMethod:identifier;

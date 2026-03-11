@@ -2365,6 +2365,7 @@ import std.stdio;writeln("B::");
    [Integer] temporaryNumber
    [DainaType] synthesizedExpressionType
    [Mapping<[String][DainaType]>] localObjectScope
+   [List<[DainaType]>] inheritedParentTypes
 {
    ~ to *([[Data]->] output) {
       .tab = \[Integer]:as ##0##;
@@ -2377,6 +2378,7 @@ import std.stdio;writeln("B::");
       .selfInstanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
       .localObjectScope = \[Mapping<[String][DainaType]>]:empty;
       .blockOutput = \[Boolean]:false;
+      .inheritedParentTypes = \[List<[DainaType]>]:empty;
    }
 
    - outputNextTemporaryVariableName *{
@@ -2520,6 +2522,7 @@ import std.stdio;writeln("B::");
       } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          .selfClassName = className;
          .selfInstanceObjects = instanceObjects;
+         .inheritedParentTypes = inheritedParentTypes;
          \:output (\[String]:as ##/* *** CLASS: ##);
          \:output (\className:content);
          \:output (\[String]:as ## *** */\n##);
@@ -2645,11 +2648,7 @@ import std.stdio;writeln("B::");
          \:output (\classMethodIdentifier:content);
          \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);
       } *{
-      } *{
-         \:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
-         \:output (\classMethodIdentifier:content);
-         \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters);\n##);
-      };
+      } *{};
    }
 
    - synthesizeClassMethodImplementation *([DainaClassMethod<[DainaExpression]>] classMethod, [Boolean] anonymousClass) {
@@ -2684,7 +2683,7 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ##(); return newInstance.CMETHOD_##);
          \:output (\classMethodIdentifier:content);
          \:output (\[String]:as ##(newInstance, parameters); }\n##);
-         \:outputTabbed (\[String]:as ##override OBJECT CMETHOD_##);
+         \:outputTabbed (\[String]:as ##OBJECT CMETHOD_##);
       };
       \:output (\classMethodIdentifier:content);
       \:output (\[String]:as ##(OBJECT caller, OBJECT[] parameters)##);
@@ -2871,14 +2870,28 @@ import std.stdio;writeln("B::");
                   \:output (\[String]:as ##]);\n##);
                };
             } *{
-               \:outputTabbed (\[String]:as ##PARENT_##);
-               \:output (\[String]:stringFormatOf parentNumber);
+               
                \[O]:ifElse isPointerConstructor *{
+                  \:outputTabbed (\[String]:as ##PARENT_##);
+                  \:output (\[String]:stringFormatOf parentNumber);
                   \:output (\[String]:as ##_SET(##);
                   \:synthesizeMethodInputs inputs;
                   \:output (\[String]:as ##);\n##);
                } *{
-                  \:output (\[String]:as ##.CMETHOD_##);
+                  \:outputTabbed (\[String]:as ##(cast(##);
+                  [Variable<[Integer]>] varParentNumber = \[Variable<[Integer]>]:as (\[Integer]:as ##1##);
+                  \.inheritedParentTypes:iterate *([DainaType] parentType) {
+                     [Integer] curr = \varParentNumber:get;
+                     \varParentNumber:set (\curr:adding (\[Integer]:as ##1##));
+                     [Boolean] sameParentNum = \curr:isEqualTo parentNumber;
+                     \sameParentNum:ifOrElse (*\parentType:ifClassNameAndGenericInstantiation *([DainaClassIdentifier] parentTypeIdentifier, [List<[DainaType]>] genericInstantiation) {
+                        \:output (\[String]:as ##CLASSIMPL_##);
+                        \:output (\parentTypeIdentifier:content);
+                     }) *{};
+                  };
+                  \:outputTabbed (\[String]:as ##)PARENT_##);
+                  \:output (\[String]:stringFormatOf parentNumber);
+                  \:output (\[String]:as ##).CMETHOD_##);
                   \:output (\identifier:content);
                   \:output (\[String]:as ##(PARENT_##);
                   \:output (\[String]:stringFormatOf parentNumber);
