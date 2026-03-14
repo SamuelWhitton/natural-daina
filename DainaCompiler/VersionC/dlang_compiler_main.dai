@@ -1540,12 +1540,11 @@ import std.stdio;writeln("B::");
    ++ identifier*->.identifier
 
    ~ base *{
-      \$~base;
-      .type = \[DainaType]:root;
-      .identifier = \[DainaGeneralIdentifier]:base;
+      \:~as (\[DainaType]:root) \[DainaGeneralIdentifier]:base
    }
 
    ~ as *([DainaType] type, [DainaGeneralIdentifier] identifier){
+      \$~base;
       .type = type;
       .identifier = identifier;
    }
@@ -2433,7 +2432,7 @@ import std.stdio;writeln("B::");
       .className = \[DainaClassIdentifier]:base;
       .genericDeclarationList = \[DainaGenericDeclarationList]:base;
       .inheritedParentTypes = \[List<[DainaType]>]:empty;
-      .instanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
+      .instanceObjects = \[Index<[DainaObjectDeclaration]>]:empty;
       .classMethods = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
       .compilerInjections = \[List<[DainaCompilerInjection]>]:empty;
    }
@@ -2499,7 +2498,7 @@ import std.stdio;writeln("B::");
                         [DainaGeneralIdentifier] existingIdentifier = \existingDecl:identifier;
                         \parser:addError (\[Error]:duplicateInstanceObjectNames (\identifier:position) (\existingIdentifier:position));
                         \stop;
-                     } *\.instanceObjects:set (\identifier:content) instanceObject;
+                     } *\.instanceObjects:set (\identifier:content) \[Maybe<[?]>]:as instanceObject;
                      
                   } stop;
                };
