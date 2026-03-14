@@ -381,7 +381,7 @@
       } *{
          [Maybe<[?]>] firstInStack = \.localObjectScopeStack:atIndex \[Natural]:as ##0##;
          \firstInStack:isOrElse *([Index<[DainaObjectDeclaration]>] firstScope) {
-            \firstScope:set (\identifier:content) localObjectDeclaration;
+            \firstScope:set (\identifier:content) \[Maybe<[?]>]:as localObjectDeclaration;
          } *{
             \:addError \[Error]:internalInconsistency \[String]:as ##scope not pushed##;
          };
@@ -500,7 +500,7 @@
                      } -> newList;
                      \listOfMethodsWithSameName:append classMethod;
                   };
-                  \.methodsPerClass:set className classMethodsIndex;
+                  \.methodsPerClass:set className \[Maybe<[?]>]:as classMethodsIndex;
                };
          };
       };
