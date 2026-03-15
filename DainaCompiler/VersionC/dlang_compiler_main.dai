@@ -2316,7 +2316,7 @@ import std.stdio;writeln("B::");
             \prelogue:analyze analyzer;
             @expecting statement prologue
             [Maybe<[DainaType]>] maybePrologueType = \prologue:evaluatedType;
-            \[Debug]:log (\[String]:as ##a:##);
+            \[Debug]:log (\[String]:as ##asdf:##);
             \maybePrologueType:isOrElse *([DainaType] prologueType){
                \[Debug]:log \prologueType:description;
             } *{
@@ -2328,15 +2328,25 @@ import std.stdio;writeln("B::");
          };
          \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
          };
-         \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+         \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] maybeOutput) {
+            \body:analyze analyzer;
+            \maybeOutput:isOrElse *([DainaExpression] output) {
+               \output:analyze analyzer;
+            } *{};
          };
          \:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
+            \instanceExpression:analyze analyzer;
          };
          \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
          };
          \:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
+            \method:analyze analyzer;
+            \params:iterate *([DainaExpression] param) {
+               \param:analyze analyzer;
+            };
          };
          \:ifProxyObject *([DainaExpression] object) {
+            \object:analyze analyzer;
          };
          \:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
          };
@@ -2347,6 +2357,36 @@ import std.stdio;writeln("B::");
          \:ifDataSegment *([String] dataSegmentContent) {
          };
          \:ifAnonymousClassObject *([List<[DainaType]>] parents, [List<[DainaExpression]>] constructor, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods) {
+            \constructor:iterate *([DainaExpression] constructorStatement) {
+               \constructorStatement:analyze analyzer;
+            };
+            \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+               [DainaExpression] classMethodExpression = \classMethod:methodExpression;
+               \classMethodExpression:analyze analyzer;
+            };
+         };
+         \:ifStatementGroup *([List<[DainaExpression]>] statements) {
+            \statements:iterate *([DainaExpression] statement) {
+               \statement:analyze analyzer;
+            };
+         };
+         \:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
+            \inputs:iterate *([DainaExpression] input) {
+               \input:analyze analyzer;
+            };
+         };
+         \:ifInstanceMethodAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
+            \assignedExpression:analyze analyzer;
+         };
+         \:ifInstanceObjectAssignment *([DainaGeneralIdentifier] identifier, [DainaExpression] assignedExpression) {
+            \assignedExpression:analyze analyzer;
+         };
+         \:ifCompilerInjection *([DainaCompilerInjection] compilerInjection) {
+         };
+         \:ifMethodSelfReference *{
+         };
+         \:ifLocalObjectAssignment *([DainaObjectDeclaration] declaration, [DainaExpression] assignedExpression) {
+            \assignedExpression:analyze analyzer;
          };
       };
 
