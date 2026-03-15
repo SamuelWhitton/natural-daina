@@ -2543,7 +2543,7 @@ import std.stdio;writeln("B::");
    ++ analyze *([DainaAnalyzerScope<[DainaExpression]>] analyzer) {
       \:isEntryPointOrRegularClass *([] _, [DainaExpression] entryPointMethod) {
          \entryPointMethod:analyze analyzer;
-      } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+      } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
             @\classMethod:analyze analyzer;
             [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
@@ -2608,7 +2608,7 @@ import std.stdio;writeln("B::");
    [Mapping<[String][DainaClass]>] mappedClasses
    [Mapping<[String][Mapping<[String][DainaClassMethod<[DainaExpression]>]>]>] mappedClassMethods
    [DainaClassIdentifier] selfClassName
-   [List<[DainaObjectDeclaration]>] selfInstanceObjects
+   [Index<[DainaObjectDeclaration]>] selfInstanceObjects
    [Integer] temporaryNumber
    [DainaType] synthesizedExpressionType
    [Mapping<[String][DainaType]>] localObjectScope
@@ -2622,7 +2622,7 @@ import std.stdio;writeln("B::");
       .temporaryNumber = \[Integer]:as ##0##;
       .selfClassName = \[DainaClassIdentifier]:base;
       .synthesizedExpressionType = \[DainaType]:root;
-      .selfInstanceObjects = \[List<[DainaObjectDeclaration]>]:empty;
+      .selfInstanceObjects = \[Index<[DainaObjectDeclaration]>]:empty;
       .localObjectScope = \[Mapping<[String][DainaType]>]:empty;
       .blockOutput = \[Boolean]:false;
       .inheritedParentTypes = \[List<[DainaType]>]:empty;
@@ -2766,7 +2766,7 @@ import std.stdio;writeln("B::");
          \:output (\[String]:as ##   static OBJECT entryPointMethod(OBJECT caller, OBJECT[] parameters) {\n##); \:incrementTab; \:incrementTab;
          \:synthesizeMethodBodyContent entryPointMethod; 
          \:decrementTab; \:decrementTab; \:output (\[String]:as ##   }\n}\n\n##);
-      } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [List<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+      } *([DainaClassIdentifier] className, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          .selfClassName = className;
          .selfInstanceObjects = instanceObjects;
          .inheritedParentTypes = inheritedParentTypes;

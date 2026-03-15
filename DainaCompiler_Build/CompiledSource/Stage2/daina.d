@@ -37,7 +37,6 @@ class ENTRY_POINT_CLASS {
 
 /* *** CLASS: DainaASTComponent *** */
 interface CLASSTYPE_DainaASTComponent : OBJECT, LAMBDA {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
@@ -47,7 +46,7 @@ class CLASSIMPL_DainaASTComponent : CLASSTYPE_DainaASTComponent {
    }
    private OBJECT IOBJECT_startPosition = null;
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaASTComponent newInstance = new CLASSIMPL_DainaASTComponent(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaASTComponent self = cast(CLASSTYPE_DainaASTComponent)caller;
       IOBJECT_startPosition = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_SourcePosition.TMETHOD_initialPositionIn(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("< UNKNOWN SOURCE >")]), CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("")])])]);
       return caller;
@@ -75,8 +74,6 @@ class CLASSIMPL_DainaASTComponent : CLASSTYPE_DainaASTComponent {
 
 /* *** CLASS: SourcePosition *** */
 interface CLASSTYPE_SourcePosition : OBJECT, LAMBDA {
-   OBJECT CMETHOD_initialPositionIn(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_lineAndColumnIn(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_description(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_nextColumn(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_startOfNextLine(OBJECT caller, OBJECT[] parameters);
@@ -90,7 +87,7 @@ class CLASSIMPL_SourcePosition : CLASSTYPE_SourcePosition {
    private OBJECT IOBJECT_column = null;
    private OBJECT IOBJECT_lineContent = null;
    static OBJECT TMETHOD_initialPositionIn(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_SourcePosition newInstance = new CLASSIMPL_SourcePosition(); return newInstance.CMETHOD_initialPositionIn(newInstance, parameters); }
-   override OBJECT CMETHOD_initialPositionIn(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_initialPositionIn(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_SourcePosition self = cast(CLASSTYPE_SourcePosition)caller;
       OBJECT LOBJECT_sourceName = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_lineContent = parameters.length > 1 ? parameters[1] : null;
@@ -98,7 +95,7 @@ class CLASSIMPL_SourcePosition : CLASSTYPE_SourcePosition {
       return caller;
    }
    static OBJECT TMETHOD_lineAndColumnIn(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_SourcePosition newInstance = new CLASSIMPL_SourcePosition(); return newInstance.CMETHOD_lineAndColumnIn(newInstance, parameters); }
-   override OBJECT CMETHOD_lineAndColumnIn(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_lineAndColumnIn(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_SourcePosition self = cast(CLASSTYPE_SourcePosition)caller;
       OBJECT LOBJECT_line = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_column = parameters.length > 1 ? parameters[1] : null;
@@ -220,8 +217,6 @@ class CLASSIMPL_SourcePosition : CLASSTYPE_SourcePosition {
 /* *** CLASS: Error *** */
 interface CLASSTYPE_Error : OBJECT, LAMBDA {
    OBJECT IMETHOD_description(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_errorWithContext(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_Error : CLASSTYPE_Error {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
@@ -237,14 +232,14 @@ class CLASSIMPL_Error : CLASSTYPE_Error {
       } })).method(caller, cast(OBJECT[])[IOBJECT_errorString]);
    }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Error newInstance = new CLASSIMPL_Error(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
       OBJECT LOBJECT_errorString = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_errorString = LOBJECT_errorString;
       return caller;
    }
    static OBJECT TMETHOD_errorWithContext(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Error newInstance = new CLASSIMPL_Error(); return newInstance.CMETHOD_errorWithContext(newInstance, parameters); }
-   override OBJECT CMETHOD_errorWithContext(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_errorWithContext(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
       OBJECT LOBJECT_errorString = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_context = parameters.length > 1 ? parameters[1] : null;
@@ -380,6 +375,21 @@ class CLASSIMPL_Error : CLASSTYPE_Error {
          return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
       } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
       return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Expecting entry point method")]), LOBJECT_context]);
+   }
+   static OBJECT TMETHOD_duplicateInstanceObjectNames(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_position1 = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_position2 = parameters.length > 1 ? parameters[1] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position1]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position2]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Duplicate instance object names")]), LOBJECT_context]);
    }
    static OBJECT TMETHOD_expectingClosingBracketForClassBody(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
@@ -911,6 +921,16 @@ class CLASSIMPL_Error : CLASSTYPE_Error {
       } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
       return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Expecting identifier for data segment type")]), LOBJECT_context]);
    }
+   static OBJECT TMETHOD_internalInconsistency(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_description = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_pre = CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Internal inconsistency - ")]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_pre;
+         return (cast(CLASSTYPE_String)instance).IMETHOD_appending(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_description]), LOBJECT_context]);
+   }
    static OBJECT TMETHOD_duplicateEntryPointClass(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
       OBJECT LOBJECT_position1 = parameters.length > 0 ? parameters[0] : null;
@@ -966,6 +986,61 @@ class CLASSIMPL_Error : CLASSTYPE_Error {
       } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
       return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Cannot find class dependancy")]), LOBJECT_context]);
    }
+   static OBJECT TMETHOD_localDeclarationNamesClash(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_position1 = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_position2 = parameters.length > 1 ? parameters[1] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position1]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position2]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Local declaration names clash")]), LOBJECT_context]);
+   }
+   static OBJECT TMETHOD_cannotFindLocalDeclarationForIdentifier(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_position = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Cannot find local declaration for identifier")]), LOBJECT_context]);
+   }
+   static OBJECT TMETHOD_cannotFindInstanceObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_position = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_position]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Cannot find instance object")]), LOBJECT_context]);
+   }
+   static OBJECT TMETHOD_ambigousOverloadedMethodInvocation(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Error self = cast(CLASSTYPE_Error)caller;
+      OBJECT LOBJECT_positionInvocation = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_positionMethod1 = parameters.length > 1 ? parameters[1] : null;
+      OBJECT LOBJECT_positionMethod2 = parameters.length > 2 ? parameters[2] : null;
+      OBJECT LOBJECT_context = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_positionInvocation]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_positionMethod1]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_context;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[LOBJECT_positionMethod2]);
+      return CLASSIMPL_Error.TMETHOD_errorWithContext(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("Ambigous overloaded method invocation, mutliple methods match invocation")]), LOBJECT_context]);
+   }
 }
 
 /* *** CLASS: CommandReader *** */
@@ -1003,8 +1078,6 @@ class CLASSIMPL_CommandReader : CLASSTYPE_CommandReader {
 
 /* *** CLASS: Character *** */
 interface CLASSTYPE_Character : OBJECT, LAMBDA {
-   OBJECT CMETHOD_fromASCII(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_space(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_asASCII(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_description(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isNULL(OBJECT caller, OBJECT[] parameters);
@@ -1051,14 +1124,14 @@ class CLASSIMPL_Character : CLASSTYPE_Character {
    }
    private OBJECT IOBJECT_asciiByte = null;
    static OBJECT TMETHOD_fromASCII(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Character newInstance = new CLASSIMPL_Character(); return newInstance.CMETHOD_fromASCII(newInstance, parameters); }
-   override OBJECT CMETHOD_fromASCII(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_fromASCII(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Character self = cast(CLASSTYPE_Character)caller;
       OBJECT LOBJECT_asciiByte = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_asciiByte = LOBJECT_asciiByte;
       return caller;
    }
    static OBJECT TMETHOD_space(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Character newInstance = new CLASSIMPL_Character(); return newInstance.CMETHOD_space(newInstance, parameters); }
-   override OBJECT CMETHOD_space(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_space(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Character self = cast(CLASSTYPE_Character)caller;
       IOBJECT_asciiByte = CLASSIMPL_Byte.TMETHOD_0x20(caller, cast(OBJECT[])[]);
       return caller;
@@ -1363,7 +1436,6 @@ class CLASSIMPL_Character : CLASSTYPE_Character {
 
 /* *** CLASS: Configuration *** */
 interface CLASSTYPE_Configuration : OBJECT, LAMBDA {
-   OBJECT CMETHOD_init(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_outputError(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_commandInput(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_compilationFileOutput(OBJECT caller, OBJECT[] parameters);
@@ -1374,7 +1446,7 @@ class CLASSIMPL_Configuration : CLASSTYPE_Configuration {
    this() {
    }
    static OBJECT TMETHOD_init(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Configuration newInstance = new CLASSIMPL_Configuration(); return newInstance.CMETHOD_init(newInstance, parameters); }
-   override OBJECT CMETHOD_init(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_init(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Configuration self = cast(CLASSTYPE_Configuration)caller;
       return caller;
    }
@@ -1488,9 +1560,6 @@ class CLASSIMPL_Configuration : CLASSTYPE_Configuration {
 
 /* *** CLASS: Token *** */
 interface CLASSTYPE_Token : OBJECT, LAMBDA {
-   OBJECT CMETHOD_basicToken(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_secondIdToken(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_contentToken(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_id(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_content(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_secondId(OBJECT caller, OBJECT[] parameters);
@@ -1504,7 +1573,7 @@ class CLASSIMPL_Token : CLASSTYPE_Token {
    private OBJECT IOBJECT_secondId = null;
    private OBJECT IOBJECT_content = null;
    static OBJECT TMETHOD_basicToken(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Token newInstance = new CLASSIMPL_Token(); return newInstance.CMETHOD_basicToken(newInstance, parameters); }
-   override OBJECT CMETHOD_basicToken(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_basicToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Token self = cast(CLASSTYPE_Token)caller;
       OBJECT LOBJECT_id = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_id = LOBJECT_id;
@@ -1513,7 +1582,7 @@ class CLASSIMPL_Token : CLASSTYPE_Token {
       return caller;
    }
    static OBJECT TMETHOD_secondIdToken(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Token newInstance = new CLASSIMPL_Token(); return newInstance.CMETHOD_secondIdToken(newInstance, parameters); }
-   override OBJECT CMETHOD_secondIdToken(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_secondIdToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Token self = cast(CLASSTYPE_Token)caller;
       OBJECT LOBJECT_id = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_secondId = parameters.length > 1 ? parameters[1] : null;
@@ -1523,7 +1592,7 @@ class CLASSIMPL_Token : CLASSTYPE_Token {
       return caller;
    }
    static OBJECT TMETHOD_contentToken(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Token newInstance = new CLASSIMPL_Token(); return newInstance.CMETHOD_contentToken(newInstance, parameters); }
-   override OBJECT CMETHOD_contentToken(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_contentToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Token self = cast(CLASSTYPE_Token)caller;
       OBJECT LOBJECT_id = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_content = parameters.length > 1 ? parameters[1] : null;
@@ -1867,7 +1936,6 @@ class CLASSIMPL_Token : CLASSTYPE_Token {
 
 /* *** CLASS: Parser *** */
 interface CLASSTYPE_Parser : OBJECT, LAMBDA {
-   OBJECT CMETHOD_withSourceNameAndInput(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_getCopyOfNextLine(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_stringFromCharacters(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_gotoNextCharacter(OBJECT caller, OBJECT[] parameters);
@@ -1895,7 +1963,7 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
    private OBJECT IOBJECT_currentCharacterPosition = null;
    private OBJECT IOBJECT_buffer = null;
    static OBJECT TMETHOD_withSourceNameAndInput(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Parser newInstance = new CLASSIMPL_Parser(); return newInstance.CMETHOD_withSourceNameAndInput(newInstance, parameters); }
-   override OBJECT CMETHOD_withSourceNameAndInput(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_withSourceNameAndInput(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Parser self = cast(CLASSTYPE_Parser)caller;
       OBJECT LOBJECT_sourceName = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_inputStream = parameters.length > 1 ? parameters[1] : null;
@@ -3067,7 +3135,6 @@ class CLASSIMPL_Parser : CLASSTYPE_Parser {
 
 /* *** CLASS: Commands *** */
 interface CLASSTYPE_Commands : OBJECT, LAMBDA {
-   OBJECT CMETHOD_from(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_readNext(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_readNextCharacter(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_readNextString(OBJECT caller, OBJECT[] parameters);
@@ -3081,7 +3148,7 @@ class CLASSIMPL_Commands : CLASSTYPE_Commands {
    private OBJECT IOBJECT_inputStream = null;
    private OBJECT IOBJECT_currentCharacter = null;
    static OBJECT TMETHOD_from(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Commands newInstance = new CLASSIMPL_Commands(); return newInstance.CMETHOD_from(newInstance, parameters); }
-   override OBJECT CMETHOD_from(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_from(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Commands self = cast(CLASSTYPE_Commands)caller;
       OBJECT LOBJECT_dataInputStream = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_varCurrentData = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
@@ -3408,17 +3475,20 @@ class CLASSIMPL_Commands : CLASSTYPE_Commands {
 }
 
 /* *** CLASS: DainaGeneralIdentifier *** */
-interface CLASSTYPE_DainaGeneralIdentifier : OBJECT, LAMBDA {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
+interface CLASSTYPE_DainaGeneralIdentifier : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_content(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isVoidIdentifier(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaGeneralIdentifier : CLASSTYPE_DainaGeneralIdentifier {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_content = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGeneralIdentifier self = cast(CLASSTYPE_DainaGeneralIdentifier)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
@@ -3440,8 +3510,9 @@ class CLASSIMPL_DainaGeneralIdentifier : CLASSTYPE_DainaGeneralIdentifier {
       } })).method(caller, cast(OBJECT[])[]);
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaGeneralIdentifier newInstance = new CLASSIMPL_DainaGeneralIdentifier(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGeneralIdentifier self = cast(CLASSTYPE_DainaGeneralIdentifier)caller;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_content = CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("")]);
       return caller;
    }
@@ -3459,6 +3530,7 @@ class CLASSIMPL_DainaGeneralIdentifier : CLASSTYPE_DainaGeneralIdentifier {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGeneralIdentifier self = cast(CLASSTYPE_DainaGeneralIdentifier)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       OBJECT LOBJECT_identifierToken = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_parser;
          return (cast(CLASSTYPE_Parser)instance).IMETHOD_token(instance, parameters);
@@ -3480,24 +3552,34 @@ class CLASSIMPL_DainaGeneralIdentifier : CLASSTYPE_DainaGeneralIdentifier {
 }
 
 /* *** CLASS: DainaGenericDeclarationList *** */
-interface CLASSTYPE_DainaGenericDeclarationList : OBJECT, LAMBDA {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
+interface CLASSTYPE_DainaGenericDeclarationList : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
+   OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaGenericDeclarationList : CLASSTYPE_DainaGenericDeclarationList {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_generics = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaGenericDeclarationList newInstance = new CLASSIMPL_DainaGenericDeclarationList(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGenericDeclarationList self = cast(CLASSTYPE_DainaGenericDeclarationList)caller;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_generics = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
+   }
+   override OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaGenericDeclarationList self = cast(CLASSTYPE_DainaGenericDeclarationList)caller;
+      return IOBJECT_generics;
    }
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaGenericDeclarationList self = cast(CLASSTYPE_DainaGenericDeclarationList)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_parser;
@@ -3585,21 +3667,25 @@ class CLASSIMPL_DainaGenericDeclarationList : CLASSTYPE_DainaGenericDeclarationL
 }
 
 /* *** CLASS: DainaDependancyStructure *** */
-interface CLASSTYPE_DainaDependancyStructure : OBJECT, LAMBDA {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
+interface CLASSTYPE_DainaDependancyStructure : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_iterateDependancies(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaDependancyStructure : CLASSTYPE_DainaDependancyStructure {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_dependancies = null;
    private OBJECT IOBJECT_dependanciesWithDerivatives = null;
    private OBJECT IOBJECT_reverseDependancies = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaDependancyStructure newInstance = new CLASSIMPL_DainaDependancyStructure(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaDependancyStructure self = cast(CLASSTYPE_DainaDependancyStructure)caller;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_dependancies = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_reverseDependancies = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_dependanciesWithDerivatives = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
@@ -3621,6 +3707,7 @@ class CLASSIMPL_DainaDependancyStructure : CLASSTYPE_DainaDependancyStructure {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaDependancyStructure self = cast(CLASSTYPE_DainaDependancyStructure)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       OBJECT LOBJECT_parseIDList = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_list = parameters.length > 0 ? parameters[0] : null;
          OBJECT LOBJECT_missingIDError = parameters.length > 1 ? parameters[1] : null;
@@ -3850,7 +3937,6 @@ class CLASSIMPL_DainaDependancyStructure : CLASSTYPE_DainaDependancyStructure {
 
 /* *** CLASS: DainaClassIdentifier *** */
 interface CLASSTYPE_DainaClassIdentifier : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_content(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
@@ -3896,9 +3982,9 @@ class CLASSIMPL_DainaClassIdentifier : CLASSTYPE_DainaClassIdentifier {
       } })).method(caller, cast(OBJECT[])[]);
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaClassIdentifier newInstance = new CLASSIMPL_DainaClassIdentifier(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassIdentifier self = cast(CLASSTYPE_DainaClassIdentifier)caller;
-      PARENT_1.CMETHOD_base(PARENT_1, []);
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_content = CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("")]);
       return caller;
    }
@@ -3931,19 +4017,21 @@ class CLASSIMPL_DainaClassIdentifier : CLASSTYPE_DainaClassIdentifier {
 }
 
 /* *** CLASS: DainaObjectDeclaration *** */
-interface CLASSTYPE_DainaObjectDeclaration : OBJECT, LAMBDA {
+interface CLASSTYPE_DainaObjectDeclaration : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_type(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_identifier(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaObjectDeclaration : CLASSTYPE_DainaObjectDeclaration {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_type = null;
    private OBJECT IOBJECT_identifier = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaObjectDeclaration self = cast(CLASSTYPE_DainaObjectDeclaration)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
@@ -3958,17 +4046,17 @@ class CLASSIMPL_DainaObjectDeclaration : CLASSTYPE_DainaObjectDeclaration {
       return IOBJECT_identifier;
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaObjectDeclaration newInstance = new CLASSIMPL_DainaObjectDeclaration(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaObjectDeclaration self = cast(CLASSTYPE_DainaObjectDeclaration)caller;
-      IOBJECT_type = CLASSIMPL_DainaType.TMETHOD_root(caller, cast(OBJECT[])[]);
-      IOBJECT_identifier = CLASSIMPL_DainaGeneralIdentifier.TMETHOD_base(caller, cast(OBJECT[])[]);
+      (cast(CLASSIMPL_DainaObjectDeclaration)self).CMETHOD_as(this, [CLASSIMPL_DainaType.TMETHOD_root(caller, cast(OBJECT[])[]), CLASSIMPL_DainaGeneralIdentifier.TMETHOD_base(caller, cast(OBJECT[])[])]);
       return caller;
    }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaObjectDeclaration newInstance = new CLASSIMPL_DainaObjectDeclaration(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaObjectDeclaration self = cast(CLASSTYPE_DainaObjectDeclaration)caller;
       OBJECT LOBJECT_type = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_identifier = parameters.length > 1 ? parameters[1] : null;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_type = LOBJECT_type;
       IOBJECT_identifier = LOBJECT_identifier;
       return caller;
@@ -3976,6 +4064,7 @@ class CLASSIMPL_DainaObjectDeclaration : CLASSTYPE_DainaObjectDeclaration {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaObjectDeclaration self = cast(CLASSTYPE_DainaObjectDeclaration)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       CLASSIMPL_O.TMETHOD_ifElse(caller, cast(OBJECT[])[CLASSIMPL_DainaGeneralIdentifier.TMETHOD_isFirstToken(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_parser;
          return (cast(CLASSTYPE_Parser)instance).IMETHOD_token(instance, parameters);
@@ -4016,19 +4105,22 @@ class CLASSIMPL_DainaObjectDeclaration : CLASSTYPE_DainaObjectDeclaration {
 }
 
 /* *** CLASS: DainaClassMethod *** */
-interface CLASSTYPE_DainaClassMethod : OBJECT, LAMBDA {
+interface CLASSTYPE_DainaClassMethod : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_isInstanceTypeOrConstructor(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isUnimplementedMethod(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isOverridingMethod(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_unimplementedType(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_methodExpression(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_identifier(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_type(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaClassMethod : CLASSTYPE_DainaClassMethod {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_unimplementedMethod = null;
    private OBJECT IOBJECT_identifier = null;
@@ -4038,6 +4130,7 @@ class CLASSIMPL_DainaClassMethod : CLASSTYPE_DainaClassMethod {
    private OBJECT IOBJECT_isExpressionFirstToken = null;
    private OBJECT IOBJECT_unimplementedType = null;
    private OBJECT IOBJECT_overriding = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    override OBJECT IMETHOD_isInstanceTypeOrConstructor(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassMethod self = cast(CLASSTYPE_DainaClassMethod)caller;
       OBJECT LOBJECT_isInstance = parameters.length > 0 ? parameters[0] : null;
@@ -4069,17 +4162,22 @@ class CLASSIMPL_DainaClassMethod : CLASSTYPE_DainaClassMethod {
       CLASSTYPE_DainaClassMethod self = cast(CLASSTYPE_DainaClassMethod)caller;
       return IOBJECT_identifier;
    }
+   override OBJECT IMETHOD_type(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaClassMethod self = cast(CLASSTYPE_DainaClassMethod)caller;
+      return IOBJECT_unimplementedType;
+   }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassMethod self = cast(CLASSTYPE_DainaClassMethod)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
       return CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_isVisibilityIndicator(caller, cast(OBJECT[])[LOBJECT_token]), CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_pipe(caller, cast(OBJECT[])[])])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_doubleColon(caller, cast(OBJECT[])[])]), CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_tilde(caller, cast(OBJECT[])[])])])]);
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaClassMethod newInstance = new CLASSIMPL_DainaClassMethod(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassMethod self = cast(CLASSTYPE_DainaClassMethod)caller;
       OBJECT LOBJECT_getBase = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_parseExpression = parameters.length > 1 ? parameters[1] : null;
       OBJECT LOBJECT_isExpressionFirstToken = parameters.length > 2 ? parameters[2] : null;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_isInstanceTypeOrConstructor = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
          OBJECT LOBJECT_b = parameters.length > 1 ? parameters[1] : null;
@@ -4098,6 +4196,7 @@ class CLASSIMPL_DainaClassMethod : CLASSTYPE_DainaClassMethod {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClassMethod self = cast(CLASSTYPE_DainaClassMethod)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       IOBJECT_isInstanceTypeOrConstructor = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
          OBJECT LOBJECT_b = parameters.length > 1 ? parameters[1] : null;
@@ -4263,26 +4362,30 @@ class CLASSIMPL_DainaClassMethod : CLASSTYPE_DainaClassMethod {
 }
 
 /* *** CLASS: DainaCompilerInjection *** */
-interface CLASSTYPE_DainaCompilerInjection : OBJECT, LAMBDA {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
+interface CLASSTYPE_DainaCompilerInjection : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_identifierString(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_dataSegment(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaCompilerInjection : CLASSTYPE_DainaCompilerInjection {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_identifier = null;
    private OBJECT IOBJECT_dataSegment = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaCompilerInjection self = cast(CLASSTYPE_DainaCompilerInjection)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
       return CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_doubleLessThan(caller, cast(OBJECT[])[])]);
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaCompilerInjection newInstance = new CLASSIMPL_DainaCompilerInjection(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaCompilerInjection self = cast(CLASSTYPE_DainaCompilerInjection)caller;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_identifier = CLASSIMPL_DainaGeneralIdentifier.TMETHOD_base(caller, cast(OBJECT[])[]);
       IOBJECT_dataSegment = CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("")]);
       return caller;
@@ -4301,6 +4404,7 @@ class CLASSIMPL_DainaCompilerInjection : CLASSTYPE_DainaCompilerInjection {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaCompilerInjection self = cast(CLASSTYPE_DainaCompilerInjection)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_parser;
          return (cast(CLASSTYPE_Parser)instance).IMETHOD_gotoNextToken(instance, parameters);
@@ -4357,7 +4461,6 @@ class CLASSIMPL_DainaCompilerInjection : CLASSTYPE_DainaCompilerInjection {
 
 /* *** CLASS: DainaExpression *** */
 interface CLASSTYPE_DainaExpression : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_evaluatedType(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_outputType(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_setOutputType(OBJECT caller, OBJECT[] parameters);
@@ -4422,9 +4525,9 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
       return CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_backslash(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_fullStop(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_colon(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_asteriskCaret(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_asteriskArrow(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_caret(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_doubleLessThan(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_roundBracketOpen(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_isIdentifier(caller, cast(OBJECT[])[LOBJECT_token]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_isParentIdentifier(caller, cast(OBJECT[])[LOBJECT_token]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_squareBracketOpen(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_curlyBracketOpen(caller, cast(OBJECT[])[])]), CLASSIMPL_Boolean.TMETHOD_or(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_isDataSegment(caller, cast(OBJECT[])[LOBJECT_token]), CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_asterisk(caller, cast(OBJECT[])[])])])])])])])])])])])])])])]);
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaExpression newInstance = new CLASSIMPL_DainaExpression(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaExpression self = cast(CLASSTYPE_DainaExpression)caller;
-      PARENT_1.CMETHOD_base(PARENT_1, []);
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_evaluatedType = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_ifStatementGroup = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_get = parameters.length > 0 ? parameters[0] : null;
@@ -5947,6 +6050,16 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
                OBJECT instance = LOBJECT_prelogue;
                return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_analyze(instance, parameters);
             } })).method(caller, cast(OBJECT[])[LOBJECT_analyzer]);
+            OBJECT LOBJECT_prologueType = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_prologue;
+               return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_evaluatedType(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+            CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("a:")])]);
+            CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_prologueType;
+               return (cast(CLASSTYPE_DainaType)instance).IMETHOD_description(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[])]);
+            CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("\n")])]);
             (cast(LAMBDA)LOBJECT_determineType).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_prelogue;
                return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_evaluatedType(instance, parameters);
@@ -6013,8 +6126,8 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
 /* *** CLASS: DainaClass *** */
 interface CLASSTYPE_DainaClass : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_dependancyStructure(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_genericDeclarationList(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isEntryPointOrRegularClass(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
@@ -6038,6 +6151,13 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
    override OBJECT IMETHOD_dependancyStructure(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
       return IOBJECT_dependancyStructure;
+   }
+   override OBJECT IMETHOD_genericDeclarationList(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_genericDeclarationList;
+         return (cast(CLASSTYPE_DainaGenericDeclarationList)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
    }
    static OBJECT TMETHOD_parseClasses(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
@@ -6104,16 +6224,16 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
       return CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_squareBracketOpen(caller, cast(OBJECT[])[])]);
    }
    static OBJECT TMETHOD_base(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaClass newInstance = new CLASSIMPL_DainaClass(); return newInstance.CMETHOD_base(newInstance, parameters); }
-   override OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_base(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
-      PARENT_1.CMETHOD_base(PARENT_1, []);
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_isEntryPointClass = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[])]);
       IOBJECT_dependancyStructure = CLASSIMPL_DainaDependancyStructure.TMETHOD_base(caller, cast(OBJECT[])[]);
       IOBJECT_entryPointMethod = CLASSIMPL_DainaExpression.TMETHOD_base(caller, cast(OBJECT[])[]);
       IOBJECT_className = CLASSIMPL_DainaClassIdentifier.TMETHOD_base(caller, cast(OBJECT[])[]);
       IOBJECT_genericDeclarationList = CLASSIMPL_DainaGenericDeclarationList.TMETHOD_base(caller, cast(OBJECT[])[]);
       IOBJECT_inheritedParentTypes = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
-      IOBJECT_instanceObjects = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      IOBJECT_instanceObjects = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_classMethods = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_compilerInjections = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
@@ -6275,10 +6395,48 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
                         OBJECT instance = LOBJECT_instanceObject;
                         return (cast(CLASSTYPE_DainaObjectDeclaration)instance).IMETHOD_parse(instance, parameters);
                      } })).method(caller, cast(OBJECT[])[LOBJECT_parser]);
-                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT LOBJECT_identifier = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_instanceObject;
+                        return (cast(CLASSTYPE_DainaObjectDeclaration)instance).IMETHOD_identifier(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[]);
+                     OBJECT LOBJECT_existing = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                         OBJECT instance = IOBJECT_instanceObjects;
-                        return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
-                     } })).method(caller, cast(OBJECT[])[LOBJECT_instanceObject]);
+                        return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_identifier;
+                        return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[])]);
+                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_existing;
+                        return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT LOBJECT_existingDecl = parameters.length > 0 ? parameters[0] : null;
+                        OBJECT LOBJECT_existingIdentifier = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = LOBJECT_existingDecl;
+                           return (cast(CLASSTYPE_DainaObjectDeclaration)instance).IMETHOD_identifier(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[]);
+                        (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = LOBJECT_parser;
+                           return (cast(CLASSTYPE_Parser)instance).IMETHOD_addError(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_duplicateInstanceObjectNames(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = LOBJECT_identifier;
+                           return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = LOBJECT_existingIdentifier;
+                           return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[])])]);
+                        (cast(LAMBDA)LOBJECT_stop).method(caller, cast(OBJECT[])[]);
+                        return caller;
+                     } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = IOBJECT_instanceObjects;
+                           return (cast(CLASSTYPE_Index)instance).IMETHOD_set(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = LOBJECT_identifier;
+                           return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[]), CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_instanceObject])]);
+                        return caller;
+                     } })]);
                      return caller;
                   } }), LOBJECT_stop]);
                   return caller;
@@ -6435,6 +6593,17 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
          OBJECT LOBJECT_instanceObjects = parameters.length > 2 ? parameters[2] : null;
          OBJECT LOBJECT_classMethods = parameters.length > 3 ? parameters[3] : null;
          OBJECT LOBJECT_compilerInjections = parameters.length > 4 ? parameters[4] : null;
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_classMethods;
+            return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_classMethod = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_isUnimplemented = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_classMethod;
+               return (cast(CLASSTYPE_DainaClassMethod)instance).IMETHOD_isUnimplementedMethod(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+            return caller;
+         } })]);
          return caller;
       } })]);
       return caller;
@@ -6443,7 +6612,6 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
 
 /* *** CLASS: DLangSynthesizer *** */
 interface CLASSTYPE_DLangSynthesizer : OBJECT, LAMBDA {
-   OBJECT CMETHOD_to(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_outputNextTemporaryVariableName(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_output(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_outputTabbed(OBJECT caller, OBJECT[] parameters);
@@ -6485,8 +6653,9 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
    private OBJECT IOBJECT_temporaryNumber = null;
    private OBJECT IOBJECT_synthesizedExpressionType = null;
    private OBJECT IOBJECT_localObjectScope = null;
+   private OBJECT IOBJECT_inheritedParentTypes = null;
    static OBJECT TMETHOD_to(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DLangSynthesizer newInstance = new CLASSIMPL_DLangSynthesizer(); return newInstance.CMETHOD_to(newInstance, parameters); }
-   override OBJECT CMETHOD_to(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_to(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DLangSynthesizer self = cast(CLASSTYPE_DLangSynthesizer)caller;
       OBJECT LOBJECT_output = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_tab = CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
@@ -6496,9 +6665,10 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
       IOBJECT_temporaryNumber = CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")]);
       IOBJECT_selfClassName = CLASSIMPL_DainaClassIdentifier.TMETHOD_base(caller, cast(OBJECT[])[]);
       IOBJECT_synthesizedExpressionType = CLASSIMPL_DainaType.TMETHOD_root(caller, cast(OBJECT[])[]);
-      IOBJECT_selfInstanceObjects = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      IOBJECT_selfInstanceObjects = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_localObjectScope = CLASSIMPL_Mapping.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_blockOutput = CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+      IOBJECT_inheritedParentTypes = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
    }
    override OBJECT IMETHOD_outputNextTemporaryVariableName(OBJECT caller, OBJECT[] parameters) {
@@ -6922,6 +7092,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
          OBJECT LOBJECT_compilerInjections = parameters.length > 4 ? parameters[4] : null;
          IOBJECT_selfClassName = LOBJECT_className;
          IOBJECT_selfInstanceObjects = LOBJECT_instanceObjects;
+         IOBJECT_inheritedParentTypes = LOBJECT_inheritedParentTypes;
          self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("/* *** CLASS: ")])]);
          self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_className;
@@ -7054,7 +7225,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
          self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("}\n")])]);
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_instanceObjects;
-            return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+            return (cast(CLASSTYPE_Index)instance).IMETHOD_iterate(instance, parameters);
          } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = self;
             return self.IMETHOD_synthesizeInstanceObjectDeclaration(instance, parameters);
@@ -7237,12 +7408,6 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          return caller;
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("OBJECT CMETHOD_")])]);
-         self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_classMethodIdentifier;
-            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[])]);
-         self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("(OBJECT caller, OBJECT[] parameters);\n")])]);
          return caller;
       } })]);
       return caller;
@@ -7324,7 +7489,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
             return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
          } })).method(caller, cast(OBJECT[])[])]);
          self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("(newInstance, parameters); }\n")])]);
-         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("override OBJECT CMETHOD_")])]);
+         self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("OBJECT CMETHOD_")])]);
          return caller;
       } })]);
       self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -7722,15 +7887,62 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
                } })]);
                return caller;
             } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("PARENT_")])]);
-               self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
                CLASSIMPL_O.TMETHOD_ifElse(caller, cast(OBJECT[])[LOBJECT_isPointerConstructor, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("PARENT_")])]);
+                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
                   self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("_SET(")])]);
                   self.IMETHOD_synthesizeMethodInputs(self, cast(OBJECT[])[LOBJECT_inputs]);
                   self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(");\n")])]);
                   return caller;
                } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(".CMETHOD_")])]);
+                  self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("(cast(")])]);
+                  OBJECT LOBJECT_varParentNumber = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])]);
+                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = IOBJECT_inheritedParentTypes;
+                     return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT LOBJECT_parentType = parameters.length > 0 ? parameters[0] : null;
+                     OBJECT LOBJECT_curr = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_varParentNumber;
+                        return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[]);
+                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_varParentNumber;
+                        return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_curr;
+                        return (cast(CLASSTYPE_Integer)instance).IMETHOD_adding(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[CLASSIMPL_Integer.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("1")])])]);
+                     OBJECT LOBJECT_sameParentNum = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_curr;
+                        return (cast(CLASSTYPE_Integer)instance).IMETHOD_isEqualTo(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[LOBJECT_parentNumber]);
+                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_sameParentNum;
+                        return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT instance = LOBJECT_parentType;
+                           return (cast(CLASSTYPE_DainaType)instance).IMETHOD_ifClassNameAndGenericInstantiation(instance, parameters);
+                        } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                           OBJECT LOBJECT_parentTypeIdentifier = parameters.length > 0 ? parameters[0] : null;
+                           OBJECT LOBJECT_genericInstantiation = parameters.length > 1 ? parameters[1] : null;
+                           self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("CLASSIMPL_")])]);
+                           self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                              OBJECT instance = LOBJECT_parentTypeIdentifier;
+                              return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
+                           } })).method(caller, cast(OBJECT[])[])]);
+                           return caller;
+                        } })]);
+                        return caller;
+                     } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        return caller;
+                     } })]);
+                     return caller;
+                  } })]);
+                  self.IMETHOD_outputTabbed(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(")PARENT_")])]);
+                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_stringFormatOf(caller, cast(OBJECT[])[LOBJECT_parentNumber])]);
+                  self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(").CMETHOD_")])]);
                   self.IMETHOD_output(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                      OBJECT instance = LOBJECT_identifier;
                      return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
@@ -8313,7 +8525,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
             } })).method(caller, cast(OBJECT[])[]);
             (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = IOBJECT_selfInstanceObjects;
-               return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+               return (cast(CLASSTYPE_Index)instance).IMETHOD_iterate(instance, parameters);
             } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT LOBJECT_decl = parameters.length > 0 ? parameters[0] : null;
                OBJECT LOBJECT_thisId = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -8479,7 +8691,6 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
 
 /* *** CLASS: Daina *** */
 interface CLASSTYPE_Daina : OBJECT, LAMBDA, CLASSTYPE_CommandReader {
-   OBJECT CMETHOD_init(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_exitReached(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_exit(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parseSourceFile(OBJECT caller, OBJECT[] parameters);
@@ -8519,7 +8730,7 @@ class CLASSIMPL_Daina : CLASSTYPE_Daina {
       return caller;
    }
    static OBJECT TMETHOD_init(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Daina newInstance = new CLASSIMPL_Daina(); return newInstance.CMETHOD_init(newInstance, parameters); }
-   override OBJECT CMETHOD_init(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_init(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Daina self = cast(CLASSTYPE_Daina)caller;
       OBJECT LOBJECT_configuration = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_exitReached = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[])]);
@@ -8728,7 +8939,6 @@ class CLASSIMPL_StandardIO : CLASSTYPE_StandardIO {
 
 /* *** CLASS: File *** */
 interface CLASSTYPE_File : OBJECT, LAMBDA {
-   OBJECT CMETHOD_atPath(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_exists(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_clearContents(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_appendContents(OBJECT caller, OBJECT[] parameters);
@@ -8747,7 +8957,7 @@ class CLASSIMPL_File : CLASSTYPE_File {
    this() {
    }
    static OBJECT TMETHOD_atPath(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_File newInstance = new CLASSIMPL_File(); return newInstance.CMETHOD_atPath(newInstance, parameters); }
-   override OBJECT CMETHOD_atPath(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_atPath(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_File self = cast(CLASSTYPE_File)caller;
       OBJECT LOBJECT_filePath = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_asciiFilePath = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -8836,9 +9046,6 @@ class CLASSIMPL_File : CLASSTYPE_File {
 
 /* *** CLASS: Data *** */
 interface CLASSTYPE_Data : OBJECT, LAMBDA, CLASSTYPE_Sequence {
-   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_copy(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_concatenate(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_length(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_atIndex(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_internalData(OBJECT caller, OBJECT[] parameters);
@@ -8856,7 +9063,7 @@ class CLASSIMPL_Data : CLASSTYPE_Data {
       PARENT_1 = new CLASSIMPL_Sequence();
    }
    static OBJECT TMETHOD_empty(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Data newInstance = new CLASSIMPL_Data(); return newInstance.CMETHOD_empty(newInstance, parameters); }
-   override OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Data self = cast(CLASSTYPE_Data)caller;
 /* dlang injection start */
          this.value = new WRAP!(ubyte[])([]);
@@ -8864,7 +9071,7 @@ class CLASSIMPL_Data : CLASSTYPE_Data {
       return caller;
    }
    static OBJECT TMETHOD_copy(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Data newInstance = new CLASSIMPL_Data(); return newInstance.CMETHOD_copy(newInstance, parameters); }
-   override OBJECT CMETHOD_copy(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_copy(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Data self = cast(CLASSTYPE_Data)caller;
       OBJECT LOBJECT_bytes = parameters.length > 0 ? parameters[0] : null;
 /* dlang injection start */
@@ -8885,7 +9092,7 @@ class CLASSIMPL_Data : CLASSTYPE_Data {
       return caller;
    }
    static OBJECT TMETHOD_concatenate(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Data newInstance = new CLASSIMPL_Data(); return newInstance.CMETHOD_concatenate(newInstance, parameters); }
-   override OBJECT CMETHOD_concatenate(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_concatenate(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Data self = cast(CLASSTYPE_Data)caller;
       OBJECT LOBJECT_datas = parameters.length > 0 ? parameters[0] : null;
 /* dlang injection start */
@@ -8939,262 +9146,6 @@ class CLASSIMPL_Data : CLASSTYPE_Data {
 
 /* *** CLASS: Byte *** */
 interface CLASSTYPE_Byte : OBJECT, LAMBDA {
-   OBJECT CMETHOD_0x00(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x01(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x02(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x03(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x04(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x05(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x06(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x07(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x08(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x09(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x0A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x0B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x0C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x0D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x0E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x0F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x10(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x11(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x12(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x13(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x14(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x15(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x16(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x17(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x18(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x19(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x1A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x1B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x1C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x1D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x1E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x1F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x20(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x21(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x22(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x23(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x24(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x25(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x26(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x27(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x28(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x29(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x2A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x2B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x2C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x2D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x2E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x2F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x30(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x31(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x32(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x33(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x34(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x35(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x36(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x37(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x38(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x39(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x3A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x3B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x3C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x3D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x3E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x3F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x40(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x41(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x42(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x43(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x44(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x45(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x46(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x47(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x48(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x49(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x4A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x4B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x4C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x4D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x4E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x4F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x50(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x51(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x52(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x53(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x54(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x55(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x56(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x57(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x58(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x59(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x5A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x5B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x5C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x5D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x5E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x5F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x60(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x61(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x62(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x63(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x64(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x65(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x66(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x67(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x68(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x69(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x6A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x6B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x6C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x6D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x6E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x6F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x70(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x71(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x72(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x73(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x74(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x75(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x76(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x77(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x78(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x79(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x7A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x7B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x7C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x7D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x7E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x7F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x80(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x81(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x82(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x83(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x84(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x85(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x86(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x87(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x88(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x89(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x8A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x8B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x8C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x8D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x8E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x8F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x90(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x91(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x92(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x93(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x94(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x95(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x96(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x97(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x98(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x99(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x9A(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x9B(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x9C(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x9D(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x9E(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0x9F(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA1(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA2(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA3(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA4(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA5(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA6(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA7(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA8(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xA9(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xAA(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xAB(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xAC(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xAD(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xAE(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xAF(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB1(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB2(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB3(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB4(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB5(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB6(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB7(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB8(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xB9(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xBA(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xBB(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xBC(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xBD(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xBE(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xBF(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC1(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC2(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC3(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC4(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC5(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC6(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC7(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC8(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xC9(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xCA(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xCB(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xCC(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xCD(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xCE(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xCF(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD1(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD2(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD3(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD4(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD5(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD6(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD7(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD8(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xD9(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xDA(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xDB(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xDC(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xDD(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xDE(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xDF(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE1(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE2(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE3(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE4(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE5(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE6(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE7(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE8(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xE9(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xEA(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xEB(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xEC(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xED(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xEE(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xEF(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF1(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF2(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF3(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF4(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF5(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF6(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF7(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF8(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xF9(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xFA(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xFB(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xFC(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xFD(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xFE(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_0xFF(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_internalByte(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isEqualTo(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_inclusiveBetween(OBJECT caller, OBJECT[] parameters);
@@ -9207,1537 +9158,1537 @@ class CLASSIMPL_Byte : CLASSTYPE_Byte {
    this() {
    }
    static OBJECT TMETHOD_0x00(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x00(newInstance, parameters); }
-   override OBJECT CMETHOD_0x00(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x00(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x00); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x01(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x01(newInstance, parameters); }
-   override OBJECT CMETHOD_0x01(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x01(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x01); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x02(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x02(newInstance, parameters); }
-   override OBJECT CMETHOD_0x02(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x02(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x02); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x03(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x03(newInstance, parameters); }
-   override OBJECT CMETHOD_0x03(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x03(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x03); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x04(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x04(newInstance, parameters); }
-   override OBJECT CMETHOD_0x04(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x04(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x04); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x05(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x05(newInstance, parameters); }
-   override OBJECT CMETHOD_0x05(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x05(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x05); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x06(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x06(newInstance, parameters); }
-   override OBJECT CMETHOD_0x06(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x06(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x06); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x07(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x07(newInstance, parameters); }
-   override OBJECT CMETHOD_0x07(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x07(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x07); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x08(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x08(newInstance, parameters); }
-   override OBJECT CMETHOD_0x08(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x08(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x08); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x09(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x09(newInstance, parameters); }
-   override OBJECT CMETHOD_0x09(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x09(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x09); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x0A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x0A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x0A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x0A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x0A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x0B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x0B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x0B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x0B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x0B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x0C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x0C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x0C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x0C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x0C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x0D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x0D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x0D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x0D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x0D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x0E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x0E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x0E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x0E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x0E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x0F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x0F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x0F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x0F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x0F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x10(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x10(newInstance, parameters); }
-   override OBJECT CMETHOD_0x10(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x10(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x10); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x11(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x11(newInstance, parameters); }
-   override OBJECT CMETHOD_0x11(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x11(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x11); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x12(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x12(newInstance, parameters); }
-   override OBJECT CMETHOD_0x12(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x12(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x12); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x13(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x13(newInstance, parameters); }
-   override OBJECT CMETHOD_0x13(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x13(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x13); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x14(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x14(newInstance, parameters); }
-   override OBJECT CMETHOD_0x14(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x14(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x14); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x15(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x15(newInstance, parameters); }
-   override OBJECT CMETHOD_0x15(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x15(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x15); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x16(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x16(newInstance, parameters); }
-   override OBJECT CMETHOD_0x16(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x16(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x16); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x17(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x17(newInstance, parameters); }
-   override OBJECT CMETHOD_0x17(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x17(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x17); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x18(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x18(newInstance, parameters); }
-   override OBJECT CMETHOD_0x18(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x18(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x18); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x19(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x19(newInstance, parameters); }
-   override OBJECT CMETHOD_0x19(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x19(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x19); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x1A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x1A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x1A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x1A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x1A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x1B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x1B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x1B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x1B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x1B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x1C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x1C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x1C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x1C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x1C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x1D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x1D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x1D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x1D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x1D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x1E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x1E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x1E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x1E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x1E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x1F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x1F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x1F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x1F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x1F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x20(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x20(newInstance, parameters); }
-   override OBJECT CMETHOD_0x20(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x20(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x20); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x21(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x21(newInstance, parameters); }
-   override OBJECT CMETHOD_0x21(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x21(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x21); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x22(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x22(newInstance, parameters); }
-   override OBJECT CMETHOD_0x22(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x22(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x22); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x23(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x23(newInstance, parameters); }
-   override OBJECT CMETHOD_0x23(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x23(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x23); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x24(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x24(newInstance, parameters); }
-   override OBJECT CMETHOD_0x24(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x24(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x24); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x25(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x25(newInstance, parameters); }
-   override OBJECT CMETHOD_0x25(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x25(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x25); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x26(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x26(newInstance, parameters); }
-   override OBJECT CMETHOD_0x26(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x26(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x26); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x27(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x27(newInstance, parameters); }
-   override OBJECT CMETHOD_0x27(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x27(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x27); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x28(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x28(newInstance, parameters); }
-   override OBJECT CMETHOD_0x28(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x28(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x28); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x29(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x29(newInstance, parameters); }
-   override OBJECT CMETHOD_0x29(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x29(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x29); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x2A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x2A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x2A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x2A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x2A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x2B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x2B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x2B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x2B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x2B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x2C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x2C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x2C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x2C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x2C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x2D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x2D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x2D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x2D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x2D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x2E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x2E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x2E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x2E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x2E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x2F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x2F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x2F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x2F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x2F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x30(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x30(newInstance, parameters); }
-   override OBJECT CMETHOD_0x30(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x30(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x30); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x31(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x31(newInstance, parameters); }
-   override OBJECT CMETHOD_0x31(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x31(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x31); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x32(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x32(newInstance, parameters); }
-   override OBJECT CMETHOD_0x32(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x32(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x32); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x33(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x33(newInstance, parameters); }
-   override OBJECT CMETHOD_0x33(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x33(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x33); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x34(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x34(newInstance, parameters); }
-   override OBJECT CMETHOD_0x34(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x34(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x34); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x35(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x35(newInstance, parameters); }
-   override OBJECT CMETHOD_0x35(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x35(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x35); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x36(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x36(newInstance, parameters); }
-   override OBJECT CMETHOD_0x36(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x36(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x36); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x37(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x37(newInstance, parameters); }
-   override OBJECT CMETHOD_0x37(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x37(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x37); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x38(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x38(newInstance, parameters); }
-   override OBJECT CMETHOD_0x38(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x38(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x38); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x39(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x39(newInstance, parameters); }
-   override OBJECT CMETHOD_0x39(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x39(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x39); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x3A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x3A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x3A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x3A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x3A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x3B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x3B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x3B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x3B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x3B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x3C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x3C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x3C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x3C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x3C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x3D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x3D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x3D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x3D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x3D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x3E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x3E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x3E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x3E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x3E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x3F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x3F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x3F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x3F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x3F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x40(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x40(newInstance, parameters); }
-   override OBJECT CMETHOD_0x40(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x40(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x40); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x41(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x41(newInstance, parameters); }
-   override OBJECT CMETHOD_0x41(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x41(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x41); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x42(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x42(newInstance, parameters); }
-   override OBJECT CMETHOD_0x42(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x42(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x42); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x43(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x43(newInstance, parameters); }
-   override OBJECT CMETHOD_0x43(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x43(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x43); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x44(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x44(newInstance, parameters); }
-   override OBJECT CMETHOD_0x44(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x44(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x44); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x45(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x45(newInstance, parameters); }
-   override OBJECT CMETHOD_0x45(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x45(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x45); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x46(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x46(newInstance, parameters); }
-   override OBJECT CMETHOD_0x46(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x46(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x46); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x47(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x47(newInstance, parameters); }
-   override OBJECT CMETHOD_0x47(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x47(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x47); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x48(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x48(newInstance, parameters); }
-   override OBJECT CMETHOD_0x48(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x48(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x48); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x49(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x49(newInstance, parameters); }
-   override OBJECT CMETHOD_0x49(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x49(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x49); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x4A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x4A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x4A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x4A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x4A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x4B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x4B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x4B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x4B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x4B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x4C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x4C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x4C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x4C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x4C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x4D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x4D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x4D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x4D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x4D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x4E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x4E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x4E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x4E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x4E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x4F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x4F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x4F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x4F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x4F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x50(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x50(newInstance, parameters); }
-   override OBJECT CMETHOD_0x50(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x50(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x50); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x51(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x51(newInstance, parameters); }
-   override OBJECT CMETHOD_0x51(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x51(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x51); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x52(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x52(newInstance, parameters); }
-   override OBJECT CMETHOD_0x52(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x52(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x52); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x53(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x53(newInstance, parameters); }
-   override OBJECT CMETHOD_0x53(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x53(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x53); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x54(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x54(newInstance, parameters); }
-   override OBJECT CMETHOD_0x54(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x54(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x54); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x55(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x55(newInstance, parameters); }
-   override OBJECT CMETHOD_0x55(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x55(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x55); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x56(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x56(newInstance, parameters); }
-   override OBJECT CMETHOD_0x56(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x56(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x56); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x57(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x57(newInstance, parameters); }
-   override OBJECT CMETHOD_0x57(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x57(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x57); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x58(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x58(newInstance, parameters); }
-   override OBJECT CMETHOD_0x58(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x58(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x58); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x59(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x59(newInstance, parameters); }
-   override OBJECT CMETHOD_0x59(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x59(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x59); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x5A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x5A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x5A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x5A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x5A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x5B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x5B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x5B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x5B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x5B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x5C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x5C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x5C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x5C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x5C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x5D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x5D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x5D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x5D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x5D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x5E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x5E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x5E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x5E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x5E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x5F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x5F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x5F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x5F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x5F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x60(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x60(newInstance, parameters); }
-   override OBJECT CMETHOD_0x60(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x60(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x60); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x61(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x61(newInstance, parameters); }
-   override OBJECT CMETHOD_0x61(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x61(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x61); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x62(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x62(newInstance, parameters); }
-   override OBJECT CMETHOD_0x62(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x62(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x62); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x63(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x63(newInstance, parameters); }
-   override OBJECT CMETHOD_0x63(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x63(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x63); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x64(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x64(newInstance, parameters); }
-   override OBJECT CMETHOD_0x64(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x64(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x64); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x65(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x65(newInstance, parameters); }
-   override OBJECT CMETHOD_0x65(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x65(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x65); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x66(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x66(newInstance, parameters); }
-   override OBJECT CMETHOD_0x66(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x66(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x66); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x67(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x67(newInstance, parameters); }
-   override OBJECT CMETHOD_0x67(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x67(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x67); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x68(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x68(newInstance, parameters); }
-   override OBJECT CMETHOD_0x68(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x68(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x68); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x69(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x69(newInstance, parameters); }
-   override OBJECT CMETHOD_0x69(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x69(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x69); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x6A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x6A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x6A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x6A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x6A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x6B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x6B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x6B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x6B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x6B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x6C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x6C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x6C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x6C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x6C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x6D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x6D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x6D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x6D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x6D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x6E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x6E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x6E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x6E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x6E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x6F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x6F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x6F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x6F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x6F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x70(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x70(newInstance, parameters); }
-   override OBJECT CMETHOD_0x70(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x70(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x70); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x71(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x71(newInstance, parameters); }
-   override OBJECT CMETHOD_0x71(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x71(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x71); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x72(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x72(newInstance, parameters); }
-   override OBJECT CMETHOD_0x72(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x72(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x72); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x73(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x73(newInstance, parameters); }
-   override OBJECT CMETHOD_0x73(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x73(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x73); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x74(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x74(newInstance, parameters); }
-   override OBJECT CMETHOD_0x74(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x74(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x74); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x75(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x75(newInstance, parameters); }
-   override OBJECT CMETHOD_0x75(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x75(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x75); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x76(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x76(newInstance, parameters); }
-   override OBJECT CMETHOD_0x76(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x76(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x76); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x77(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x77(newInstance, parameters); }
-   override OBJECT CMETHOD_0x77(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x77(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x77); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x78(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x78(newInstance, parameters); }
-   override OBJECT CMETHOD_0x78(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x78(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x78); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x79(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x79(newInstance, parameters); }
-   override OBJECT CMETHOD_0x79(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x79(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x79); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x7A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x7A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x7A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x7A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x7A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x7B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x7B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x7B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x7B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x7B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x7C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x7C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x7C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x7C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x7C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x7D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x7D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x7D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x7D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x7D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x7E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x7E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x7E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x7E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x7E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x7F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x7F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x7F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x7F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x7F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x80(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x80(newInstance, parameters); }
-   override OBJECT CMETHOD_0x80(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x80(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x80); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x81(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x81(newInstance, parameters); }
-   override OBJECT CMETHOD_0x81(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x81(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x81); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x82(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x82(newInstance, parameters); }
-   override OBJECT CMETHOD_0x82(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x82(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x82); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x83(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x83(newInstance, parameters); }
-   override OBJECT CMETHOD_0x83(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x83(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x83); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x84(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x84(newInstance, parameters); }
-   override OBJECT CMETHOD_0x84(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x84(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x84); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x85(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x85(newInstance, parameters); }
-   override OBJECT CMETHOD_0x85(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x85(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x85); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x86(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x86(newInstance, parameters); }
-   override OBJECT CMETHOD_0x86(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x86(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x86); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x87(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x87(newInstance, parameters); }
-   override OBJECT CMETHOD_0x87(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x87(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x87); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x88(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x88(newInstance, parameters); }
-   override OBJECT CMETHOD_0x88(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x88(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x88); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x89(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x89(newInstance, parameters); }
-   override OBJECT CMETHOD_0x89(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x89(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x89); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x8A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x8A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x8A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x8A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x8A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x8B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x8B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x8B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x8B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x8B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x8C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x8C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x8C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x8C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x8C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x8D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x8D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x8D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x8D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x8D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x8E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x8E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x8E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x8E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x8E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x8F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x8F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x8F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x8F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x8F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x90(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x90(newInstance, parameters); }
-   override OBJECT CMETHOD_0x90(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x90(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x90); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x91(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x91(newInstance, parameters); }
-   override OBJECT CMETHOD_0x91(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x91(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x91); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x92(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x92(newInstance, parameters); }
-   override OBJECT CMETHOD_0x92(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x92(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x92); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x93(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x93(newInstance, parameters); }
-   override OBJECT CMETHOD_0x93(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x93(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x93); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x94(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x94(newInstance, parameters); }
-   override OBJECT CMETHOD_0x94(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x94(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x94); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x95(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x95(newInstance, parameters); }
-   override OBJECT CMETHOD_0x95(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x95(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x95); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x96(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x96(newInstance, parameters); }
-   override OBJECT CMETHOD_0x96(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x96(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x96); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x97(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x97(newInstance, parameters); }
-   override OBJECT CMETHOD_0x97(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x97(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x97); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x98(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x98(newInstance, parameters); }
-   override OBJECT CMETHOD_0x98(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x98(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x98); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x99(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x99(newInstance, parameters); }
-   override OBJECT CMETHOD_0x99(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x99(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x99); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x9A(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x9A(newInstance, parameters); }
-   override OBJECT CMETHOD_0x9A(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x9A(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x9A); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x9B(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x9B(newInstance, parameters); }
-   override OBJECT CMETHOD_0x9B(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x9B(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x9B); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x9C(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x9C(newInstance, parameters); }
-   override OBJECT CMETHOD_0x9C(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x9C(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x9C); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x9D(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x9D(newInstance, parameters); }
-   override OBJECT CMETHOD_0x9D(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x9D(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x9D); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x9E(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x9E(newInstance, parameters); }
-   override OBJECT CMETHOD_0x9E(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x9E(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x9E); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0x9F(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0x9F(newInstance, parameters); }
-   override OBJECT CMETHOD_0x9F(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0x9F(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0x9F); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA0(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA0); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA1(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA1(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA1(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA1(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA1); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA2(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA2(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA2(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA2(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA2); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA3(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA3(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA3(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA3(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA3); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA4(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA4(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA4(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA4(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA4); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA5(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA5(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA5(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA5(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA5); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA6(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA6(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA6(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA6(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA6); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA7(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA7(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA7(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA7(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA7); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA8(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA8(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA8(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA8(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA8); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xA9(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xA9(newInstance, parameters); }
-   override OBJECT CMETHOD_0xA9(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xA9(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xA9); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xAA(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xAA(newInstance, parameters); }
-   override OBJECT CMETHOD_0xAA(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xAA(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xAA); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xAB(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xAB(newInstance, parameters); }
-   override OBJECT CMETHOD_0xAB(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xAB(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xAB); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xAC(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xAC(newInstance, parameters); }
-   override OBJECT CMETHOD_0xAC(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xAC(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xAC); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xAD(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xAD(newInstance, parameters); }
-   override OBJECT CMETHOD_0xAD(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xAD(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xAD); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xAE(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xAE(newInstance, parameters); }
-   override OBJECT CMETHOD_0xAE(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xAE(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xAE); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xAF(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xAF(newInstance, parameters); }
-   override OBJECT CMETHOD_0xAF(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xAF(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xAF); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB0(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB0); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB1(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB1(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB1(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB1(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB1); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB2(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB2(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB2(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB2(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB2); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB3(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB3(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB3(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB3(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB3); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB4(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB4(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB4(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB4(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB4); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB5(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB5(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB5(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB5(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB5); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB6(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB6(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB6(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB6(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB6); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB7(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB7(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB7(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB7(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB7); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB8(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB8(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB8(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB8(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB8); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xB9(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xB9(newInstance, parameters); }
-   override OBJECT CMETHOD_0xB9(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xB9(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xB9); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xBA(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xBA(newInstance, parameters); }
-   override OBJECT CMETHOD_0xBA(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xBA(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xBA); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xBB(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xBB(newInstance, parameters); }
-   override OBJECT CMETHOD_0xBB(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xBB(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xBB); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xBC(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xBC(newInstance, parameters); }
-   override OBJECT CMETHOD_0xBC(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xBC(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xBC); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xBD(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xBD(newInstance, parameters); }
-   override OBJECT CMETHOD_0xBD(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xBD(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xBD); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xBE(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xBE(newInstance, parameters); }
-   override OBJECT CMETHOD_0xBE(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xBE(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xBE); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xBF(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xBF(newInstance, parameters); }
-   override OBJECT CMETHOD_0xBF(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xBF(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xBF); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC0(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC0); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC1(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC1(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC1(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC1(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC1); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC2(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC2(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC2(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC2(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC2); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC3(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC3(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC3(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC3(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC3); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC4(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC4(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC4(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC4(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC4); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC5(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC5(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC5(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC5(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC5); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC6(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC6(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC6(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC6(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC6); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC7(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC7(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC7(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC7(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC7); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC8(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC8(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC8(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC8(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC8); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xC9(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xC9(newInstance, parameters); }
-   override OBJECT CMETHOD_0xC9(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xC9(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xC9); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xCA(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xCA(newInstance, parameters); }
-   override OBJECT CMETHOD_0xCA(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xCA(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xCA); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xCB(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xCB(newInstance, parameters); }
-   override OBJECT CMETHOD_0xCB(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xCB(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xCB); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xCC(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xCC(newInstance, parameters); }
-   override OBJECT CMETHOD_0xCC(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xCC(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xCC); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xCD(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xCD(newInstance, parameters); }
-   override OBJECT CMETHOD_0xCD(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xCD(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xCD); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xCE(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xCE(newInstance, parameters); }
-   override OBJECT CMETHOD_0xCE(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xCE(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xCE); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xCF(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xCF(newInstance, parameters); }
-   override OBJECT CMETHOD_0xCF(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xCF(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xCF); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD0(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD0); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD1(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD1(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD1(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD1(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD1); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD2(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD2(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD2(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD2(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD2); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD3(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD3(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD3(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD3(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD3); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD4(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD4(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD4(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD4(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD4); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD5(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD5(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD5(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD5(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD5); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD6(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD6(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD6(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD6(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD6); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD7(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD7(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD7(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD7(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD7); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD8(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD8(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD8(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD8(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD8); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xD9(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xD9(newInstance, parameters); }
-   override OBJECT CMETHOD_0xD9(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xD9(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xD9); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xDA(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xDA(newInstance, parameters); }
-   override OBJECT CMETHOD_0xDA(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xDA(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xDA); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xDB(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xDB(newInstance, parameters); }
-   override OBJECT CMETHOD_0xDB(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xDB(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xDB); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xDC(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xDC(newInstance, parameters); }
-   override OBJECT CMETHOD_0xDC(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xDC(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xDC); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xDD(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xDD(newInstance, parameters); }
-   override OBJECT CMETHOD_0xDD(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xDD(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xDD); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xDE(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xDE(newInstance, parameters); }
-   override OBJECT CMETHOD_0xDE(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xDE(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xDE); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xDF(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xDF(newInstance, parameters); }
-   override OBJECT CMETHOD_0xDF(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xDF(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xDF); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE0(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE0); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE1(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE1(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE1(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE1(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE1); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE2(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE2(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE2(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE2(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE2); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE3(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE3(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE3(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE3(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE3); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE4(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE4(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE4(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE4(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE4); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE5(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE5(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE5(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE5(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE5); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE6(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE6(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE6(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE6(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE6); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE7(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE7(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE7(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE7(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE7); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE8(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE8(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE8(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE8(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE8); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xE9(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xE9(newInstance, parameters); }
-   override OBJECT CMETHOD_0xE9(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xE9(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xE9); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xEA(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xEA(newInstance, parameters); }
-   override OBJECT CMETHOD_0xEA(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xEA(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xEA); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xEB(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xEB(newInstance, parameters); }
-   override OBJECT CMETHOD_0xEB(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xEB(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xEB); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xEC(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xEC(newInstance, parameters); }
-   override OBJECT CMETHOD_0xEC(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xEC(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xEC); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xED(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xED(newInstance, parameters); }
-   override OBJECT CMETHOD_0xED(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xED(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xED); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xEE(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xEE(newInstance, parameters); }
-   override OBJECT CMETHOD_0xEE(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xEE(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xEE); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xEF(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xEF(newInstance, parameters); }
-   override OBJECT CMETHOD_0xEF(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xEF(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xEF); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF0(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF0); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF1(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF1(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF1(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF1(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF1); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF2(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF2(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF2(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF2(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF2); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF3(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF3(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF3(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF3(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF3); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF4(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF4(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF4(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF4(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF4); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF5(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF5(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF5(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF5(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF5); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF6(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF6(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF6(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF6(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF6); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF7(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF7(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF7(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF7(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF7); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF8(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF8(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF8(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF8(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF8); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xF9(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xF9(newInstance, parameters); }
-   override OBJECT CMETHOD_0xF9(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xF9(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xF9); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xFA(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xFA(newInstance, parameters); }
-   override OBJECT CMETHOD_0xFA(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xFA(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xFA); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xFB(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xFB(newInstance, parameters); }
-   override OBJECT CMETHOD_0xFB(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xFB(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xFB); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xFC(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xFC(newInstance, parameters); }
-   override OBJECT CMETHOD_0xFC(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xFC(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xFC); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xFD(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xFD(newInstance, parameters); }
-   override OBJECT CMETHOD_0xFD(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xFD(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xFD); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xFE(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xFE(newInstance, parameters); }
-   override OBJECT CMETHOD_0xFE(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xFE(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xFE); /* dlang injection end */
       return caller;
    }
    static OBJECT TMETHOD_0xFF(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Byte newInstance = new CLASSIMPL_Byte(); return newInstance.CMETHOD_0xFF(newInstance, parameters); }
-   override OBJECT CMETHOD_0xFF(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_0xFF(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Byte self = cast(CLASSTYPE_Byte)caller;
 /* dlang injection start */ this.value = new WRAP!(ubyte)(0xFF); /* dlang injection end */
       return caller;
@@ -10772,10 +10723,6 @@ class CLASSIMPL_Byte : CLASSTYPE_Byte {
 
 /* *** CLASS: String *** */
 interface CLASSTYPE_String : OBJECT, LAMBDA {
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_asASCII(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_concatenate(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_stringFormatOf(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isEqualTo(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_appending(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_ascii(OBJECT caller, OBJECT[] parameters);
@@ -10790,7 +10737,7 @@ class CLASSIMPL_String : CLASSTYPE_String {
    }
    private OBJECT IOBJECT_ascii = null;
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_String newInstance = new CLASSIMPL_String(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_String self = cast(CLASSTYPE_String)caller;
       OBJECT LOBJECT_literal = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_ascii = CLASSIMPL_Data.TMETHOD_empty(caller, cast(OBJECT[])[]);
@@ -10801,14 +10748,14 @@ class CLASSIMPL_String : CLASSTYPE_String {
       return caller;
    }
    static OBJECT TMETHOD_asASCII(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_String newInstance = new CLASSIMPL_String(); return newInstance.CMETHOD_asASCII(newInstance, parameters); }
-   override OBJECT CMETHOD_asASCII(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_asASCII(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_String self = cast(CLASSTYPE_String)caller;
       OBJECT LOBJECT_ascii = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_ascii = LOBJECT_ascii;
       return caller;
    }
    static OBJECT TMETHOD_concatenate(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_String newInstance = new CLASSIMPL_String(); return newInstance.CMETHOD_concatenate(newInstance, parameters); }
-   override OBJECT CMETHOD_concatenate(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_concatenate(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_String self = cast(CLASSTYPE_String)caller;
       OBJECT LOBJECT_strings = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_asciis = ((){
@@ -10852,7 +10799,7 @@ class CLASSIMPL_String : CLASSTYPE_String {
       return caller;
    }
    static OBJECT TMETHOD_stringFormatOf(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_String newInstance = new CLASSIMPL_String(); return newInstance.CMETHOD_stringFormatOf(newInstance, parameters); }
-   override OBJECT CMETHOD_stringFormatOf(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_stringFormatOf(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_String self = cast(CLASSTYPE_String)caller;
       OBJECT LOBJECT_integer = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_ascii = CLASSIMPL_Data.TMETHOD_empty(caller, cast(OBJECT[])[]);
@@ -11017,7 +10964,6 @@ class CLASSIMPL_Loops : CLASSTYPE_Loops {
 
 /* *** CLASS: Variable *** */
 interface CLASSTYPE_Variable : OBJECT, LAMBDA {
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters);
 }
@@ -11027,7 +10973,7 @@ class CLASSIMPL_Variable : CLASSTYPE_Variable {
    }
    private OBJECT IOBJECT_variableObject = null;
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Variable newInstance = new CLASSIMPL_Variable(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Variable self = cast(CLASSTYPE_Variable)caller;
       OBJECT LOBJECT_initialInstantiation = parameters.length > 0 ? parameters[0] : null;
       IOBJECT_variableObject = LOBJECT_initialInstantiation;
@@ -11070,9 +11016,6 @@ class CLASSIMPL_Sequence : CLASSTYPE_Sequence {
 
 /* *** CLASS: Natural *** */
 interface CLASSTYPE_Natural : OBJECT, LAMBDA, CLASSTYPE_Integer {
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_clampTo0(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_magnitudeOf(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_adding(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_Natural : CLASSTYPE_Natural {
@@ -11092,7 +11035,7 @@ class CLASSIMPL_Natural : CLASSTYPE_Natural {
    override OBJECT IMETHOD_subtracting(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_subtracting(caller, parameters); }
    override OBJECT IMETHOD_internalInteger(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_internalInteger(caller, parameters); }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Natural newInstance = new CLASSIMPL_Natural(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Natural self = cast(CLASSTYPE_Natural)caller;
       OBJECT LOBJECT_literal = parameters.length > 0 ? parameters[0] : null;
 /* dlang injection start */
@@ -11102,7 +11045,7 @@ class CLASSIMPL_Natural : CLASSTYPE_Natural {
       return caller;
    }
    static OBJECT TMETHOD_clampTo0(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Natural newInstance = new CLASSIMPL_Natural(); return newInstance.CMETHOD_clampTo0(newInstance, parameters); }
-   override OBJECT CMETHOD_clampTo0(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_clampTo0(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Natural self = cast(CLASSTYPE_Natural)caller;
       OBJECT LOBJECT_integer = parameters.length > 0 ? parameters[0] : null;
 /* dlang injection start */
@@ -11116,7 +11059,7 @@ class CLASSIMPL_Natural : CLASSTYPE_Natural {
       return caller;
    }
    static OBJECT TMETHOD_magnitudeOf(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Natural newInstance = new CLASSIMPL_Natural(); return newInstance.CMETHOD_magnitudeOf(newInstance, parameters); }
-   override OBJECT CMETHOD_magnitudeOf(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_magnitudeOf(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Natural self = cast(CLASSTYPE_Natural)caller;
       OBJECT LOBJECT_integer = parameters.length > 0 ? parameters[0] : null;
 /* dlang injection start */
@@ -11144,8 +11087,6 @@ class CLASSIMPL_Natural : CLASSTYPE_Natural {
 
 /* *** CLASS: Maybe *** */
 interface CLASSTYPE_Maybe : OBJECT, LAMBDA {
-   OBJECT CMETHOD_nothing(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isOrElse(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
@@ -11153,7 +11094,7 @@ class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
    this() {
    }
    static OBJECT TMETHOD_nothing(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Maybe newInstance = new CLASSIMPL_Maybe(); return newInstance.CMETHOD_nothing(newInstance, parameters); }
-   override OBJECT CMETHOD_nothing(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_nothing(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Maybe self = cast(CLASSTYPE_Maybe)caller;
       ASSIGNIMETHOD_isOrElse = cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_is = parameters.length > 0 ? parameters[0] : null;
@@ -11163,7 +11104,7 @@ class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
       return caller;
    }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Maybe newInstance = new CLASSIMPL_Maybe(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Maybe self = cast(CLASSTYPE_Maybe)caller;
       OBJECT LOBJECT_it = parameters.length > 0 ? parameters[0] : null;
       ASSIGNIMETHOD_isOrElse = cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -11199,19 +11140,14 @@ class CLASSIMPL_Maybe : CLASSTYPE_Maybe {
 
 /* *** CLASS: Boolean *** */
 interface CLASSTYPE_Boolean : OBJECT, LAMBDA {
-   OBJECT CMETHOD_false(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_true(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_ifOrElse(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_or(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_and(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_not(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_Boolean : CLASSTYPE_Boolean {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
    this() {
    }
    static OBJECT TMETHOD_false(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Boolean newInstance = new CLASSIMPL_Boolean(); return newInstance.CMETHOD_false(newInstance, parameters); }
-   override OBJECT CMETHOD_false(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_false(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Boolean self = cast(CLASSTYPE_Boolean)caller;
       ASSIGNIMETHOD_ifOrElse = cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_if = parameters.length > 0 ? parameters[0] : null;
@@ -11221,7 +11157,7 @@ class CLASSIMPL_Boolean : CLASSTYPE_Boolean {
       return caller;
    }
    static OBJECT TMETHOD_true(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Boolean newInstance = new CLASSIMPL_Boolean(); return newInstance.CMETHOD_true(newInstance, parameters); }
-   override OBJECT CMETHOD_true(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_true(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Boolean self = cast(CLASSTYPE_Boolean)caller;
       ASSIGNIMETHOD_ifOrElse = cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_if = parameters.length > 0 ? parameters[0] : null;
@@ -11236,7 +11172,7 @@ class CLASSIMPL_Boolean : CLASSTYPE_Boolean {
       return ASSIGNIMETHOD_ifOrElse.method(caller, parameters);
    }
    static OBJECT TMETHOD_or(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Boolean newInstance = new CLASSIMPL_Boolean(); return newInstance.CMETHOD_or(newInstance, parameters); }
-   override OBJECT CMETHOD_or(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_or(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Boolean self = cast(CLASSTYPE_Boolean)caller;
       OBJECT LOBJECT_b1 = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_b2 = parameters.length > 1 ? parameters[1] : null;
@@ -11256,7 +11192,7 @@ class CLASSIMPL_Boolean : CLASSTYPE_Boolean {
       return caller;
    }
    static OBJECT TMETHOD_and(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Boolean newInstance = new CLASSIMPL_Boolean(); return newInstance.CMETHOD_and(newInstance, parameters); }
-   override OBJECT CMETHOD_and(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_and(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Boolean self = cast(CLASSTYPE_Boolean)caller;
       OBJECT LOBJECT_b1 = parameters.length > 0 ? parameters[0] : null;
       OBJECT LOBJECT_b2 = parameters.length > 1 ? parameters[1] : null;
@@ -11276,7 +11212,7 @@ class CLASSIMPL_Boolean : CLASSTYPE_Boolean {
       return caller;
    }
    static OBJECT TMETHOD_not(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Boolean newInstance = new CLASSIMPL_Boolean(); return newInstance.CMETHOD_not(newInstance, parameters); }
-   override OBJECT CMETHOD_not(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_not(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Boolean self = cast(CLASSTYPE_Boolean)caller;
       OBJECT LOBJECT_b1 = parameters.length > 0 ? parameters[0] : null;
       ASSIGNIMETHOD_ifOrElse = cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -11293,7 +11229,6 @@ class CLASSIMPL_Boolean : CLASSTYPE_Boolean {
 
 /* *** CLASS: Integer *** */
 interface CLASSTYPE_Integer : OBJECT, LAMBDA {
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isLessThan(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isEqualTo(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_subtracting(OBJECT caller, OBJECT[] parameters);
@@ -11311,7 +11246,7 @@ class CLASSIMPL_Integer : CLASSTYPE_Integer {
    this() {
    }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Integer newInstance = new CLASSIMPL_Integer(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Integer self = cast(CLASSTYPE_Integer)caller;
       OBJECT LOBJECT_literal = parameters.length > 0 ? parameters[0] : null;
 /* dlang injection start */
@@ -11370,7 +11305,6 @@ class CLASSIMPL_Integer : CLASSTYPE_Integer {
 
 /* *** CLASS: ListNode *** */
 interface CLASSTYPE_ListNode : OBJECT, LAMBDA {
-   OBJECT CMETHOD_withValue(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_value(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_next(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_previous(OBJECT caller, OBJECT[] parameters);
@@ -11380,7 +11314,7 @@ class CLASSIMPL_ListNode : CLASSTYPE_ListNode {
    this() {
    }
    static OBJECT TMETHOD_withValue(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_ListNode newInstance = new CLASSIMPL_ListNode(); return newInstance.CMETHOD_withValue(newInstance, parameters); }
-   override OBJECT CMETHOD_withValue(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_withValue(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_ListNode self = cast(CLASSTYPE_ListNode)caller;
       OBJECT LOBJECT_value = parameters.length > 0 ? parameters[0] : null;
       ASSIGNIMETHOD_value = cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -11452,8 +11386,6 @@ class CLASSIMPL_ListPosition : CLASSTYPE_ListPosition {
 
 /* *** CLASS: List *** */
 interface CLASSTYPE_List : OBJECT, LAMBDA, CLASSTYPE_Sequence {
-   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_iterate(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_length(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_atIndex(OBJECT caller, OBJECT[] parameters);
@@ -11473,7 +11405,7 @@ class CLASSIMPL_List : CLASSTYPE_List {
    private OBJECT IOBJECT_last = null;
    private OBJECT IOBJECT_length = null;
    static OBJECT TMETHOD_empty(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_List newInstance = new CLASSIMPL_List(); return newInstance.CMETHOD_empty(newInstance, parameters); }
-   override OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_List self = cast(CLASSTYPE_List)caller;
       IOBJECT_first = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_last = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
@@ -11481,7 +11413,7 @@ class CLASSIMPL_List : CLASSTYPE_List {
       return caller;
    }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_List newInstance = new CLASSIMPL_List(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_List self = cast(CLASSTYPE_List)caller;
       OBJECT LOBJECT_sequence = parameters.length > 0 ? parameters[0] : null;
       (cast(CLASSIMPL_List)self).CMETHOD_empty(this, []);
@@ -11810,9 +11742,9 @@ class CLASSIMPL_List : CLASSTYPE_List {
 
 /* *** CLASS: Index *** */
 interface CLASSTYPE_Index : OBJECT, LAMBDA {
-   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_iterate(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_Index : CLASSTYPE_Index {
 /* dlang injection start */
@@ -11823,7 +11755,7 @@ class CLASSIMPL_Index : CLASSTYPE_Index {
    this() {
    }
    static OBJECT TMETHOD_empty(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Index newInstance = new CLASSIMPL_Index(); return newInstance.CMETHOD_empty(newInstance, parameters); }
-   override OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
       return caller;
    }
@@ -11871,6 +11803,14 @@ class CLASSIMPL_Index : CLASSTYPE_Index {
          /* dlang injection end */
          return caller;
       } })]);
+      return caller;
+   }
+   override OBJECT IMETHOD_iterate(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_Index self = cast(CLASSTYPE_Index)caller;
+      OBJECT LOBJECT_getE = parameters.length > 0 ? parameters[0] : null;
+/* dlang injection start */foreach (key, LOBJECT_e; index) {/* dlang injection end */
+      (cast(LAMBDA)LOBJECT_getE).method(caller, cast(OBJECT[])[LOBJECT_e]);
+/* dlang injection start */}/* dlang injection end */
       return caller;
    }
 }
@@ -11921,7 +11861,6 @@ class CLASSIMPL_O : CLASSTYPE_O {
 
 /* *** CLASS: Mapping *** */
 interface CLASSTYPE_Mapping : OBJECT, LAMBDA {
-   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_mapKeyToValue(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_retriveMappedValueWithKey(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_maybeRetriveMappedValueWithKey(OBJECT caller, OBJECT[] parameters);
@@ -11932,7 +11871,7 @@ class CLASSIMPL_Mapping : CLASSTYPE_Mapping {
    }
    private OBJECT IOBJECT_index = null;
    static OBJECT TMETHOD_empty(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_Mapping newInstance = new CLASSIMPL_Mapping(); return newInstance.CMETHOD_empty(newInstance, parameters); }
-   override OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_empty(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_Mapping self = cast(CLASSTYPE_Mapping)caller;
       IOBJECT_index = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
@@ -12105,9 +12044,8 @@ class CLASSIMPL_DainaTypeEnum : CLASSTYPE_DainaTypeEnum {
 }
 
 /* *** CLASS: DainaType *** */
-interface CLASSTYPE_DainaType : OBJECT, LAMBDA {
-   OBJECT CMETHOD_root(OBJECT caller, OBJECT[] parameters);
-   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters);
+interface CLASSTYPE_DainaType : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
+   OBJECT IMETHOD_isParentOf(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_description(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
@@ -12119,16 +12057,25 @@ interface CLASSTYPE_DainaType : OBJECT, LAMBDA {
 }
 class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+   CLASSTYPE_DainaASTComponent PARENT_1;
+   void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaASTComponent)parent; }
    this() {
+      PARENT_1 = new CLASSIMPL_DainaASTComponent();
    }
    private OBJECT IOBJECT_representedType = null;
+   override OBJECT IMETHOD_position(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_position(caller, parameters); }
    static OBJECT TMETHOD_isFirstToken(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       OBJECT LOBJECT_token = parameters.length > 0 ? parameters[0] : null;
       return CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[LOBJECT_token, CLASSIMPL_Token.TMETHOD_squareBracketOpen(caller, cast(OBJECT[])[])]);
    }
+   override OBJECT IMETHOD_isParentOf(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
+      OBJECT LOBJECT_possibleChild = parameters.length > 0 ? parameters[0] : null;
+      return CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]);
+   }
    static OBJECT TMETHOD_root(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaType newInstance = new CLASSIMPL_DainaType(); return newInstance.CMETHOD_root(newInstance, parameters); }
-   override OBJECT CMETHOD_root(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_root(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       (cast(CLASSIMPL_DainaType)self).CMETHOD_as(this, [(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_e = parameters.length > 0 ? parameters[0] : null;
@@ -12140,9 +12087,10 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
       return caller;
    }
    static OBJECT TMETHOD_as(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaType newInstance = new CLASSIMPL_DainaType(); return newInstance.CMETHOD_as(newInstance, parameters); }
-   override OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_as(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       OBJECT LOBJECT_enum = parameters.length > 0 ? parameters[0] : null;
+      (cast(CLASSIMPL_DainaASTComponent      )PARENT_1).CMETHOD_base(PARENT_1, []);
       IOBJECT_representedType = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_enum]);
       return caller;
    }
@@ -12396,6 +12344,7 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
    override OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
       OBJECT LOBJECT_parser = parameters.length > 0 ? parameters[0] : null;
+      PARENT_1.IMETHOD_parse(self, cast(OBJECT[])[LOBJECT_parser]);
       CLASSIMPL_O.TMETHOD_ifElse(caller, cast(OBJECT[])[CLASSIMPL_Token.TMETHOD_equals(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_parser;
          return (cast(CLASSTYPE_Parser)instance).IMETHOD_token(instance, parameters);
@@ -12946,7 +12895,12 @@ interface CLASSTYPE_AnalyzerScope : OBJECT, LAMBDA {
    OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_pushScope(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_popScope(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findLocalObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_addLocalObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findInstanceObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findClassMethod(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_AnalyzerScope : CLASSTYPE_AnalyzerScope {
    override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
@@ -12967,10 +12921,35 @@ class CLASSIMPL_AnalyzerScope : CLASSTYPE_AnalyzerScope {
       CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
       return ASSIGNIMETHOD_addError.method(caller, parameters);
    }
-   private LAMBDA ASSIGNIMETHOD_findClass = null;
-   override OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters) {
+   private LAMBDA ASSIGNIMETHOD_pushScope = null;
+   override OBJECT IMETHOD_pushScope(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
-      return ASSIGNIMETHOD_findClass.method(caller, parameters);
+      return ASSIGNIMETHOD_pushScope.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_popScope = null;
+   override OBJECT IMETHOD_popScope(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_popScope.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_findLocalObject = null;
+   override OBJECT IMETHOD_findLocalObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_findLocalObject.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_addLocalObject = null;
+   override OBJECT IMETHOD_addLocalObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_addLocalObject.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_findInstanceObject = null;
+   override OBJECT IMETHOD_findInstanceObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_findInstanceObject.method(caller, parameters);
+   }
+   private LAMBDA ASSIGNIMETHOD_findClassMethod = null;
+   override OBJECT IMETHOD_findClassMethod(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_AnalyzerScope self = cast(CLASSTYPE_AnalyzerScope)caller;
+      return ASSIGNIMETHOD_findClassMethod.method(caller, parameters);
    }
 }
 
@@ -12987,16 +12966,26 @@ class CLASSIMPL_DainaAnalyzerScope : CLASSTYPE_DainaAnalyzerScope {
    override OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_hasErrors(caller, parameters); }
    override OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_errors(caller, parameters); }
    override OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_addError(caller, parameters); }
-   override OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_findClass(caller, parameters); }
+   override OBJECT IMETHOD_pushScope(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_pushScope(caller, parameters); }
+   override OBJECT IMETHOD_popScope(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_popScope(caller, parameters); }
+   override OBJECT IMETHOD_findLocalObject(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_findLocalObject(caller, parameters); }
+   override OBJECT IMETHOD_addLocalObject(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_addLocalObject(caller, parameters); }
+   override OBJECT IMETHOD_findInstanceObject(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_findInstanceObject(caller, parameters); }
+   override OBJECT IMETHOD_findClassMethod(OBJECT caller, OBJECT[] parameters) { return PARENT_1.IMETHOD_findClassMethod(caller, parameters); }
 }
 
 /* *** CLASS: DainaAnalyzer *** */
 interface CLASSTYPE_DainaAnalyzer : OBJECT, LAMBDA, CLASSTYPE_DainaAnalyzerScope {
-   OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_errors(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_addError(OBJECT caller, OBJECT[] parameters);
-   OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_pushScope(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_popScope(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_maybeFindLocalObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findLocalObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_addLocalObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findInstanceObject(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_findClassMethod(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
@@ -13009,12 +12998,20 @@ class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
    private OBJECT IOBJECT_errors = null;
    private OBJECT IOBJECT_entryPoint = null;
    private OBJECT IOBJECT_classIndex = null;
+   private OBJECT IOBJECT_classInScope = null;
+   private OBJECT IOBJECT_methodsPerClass = null;
+   private OBJECT IOBJECT_instanceObjects = null;
+   private OBJECT IOBJECT_localObjectScopeStack = null;
    static OBJECT TMETHOD_new(OBJECT caller, OBJECT[] parameters) { CLASSIMPL_DainaAnalyzer newInstance = new CLASSIMPL_DainaAnalyzer(); return newInstance.CMETHOD_new(newInstance, parameters); }
-   override OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters) {
+   OBJECT CMETHOD_new(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       IOBJECT_errors = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       IOBJECT_entryPoint = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
       IOBJECT_classIndex = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      IOBJECT_classInScope = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_DainaClassIdentifier.TMETHOD_base(caller, cast(OBJECT[])[])]);
+      IOBJECT_methodsPerClass = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
+      IOBJECT_instanceObjects = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[])]);
+      IOBJECT_localObjectScopeStack = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
       return caller;
    }
    override OBJECT IMETHOD_hasErrors(OBJECT caller, OBJECT[] parameters) {
@@ -13043,28 +13040,276 @@ class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
       } })).method(caller, cast(OBJECT[])[LOBJECT_error]);
       return caller;
    }
-   override OBJECT IMETHOD_findClass(OBJECT caller, OBJECT[] parameters) {
+   override OBJECT IMETHOD_pushScope(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_localObjectScopeStack;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_prepend(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[])]);
+      return caller;
+   }
+   override OBJECT IMETHOD_popScope(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      OBJECT LOBJECT_firstInStack = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_localObjectScopeStack;
+         return (cast(CLASSTYPE_List)instance).IMETHOD_removeFirst(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_firstInStack;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         return caller;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_internalInconsistency(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("scope escape failed")])])]);
+         return caller;
+      } })]);
+      return caller;
+   }
+   override OBJECT IMETHOD_maybeFindLocalObject(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
       OBJECT LOBJECT_identifier = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_foundClass = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = IOBJECT_classIndex;
+      OBJECT LOBJECT_localObjectDeclaration = CLASSIMPL_Maybe.TMETHOD_if(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_foundLocalObject = parameters.length > 0 ? parameters[0] : null;
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = IOBJECT_localObjectScopeStack;
+            return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_scopeLayer = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_inScopeLayer = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_scopeLayer;
+               return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_identifier;
+               return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[])]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_inScopeLayer;
+               return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_foundLocalObject, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               return caller;
+            } })]);
+            return caller;
+         } })]);
+         return caller;
+      } })]);
+      return LOBJECT_localObjectDeclaration;
+   }
+   override OBJECT IMETHOD_findLocalObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      OBJECT LOBJECT_identifier = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_localObjectDeclaration = self.IMETHOD_maybeFindLocalObject(self, cast(OBJECT[])[LOBJECT_identifier]);
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_localObjectDeclaration;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
+         return LOBJECT_a;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_cannotFindLocalDeclarationForIdentifier(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_identifier;
+            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])])]);
+         return CLASSIMPL_DainaObjectDeclaration.TMETHOD_base(caller, cast(OBJECT[])[]);
+      } })]);
+   }
+   override OBJECT IMETHOD_addLocalObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      OBJECT LOBJECT_localObjectDeclaration = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_identifier = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_localObjectDeclaration;
+         return (cast(CLASSTYPE_DainaObjectDeclaration)instance).IMETHOD_identifier(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_existingLocalObjectDeclaration = self.IMETHOD_maybeFindLocalObject(self, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_identifier;
+         return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[])]);
+      (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_existingLocalObjectDeclaration;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_existingDeclaration = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_existingIdentifier = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_existingDeclaration;
+            return (cast(CLASSTYPE_DainaObjectDeclaration)instance).IMETHOD_identifier(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[]);
+         self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_localDeclarationNamesClash(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_identifier;
+            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_existingIdentifier;
+            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])])]);
+         return caller;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_firstInStack = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = IOBJECT_localObjectScopeStack;
+            return (cast(CLASSTYPE_List)instance).IMETHOD_atIndex(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[CLASSIMPL_Natural.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("0")])]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_firstInStack;
+            return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_firstScope = parameters.length > 0 ? parameters[0] : null;
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_firstScope;
+               return (cast(CLASSTYPE_Index)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_identifier;
+               return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]), CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_localObjectDeclaration])]);
+            return caller;
+         } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_internalInconsistency(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("scope not pushed")])])]);
+            return caller;
+         } })]);
+         return caller;
+      } })]);
+      return caller;
+   }
+   override OBJECT IMETHOD_findInstanceObject(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      OBJECT LOBJECT_identifier = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_instanceObjects = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_instanceObjects;
+         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[]);
+      OBJECT LOBJECT_maybeInstanceObject = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_instanceObjects;
          return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
       } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT instance = LOBJECT_identifier;
+         return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[])]);
+      return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_maybeInstanceObject;
+         return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_a = parameters.length > 0 ? parameters[0] : null;
+         return LOBJECT_a;
+      } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_cannotFindInstanceObject(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_identifier;
+            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])])]);
+         return CLASSIMPL_DainaObjectDeclaration.TMETHOD_base(caller, cast(OBJECT[])[]);
+      } })]);
+   }
+   override OBJECT IMETHOD_findClassMethod(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaAnalyzer self = cast(CLASSTYPE_DainaAnalyzer)caller;
+      OBJECT LOBJECT_classID = parameters.length > 0 ? parameters[0] : null;
+      OBJECT LOBJECT_methodID = parameters.length > 1 ? parameters[1] : null;
+      OBJECT LOBJECT_inputTypes = parameters.length > 2 ? parameters[2] : null;
+      OBJECT LOBJECT_maybeMethods = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_methodsPerClass;
+         return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = LOBJECT_classID;
          return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_content(instance, parameters);
       } })).method(caller, cast(OBJECT[])[])]);
       return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT instance = LOBJECT_foundClass;
+         OBJECT instance = LOBJECT_maybeMethods;
          return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
       } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         OBJECT LOBJECT_class = parameters.length > 0 ? parameters[0] : null;
-         return LOBJECT_class;
+         OBJECT LOBJECT_methods = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_maybeMethodsMatchingID = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_methods;
+            return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_methodID;
+            return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[])]);
+         return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_maybeMethodsMatchingID;
+            return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_methodsMatchingID = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_varMethodMatchingInputTypes = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[])]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_methodsMatchingID;
+               return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT LOBJECT_methodMatchingID = parameters.length > 0 ? parameters[0] : null;
+               OBJECT LOBJECT_inputTypeEnums = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_inputTypes;
+                  return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT LOBJECT_t = parameters.length > 0 ? parameters[0] : null;
+                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_inputTypeEnums;
+                     return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_t;
+                     return (cast(CLASSTYPE_DainaType)instance).IMETHOD_get(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[])]);
+                  return caller;
+               } })]);
+               OBJECT LOBJECT_accessType = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT LOBJECT_e = parameters.length > 0 ? parameters[0] : null;
+                  return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_e;
+                     return (cast(CLASSTYPE_DainaTypeEnum)instance).IMETHOD_method(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[LOBJECT_inputTypeEnums, (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT LOBJECT_e = parameters.length > 0 ? parameters[0] : null;
+                     return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_e;
+                        return (cast(CLASSTYPE_DainaTypeEnum)instance).IMETHOD_root(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[]);
+                  } })]);
+               } });
+               OBJECT LOBJECT_matchingInputTypes = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_accessType;
+                  return (cast(CLASSTYPE_DainaType)instance).IMETHOD_isParentOf(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_methodMatchingID;
+                  return (cast(CLASSTYPE_DainaClassMethod)instance).IMETHOD_type(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[])]);
+               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_matchingInputTypes;
+                  return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT LOBJECT_methodMatchingInputTypes = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_varMethodMatchingInputTypes;
+                     return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[]);
+                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_methodMatchingInputTypes;
+                     return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT LOBJECT_anotherMatchingMethod = parameters.length > 0 ? parameters[0] : null;
+                     self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_ambigousOverloadedMethodInvocation(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_methodID;
+                        return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_position(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_methodMatchingID;
+                        return (cast(CLASSTYPE_DainaClassMethod)instance).IMETHOD_position(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_anotherMatchingMethod;
+                        return (cast(CLASSTYPE_DainaClassMethod)instance).IMETHOD_position(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[])])]);
+                     return caller;
+                  } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_varMethodMatchingInputTypes;
+                        return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[LOBJECT_methodMatchingID]);
+                     return caller;
+                  } })]);
+                  return caller;
+               } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  return caller;
+               } })]);
+               return caller;
+            } })]);
+            return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_varMethodMatchingInputTypes;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]);
+         } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            return CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
+         } })]);
       } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-         self.IMETHOD_addError(self, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_missingClassDependancy(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-            OBJECT instance = LOBJECT_identifier;
-            return (cast(CLASSTYPE_DainaClassIdentifier)instance).IMETHOD_position(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[])])]);
-         return CLASSIMPL_DainaClass.TMETHOD_base(caller, cast(OBJECT[])[]);
+         return CLASSIMPL_Maybe.TMETHOD_nothing(caller, cast(OBJECT[])[]);
       } })]);
    }
    override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) {
@@ -13139,6 +13384,50 @@ class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
                   OBJECT instance = IOBJECT_classIndex;
                   return (cast(CLASSTYPE_Index)instance).IMETHOD_set(instance, parameters);
                } })).method(caller, cast(OBJECT[])[LOBJECT_className, CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_class])]);
+               OBJECT LOBJECT_classMethodsIndex = CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[]);
+               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_classMethods;
+                  return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT LOBJECT_classMethod = parameters.length > 0 ? parameters[0] : null;
+                  OBJECT LOBJECT_methodIdentifier = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_classMethod;
+                     return (cast(CLASSTYPE_DainaClassMethod)instance).IMETHOD_identifier(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[]);
+                  OBJECT LOBJECT_existingList = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_classMethodsIndex;
+                     return (cast(CLASSTYPE_Index)instance).IMETHOD_get(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_methodIdentifier;
+                     return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[])]);
+                  OBJECT LOBJECT_listOfMethodsWithSameName = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_existingList;
+                     return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT LOBJECT_e = parameters.length > 0 ? parameters[0] : null;
+                     return LOBJECT_e;
+                  } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT LOBJECT_newList = CLASSIMPL_List.TMETHOD_empty(caller, cast(OBJECT[])[]);
+                     (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_classMethodsIndex;
+                        return (cast(CLASSTYPE_Index)instance).IMETHOD_set(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                        OBJECT instance = LOBJECT_methodIdentifier;
+                        return (cast(CLASSTYPE_DainaGeneralIdentifier)instance).IMETHOD_content(instance, parameters);
+                     } })).method(caller, cast(OBJECT[])[]), CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_newList])]);
+                     return LOBJECT_newList;
+                  } })]);
+                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_listOfMethodsWithSameName;
+                     return (cast(CLASSTYPE_List)instance).IMETHOD_append(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[LOBJECT_classMethod]);
+                  return caller;
+               } })]);
+               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = IOBJECT_methodsPerClass;
+                  return (cast(CLASSTYPE_Index)instance).IMETHOD_set(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[LOBJECT_className, CLASSIMPL_Maybe.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_classMethodsIndex])]);
                return caller;
             } })]);
             return caller;
@@ -13150,6 +13439,35 @@ class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
          return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
       } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
          OBJECT LOBJECT_class = parameters.length > 0 ? parameters[0] : null;
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_class;
+            return (cast(CLASSTYPE_DainaClass)instance).IMETHOD_isEntryPointOrRegularClass(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_classInScope;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[CLASSIMPL_DainaClassIdentifier.TMETHOD_base(caller, cast(OBJECT[])[])]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_instanceObjects;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Index.TMETHOD_empty(caller, cast(OBJECT[])[])]);
+            return caller;
+         } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_classId = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_inheritedParentTypes = parameters.length > 1 ? parameters[1] : null;
+            OBJECT LOBJECT_instanceObjects = parameters.length > 2 ? parameters[2] : null;
+            OBJECT LOBJECT_classMethods = parameters.length > 3 ? parameters[3] : null;
+            OBJECT LOBJECT_compilerInjections = parameters.length > 4 ? parameters[4] : null;
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_classInScope;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_classId]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = IOBJECT_instanceObjects;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[LOBJECT_instanceObjects]);
+            return caller;
+         } })]);
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_class;
             return (cast(CLASSTYPE_DainaClass)instance).IMETHOD_analyze(instance, parameters);

@@ -496,7 +496,7 @@
                      [Maybe<[?]>] existingList = \classMethodsIndex:get \methodIdentifier:content;
                      [List<[?]>] listOfMethodsWithSameName = \existingList:isOrElse (*(e)->e) *->[List<[DainaClassMethod<[DainaExpression]>]>]{
                         [List<[?]>] newList = \[List<[DainaClassMethod<[DainaExpression]>]>]:empty;
-                        \classMethodsIndex:set (\methodIdentifier:content) newList;
+                        \classMethodsIndex:set (\methodIdentifier:content) \[Maybe<[?]>]:as newList;
                      } -> newList;
                      \listOfMethodsWithSameName:append classMethod;
                   };

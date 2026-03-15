@@ -970,6 +970,12 @@
       
    }
 
+   ++ iterate *([[&E]->] getE) {
+      [&E] e = << dlang ##foreach (key, LOBJECT_e; index) {##;
+      \getE e;
+      [] _ = << dlang ##}##;
+   }
+
 }
 
 
