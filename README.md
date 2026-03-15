@@ -7974,7 +7974,7 @@ Partial types are used in the following sections:
 A partial type can be used as a method output type. In which case, the concrete method output type is inferred based on the following rules:
 1. The concrete type matches the partial type
 2. The concrete type is a parent of or equivalent to the method output expression
-3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+3. The concrete type is a child of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
 In the following example, the output type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the output object **ab**:
@@ -8217,7 +8217,7 @@ Inferred method outputs can be used to infer method generic types:
 A partial type can be used as left hand side type declaration in an assignment statement. In which case, the concrete assignment type is inferred based on the following rules:
 1. The concrete type matches the partial type
 2. The concrete type is a parent of or equivalent to the right hand side of the assignment
-3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+3. The concrete type is a child of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
 In the following example, the assigned type of **bar** is written as the partial type **[?]** which is inferred to be **[AB]** from the resulting object of the right hand side **\\[AB]:new**.
@@ -8569,7 +8569,7 @@ We can disabiguate these invocations with [type casting](#type-casting):
 A partial type can be used as the type for an unimplemented class method that overrides a parent method, including when underloading the method type ([see partial class implementations](#partial-class-implementations), [see underloading class methods](#underloading-class-methods)). In which case, the concrete unimplemented class method type is inferred based on the following rules:
 1. The concrete type matches the partial type
 2. The concrete type is a parent of or equivalent to the parent method
-3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+3. The concrete type is a child of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
 In the following example, the unimplemented type of **bar1** is written as the partial type **[?]** which is inferred to be **[[A]->]** from the type of **bar1** in **Parent**. Likewise, the unimplemented type of **bar2** is written as the partial type **[[AB]->[?]]** which is inferred to be **[[AB]->[B]]** from the type of **bar2** in **Parent**.
@@ -8754,7 +8754,7 @@ Multiple levels of type inference can occur leading to a chain of inferences. In
 A partial type can be used to [type cast](#type-casting). In which case, the concrete cast type type is inferred based on the following rules:
 1. The concrete type matches the partial type
 2. The concrete type is a parent of or equivalent to the object being type cast
-3. The concrete type is a parent of or equivalent to all other types matching rules **1.** and **2.**
+3. The concrete type is a child of or equivalent to all other types matching rules **1.** and **2.**
 4. If no such types are found, the inferrence is deemed invalid since the concrete type is ambiguous
 
 In the following examples the [root type](#root-type) is used as the assigned type for the assignment statements, and expressions are using [compound expressions](#compound-expressions-and-statements).
