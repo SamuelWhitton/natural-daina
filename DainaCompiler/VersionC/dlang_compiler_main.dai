@@ -2315,11 +2315,16 @@ import std.stdio;writeln("B::");
             \prologue:analyze analyzer;
             \prelogue:analyze analyzer;
             @expecting statement prologue
-            [DainaType] prologueType = \prologue:evaluatedType;
+            [Maybe<[DainaType]>] maybePrologueType = \prologue:evaluatedType;
             \[Debug]:log (\[String]:as ##a:##);
-            \[Debug]:log \prologueType:description;
+            \maybePrologueType:isOrElse *([DainaType] prologueType){
+               \[Debug]:log \prologueType:description;
+            } *{
+               \[Debug]:log \[String]:as ##<notype>##;
+            };
             \[Debug]:log (\[String]:as ##\n##);
-            \determineType \prelogue:evaluatedType;
+            [Maybe<[DainaType]>] maybePrelogueType = \prologue:evaluatedType;
+            \maybePrelogueType:isOrElse determineType *{};
          };
          \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
          };
@@ -2547,6 +2552,28 @@ import std.stdio;writeln("B::");
          \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
             @\classMethod:analyze analyzer;
             [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
+            \isUnimplemented:ifOrElse *{
+
+            } *{
+               [DainaExpression] methodExpression = \classMethod:methodExpression;
+               \methodExpression:analyze analyzer;
+            };
+
+
+            
+
+
+@@
+++ isUnimplementedMethod *->(\.unimplementedMethod:get)
+   ++ isOverridingMethod *->(.overriding)
+
+   ++ unimplementedType *->(.unimplementedType)
+
+   ++ methodExpression *->.methodExpression
+
+   ++ identifier*-> .identifier
+
+   ++ type *-> .unimplementedType@@
             
 @@
 
