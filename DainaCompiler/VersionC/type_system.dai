@@ -97,7 +97,8 @@
             [String] desc3 = \desc2:appending \[String]:as ##->##;
             [DainaType] output = \[DainaType]:as outputEnum;
             [String] desc4 = \desc3:appending \output:description;
-         } -> desc4
+            [String] desc5 = \desc4:appending \[String]:as ##]##;
+         } -> desc5
          |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes) -> [String] {
             [String] desc1 = \[String]:as ##[//##;
             [String] desc2 = \desc1:appending \descriptionOfTypeList subtypes;
