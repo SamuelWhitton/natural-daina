@@ -3138,7 +3138,7 @@ import std.stdio;writeln("B::");
          };
          \expression:ifSelfReference * {
             \select;
-            \:output (\[String]:as ##caller##);
+            \:output (\[String]:as ##self##);
          };
          \expression:ifDataSegment *([String] dataSegmentContent) {
             \select;

@@ -114,6 +114,33 @@
       }
    } -> description
 
+   ++ isConcrete *->[Boolean] {
+      [?] allConcrete = *([List<[[DainaTypeEnum<['A]>]->['A]]>] typeEnums) -> [Boolean] {
+         [Variable<[?]>] varAllConcrete = \[Variable<[?]>]:as \[Boolean]:true;
+         \typeEnums:iterate *([[DainaTypeEnum<['A]>]->['A]] typeEnum) {
+            [DainaType] type = \[DainaType]:as typeEnum;
+            \varAllConcrete:set \[Boolean]:and (\type:isConcrete) \varAllConcrete:get;
+         };
+      } -> \varAllConcrete:get;
+      [Boolean] isConcrete = \(\.representedType:get) [:[DainaTypeEnum<[&E]>]] {
+         |++ root *->\[Boolean]:true
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) 
+            -> \allConcrete generics
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputs, [[DainaTypeEnum<['A]>]->['A]] outputEnum) -> [Boolean]
+            {[DainaType] outputType = \[DainaType]:as outputEnum}
+            -> \[Boolean]:and (\allConcrete inputs) \outputType:isConcrete
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes)
+            -> \allConcrete subtypes
+         |++ classGeneric *->\[Boolean]:true
+         |++ methodGeneric *->\[Boolean]:true
+         |++ dataSegment *->\[Boolean]:true
+         |++ inferred *->\[Boolean]:false
+         |++ inferredMethodContext *->\[Boolean]:false
+         |++ inferredSelfContext *->\[Boolean]:false
+         |++ inferredParentContext *->\[Boolean]:false
+      }
+   } -> isConcrete
+
    ++ set .representedType:set
    ++ get .representedType:get
 

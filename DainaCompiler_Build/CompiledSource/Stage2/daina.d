@@ -6054,22 +6054,6 @@ class CLASSIMPL_DainaExpression : CLASSTYPE_DainaExpression {
                OBJECT instance = LOBJECT_prologue;
                return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_evaluatedType(instance, parameters);
             } })).method(caller, cast(OBJECT[])[]);
-            CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("asdf:")])]);
-            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT instance = LOBJECT_maybePrologueType;
-               return (cast(CLASSTYPE_Maybe)instance).IMETHOD_isOrElse(instance, parameters);
-            } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               OBJECT LOBJECT_prologueType = parameters.length > 0 ? parameters[0] : null;
-               CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-                  OBJECT instance = LOBJECT_prologueType;
-                  return (cast(CLASSTYPE_DainaType)instance).IMETHOD_description(instance, parameters);
-               } })).method(caller, cast(OBJECT[])[])]);
-               return caller;
-            } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
-               CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("<notype>")])]);
-               return caller;
-            } })]);
-            CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("\n")])]);
             OBJECT LOBJECT_maybePrelogueType = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT instance = LOBJECT_prologue;
                return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_evaluatedType(instance, parameters);
@@ -6278,6 +6262,7 @@ interface CLASSTYPE_DainaClass : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_genericDeclarationList(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_isEntryPointOrRegularClass(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_parse(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_mm(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters);
 }
 class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
@@ -6725,6 +6710,11 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
       } })]);
       return caller;
    }
+   private LAMBDA ASSIGNIMETHOD_mm = null;
+   override OBJECT IMETHOD_mm(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
+      return ASSIGNIMETHOD_mm.method(caller, parameters);
+   }
    override OBJECT IMETHOD_analyze(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaClass self = cast(CLASSTYPE_DainaClass)caller;
       OBJECT LOBJECT_analyzer = parameters.length > 0 ? parameters[0] : null;
@@ -6755,6 +6745,32 @@ class CLASSIMPL_DainaClass : CLASSTYPE_DainaClass {
                OBJECT instance = LOBJECT_isUnimplemented;
                return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
             } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT LOBJECT_unimplementedType = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_classMethod;
+                  return (cast(CLASSTYPE_DainaClassMethod)instance).IMETHOD_unimplementedType(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[]);
+               OBJECT LOBJECT_isConcreteType = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_unimplementedType;
+                  return (cast(CLASSTYPE_DainaType)instance).IMETHOD_isConcrete(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[]);
+               CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_unimplementedType;
+                  return (cast(CLASSTYPE_DainaType)instance).IMETHOD_description(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[])]);
+               (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_isConcreteType;
+                  return (cast(CLASSTYPE_Boolean)instance).IMETHOD_ifOrElse(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(":GOOD\n")])]);
+                  return caller;
+               } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  CLASSIMPL_Debug.TMETHOD_log(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)(":BAD\n")])]);
+                  (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                     OBJECT instance = LOBJECT_analyzer;
+                     return (cast(CLASSTYPE_DainaAnalyzerScope)instance).IMETHOD_addError(instance, parameters);
+                  } })).method(caller, cast(OBJECT[])[CLASSIMPL_Error.TMETHOD_internalInconsistency(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("unimplemented type is not concrete")])])]);
+                  return caller;
+               } })]);
                return caller;
             } }), (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
                OBJECT LOBJECT_methodExpression = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -8721,7 +8737,7 @@ class CLASSIMPL_DLangSynthesizer : CLASSTYPE_DLangSynthesizer {
             return (cast(CLASSTYPE_DainaExpression)instance).IMETHOD_ifSelfReference(instance, parameters);
          } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             (cast(LAMBDA)LOBJECT_select).method(caller, cast(OBJECT[])[]);
-            self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("caller")])]);
+            self.IMETHOD_output(self, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("self")])]);
             return caller;
          } })]);
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
@@ -10992,7 +11008,7 @@ class CLASSIMPL_String : CLASSTYPE_String {
    override OBJECT IMETHOD_appending(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_String self = cast(CLASSTYPE_String)caller;
       OBJECT LOBJECT_other = parameters.length > 0 ? parameters[0] : null;
-      OBJECT LOBJECT_this = caller;
+      OBJECT LOBJECT_this = self;
       OBJECT LOBJECT_both = ((){
          CLASSTYPE_Sequence PARENT_1 = new CLASSIMPL_Sequence();
          void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_Sequence)parent; }
@@ -12212,6 +12228,7 @@ class CLASSIMPL_DainaTypeEnum : CLASSTYPE_DainaTypeEnum {
 interface CLASSTYPE_DainaType : OBJECT, LAMBDA, CLASSTYPE_DainaASTComponent {
    OBJECT IMETHOD_isParentOf(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_description(OBJECT caller, OBJECT[] parameters);
+   OBJECT IMETHOD_isConcrete(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_get(OBJECT caller, OBJECT[] parameters);
    OBJECT IMETHOD_ifClassNameAndGenericInstantiation(OBJECT caller, OBJECT[] parameters);
@@ -12352,7 +12369,11 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
                   OBJECT instance = LOBJECT_output;
                   return (cast(CLASSTYPE_DainaType)instance).IMETHOD_description(instance, parameters);
                } })).method(caller, cast(OBJECT[])[])]);
-               return LOBJECT_desc4;
+               OBJECT LOBJECT_desc5 = (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_desc4;
+                  return (cast(CLASSTYPE_String)instance).IMETHOD_appending(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[CLASSIMPL_String.TMETHOD_as(caller, cast(OBJECT[])[new WRAP!(string)("]")])]);
+               return LOBJECT_desc5;
             }
             override OBJECT IMETHOD_disjoint(OBJECT caller, OBJECT[] parameters) {
                CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
@@ -12402,6 +12423,103 @@ class CLASSIMPL_DainaType : CLASSTYPE_DainaType {
          return anonymousClassObject;
       })()]);
       return LOBJECT_description;
+   }
+   override OBJECT IMETHOD_isConcrete(OBJECT caller, OBJECT[] parameters) {
+      CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
+      OBJECT LOBJECT_allConcrete = (new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT LOBJECT_typeEnums = parameters.length > 0 ? parameters[0] : null;
+         OBJECT LOBJECT_varAllConcrete = CLASSIMPL_Variable.TMETHOD_as(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[])]);
+         (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_typeEnums;
+            return (cast(CLASSTYPE_List)instance).IMETHOD_iterate(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT LOBJECT_typeEnum = parameters.length > 0 ? parameters[0] : null;
+            OBJECT LOBJECT_type = CLASSIMPL_DainaType.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_typeEnum]);
+            (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_varAllConcrete;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_set(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[CLASSIMPL_Boolean.TMETHOD_and(caller, cast(OBJECT[])[(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_type;
+               return (cast(CLASSTYPE_DainaType)instance).IMETHOD_isConcrete(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+               OBJECT instance = LOBJECT_varAllConcrete;
+               return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+            } })).method(caller, cast(OBJECT[])[])])]);
+            return caller;
+         } })]);
+         return (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+            OBJECT instance = LOBJECT_varAllConcrete;
+            return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+         } })).method(caller, cast(OBJECT[])[]);
+      } });
+      OBJECT LOBJECT_isConcrete = (cast(LAMBDA)(cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+         OBJECT instance = IOBJECT_representedType;
+         return (cast(CLASSTYPE_Variable)instance).IMETHOD_get(instance, parameters);
+      } })).method(caller, cast(OBJECT[])[])).method(caller, cast(OBJECT[])[((){
+         CLASSTYPE_DainaTypeEnum PARENT_1 = new CLASSIMPL_DainaTypeEnum();
+         void PARENT_1_SET(OBJECT parent) { PARENT_1 = cast(CLASSTYPE_DainaTypeEnum)parent; }
+         OBJECT caller;
+         OBJECT anonymousClassObject = new class OBJECT, LAMBDA, CLASSTYPE_DainaTypeEnum {
+            override OBJECT method(OBJECT caller, OBJECT[] parameters) { return caller; }
+            override OBJECT IMETHOD_root(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_classAndGenerics(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               OBJECT LOBJECT_id = parameters.length > 0 ? parameters[0] : null;
+               OBJECT LOBJECT_generics = parameters.length > 1 ? parameters[1] : null;
+               return (cast(LAMBDA)LOBJECT_allConcrete).method(caller, cast(OBJECT[])[LOBJECT_generics]);
+            }
+            override OBJECT IMETHOD_method(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               OBJECT LOBJECT_inputs = parameters.length > 0 ? parameters[0] : null;
+               OBJECT LOBJECT_outputEnum = parameters.length > 1 ? parameters[1] : null;
+               OBJECT LOBJECT_outputType = CLASSIMPL_DainaType.TMETHOD_as(caller, cast(OBJECT[])[LOBJECT_outputEnum]);
+               return CLASSIMPL_Boolean.TMETHOD_and(caller, cast(OBJECT[])[(cast(LAMBDA)LOBJECT_allConcrete).method(caller, cast(OBJECT[])[LOBJECT_inputs]), (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
+                  OBJECT instance = LOBJECT_outputType;
+                  return (cast(CLASSTYPE_DainaType)instance).IMETHOD_isConcrete(instance, parameters);
+               } })).method(caller, cast(OBJECT[])[])]);
+            }
+            override OBJECT IMETHOD_disjoint(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               OBJECT LOBJECT_subtypes = parameters.length > 0 ? parameters[0] : null;
+               return (cast(LAMBDA)LOBJECT_allConcrete).method(caller, cast(OBJECT[])[LOBJECT_subtypes]);
+            }
+            override OBJECT IMETHOD_classGeneric(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_methodGeneric(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_dataSegment(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_true(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_inferred(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_inferredMethodContext(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_inferredSelfContext(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+            }
+            override OBJECT IMETHOD_inferredParentContext(OBJECT caller, OBJECT[] parameters) {
+               CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+               return CLASSIMPL_Boolean.TMETHOD_false(caller, cast(OBJECT[])[]);
+            }
+         };
+         caller = anonymousClassObject;
+         CLASSTYPE_DainaTypeEnum self = cast(CLASSTYPE_DainaTypeEnum)caller;
+         return anonymousClassObject;
+      })()]);
+      return LOBJECT_isConcrete;
    }
    override OBJECT IMETHOD_set(OBJECT caller, OBJECT[] parameters) {
       CLASSTYPE_DainaType self = cast(CLASSTYPE_DainaType)caller;
@@ -13636,7 +13754,7 @@ class CLASSIMPL_DainaAnalyzer : CLASSTYPE_DainaAnalyzer {
          (cast(LAMBDA)(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {
             OBJECT instance = LOBJECT_class;
             return (cast(CLASSTYPE_DainaClass)instance).IMETHOD_analyze(instance, parameters);
-         } })).method(caller, cast(OBJECT[])[caller]);
+         } })).method(caller, cast(OBJECT[])[self]);
          return caller;
       } })]);
       return caller;

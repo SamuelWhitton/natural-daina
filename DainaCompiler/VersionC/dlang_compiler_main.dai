@@ -2316,13 +2316,13 @@ import std.stdio;writeln("B::");
             \prelogue:analyze analyzer;
             @expecting statement prologue
             [Maybe<[DainaType]>] maybePrologueType = \prologue:evaluatedType;
-            \[Debug]:log (\[String]:as ##asdf:##);
+            @@\[Debug]:log (\[String]:as ##asdf:##);
             \maybePrologueType:isOrElse *([DainaType] prologueType){
                \[Debug]:log \prologueType:description;
             } *{
                \[Debug]:log \[String]:as ##<notype>##;
             };
-            \[Debug]:log (\[String]:as ##\n##);
+            \[Debug]:log (\[String]:as ##\n##);@@
             [Maybe<[DainaType]>] maybePrelogueType = \prologue:evaluatedType;
             \maybePrelogueType:isOrElse determineType *{};
          };
@@ -2585,6 +2585,8 @@ import std.stdio;writeln("B::");
       };
    }
 
+   ++ mm [?]
+
    ++ analyze *([DainaAnalyzerScope<[DainaExpression]>] analyzer) {
       \:isEntryPointOrRegularClass *([] _, [DainaExpression] entryPointMethod) {
          \entryPointMethod:analyze analyzer;
@@ -2593,12 +2595,21 @@ import std.stdio;writeln("B::");
             @\classMethod:analyze analyzer;
             [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
             \isUnimplemented:ifOrElse *{
-
+               [DainaType] unimplementedType = \classMethod:unimplementedType;
+               [Boolean] isConcreteType = \unimplementedType:isConcrete;
+               \[Debug]:log \unimplementedType:description;
+               
+               
+               \isConcreteType:ifOrElse *{
+                  \[Debug]:log \[String]:as ##:GOOD\n##;
+                  } *{
+                  \[Debug]:log \[String]:as ##:BAD\n##;
+                  \analyzer:addError \[Error]:internalInconsistency \[String]:as ##unimplemented type is not concrete##;
+               };
             } *{
                [DainaExpression] methodExpression = \classMethod:methodExpression;
                \methodExpression:analyze analyzer;
             };
-
 
             
 
@@ -3450,7 +3461,7 @@ import std.stdio;writeln("B::");
          };
          \expression:ifSelfReference * {
             \select;
-            \:output (\[String]:as ##caller##);
+            \:output (\[String]:as ##self##);
          };
          \expression:ifDataSegment *([String] dataSegmentContent) {
             \select;
