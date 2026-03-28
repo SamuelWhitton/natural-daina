@@ -1609,12 +1609,19 @@ import std.stdio;writeln("B::");
 
    ++ identifier*-> .identifier
 
-   ++ type *-> .unimplementedType
+   ++ type *->[DainaType] {
+      [Boolean] isUnimplemented = \:isUnimplementedMethod;
+      [Maybe<[DainaType]>] evalutedType = \:evalutedType;
+   } -> \isUnimplemented:ifOrElse 
+      (*->.unimplementedType)@ (*->.unimplementedType) 
+      *->\evalutedType:isOrElse (*(a)->a) *->\[DainaType]:as *([DainaTypeEnum<["A]>]e)->\e:inferred
+      
+   - evalutedType [->[Maybe<[DainaType]>]]
 
    :: isFirstToken *([Token] token) -> [Boolean] {
    } -> (\[Boolean]:or (\[Boolean]:or (\[Token]:isVisibilityIndicator token) (\[Token]:equals token (\[Token]:pipe))) (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleColon)) (\[Token]:equals token (\[Token]:tilde))))
 
-   ~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken){
+   ~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken, [[&DainaExpression]->[Maybe<[DainaType]>]] getEvalutedType){
       \$~base;
       .isInstanceTypeOrConstructor = *([->]a,[]b,[]c){};
       .methodExpression = \getBase;
@@ -1624,6 +1631,7 @@ import std.stdio;writeln("B::");
       .isExpressionFirstToken = isExpressionFirstToken;
       .unimplementedType = \[DainaType]:root;
       .overriding = \[Boolean]:false;
+      :evalutedType = *->\getEvalutedType .methodExpression;
    }
 
    |++ parse *([Parser] parser) {
@@ -2078,7 +2086,7 @@ import std.stdio;writeln("B::");
                };
                \[Loops]:until *([->] stop) {
                   \[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
-                     [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
+                     [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken) *([DainaExpression]e)->\e:evaluatedType;
                      \classMethod:parse parser;
                      \classMethods:append classMethod;
                   } stop;
@@ -2551,7 +2559,7 @@ import std.stdio;writeln("B::");
                   \parser:gotoNextToken;
                   \[Loops]:until *([->] stop) {
                      \[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
-                        [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken);
+                        [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken) *([DainaExpression]e)->\e:evaluatedType;
                         \classMethod:parse parser;
                         \classMethod:isInstanceTypeOrConstructor *{} *{} *{
                            [DainaType] classType = \[DainaType]:root;
@@ -2585,7 +2593,7 @@ import std.stdio;writeln("B::");
       };
    }
 
-   ++ mm [?]
+   @++ mm [?]
 
    ++ analyze *([DainaAnalyzerScope<[DainaExpression]>] analyzer) {
       \:isEntryPointOrRegularClass *([] _, [DainaExpression] entryPointMethod) {
@@ -2593,11 +2601,17 @@ import std.stdio;writeln("B::");
       } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
             @\classMethod:analyze analyzer;
-            [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
+            @@[Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
             \isUnimplemented:ifOrElse *{
                [DainaType] unimplementedType = \classMethod:unimplementedType;
-               [Boolean] isConcreteType = \unimplementedType:isConcrete;
-               \[Debug]:log \unimplementedType:description;
+               
+            } *{
+               [DainaExpression] methodExpression = \classMethod:methodExpression;
+               \methodExpression:analyze analyzer;
+            };@@
+            [DainaType] type = \classMethod:type;
+            [Boolean] isConcreteType = \type:isConcrete;
+               \[Debug]:log \type:description;
                
                
                \isConcreteType:ifOrElse *{
@@ -2606,10 +2620,6 @@ import std.stdio;writeln("B::");
                   \[Debug]:log \[String]:as ##:BAD\n##;
                   \analyzer:addError \[Error]:internalInconsistency \[String]:as ##unimplemented type is not concrete##;
                };
-            } *{
-               [DainaExpression] methodExpression = \classMethod:methodExpression;
-               \methodExpression:analyze analyzer;
-            };
 
             
 
