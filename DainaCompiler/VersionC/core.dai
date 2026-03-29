@@ -682,7 +682,7 @@
    :: if *([[[&E]->]->] receive) -> [Maybe<[&E]>] {
       [Variable<[?]>] varIt = \[Variable<[?]>]:as \[Maybe<[&E]>]:nothing;
       \receive *([&E] it) {
-         \varIt:set it;
+         \varIt:set \[Maybe<[&E]>]:as it;
       };
    } -> \varIt:get
 

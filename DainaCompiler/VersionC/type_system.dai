@@ -67,6 +67,10 @@
       \:~as *([DainaTypeEnum<["A]>] e) -> \e:root;
    }
 
+   ~ inferred *{
+      \:~as *([DainaTypeEnum<["A]>] e) -> \e:inferred;
+   }
+
    ~ as *([[DainaTypeEnum<['A]>]->['A]] enum) {
       \$~base;
       .representedType = \[Variable<[?]>]:as enum;

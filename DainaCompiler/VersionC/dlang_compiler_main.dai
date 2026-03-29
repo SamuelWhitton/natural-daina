@@ -1540,7 +1540,7 @@ import std.stdio;writeln("B::");
    ++ identifier*->.identifier
 
    ~ base *{
-      \:~as (\[DainaType]:root) \[DainaGeneralIdentifier]:base
+      \:~as (\[DainaType]:inferred) \[DainaGeneralIdentifier]:base
    }
 
    ~ as *([DainaType] type, [DainaGeneralIdentifier] identifier){
@@ -1614,7 +1614,7 @@ import std.stdio;writeln("B::");
       [Maybe<[DainaType]>] evalutedType = \:evalutedType;
    } -> \isUnimplemented:ifOrElse 
       (*->.unimplementedType)@ (*->.unimplementedType) 
-      *->\evalutedType:isOrElse (*(a)->a) *->\[DainaType]:as *([DainaTypeEnum<["A]>]e)->\e:inferred
+      *->\evalutedType:isOrElse (*(a)->a) *->\[DainaType]:inferred
       
    - evalutedType [->[Maybe<[DainaType]>]]
 
@@ -1764,7 +1764,7 @@ import std.stdio;writeln("B::");
    [[[List<[DainaExpression]>]->]->] ifStatementGroup
    [[[String]->]->] ifDataSegment
    [[[DainaExpression][DainaExpression]->]->] ifWithPrologueStatement
-   [[[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
+   [[[List<[DainaObjectDeclaration]>][DainaType][DainaExpression][Maybe<[DainaExpression]>]->]->] ifMethodExpression
    [[[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->]->] ifAnonymousClassObject
    [[[DainaExpression][DainaGeneralIdentifier]->]->] ifInstanceMethod
    [[[DainaObjectDeclaration][DainaExpression]->]->] ifLocalObjectAssignment
@@ -1871,7 +1871,7 @@ import std.stdio;writeln("B::");
    ++ ifStatementGroup *([[List<[DainaExpression]>]->] get) {\.ifStatementGroup get}
    ++ ifDataSegment *([[String]->] get) {\.ifDataSegment get}
    ++ ifWithPrologueStatement *([[DainaExpression][DainaExpression]->] get) {\.ifWithPrologueStatement get}
-   ++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
+   ++ ifMethodExpression *([[List<[DainaObjectDeclaration]>][DainaType][DainaExpression][Maybe<[DainaExpression]>]->] get) {\.ifMethodExpression get}
    ++ ifAnonymousClassObject *([[List<[DainaType]>][List<[DainaExpression]>][List<[DainaClassMethod<[DainaExpression]>]>]->] get) {\.ifAnonymousClassObject get}
    ++ ifInstanceMethod *([[DainaExpression][DainaGeneralIdentifier]->] get) {\.ifInstanceMethod get}
    ++ ifLocalObjectAssignment *([[DainaObjectDeclaration][DainaExpression]->] get) {\.ifLocalObjectAssignment get}
@@ -1976,10 +1976,11 @@ import std.stdio;writeln("B::");
       \[O]:ifElse (\[Token]:equals token1 (\[Token]:asterisk)) *{
          \parser:gotoNextToken;
          [List<[DainaObjectDeclaration]>] parameters = \[List<[DainaObjectDeclaration]>]:empty;
+         [Variable<[DainaType]>] declaredOutputType = \[Variable<[?]>]:as \[DainaType]:inferred;
          [DainaExpression] body = (\[DainaExpression]:base);
          [Variable<[Maybe<[DainaExpression]>]>] output = \[Variable<[Maybe<[DainaExpression]>]>]:as (\[Maybe<[DainaExpression]>]:nothing);
-         .ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaExpression][Maybe<[DainaExpression]>]->] get) {
-            \get parameters body (\output:get);
+         .ifMethodExpression = *([[List<[DainaObjectDeclaration]>][DainaType][DainaExpression][Maybe<[DainaExpression]>]->] get) {
+            \get parameters (\declaredOutputType:get) body (\output:get);
          };
          \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:roundBracketOpen)) *{
             \parser:gotoNextToken;
@@ -2008,6 +2009,7 @@ import std.stdio;writeln("B::");
                   [DainaType] outputType = \[DainaType]:root;
                   \outputType:parse parser;
                   .outputType = outputType;
+                  \declaredOutputType:set outputType;
                   \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
                      \body:parseStrongBinding parser;
                   } *{
@@ -2336,7 +2338,16 @@ import std.stdio;writeln("B::");
          };
          \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
          };
-         \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] maybeOutput) {
+         \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaType] declaredOutputType, [DainaExpression] body, [Maybe<[DainaExpression]>] maybeOutput) {
+            [List<[[DainaTypeEnum<['A]>]->['A]]>] paramTypes = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+            \params:iterate *([DainaObjectDeclaration] param) {
+               [DainaType] paramType = \param:type;
+               \paramTypes:append \paramType:get;
+            };
+            @[] _ = << dlang ##import std.stdio;writeln(LOBJECT_declaredOutputType);##;
+            [DainaType] declaredMethodType = \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method (paramTypes) \declaredOutputType:get;
+            \determineType declaredMethodType;
+            
             \body:analyze analyzer;
             \maybeOutput:isOrElse *([DainaExpression] output) {
                \output:analyze analyzer;
@@ -2601,14 +2612,14 @@ import std.stdio;writeln("B::");
       } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
             @\classMethod:analyze analyzer;
-            @@[Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
+            [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
             \isUnimplemented:ifOrElse *{
                [DainaType] unimplementedType = \classMethod:unimplementedType;
                
             } *{
                [DainaExpression] methodExpression = \classMethod:methodExpression;
                \methodExpression:analyze analyzer;
-            };@@
+            };
             [DainaType] type = \classMethod:type;
             [Boolean] isConcreteType = \type:isConcrete;
                \[Debug]:log \type:description;
@@ -3088,7 +3099,7 @@ import std.stdio;writeln("B::");
 
    - synthesizeMethodBodyContent *([DainaExpression] methodExpression) {
       \[O]:selectOrDefault *([->] select) {
-         \methodExpression:ifMethodExpression *([List<[DainaObjectDeclaration]>] inputs, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+         \methodExpression:ifMethodExpression *([List<[DainaObjectDeclaration]>] inputs, [DainaType] declaredOutputType, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
             \select;
             \:pushScope inputs; 
             \:synthesizeStatement body (\[Boolean]:true);
@@ -3283,7 +3294,7 @@ import std.stdio;writeln("B::");
             };
             .synthesizedExpressionType = \:getLocalObjectType identifier;
          };
-         \expression:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
+         \expression:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaType] declaredOutputType, [DainaExpression] body, [Maybe<[DainaExpression]>] output) {
             \select;
             \:output (\[String]:as ##(new class OBJECT, LAMBDA { override OBJECT method(OBJECT caller, OBJECT[] parameters) {\n##);
             \:incrementTab;
