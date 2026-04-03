@@ -2001,6 +2001,7 @@ import std.stdio;writeln("B::");
             };
          } *{};
          \[O]:ifElse (\[DainaExpression]:isFirstToken (\parser:token)) *{
+            \declaredOutputType:set \[DainaType]:root;
             \body:parseStrongBinding parser;
          } *{
             \[O]:ifElse (\[Token]:equals (\parser:token) (\[Token]:arrow)) *{
@@ -2031,6 +2032,7 @@ import std.stdio;writeln("B::");
                   \parser:addError (\[Error]:expectingMethodOutput (\parser:position));
                };
             } *{
+               \declaredOutputType:set \[DainaType]:root;
                \body:makeEmptyStatement;
             };
          };
