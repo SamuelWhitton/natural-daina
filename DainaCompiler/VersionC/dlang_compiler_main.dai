@@ -1527,17 +1527,22 @@ import std.stdio;writeln("B::");
          Error, M, O,
          DainaType,
          DainaGeneralIdentifier,
+         Variable,
 
          Debug
       )
-   [DainaType] type
+   [Variable<[DainaType]>] type
    [DainaGeneralIdentifier] identifier
 {
    :: isFirstToken *([Token] token) -> [Boolean] {
    } -> (\[Boolean]:or (\[DainaType]:isFirstToken token) (\[DainaGeneralIdentifier]:isFirstToken token))
 
-   ++ type*->.type
+   ++ type .type:get
    ++ identifier*->.identifier
+
+   ++ inferType *([DainaType] inferredType) {
+      \.type:set inferredType;
+   }
 
    ~ base *{
       \:~as (\[DainaType]:inferred) \[DainaGeneralIdentifier]:base
@@ -1545,7 +1550,7 @@ import std.stdio;writeln("B::");
 
    ~ as *([DainaType] type, [DainaGeneralIdentifier] identifier){
       \$~base;
-      .type = type;
+      .type = \[Variable<[?]>]:as type;
       .identifier = identifier;
    }
 
@@ -1554,7 +1559,8 @@ import std.stdio;writeln("B::");
       \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
          \.identifier:parse parser;
       } *{
-         \.type:parse parser;
+         [DainaType] type = \.type:get;
+         \type:parse parser;
          \[O]:ifElse (\[DainaGeneralIdentifier]:isFirstToken (\parser:token)) *{
             \.identifier:parse parser;
          } *{
@@ -1611,17 +1617,17 @@ import std.stdio;writeln("B::");
 
    ++ type *->[DainaType] {
       [Boolean] isUnimplemented = \:isUnimplementedMethod;
-      [Maybe<[DainaType]>] evalutedType = \:evalutedType;
+      [Maybe<[DainaType]>] evaluatedType = \:evaluatedType;
    } -> \isUnimplemented:ifOrElse 
       (*->.unimplementedType)@ (*->.unimplementedType) 
-      *->\evalutedType:isOrElse (*(a)->a) *->\[DainaType]:inferred
+      *->\evaluatedType:isOrElse (*(a)->a) *->\[DainaType]:inferred
       
-   - evalutedType [->[Maybe<[DainaType]>]]
+   - evaluatedType [->[Maybe<[DainaType]>]]
 
    :: isFirstToken *([Token] token) -> [Boolean] {
    } -> (\[Boolean]:or (\[Boolean]:or (\[Token]:isVisibilityIndicator token) (\[Token]:equals token (\[Token]:pipe))) (\[Boolean]:or (\[Token]:equals token (\[Token]:doubleColon)) (\[Token]:equals token (\[Token]:tilde))))
 
-   ~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken, [[&DainaExpression]->[Maybe<[DainaType]>]] getEvalutedType){
+   ~ base *([->[&DainaExpression]] getBase, [[Parser][&DainaExpression]->] parseExpression, [[Token]->[Boolean]] isExpressionFirstToken, [[&DainaExpression]->[Maybe<[DainaType]>]] getEvaluatedType){
       \$~base;
       .isInstanceTypeOrConstructor = *([->]a,[]b,[]c){};
       .methodExpression = \getBase;
@@ -1631,7 +1637,7 @@ import std.stdio;writeln("B::");
       .isExpressionFirstToken = isExpressionFirstToken;
       .unimplementedType = \[DainaType]:root;
       .overriding = \[Boolean]:false;
-      :evalutedType = *->\getEvalutedType .methodExpression;
+      :evaluatedType = *->\getEvaluatedType .methodExpression;
    }
 
    |++ parse *([Parser] parser) {
@@ -2326,8 +2332,10 @@ import std.stdio;writeln("B::");
          \.evaluatedType:set \[Maybe<[DainaType]>]:as type;
       };
       \:ifWithPrologueStatement *([DainaExpression] prelogue, [DainaExpression] prologue) {
+         \analyzer:pushScope;
          \prologue:analyze analyzer;
          \prelogue:analyze analyzer;
+         \analyzer:popScope;
             @expecting statement prologue
          [Maybe<[DainaType]>] maybePrologueType = \prologue:evaluatedType;
             @@\[Debug]:log (\[String]:as ##asdf:##);
@@ -2341,8 +2349,11 @@ import std.stdio;writeln("B::");
          \maybePrelogueType:isOrElse determineType *{};
       };
       \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
+         [DainaObjectDeclaration] identifiedObject = \analyzer:findLocalObject identifier;
+         \determineType \identifiedObject:type;
       };
       \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaType] declaredOutputType, [DainaExpression] body, [Maybe<[DainaExpression]>] maybeOutput) {
+         \analyzer:pushScope;
          [List<[[DainaTypeEnum<['A]>]->['A]]>] paramTypes = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
          \params:iterate *([DainaObjectDeclaration] param) {
             [DainaType] paramType = \param:type;
@@ -2363,6 +2374,7 @@ import std.stdio;writeln("B::");
                } *{};
             };
          } *{};
+         \analyzer:popScope;
       };
       \:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
          \instanceExpression:analyze analyzer;
@@ -2396,9 +2408,11 @@ import std.stdio;writeln("B::");
          };
       };
       \:ifStatementGroup *([List<[DainaExpression]>] statements) {
+         \analyzer:pushScope;
          \statements:iterate *([DainaExpression] statement) {
             \statement:analyze analyzer;
          };
+         \analyzer:popScope;
       };
       \:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
          \inputs:iterate *([DainaExpression] input) {
@@ -2417,6 +2431,8 @@ import std.stdio;writeln("B::");
       };
       \:ifLocalObjectAssignment *([DainaObjectDeclaration] declaration, [DainaExpression] assignedExpression) {
          \assignedExpression:analyze analyzer;
+         \declaration:inferType \assignedExpression:evaluatedType;
+         \analyzer:addLocalObject declaration;
       };
 
    }
@@ -2621,6 +2637,7 @@ import std.stdio;writeln("B::");
          \entryPointMethod:analyze analyzer;
       } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
+            \analyzer:pushScope;
             @\classMethod:analyze analyzer;
             [Boolean] isUnimplemented = \classMethod:isUnimplementedMethod;
             \isUnimplemented:ifOrElse *{
@@ -2643,7 +2660,7 @@ import std.stdio;writeln("B::");
                };
 
             
-
+            \analyzer:popScope;
 
 @@
 ++ isUnimplementedMethod *->(\.unimplementedMethod:get)
@@ -3627,6 +3644,9 @@ import std.stdio;writeln("B::");
             \errors:iterate *([Error] error) {
                \.configuration:outputError error;
             };
+            \[Debug]:log (\[String]:as ##Found ##);
+            \[Debug]:log \[String]:stringFormatOf (\errors:length);
+            \[Debug]:log (\[String]:as ## errors.\n##);
          };
       } -> \[Boolean]:true) (*->\[Boolean]:false);
       \sourceFileSuccess:ifOrElse *{} *{
@@ -3657,6 +3677,9 @@ import std.stdio;writeln("B::");
          \errors:iterate *([Error] error) {
             \.configuration:outputError error;
          };
+         \[Debug]:log (\[String]:as ##Found ##);
+         \[Debug]:log \[String]:stringFormatOf (\errors:length);
+         \[Debug]:log (\[String]:as ## errors.\n##);
          \[Debug]:log (\[String]:as ##analysis failed :(\n##);
       };
    }
