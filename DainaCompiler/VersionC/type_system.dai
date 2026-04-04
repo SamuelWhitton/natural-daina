@@ -379,7 +379,6 @@
 
    |++ pushScope *{
       \.localObjectScopeStack:prepend \[Index<[DainaObjectDeclaration]>]:empty;
-
    }
 
    |++ popScope *{
@@ -406,7 +405,7 @@
 
    |++ addLocalObject *([DainaObjectDeclaration] localObjectDeclaration) {
       [DainaGeneralIdentifier] identifier = \localObjectDeclaration:identifier;
-      [Maybe<[?]>] existingLocalObjectDeclaration = \:maybeFindLocalObject \identifier:content;
+      [Maybe<[?]>] existingLocalObjectDeclaration = \:maybeFindLocalObject identifier;
       \existingLocalObjectDeclaration:isOrElse *([DainaObjectDeclaration] existingDeclaration) {
          [DainaGeneralIdentifier] existingIdentifier = \existingDeclaration:identifier;
          \:addError \[Error]:localDeclarationNamesClash (\identifier:position) (\existingIdentifier:position);
