@@ -2356,6 +2356,7 @@ import std.stdio;writeln("B::");
          \analyzer:pushScope;
          [List<[[DainaTypeEnum<['A]>]->['A]]>] paramTypes = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
          \params:iterate *([DainaObjectDeclaration] param) {
+            \analyzer:addLocalObject param;
             [DainaType] paramType = \param:type;
             \paramTypes:append \paramType:get;
          };
@@ -2408,11 +2409,15 @@ import std.stdio;writeln("B::");
          };
       };
       \:ifStatementGroup *([List<[DainaExpression]>] statements) {
-         \analyzer:pushScope;
          \statements:iterate *([DainaExpression] statement) {
+            \statement:ifStatementGroup *{
+               \analyzer:pushScope;
+            };
             \statement:analyze analyzer;
+            \statement:ifStatementGroup *{
+               \analyzer:popScope;
+            };
          };
-         \analyzer:popScope;
       };
       \:ifConstructorInvocation *([Integer] parentNumber, [DainaGeneralIdentifier] identifier, [Boolean] isPointerConstructor, [List<[DainaExpression]>] inputs) {
          \inputs:iterate *([DainaExpression] input) {
