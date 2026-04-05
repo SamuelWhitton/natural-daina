@@ -2446,6 +2446,11 @@ import std.stdio;writeln("B::");
       };
 
    }
+
+   - findInstanceMethod *([DainaClassIdentifier] class, [DainaGeneralIdentifier] identifier, [Maybe<[List<[DainaType]>]>] inputTypes) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+      \findClassMethod
+      [List<[?]>] parents = \analyzer:parentsOfClass \class:content;
+   }
 }
 
 
