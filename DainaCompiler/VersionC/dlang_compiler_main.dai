@@ -2096,7 +2096,7 @@ import std.stdio;writeln("B::");
                };
                \[Loops]:until *([->] stop) {
                   \[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
-                     [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken) *([DainaExpression]e)->\e:evaluatedType;
+                     [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] p, [DainaExpression] e){\e:parse p}) ([DainaExpression]:isFirstToken) *([DainaExpression]e)->\e:evaluatedType;
                      \classMethod:parse parser;
                      \classMethods:append classMethod;
                   } stop;
@@ -2349,8 +2349,13 @@ import std.stdio;writeln("B::");
          \maybePrelogueType:isOrElse determineType *{};
       };
       \:ifLocalObject *([DainaGeneralIdentifier] identifier) {
-         [DainaObjectDeclaration] identifiedObject = \analyzer:findLocalObject identifier;
-         \determineType \identifiedObject:type;
+         [Boolean] isVoidIdentifier = \identifier:isVoidIdentifier;
+         \isVoidIdentifier:ifOrElse *{
+            \determineType \[DainaType]:root;
+         } *{
+            [DainaObjectDeclaration] identifiedObject = \analyzer:findLocalObject identifier;
+            \determineType \identifiedObject:type;
+         };
       };
       \:ifMethodExpression *([List<[DainaObjectDeclaration]>] params, [DainaType] declaredOutputType, [DainaExpression] body, [Maybe<[DainaExpression]>] maybeOutput) {
          \analyzer:pushScope;
@@ -2601,7 +2606,7 @@ import std.stdio;writeln("B::");
                   \parser:gotoNextToken;
                   \[Loops]:until *([->] stop) {
                      \[O]:ifElse (\[DainaClassMethod<[DainaExpression]>]:isFirstToken (\parser:token)) *{
-                        [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] parser, [DainaExpression] e){\e:parse parser}) ([DainaExpression]:isFirstToken) *([DainaExpression]e)->\e:evaluatedType;
+                        [DainaClassMethod<[DainaExpression]>] classMethod = \[DainaClassMethod<[DainaExpression]>]:base ([DainaExpression]:base) (*([Parser] p, [DainaExpression] e){\e:parse p}) ([DainaExpression]:isFirstToken) *([DainaExpression]e)->\e:evaluatedType;
                         \classMethod:parse parser;
                         \classMethod:isInstanceTypeOrConstructor *{} *{} *{
                            [DainaType] classType = \[DainaType]:root;
