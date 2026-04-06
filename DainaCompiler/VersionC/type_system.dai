@@ -323,7 +323,7 @@
    ++ findLocalObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
    ++ addLocalObject [[&OBJECT_DECLARATION]->]
    ++ findInstanceObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
-   ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][Maybe<[List<[&TYPE]>]>]->[Maybe<[&CLASS_METHOD]>]]
+   ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][Maybe<[List<[&TYPE]>]>][[&CLASS_METHOD]->[Boolean]]->[Maybe<[&CLASS_METHOD]>]]
    ++ parentsOfClass [[&CLASS_ID]->[List<[&TYPE]>]]
 }
 
@@ -433,25 +433,28 @@
          \:addError \[Error]:cannotFindInstanceObject \identifier:position;
       }->\[DainaObjectDeclaration]:base)
 
-   |++ findClassMethod *([DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] maybeInputTypes) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+   |++ findClassMethod *([DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] maybeInputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
       [Maybe<[?]>] maybeMethods = \.methodsPerClass:get \classID:content;
    } -> \maybeMethods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
          [Maybe<[?]>] maybeMethodsMatchingID = \methods:get \methodID:content;
       } -> \maybeMethodsMatchingID:isOrElse (*([List<[DainaClassMethod<[DainaExpression]>]>] methodsMatchingID)->[Maybe<[DainaClassMethod<[DainaExpression]>]>] {
             [Variable<[?]>] varMethodMatchingInputTypes = \[Variable<[?]>]:as \[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing;
             \methodsMatchingID:iterate *([DainaClassMethod<[DainaExpression]>] methodMatchingID) {
-               [Boolean] matchingInputTypes = \maybeInputTypes:ifOrElse (*([List<[DainaType]>] inputTypes) {
-                  [List<[?]>] inputTypeEnums = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
-                  \inputTypes:iterate *([DainaType] t) \inputTypeEnums:append \t:get;
-                  [DainaType] accessType = *([DainaTypeEnum<["A]>] e) -> \e:method (inputTypeEnums) (*([DainaTypeEnum<["A]>] a) -> \a:root);
-               } -> \accessType:isParentOf \methodMatchingID:type) *->\[Boolean]:true;
-               \matchingInputTypes:ifOrElse *{
-                  [Maybe<[DainaClassMethod<[DainaExpression]>]>] methodMatchingInputTypes = \varMethodMatchingInputTypes:get;
-                  \methodMatchingInputTypes:isOrElse *([DainaClassMethod<[DainaExpression]>] anotherMatchingMethod) {
-                     \:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\methodMatchingID:position) (\anotherMatchingMethod:position);
-                  } *{
-                     \varMethodMatchingInputTypes:set methodMatchingID;
-                  };
+               [Boolean] chosen = \chooseMethod methodMatchingID;
+               \chosen:ifOrElse *{
+                  [Boolean] matchingInputTypes = \maybeInputTypes:isOrElse (*([List<[DainaType]>] inputTypes) -> [Boolean] {
+                     [List<[?]>] inputTypeEnums = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+                     \inputTypes:iterate *([DainaType] t) \inputTypeEnums:append \t:get;
+                     [DainaType] accessType = *([DainaTypeEnum<["A]>] e) -> \e:method (inputTypeEnums) (*([DainaTypeEnum<["A]>] a) -> \a:root);
+                  } -> \accessType:isParentOf \methodMatchingID:type) *->\[Boolean]:true;
+                  \matchingInputTypes:ifOrElse *{
+                     [Maybe<[DainaClassMethod<[DainaExpression]>]>] methodMatchingInputTypes = \varMethodMatchingInputTypes:get;
+                     \methodMatchingInputTypes:isOrElse *([DainaClassMethod<[DainaExpression]>] anotherMatchingMethod) {
+                        \:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\methodMatchingID:position) (\anotherMatchingMethod:position);
+                     } *{
+                        \varMethodMatchingInputTypes:set methodMatchingID;
+                     };
+                  } *{};
                } *{};
             };
          } -> \varMethodMatchingInputTypes:get) 

@@ -488,6 +488,9 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append positionInvocation; \context:append positionMethod1; \context:append positionMethod2;
    } -> (\[Error]:errorWithContext (\[String]:as ##Ambigous overloaded method invocation, mutliple methods match invocation##) context)
 
+   :: cannotFindInstanceMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find instance method##) context)
 }
 
 
@@ -1604,6 +1607,11 @@ import std.stdio;writeln("B::");
       \.isInstanceTypeOrConstructor isInstance isType isConstructor;
    }
 
+   ++ isInstanceType *->[Boolean] {
+      [Variable<[?]>] is = \[Variable<[?]>]:as \[Boolean]:false;
+      \.isInstanceTypeOrConstructor *{\is:set \[Boolean]:true} *{} *{};
+   } -> \is:get
+
    ++ isUnimplementedMethod *->(\.unimplementedMethod:get)
 
    ++ isOverridingMethod *->(.overriding)
@@ -2383,6 +2391,12 @@ import std.stdio;writeln("B::");
       };
       \:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
          \instanceExpression:analyze analyzer;
+         [Maybe<[?]>] maybeMethod = \:findMethod analyzer (\instanceExpression:evaluatedType) identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceType;
+         \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
+            \determineType \method:type;
+         } *{
+            \analyzer:addError \[Error]:cannotFindInstanceMethod identifier;
+         };
       };
       \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
       };
@@ -2396,7 +2410,7 @@ import std.stdio;writeln("B::");
          \object:analyze analyzer;
       };
       \:ifInternalInstanceMethod *([Integer] parentNumber, [DainaGeneralIdentifier] identifier) {
-         \:findInstanceOrTypeMethod analyzer
+         @\:findMethod analyzer
       };
       \:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
       };
@@ -2447,21 +2461,25 @@ import std.stdio;writeln("B::");
 
    }
 
-   - findInstanceOrTypeMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaClassIdentifier] class, [DainaGeneralIdentifier] identifier, [Maybe<[List<[DainaType]>]>] inputTypes) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
-      [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod class identifier inputTypes;
+   - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+      [DainaClassIdentifier] classID = \(\owner:get) [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default \[DainaClassIdentifier]:base;
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
+      };
+      [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod classID methodID inputTypes chooseMethod;
       [Variable<[?]>] foundMethod = \[Variable<[?]>]:as fromThisClass;
       \fromThisClass:isOrElse *{} *{
-         [List<[?]>] parents = \analyzer:parentsOfClass \class:content;
+         [List<[?]>] parents = \analyzer:parentsOfClass \classID:content;
          \parents:iterate *([DainaType] parent) {
             [DainaClassIdentifier] parentClassID = \(\parent:get) [:[DainaTypeEnum<[]>]] {
                \$~> \[DainaTypeEnum<[]>]:default \[DainaClassIdentifier]:base;
                |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
             };
-            [Maybe<[DainaClassMethod<[DainaExpression]>]>] maybeFromParentClass = \analyzer:findClassMethod parentClassID identifier inputTypes;
+            [Maybe<[DainaClassMethod<[DainaExpression]>]>] maybeFromParentClass = \analyzer:findClassMethod parentClassID methodID inputTypes chooseMethod;
             \maybeFromParentClass:isOrElse *([DainaClassMethod<[DainaExpression]>] fromParentClass) {
                [Maybe<[?]>] maybeExisting = \foundMethod:get;
                \maybeExisting:isOrElse *([DainaClassMethod<[DainaExpression]>] existing) {
-                  \:addError \[Error]:ambigousOverloadedMethodInvocation (\identifier:position) (\existing:position) (\fromParentClass:position);
+                  \analyzer:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\existing:position) (\fromParentClass:position);
                } *{
                   \foundMethod:set fromParentClass;
                };
