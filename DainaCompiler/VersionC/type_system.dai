@@ -544,7 +544,7 @@
                      \listOfMethodsWithSameName:append classMethod;
                   };
                   \.methodsPerClass:set className \[Maybe<[?]>]:as classMethodsIndex;
-                  \.parentsPerClass:set className inheritedParentTypes;
+                  \.parentsPerClass:set className \[Maybe<[?]>]:as inheritedParentTypes;
                };
          };
       };
