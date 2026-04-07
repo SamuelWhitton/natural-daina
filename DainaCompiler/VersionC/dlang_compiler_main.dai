@@ -491,6 +491,10 @@
    :: cannotFindInstanceMethod *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find instance method##) context)
+
+   :: invalidExpressionToReferenceAMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Invalid expression from which to reference a method##) context)
 }
 
 
@@ -2391,11 +2395,16 @@ import std.stdio;writeln("B::");
       };
       \:ifInstanceMethod *([DainaExpression] instanceExpression, [DainaGeneralIdentifier] identifier) {
          \instanceExpression:analyze analyzer;
-         [Maybe<[?]>] maybeMethod = \:findMethod analyzer (\instanceExpression:evaluatedType) identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceType;
-         \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
-            \determineType \method:type;
+         [Maybe<[?]>] maybeExpressionType = (\instanceExpression:evaluatedType);
+         \maybeExpressionType:isOrElse *([DainaType] expressionType) {
+            [Maybe<[?]>] maybeMethod = \:findMethod analyzer expressionType identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceType;
+            \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
+               \determineType \method:type;
+            } *{
+               \analyzer:addError \[Error]:cannotFindInstanceMethod identifier;
+            };
          } *{
-            \analyzer:addError \[Error]:cannotFindInstanceMethod identifier;
+            \analyzer:addError \[Error]:invalidExpressionToReferenceAMethod identifier;
          };
       };
       \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
