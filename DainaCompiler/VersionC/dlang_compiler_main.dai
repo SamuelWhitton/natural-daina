@@ -495,6 +495,12 @@
    :: invalidExpressionToReferenceAMethod *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Invalid expression from which to reference a method##) context)
+
+   :: assignedExpressionMustEvaluateToObject *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Assigned expression must evaluate to an object##) context)
+
+   
 }
 
 
@@ -2464,8 +2470,13 @@ import std.stdio;writeln("B::");
       };
       \:ifLocalObjectAssignment *([DainaObjectDeclaration] declaration, [DainaExpression] assignedExpression) {
          \assignedExpression:analyze analyzer;
-         \declaration:inferType \assignedExpression:evaluatedType;
-         \analyzer:addLocalObject declaration;
+         [Maybe<[?]>] maybeEvaluatedType = \assignedExpression:evaluatedType;
+         \maybeEvaluatedType:isOrElse *([DainaType] evaluatedType) {
+            \declaration:inferType evaluatedType;
+            \analyzer:addLocalObject declaration;
+         } *{
+            \analyzer:addError \[Error]:assignedExpressionMustEvaluateToObject \assignedExpression:position;
+         };
       };
 
    }
