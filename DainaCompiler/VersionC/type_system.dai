@@ -452,7 +452,7 @@
                      \methodMatchingInputTypes:isOrElse *([DainaClassMethod<[DainaExpression]>] anotherMatchingMethod) {
                         \:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\methodMatchingID:position) (\anotherMatchingMethod:position);
                      } *{
-                        \varMethodMatchingInputTypes:set methodMatchingID;
+                        \varMethodMatchingInputTypes:set \[Maybe<[?]>]:as methodMatchingID;
                      };
                   } *{};
                } *{};

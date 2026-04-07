@@ -2401,10 +2401,10 @@ import std.stdio;writeln("B::");
             \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
                \determineType \method:type;
             } *{
-               \analyzer:addError \[Error]:cannotFindInstanceMethod identifier;
+               \analyzer:addError \[Error]:cannotFindInstanceMethod \identifier:position;
             };
          } *{
-            \analyzer:addError \[Error]:invalidExpressionToReferenceAMethod identifier;
+            \analyzer:addError \[Error]:invalidExpressionToReferenceAMethod \identifier:position;
          };
       };
       \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
