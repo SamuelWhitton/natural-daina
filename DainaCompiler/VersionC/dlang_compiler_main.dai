@@ -2473,6 +2473,8 @@ import std.stdio;writeln("B::");
          @\:findMethod analyzer
       };
       \:ifInternalInstanceObject *([DainaGeneralIdentifier] instanceObjectIdentifier) {
+         [DainaObjectDeclaration] objectDeclaration = \analyzer:findInstanceObject instanceObjectIdentifier;
+         \determineType \objectDeclaration:type;
       };
       \:ifSelfReference *{
       };
