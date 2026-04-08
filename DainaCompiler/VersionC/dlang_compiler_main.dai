@@ -492,6 +492,10 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find instance method##) context)
 
+   :: cannotFindTypeMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find type method##) context)
+
    :: invalidExpressionToReferenceAMethod *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Invalid expression from which to reference a method##) context)
@@ -507,8 +511,6 @@
    :: invokedExpressionIsNotAMethod *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Invoked expression is not a method##) context)
-   
-
    
 }
 
@@ -1626,9 +1628,17 @@ import std.stdio;writeln("B::");
       \.isInstanceTypeOrConstructor isInstance isType isConstructor;
    }
 
-   ++ isInstanceType *->[Boolean] {
+   ++ isInstanceMethod *->[Boolean] {
       [Variable<[?]>] is = \[Variable<[?]>]:as \[Boolean]:false;
       \.isInstanceTypeOrConstructor *{\is:set \[Boolean]:true} *{} *{};
+   } -> \is:get
+   ++ isTypeMethod *->[Boolean] {
+      [Variable<[?]>] is = \[Variable<[?]>]:as \[Boolean]:false;
+      \.isInstanceTypeOrConstructor *{} *{\is:set \[Boolean]:true} *{};
+   } -> \is:get
+   ++ isConstructorMethod *->[Boolean] {
+      [Variable<[?]>] is = \[Variable<[?]>]:as \[Boolean]:false;
+      \.isInstanceTypeOrConstructor *{} *{} *{\is:set \[Boolean]:true};
    } -> \is:get
 
    ++ isUnimplementedMethod *->(\.unimplementedMethod:get)
@@ -2412,7 +2422,7 @@ import std.stdio;writeln("B::");
          \instanceExpression:analyze analyzer;
          [Maybe<[?]>] maybeExpressionType = (\instanceExpression:evaluatedType);
          \maybeExpressionType:isOrElse *([DainaType] expressionType) {
-            [Maybe<[?]>] maybeMethod = \:findMethod analyzer expressionType identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceType;
+            [Maybe<[?]>] maybeMethod = \:findMethod analyzer expressionType identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceMethod;
             \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
                \determineType \method:type;
             } *{
@@ -2423,6 +2433,19 @@ import std.stdio;writeln("B::");
          };
       };
       \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
+         [Maybe<[?]>] maybeMethod = \:findMethod analyzer type identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \[Boolean]:or (\method:isTypeMethod) (\method:isConstructorMethod);
+         \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
+            [Boolean] isConstructorMethod = \method:isConstructorMethod;
+            [DainaType] methodType = \method:type;
+            [DainaType] invokedMethodType = \isConstructorMethod:ifOrElse (*->\(\methodType:get) [:[DainaTypeEnum<[DainaType]>]] {
+               \$~> \[DainaTypeEnum<[]>]:default *->methodType
+               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputTypes, [[DainaTypeEnum<['A]>]->['A]] outputType)
+                  -> \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method inputTypes \type:get
+            }) (*->methodType);
+            \determineType invokedMethodType;
+         } *{
+            \analyzer:addError \[Error]:cannotFindTypeMethod \identifier:position;
+         };
       };
       \:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
          \method:analyze analyzer;
@@ -2431,7 +2454,7 @@ import std.stdio;writeln("B::");
          };
          [Maybe<[?]>] maybeMethodType = \method:evaluatedType;
          \maybeMethodType:isOrElse *([DainaType] methodType) {
-            [DainaType] methodReturnType = \(\methodType:get) [:[DainaTypeEnum<[]>]] {
+            \(\methodType:get) [:[DainaTypeEnum<[]>]] {
                \$~> \[DainaTypeEnum<[]>]:default *{
                   \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
                };
