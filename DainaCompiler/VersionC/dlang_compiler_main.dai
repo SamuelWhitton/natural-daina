@@ -2489,7 +2489,7 @@ import std.stdio;writeln("B::");
       [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod classID methodID inputTypes chooseMethod;
       [Variable<[?]>] foundMethod = \[Variable<[?]>]:as fromThisClass;
       \fromThisClass:isOrElse *{} *{
-         [List<[?]>] parents = \analyzer:parentsOfClass \classID:content;
+         [List<[?]>] parents = \analyzer:parentsOfClass classID;
          \parents:iterate *([DainaType] parent) {
             [DainaClassIdentifier] parentClassID = \(\parent:get) [:[DainaTypeEnum<[]>]] {
                \$~> \[DainaTypeEnum<[]>]:default \[DainaClassIdentifier]:base;
