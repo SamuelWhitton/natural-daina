@@ -500,6 +500,11 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Assigned expression must evaluate to an object##) context)
 
+   :: declaredTypeDoesNotMatchAssignedExpression *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Declared type does not match assigned expression##) context)
+   
+
    
 }
 
@@ -2472,8 +2477,14 @@ import std.stdio;writeln("B::");
          \assignedExpression:analyze analyzer;
          [Maybe<[?]>] maybeEvaluatedType = \assignedExpression:evaluatedType;
          \maybeEvaluatedType:isOrElse *([DainaType] evaluatedType) {
-            \declaration:inferType evaluatedType;
-            \analyzer:addLocalObject declaration;
+            [DainaType] declaredType = \declaration:type;
+            [Boolean] evaluatedTypeMatches = \declaredType:isParentOf evaluatedType;
+            \evaluatedTypeMatches:ifOrElse *{
+               \declaration:inferType evaluatedType;
+               \analyzer:addLocalObject declaration;
+            } *{
+               \analyzer:addError \[Error]:declaredTypeDoesNotMatchAssignedExpression \declaration:position;
+            };
          } *{
             \analyzer:addError \[Error]:assignedExpressionMustEvaluateToObject \assignedExpression:position;
          };
