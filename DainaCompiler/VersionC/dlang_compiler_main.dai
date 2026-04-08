@@ -503,6 +503,10 @@
    :: declaredTypeDoesNotMatchAssignedExpression *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Declared type does not match assigned expression##) context)
+
+   :: invokedExpressionIsNotAMethod *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Invoked expression is not a method##) context)
    
 
    
@@ -2425,6 +2429,19 @@ import std.stdio;writeln("B::");
          \params:iterate *([DainaExpression] param) {
             \param:analyze analyzer;
          };
+         [Maybe<[?]>] maybeMethodType = \method:evaluatedType;
+         \maybeMethodType:isOrElse *([DainaType] methodType) {
+            [DainaType] methodReturnType = \(\methodType:get) [:[DainaTypeEnum<[]>]] {
+               \$~> \[DainaTypeEnum<[]>]:default *{
+                  \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
+               };
+               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
+                  \determineType \[DainaType]:as outputType;
+               }
+            };
+         } *{
+            \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
+         };
       };
       \:ifProxyObject *([DainaExpression] object) {
          \object:analyze analyzer;
@@ -2494,7 +2511,7 @@ import std.stdio;writeln("B::");
 
    - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
       [DainaClassIdentifier] classID = \(\owner:get) [:[DainaTypeEnum<[]>]] {
-         \$~> \[DainaTypeEnum<[]>]:default \[DainaClassIdentifier]:base;
+         \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
          |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
       };
       [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod classID methodID inputTypes chooseMethod;
@@ -2503,7 +2520,7 @@ import std.stdio;writeln("B::");
          [List<[?]>] parents = \analyzer:parentsOfClass classID;
          \parents:iterate *([DainaType] parent) {
             [DainaClassIdentifier] parentClassID = \(\parent:get) [:[DainaTypeEnum<[]>]] {
-               \$~> \[DainaTypeEnum<[]>]:default \[DainaClassIdentifier]:base;
+               \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
                |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
             };
             [Maybe<[DainaClassMethod<[DainaExpression]>]>] maybeFromParentClass = \analyzer:findClassMethod parentClassID methodID inputTypes chooseMethod;
@@ -2658,7 +2675,7 @@ import std.stdio;writeln("B::");
                      [DainaGeneralIdentifier] identifier = \instanceObject:identifier;
                      @@[DainaType] type = \instanceObject:type;
                      [Boolean] isConcreteType = \(\type:get) [:[DainaTypeEnum<[]>]] {
-                        \$~> \[DainaTypeEnum<[]>]:default _;
+                        \$~> \[DainaTypeEnum<[]>]:default *-> _;
                         |++ method get
                      };
 

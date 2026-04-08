@@ -9,18 +9,18 @@
 
 
 [DainaTypeEnum<E>] (List, DainaGeneralIdentifier, Natural) {
-   :: default *([&E] default) -> [:[DainaTypeEnum<[&E]>]] {
-      |++ root *->default
-      |++ classAndGenerics *->default
-      |++ method *->default
-      |++ disjoint *->default
-      |++ classGeneric *->default
-      |++ methodGeneric *->default
-      |++ dataSegment *->default
-      |++ inferred *->default
-      |++ inferredMethodContext *->default
-      |++ inferredSelfContext *->default
-      |++ inferredParentContext *->default
+   :: default *([->[&E]] default) -> [:[DainaTypeEnum<[&E]>]] {
+      |++ root default
+      |++ classAndGenerics default
+      |++ method default
+      |++ disjoint default
+      |++ classGeneric default
+      |++ methodGeneric default
+      |++ dataSegment default
+      |++ inferred default
+      |++ inferredMethodContext default
+      |++ inferredSelfContext default
+      |++ inferredParentContext default
    }
    ++ root [->[&E]] @ []
    ++ classAndGenerics [[DainaClassIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->[&E]] @ [Array<[Bob]>] [Omp] [Transform<[A][B]>]
@@ -150,14 +150,14 @@
 
    ++ ifClassNameAndGenericInstantiation *([[DainaClassIdentifier][List<[[DainaTypeEnum<['A]>]->['A]]>]->] get) {
       \(\:get) [:[DainaTypeEnum<[]>]] {
-         \$~> \[DainaTypeEnum<[]>]:default _;
+         \$~> \[DainaTypeEnum<[]>]:default *-> _;
          |++ classAndGenerics get
       };
    }
 
    ++ ifMethodInputsAndOutput *([[List<[[DainaTypeEnum<['A]>]->['A]]>][[DainaTypeEnum<['A]>]->['A]]->] get) {
       \(\:get) [:[DainaTypeEnum<[]>]] {
-         \$~> \[DainaTypeEnum<[]>]:default _;
+         \$~> \[DainaTypeEnum<[]>]:default *-> _;
          |++ method get
       };
    }
