@@ -445,7 +445,7 @@
                   [Boolean] matchingInputTypes = \maybeInputTypes:isOrElse (*([List<[DainaType]>] inputTypes) -> [Boolean] {
                      [List<[?]>] inputTypeEnums = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
                      \inputTypes:iterate *([DainaType] t) \inputTypeEnums:append \t:get;
-                     [DainaType] accessType = *([DainaTypeEnum<["A]>] e) -> \e:method (inputTypeEnums) (*([DainaTypeEnum<["A]>] a) -> \a:root);
+                     [DainaType] accessType = \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method (inputTypeEnums) (*([DainaTypeEnum<["A]>] a) -> \a:root);
                   } -> \accessType:isParentOf \methodMatchingID:type) *->\[Boolean]:true;
                   \matchingInputTypes:ifOrElse *{
                      [Maybe<[DainaClassMethod<[DainaExpression]>]>] methodMatchingInputTypes = \varMethodMatchingInputTypes:get;
