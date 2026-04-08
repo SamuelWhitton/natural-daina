@@ -2501,7 +2501,7 @@ import std.stdio;writeln("B::");
                \maybeExisting:isOrElse *([DainaClassMethod<[DainaExpression]>] existing) {
                   \analyzer:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\existing:position) (\fromParentClass:position);
                } *{
-                  \foundMethod:set fromParentClass;
+                  \foundMethod:set \[Maybe<[?]>]:as fromParentClass;
                };
             } *{};
          };
