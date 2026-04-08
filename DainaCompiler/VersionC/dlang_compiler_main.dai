@@ -2756,7 +2756,9 @@ import std.stdio;writeln("B::");
 
    ++ analyze *([DainaAnalyzerScope<[DainaExpression]>] analyzer) {
       \:isEntryPointOrRegularClass *([] _, [DainaExpression] entryPointMethod) {
+         \analyzer:pushScope;
          \entryPointMethod:analyze analyzer;
+         \analyzer:popScope;
       } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
          \classMethods:iterate *([DainaClassMethod<[DainaExpression]>] classMethod) {
             \analyzer:pushScope;
