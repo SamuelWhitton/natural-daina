@@ -444,7 +444,7 @@
          \:addError \[Error]:cannotFindInstanceObject \identifier:position;
       }->\[DainaObjectDeclaration]:base)
 
-   |++ findClassMethod *([DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] maybeInputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+   |++ findClassMethod *([DainaClassIdentifier] rootClass, [DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] maybeInputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
       [[DainaClass]->[String]] getClassName = *([DainaClass] class) -> [String] {
          [Variable<[String]>] varClassName = \[Variable<[?]>]:as \[String]:as ####;
          \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [] _, [] __, [] ___, [] ____) {
@@ -452,11 +452,11 @@
          };
       } -> \varClassName:get;
       [DainaClass] classInScope = \.classInScope:get;
-      [String] className = \classID:content;
+      [String] rootClassName = \rootClass:content;
       [DainaDependancyStructure] dependancyStructure = \classInScope:dependancyStructure;
       [Index<[]>] dependancies = \dependancyStructure:dependancies;
-      [Maybe<[]>] maybeDependancy = \dependancies:get \classID:content;
-      [Boolean] isClassInScope = \className:isEqualTo \getClassName classInScope;
+      [Maybe<[]>] maybeDependancy = \dependancies:get rootClassName;
+      [Boolean] isClassInScope = \rootClassName:isEqualTo \getClassName classInScope;
       [Boolean] hasDependancy = \[Boolean]:or isClassInScope \maybeDependancy:isOrElse [Boolean]:true [Boolean]:false;
       [Maybe<[?]>] maybeMethods = \.methodsPerClass:get \classID:content;
    } -> \hasDependancy:ifOrElse (*->\maybeMethods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
@@ -485,7 +485,7 @@
             (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing))
          (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing))
       (*->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
-            \:addError \[Error]:missingClassDependancyForMethod className (\methodID:position);
+            \:addError \[Error]:missingClassDependancyForMethod rootClassName (\methodID:position);
          }->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing)
 
 

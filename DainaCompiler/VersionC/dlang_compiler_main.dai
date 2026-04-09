@@ -1,5 +1,5 @@
 
-[Debug] (OutputStream, String, SystemInputOutput){
+[Debug] (OutputStream, String, SystemInputOutput, StandardIO, Data){
    :: log *([String] s){
       [[Data]->] out = [StandardIO]:stdout;
       \out \s:ascii;
@@ -116,7 +116,9 @@
          String,
          Variable,
          Object,
-         Loops
+         Loops,
+         Maybe,
+         Sequence
       )
    [String] sourceName
    [Natural] line
@@ -533,7 +535,7 @@
 
 
 
-[Character] (Byte, Boolean, String, Data)
+[Character] (Byte, Boolean, String, Data, Natural, Integer, Maybe, Sequence)
    [Byte] asciiByte
 {
    ~ fromASCII *([Byte] asciiByte) {
@@ -655,7 +657,9 @@ import std.stdio;writeln("B::");
          Natural,
          String,
          Boolean,
-         Variable
+         Variable,
+         Integer,
+         Maybe
       )
    [Natural] id
    [Natural] secondId
@@ -2582,20 +2586,23 @@ import std.stdio;writeln("B::");
    }
 
    - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+      [DainaClassIdentifier] rootClass = \(\owner:get) [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
+      };
+   } -> \:recursive_findMethod analyzer rootClass owner methodID inputTypes chooseMethod
+
+   - recursive_findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaClassIdentifier] rootClass, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
       [DainaClassIdentifier] classID = \(\owner:get) [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
          |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
       };
-      [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod classID methodID inputTypes chooseMethod;
+      [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod rootClass classID methodID inputTypes chooseMethod;
       [Variable<[?]>] foundMethod = \[Variable<[?]>]:as fromThisClass;
       \fromThisClass:isOrElse *{} *{
          [List<[?]>] parents = \analyzer:parentsOfClass classID;
          \parents:iterate *([DainaType] parent) {
-            [DainaClassIdentifier] parentClassID = \(\parent:get) [:[DainaTypeEnum<[]>]] {
-               \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
-               |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
-            };
-            [Maybe<[DainaClassMethod<[DainaExpression]>]>] maybeFromParentClass = \analyzer:findClassMethod parentClassID methodID inputTypes chooseMethod;
+            [Maybe<[DainaClassMethod<[DainaExpression]>]>] maybeFromParentClass = \:recursive_findMethod analyzer rootClass parent methodID inputTypes chooseMethod;
             \maybeFromParentClass:isOrElse *([DainaClassMethod<[DainaExpression]>] fromParentClass) {
                [Maybe<[?]>] maybeExisting = \foundMethod:get;
                \maybeExisting:isOrElse *([DainaClassMethod<[DainaExpression]>] existing) {

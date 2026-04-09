@@ -1,5 +1,5 @@
 
-[StandardIO] (String) {
+[StandardIO] (Data) {
       <<dlang ##
             import std.stdio;
             import std.bigint;
@@ -33,7 +33,7 @@
 
 }
 
-[File] (String, Natural, Data, Boolean) 
+[File] (String, Natural, Data, Boolean, Variable) 
 {
    <<dlang ##
          import std.stdio;
@@ -492,7 +492,7 @@
 
 }
 
-[String] (Data, Sequence, List) 
+[String] (Data, Sequence, List, Maybe, Integer, Boolean, Natural) 
    [Data] ascii
 {
    <<dlang ##
@@ -552,7 +552,7 @@
 }
 
 
-[Loops] (Sequence, Natural, Variable, Boolean)
+[Loops] (Sequence, Natural, Variable, Boolean, Maybe)
 {
    :: iterate *([Sequence<['E]>] sequence, [[Natural]['E]->] getNext) {
       [Variable<[Natural]>] currentIndex = \[Variable<[?]>]:as \[Natural]:as ##0##;
@@ -775,7 +775,7 @@
 }
 
 
-[ListNode<E>] () -> (List)
+[ListNode<E>] (Variable, Maybe) -> (List)
 {
    ~ withValue *([&E] value) {
       :value = *-> value;
