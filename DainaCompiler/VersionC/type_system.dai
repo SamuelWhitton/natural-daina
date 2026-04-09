@@ -356,7 +356,7 @@
    [Variable<[Maybe<[DainaClass]>]>] entryPoint
    [Index<[DainaClass]>] classIndex
    [Index<[List<[DainaClass]>]>] parentsPerClass
-   [Variable<[DainaClassIdentifier]>] classInScope
+   [Variable<[DainaClass]>] classInScope
    [Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
    [Variable<[Index<[DainaObjectDeclaration]>]>] instanceObjects
    [List<[Index<[DainaObjectDeclaration]>]>] localObjectScopeStack
@@ -366,7 +366,7 @@
       .entryPoint = \[Variable<[?]>]:as \[Maybe<[DainaClass]>]:nothing;
       .classIndex = \[Index<[DainaClass]>]:empty;
       .parentsPerClass = \[Index<[List<[DainaClass]>]>]:empty;
-      .classInScope = \[Variable<[?]>]:as \[DainaClassIdentifier]:base;
+      .classInScope = \[Variable<[?]>]:as \[DainaClass]:base;
       .methodsPerClass = \[Index<[?]>]:empty;
       .instanceObjects = \[Variable<[?]>]:as \[Index<[?]>]:empty;
       .localObjectScopeStack = \[List<[?]>]:empty;
@@ -445,8 +445,21 @@
       }->\[DainaObjectDeclaration]:base)
 
    |++ findClassMethod *([DainaClassIdentifier] classID, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] maybeInputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+      [[DainaClass]->[String]] getClassName = *([DainaClass] class) -> [String] {
+         [Variable<[String]>] varClassName = \[Variable<[?]>]:as \[String]:as ####;
+         \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [] _, [] __, [] ___, [] ____) {
+            \varClassName:set \classId:content;
+         };
+      } -> \varClassName:get;
+      [DainaClass] classInScope = \.classInScope:get;
+      [String] className = \classID:content;
+      [DainaDependancyStructure] dependancyStructure = \classInScope:dependancyStructure;
+      [Index<[]>] dependancies = \dependancyStructure:dependancies;
+      [Maybe<[]>] maybeDependancy = \dependancies:get \classID:content;
+      [Boolean] isClassInScope = \className:isEqualTo \getClassName classInScope;
+      [Boolean] hasDependancy = \[Boolean]:or isClassInScope \maybeDependancy:isOrElse [Boolean]:true [Boolean]:false;
       [Maybe<[?]>] maybeMethods = \.methodsPerClass:get \classID:content;
-   } -> \maybeMethods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
+   } -> \hasDependancy:ifOrElse (*->\maybeMethods:isOrElse (*([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods)->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
          [Maybe<[?]>] maybeMethodsMatchingID = \methods:get \methodID:content;
       } -> \maybeMethodsMatchingID:isOrElse (*([List<[DainaClassMethod<[DainaExpression]>]>] methodsMatchingID)->[Maybe<[DainaClassMethod<[DainaExpression]>]>] {
             [Variable<[?]>] varMethodMatchingInputTypes = \[Variable<[?]>]:as \[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing;
@@ -470,7 +483,10 @@
             };
          } -> \varMethodMatchingInputTypes:get) 
             (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing))
-         (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing)
+         (*->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing))
+      (*->[Maybe<[DainaClassMethod<[DainaExpression]>]>]{
+            \:addError \[Error]:missingClassDependancyForMethod className (\methodID:position);
+         }->\[Maybe<[DainaClassMethod<[DainaExpression]>]>]:nothing)
 
 
    |++ parentsOfClass *([DainaClassIdentifier] classID) -> [List<[DainaType]>] {
@@ -632,11 +648,10 @@
             @check class methods and put them in scope
             @generic class types [List<[DainaGeneralIdentifier]>] genericDeclarationList
 
+            \.classInScope:set class;
             \class:isEntryPointOrRegularClass *{
-               \.classInScope:set \[DainaClassIdentifier]:base;
                \.instanceObjects:set \[Index<[DainaObjectDeclaration]>]:empty;
             } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
-               \.classInScope:set classId;
                \.instanceObjects:set instanceObjects;
 
                @put these in, make sure methods fit and method include parent methodz

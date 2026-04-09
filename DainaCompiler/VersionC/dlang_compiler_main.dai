@@ -475,9 +475,10 @@
    :: foundDependancyRecursion *([List<[SourcePosition]>] circularDependanciesPath) -> [Error] {
    } -> (\[Error]:errorWithContext (\[String]:as ##Dependancy recursion is not allowed##) circularDependanciesPath)
 
-   :: missingClassDependancy *([SourcePosition] position) -> [Error] {
+   :: missingClassDependancyForMethod *([String] className, [SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
-   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find class dependancy##) context)
+      [String] errorPrelogue = \[String]:as ##Cannot find class dependancy '##;
+   } -> (\[Error]:errorWithContext (\errorPrelogue:appending \className:appending \[String]:as ##' for method##) context)
 
    :: localDeclarationNamesClash *([SourcePosition] position1, [SourcePosition] position2) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position1; \context:append position2;
