@@ -232,7 +232,7 @@ asdf class inside class body only accessible by outer class, can be recused clas
 asdf _ is also root/blank/anonymous value with type []
 asdf using ":: |+++" and "~ -+-" now instead of +-+ ~ and |+++ :: 
 asdf instance variables prevent implicit construction since a consdturctor becomes nessisary (might be written somewhrere)
-asdf returning ->[] is same as not returning so you can ignore a [] output (might be written somewhrere)
+asdf returning ->[] is same as not returning so you can ignore a [] output, infact you must ignore it (might be written somewhrere)
 asdf give more examples of invoking or pologue evaulations that result in methods; being used for a class method definition
 asdf if you write the method output as ->[] you must still write the output for the method even though it is root type and equivalent to no output method (might be redundant)
 asdf show example of how single statement or block method body and prologue can be accessed inside method output and prelogue, but not inside embedded block inside that (might already exist somewhere)
