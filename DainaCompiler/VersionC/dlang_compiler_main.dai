@@ -90,7 +90,6 @@
          Maybe,
          String,
          Error, M, O,
-         Maybe,
 
          Debug
       ) 
@@ -261,6 +260,14 @@
    :: expectingReverseDependancy *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting reverse dependancy##) context)
+
+   :: duplicateDependancy *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate dependancy##) context)
+
+   :: duplicateReverseDependancy *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate reverse dependancy##) context)
 
    :: expectingClosingBracketForDependancyList *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
@@ -1407,61 +1414,71 @@ import std.stdio;writeln("B::");
 
          Debug
       )
-   [List<[DainaClassIdentifier]>] dependancies
-   [List<[DainaClassIdentifier]>] dependanciesWithDerivatives
-   [List<[DainaClassIdentifier]>] reverseDependancies
+   [Index<[DainaClassIdentifier]>] dependancies
+   [Index<[DainaClassIdentifier]>] dependanciesWithDerivatives
+   [Index<[DainaClassIdentifier]>] reverseDependancies
 {
    ~ base *{
       \$~base;
-      .dependancies = \[List<[DainaClassIdentifier]>]:empty;
-      .reverseDependancies = \[List<[DainaClassIdentifier]>]:empty;
-      .dependanciesWithDerivatives = \[List<[DainaClassIdentifier]>]:empty;
+      .dependancies = \[Index<[DainaClassIdentifier]>]:empty;
+      .reverseDependancies = \[Index<[DainaClassIdentifier]>]:empty;
+      .dependanciesWithDerivatives = \[Index<[DainaClassIdentifier]>]:empty;
    }
 
-   @++ dependancies *-> .dependancies
-   @++ dependanciesWithDerivatives *-> .dependanciesWithDerivatives
-   @++ reverseDependancies *-> .reverseDependancies
+   ++ dependancies *-> .dependancies
+   ++ dependanciesWithDerivatives *-> .dependanciesWithDerivatives
+   ++ reverseDependancies *-> .reverseDependancies
 
-   ++ iterateDependancies *([[DainaClassIdentifier]->] getDependancy) {
+   @@++ iterateDependancies *([[DainaClassIdentifier]->] getDependancy) {
       \.dependancies:iterate getDependancy;
       \.reverseDependancies:iterate getDependancy;
-   }
+   }@@
 
    |++ parse *([Parser] parser) {
       \$parse parser;
       {
       \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
-         \parseIDList .dependancies ([Error]:expectingDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:as .dependanciesWithDerivatives);
+         \parseIDList .dependancies ([Error]:expectingDependancy) ([Error]:duplicateDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:as .dependanciesWithDerivatives);
          \(\[Token]:equals (\parser:token) (\[Token]:arrow)):ifOrElse *{
             \parser:gotoNextToken;
             \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
-               \parseIDList .reverseDependancies ([Error]:expectingReverseDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:nothing);
+               \parseIDList .reverseDependancies ([Error]:expectingReverseDependancy) ([Error]:duplicateReverseDependancy) (\[Maybe<[List<[DainaClassIdentifier]>]>]:nothing);
             } *{
                \parser:addError (\[Error]:expectingReverseDependancyList (\parser:position));
             };
          } *{};
       } *{};
    }  !{
-         [[List<[DainaClassIdentifier]>][[SourcePosition]->[Error]][Maybe<[List<[DainaClassIdentifier]>]>]->] parseIDList = *([List<[DainaClassIdentifier]>] list, [[SourcePosition]->[Error]] missingIDError, [Maybe<[List<[DainaClassIdentifier]>]>] maybeDerivativeList) {
+         [[Index<[DainaClassIdentifier]>][[SourcePosition]->[Error]][Maybe<[Index<[DainaClassIdentifier]>]>]->] parseIDList = *([Index<[DainaClassIdentifier]>] list, [[SourcePosition]->[Error]] missingIDError, [[SourcePosition]->[Error]] duplicateIDError, [Maybe<[Index<[DainaClassIdentifier]>]>] maybeDerivativeList) {
             \parser:gotoNextToken;
             \(\[DainaClassIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
                \[Loops]:until *([->] stop) {
                   \(\[DainaClassIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
                      [DainaClassIdentifier] id = \[DainaClassIdentifier]:base;
                      \id:parse parser;
-                     \list:append id;
+                     [Maybe<[?]>] existing = \list:get \id:content;
+                     \existing:isOrElse *{
+                        \parser:addError (\duplicateIDError (\id:position));
+                     } *{
+                        \list:set (\id:content) \[Maybe<[?]>]:as id;
+                     };
                      \(\[Token]:equals (\parser:token) \[Token]:comma):ifOrElse *{
                         \parser:gotoNextToken;
                      } stop;
                   } *{
-                     \maybeDerivativeList:isOrElse *([List<[DainaClassIdentifier]>] derivativeList) {
+                     \maybeDerivativeList:isOrElse *([Index<[DainaClassIdentifier]>] derivativeList) {
                         \(\[Token]:equals (\parser:token) \[Token]:roundBracketOpen):ifOrElse *{
                            \parser:gotoNextToken;
                            \(\[DainaClassIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
                               [DainaClassIdentifier] id = \[DainaClassIdentifier]:base;
                               \id:parse parser;
-                              \list:append id;
-                              \derivativeList:append id;
+                              [Maybe<[?]>] existing = \list:get \id:content;
+                              \existing:isOrElse *{
+                                 \parser:addError (\duplicateIDError (\id:position));
+                              } *{
+                                 \list:set (\id:content) \[Maybe<[?]>]:as id;
+                                 \derivativeList:set (\id:content) \[Maybe<[?]>]:as id;
+                              };
                               \(\[Token]:equals (\parser:token) \[Token]:roundBracketClose):ifOrElse *{
                                  \parser:gotoNextToken;
                                  \(\[Token]:equals (\parser:token) \[Token]:comma):ifOrElse *{
@@ -2424,8 +2441,23 @@ import std.stdio;writeln("B::");
          \maybeExpressionType:isOrElse *([DainaType] expressionType) {
             [Maybe<[?]>] maybeMethod = \:findMethod analyzer expressionType identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceMethod;
             \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
+
+               @@[DainaGeneralIdentifier] id = \method:identifier;
+                        \[Debug]:log (\[String]:as ##asdfQQQ:##);
+                        \[Debug]:log (\id:content);
+                        \[Debug]:log (\[String]:as ##\n##);@@
+
+
                \determineType \method:type;
             } *{
+
+                        @@\[Debug]:log (\[String]:as ##asdfSSS:##);
+                        \[Debug]:log (\identifier:content);
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\expressionType:description);
+                        \[Debug]:log (\[String]:as ##\n##);@@
+
+
                \analyzer:addError \[Error]:cannotFindInstanceMethod \identifier:position;
             };
          } *{
@@ -2457,6 +2489,10 @@ import std.stdio;writeln("B::");
             \(\methodType:get) [:[DainaTypeEnum<[]>]] {
                \$~> \[DainaTypeEnum<[]>]:default *{
                   \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
+                  \[Debug]:log (\[String]:as ##asdfNOT1:##);
+                        \[Debug]:log (\methodType:description);
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\[String]:as ##\n##);
                };
                |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
                   \determineType \[DainaType]:as outputType;
@@ -2464,6 +2500,9 @@ import std.stdio;writeln("B::");
             };
          } *{
             \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
+            \[Debug]:log (\[String]:as ##asdfNOT2:##);
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\[String]:as ##\n##);
          };
       };
       \:ifProxyObject *([DainaExpression] object) {

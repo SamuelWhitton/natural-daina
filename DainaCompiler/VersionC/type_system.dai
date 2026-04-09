@@ -381,10 +381,12 @@
    }
 
    |++ pushScope *{
+      \[Debug]:log (\[String]:as ##asdfPPPush:\n##);
       \.localObjectScopeStack:prepend \[Index<[DainaObjectDeclaration]>]:empty;
    }
 
    |++ popScope *{
+      \[Debug]:log (\[String]:as ##asdfPPPop:\n##);
       [Maybe<[?]>] firstInStack = \.localObjectScopeStack:removeFirst;
       \firstInStack:isOrElse *{} *{
          \:addError \[Error]:internalInconsistency \[String]:as ##scope escape failed##
@@ -404,10 +406,19 @@
       [Maybe<[?]>] localObjectDeclaration = \:maybeFindLocalObject identifier;
    } -> \localObjectDeclaration:isOrElse (*([DainaObjectDeclaration] a) -> a) *->[DainaObjectDeclaration]{
          \:addError \[Error]:cannotFindLocalDeclarationForIdentifier \identifier:position;
+         \[Debug]:log (\[String]:as ##asdfFFF:##);
+                        \[Debug]:log (\identifier:content);
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\[String]:as ##\n##);
       } -> \[DainaObjectDeclaration]:base
 
    |++ addLocalObject *([DainaObjectDeclaration] localObjectDeclaration) {
       [DainaGeneralIdentifier] identifier = \localObjectDeclaration:identifier;
+      \[Debug]:log (\[String]:as ##asdfAAA:##);
+                        \[Debug]:log (\identifier:content);
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\[String]:as ##\n##);
+
       [Boolean] isVoidIdentifier = \identifier:isVoidIdentifier;
       \isVoidIdentifier:ifOrElse *{} *{
          [Maybe<[?]>] existingLocalObjectDeclaration = \:maybeFindLocalObject identifier;
@@ -517,8 +528,56 @@
          };
       }@@
 
-   ++ analyze *([List<[DainaClass]>] classes) {
+   - orderClassesBasedOnDependancies *([List<[DainaClass]>] classes) -> [Maybe<[List<[DainaClass]>]>] {
+      [[DainaClass]->[String]] getClassName = *([DainaClass] class) -> [String] {
+         [Variable<[String]>] varClassName = \[Variable<[?]>]:as \[String]:as ####;
+         \class:isEntryPointOrRegularClass *{} *([DainaClassIdentifier] classId, [] _, [] __, [] ___, [] ____) {
+            \varClassName:set \classId:content;
+         };
+      } -> \varClassName:get;
+      [Index<[DainaClass]>] remaining = \[Index<[DainaClass]>]:empty;
+      \classes:iterate *([DainaClass] class) {
+         \remaining:set (\getClassName class) \[Maybe<[?]>]:as class;
+      };
+      [List<[DainaClass]>] classOrder = \[List<[DainaClass]>]:empty;
+   } -> \[Loops]:until *([[Maybe<[List<[DainaClass]>]>]->] finish) {
+         [List<[DainaClass]>] toAddToOrder = \[List<[DainaClass]>]:empty;
+         [Variable<[Boolean]>] varSomeRemaining = \[Variable<[Boolean]>]:as \[Boolean]:false;
+         \remaining:iterate *([DainaClass] class) {
+            \varSomeRemaining:set \[Boolean]:true;
+            [DainaDependancyStructure] dependancyStructure = \class:dependancyStructure;
+            [Index<[DainaClassIdentifier]>] dependancies = \dependancyStructure:dependancies;
+            [Variable<[Boolean]>] allDependanciesSatisfied = \[Variable<[Boolean]>]:as \[Boolean]:true;
+            \dependancies:iterate *([DainaClassIdentifier] dependancy) {
+               [Maybe<[?]>] inRemaining = \remaining:get \dependancy:content;
+               \inRemaining:isOrElse *{\allDependanciesSatisfied:set \[Boolean]:false} *{};
+            };
+            [Boolean] addToOrder = \allDependanciesSatisfied:get;
+            \addToOrder:ifOrElse *{\toAddToOrder:append class} *{};
+         };
+         [Boolean] someRemaining = \varSomeRemaining:get;
+         \someRemaining:ifOrElse *{
+            \toAddToOrder:iterate *([DainaClass] toAdd) {
+               \remaining:set (\getClassName toAdd) \[Maybe<[DainaClass]>]:nothing;
+               \classOrder:append toAdd;
+            };
+            [Boolean] loopedDependanciesDetected = \0:isEqualTo \toAddToOrder:length;
+            \loopedDependanciesDetected:ifOrElse *{
+               [List<[SourcePosition]>] involvedDependancies = \[List<[SourcePosition]>]:empty;
+               \remaining:iterate *([DainaClass] involvedDependancy) {
+                  \involvedDependancies:append \involvedDependancy:position
+               };
+               \:addError \[Error]:foundDependancyRecursion involvedDependancies;
+               \finish \[Maybe<[?]>]:nothing;
+            } *{};
+         } *{
+            \finish \[Maybe<[?]>]:as classOrder;
+         };
+      } !{[Natural] 0 = \[Natural]:as ##0##}
 
+
+
+   ++ analyze *([List<[DainaClass]>] classes) {
       [Index<[DainaClass]>] visited = \[Index<[DainaClass]>]:empty;
       \classes:iterate *([DainaClass] class) {
          \class:isEntryPointOrRegularClass *([DainaDependancyStructure] dependancyStructure, [DainaExpression] entryPointMethod) {
@@ -551,30 +610,48 @@
       @@\classes:iterate *([DainaClass] class) {
          \:checkForCircularDependancies (\class:position) class (\[List<[DainaClassIdentifier]>]:empty) (\[Index<[DainaClassIdentifier]>]:empty) visited;
       };@@
-
-
-      \classes:iterate *([DainaClass] class) {
-         @check instance objects and put them in scope
-         @check class methods and put them in scope
-         @generic class types [List<[DainaGeneralIdentifier]>] genericDeclarationList
-
-         \class:isEntryPointOrRegularClass *{
-            \.classInScope:set \[DainaClassIdentifier]:base;
-            \.instanceObjects:set \[Index<[DainaObjectDeclaration]>]:empty;
-         } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
-            \.classInScope:set classId;
-            \.instanceObjects:set instanceObjects;
-
-@put these in, make sure methods fit and method include parent methodz
-            @[Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
- @  [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
-
+@@
+      [Maybe<[?]>] asdf = \.methodsPerClass:get \[String]:as ##DainaGeneralIdentifier##;
+      \asdf:isOrElse *([Index<[List<[DainaClassMethod<[DainaExpression]>]>]>] methods){
+         \[Debug]:log (\[String]:as ##asdfD\n##);
+         [Maybe<[?]>] methodListMaybe = \methods:get \[String]:as ##content##;
+         \methodListMaybe:isOrElse *([List<[]>] ddd){
+            \[Debug]:log (\[String]:as ##asdfG\n##);
+            \[Debug]:log (\[String]:stringFormatOf \ddd:length);
+            \[Debug]:log (\[String]:as ##\n##);
+            } *{
+\[Debug]:log (\[String]:as ##asdfH\n##);
          };
+      } *{
+         \[Debug]:log (\[String]:as ##asdfM\n##);
+      };@@
+      [Maybe<[List<[DainaClass]>]>] maybeClassOrder = \:orderClassesBasedOnDependancies classes;
+      \maybeClassOrder:isOrElse *([List<[DainaClass]>] classOrder) {
+         \classOrder:iterate *([DainaClass] class) {
+            @check instance objects and put them in scope
+            @check class methods and put them in scope
+            @generic class types [List<[DainaGeneralIdentifier]>] genericDeclarationList
+
+            \class:isEntryPointOrRegularClass *{
+               \.classInScope:set \[DainaClassIdentifier]:base;
+               \.instanceObjects:set \[Index<[DainaObjectDeclaration]>]:empty;
+            } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
+               \.classInScope:set classId;
+               \.instanceObjects:set instanceObjects;
+
+               @put these in, make sure methods fit and method include parent methodz
+               @[Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
+               @  [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
+
+            };
 
 
 
-         \class:analyze ^;
-      };
+            \class:analyze ^;
+         };
+      } *{};
+
+      
 
 
 

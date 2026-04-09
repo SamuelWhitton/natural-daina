@@ -1,5 +1,5 @@
-+dlang_compiler_main.dai
 +core.dai
++dlang_compiler_main.dai
 +to_remove.dai
 +type_system.dai
 ~dlang:daina.d
