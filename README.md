@@ -237,6 +237,7 @@ asdf give more examples of invoking or pologue evaulations that result in method
 asdf if you write the method output as ->[] you must still write the output for the method even though it is root type and equivalent to no output method (might be redundant)
 asdf show example of how single statement or block method body and prologue can be accessed inside method output and prelogue, but not inside embedded block inside that (might already exist somewhere)
 asdf can remove the [?] in a local declaration??
+asdf entryPoint is not required, might be written somewhere?
 
 
 ---
