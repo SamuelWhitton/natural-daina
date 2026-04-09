@@ -2568,7 +2568,14 @@ import std.stdio;writeln("B::");
                \analyzer:addError \[Error]:declaredTypeDoesNotMatchAssignedExpression \declaration:position;
             };
          } *{
-            \analyzer:addError \[Error]:assignedExpressionMustEvaluateToObject \assignedExpression:position;
+            [Variable<[->]>] varDo = \[Variable<[->]>]:as *\analyzer:addError \[Error]:assignedExpressionMustEvaluateToObject \assignedExpression:position;
+            \assignedExpression:ifCompilerInjection *{
+               \varDo:set *{
+                  \analyzer:addLocalObject declaration;
+               };
+            };
+            [->] do = \varDo:get;
+            \do;
          };
       };
 
