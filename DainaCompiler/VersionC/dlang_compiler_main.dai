@@ -9,7 +9,7 @@
 
 
 
-[] (StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
+[] (Daina, Configuration, StandardIO, File, String, Byte, Data, List, Integer, Natural, Sequence, Boolean, Loops, Variable, Mapping, Maybe, SourcePosition, Error) {
    *{
       \[Daina]:run \[Configuration]:init;
 
@@ -90,6 +90,8 @@
          Maybe,
          String,
          Error, M, O,
+         Variable,
+         SourcePosition,
 
          Debug
       ) 
@@ -163,7 +165,7 @@
 
 
 
-[Error] (Object, String, SourcePosition, List, Variable)
+[Error] (Object, String, SourcePosition, List, Variable, Loops)
    [String] errorString
 {
    ++ description *-> [String] {
@@ -601,7 +603,7 @@
 }
 
 
-[Configuration] (Maybe, Error, String, StandardIO) {
+[Configuration] (Maybe, Error, String, StandardIO, Natural, Data, Byte, File, Variable) {
    
    ~ init *{}
 
@@ -795,7 +797,8 @@ import std.stdio;writeln("B::");
          Variable,
          Loops,
          Data,
-         Integer
+         Integer,
+         Natural
       ) 
    [->[Maybe<[Byte]>]] inputStream
    [List<[Error]>] errors
@@ -1202,7 +1205,7 @@ import std.stdio;writeln("B::");
 
 
 
-[Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String, Character, Loops, Variable, Data) 
+[Commands] (InputStream, CommandReader, Maybe, Byte, Debug, Boolean, String, Character, Loops, Variable, Data, Natural, List) 
    [->[Maybe<[Byte]>]] inputStream
    [Maybe<[Character]>] currentCharacter
 {
@@ -1416,7 +1419,7 @@ import std.stdio;writeln("B::");
          DainaGeneralIdentifier,
          SourcePosition,
          DainaClassIdentifier,
-
+         Index,
          Debug
       )
    [Index<[DainaClassIdentifier]>] dependancies
@@ -1819,7 +1822,9 @@ import std.stdio;writeln("B::");
          Integer,
          DainaCompilerInjection,
          DainaASTComponent,
-
+         DainaAnalyzerScope,
+         DainaTypeEnum,
+         DainaClassIdentifier,
          Debug
       )
    [Variable<[Maybe<[DainaType]>]>] evaluatedType
@@ -2639,6 +2644,9 @@ import std.stdio;writeln("B::");
          DainaClassMethod,
          DainaCompilerInjection,
          DainaASTComponent,
+         Index,
+         DainaGeneralIdentifier,
+         DainaAnalyzerScope,
 
          Debug
       )
@@ -2906,6 +2914,9 @@ import std.stdio;writeln("B::");
          Integer,
          DainaGeneralIdentifier,
          Mapping,
+         Index,
+         Natural,
+
          Debug
       )
    [[Data]->] output
@@ -3776,6 +3787,8 @@ import std.stdio;writeln("B::");
          List,
          Maybe,
          DLangSynthesizer,
+         Integer,
+         DainaAnalyzer,
 
          Debug
       ) 

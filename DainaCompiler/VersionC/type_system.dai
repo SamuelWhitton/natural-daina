@@ -51,6 +51,7 @@
          DainaClassIdentifier,
          DainaGeneralIdentifier,
          DainaTypeEnum,
+         Natural,
 
          Debug
       )
@@ -350,7 +351,17 @@
          Integer,
          DainaClass,
          Index,
-         Analyzer
+         Analyzer,
+         Natural,
+         DainaGeneralIdentifier,
+         DainaObjectDeclaration,
+         DainaClassIdentifier,
+         DainaType,
+         DainaTypeEnum,
+         DainaClassMethod,
+         DainaDependancyStructure,
+
+         Debug
       ) 
    [List<[Error]>] errors
    [Variable<[Maybe<[DainaClass]>]>] entryPoint
