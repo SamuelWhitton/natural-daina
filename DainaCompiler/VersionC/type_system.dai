@@ -415,7 +415,15 @@
 
    |++ findLocalObject *([DainaGeneralIdentifier] identifier) -> [DainaObjectDeclaration] {
       [Maybe<[?]>] localObjectDeclaration = \:maybeFindLocalObject identifier;
-   } -> \localObjectDeclaration:isOrElse (*([DainaObjectDeclaration] a) -> a) *->[DainaObjectDeclaration]{
+   } -> \localObjectDeclaration:isOrElse (*([DainaObjectDeclaration] a)->[DainaObjectDeclaration]{
+\[Debug]:log (\[String]:as ##asdfGGG:##);
+                        \[Debug]:log (\identifier:content);
+                        \[Debug]:log (\[String]:as ##:##);
+                        [DainaType] paramType = \a:type;
+                        \[Debug]:log (\paramType:description);
+                        \[Debug]:log (\[String]:as ##\n##);
+
+      } -> a) *->[DainaObjectDeclaration]{
          \:addError \[Error]:cannotFindLocalDeclarationForIdentifier \identifier:position;
          \[Debug]:log (\[String]:as ##asdfFFF:##);
                         \[Debug]:log (\identifier:content);
@@ -428,6 +436,8 @@
       \[Debug]:log (\[String]:as ##asdfAAA:##);
                         \[Debug]:log (\identifier:content);
                         \[Debug]:log (\[String]:as ##:##);
+                        [DainaType] paramType = \localObjectDeclaration:type;
+                        \[Debug]:log (\paramType:description);
                         \[Debug]:log (\[String]:as ##\n##);
 
       [Boolean] isVoidIdentifier = \identifier:isVoidIdentifier;
@@ -662,16 +672,18 @@
             \.classInScope:set class;
             \class:isEntryPointOrRegularClass *{
                \.instanceObjects:set \[Index<[DainaObjectDeclaration]>]:empty;
+               \[Debug]:log (\[String]:as ##ClassAnalyzingg:<ENTRY>\n##);
             } *([DainaClassIdentifier] classId, [List<[DainaType]>] inheritedParentTypes, [Index<[DainaObjectDeclaration]>] instanceObjects, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods, [List<[DainaCompilerInjection]>] compilerInjections) {
                \.instanceObjects:set instanceObjects;
-
+               \[Debug]:log (\[String]:as ##ClassAnalyzingg:##);
+               \[Debug]:log \classId:content;
+               \[Debug]:log (\[String]:as ##\n##);
                @put these in, make sure methods fit and method include parent methodz
                @[Index<[Index<[List<[DainaClassMethod<[DainaExpression]>]>]>]>] methodsPerClass
                @  [Index<[Index<[DainaObjectDeclaration]>]>] instanceObjectsPerClass
 
             };
-
-
+            
 
             \class:analyze ^;
          };

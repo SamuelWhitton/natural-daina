@@ -2450,15 +2450,18 @@ import std.stdio;writeln("B::");
          [Maybe<[?]>] maybeExpressionType = (\instanceExpression:evaluatedType);
          \maybeExpressionType:isOrElse *([DainaType] expressionType) {
             [Maybe<[?]>] maybeMethod = \:findMethod analyzer expressionType identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \method:isInstanceMethod;
-            \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
-
-               @@[DainaGeneralIdentifier] id = \method:identifier;
+            \maybeMethod:isOrElse *([Method] methodResult) {
+               [DainaClassMethod<[DainaExpression]>] method = \methodResult:method;
+               [DainaType] t = \method:type;
+               [DainaGeneralIdentifier] id = \method:identifier;
                         \[Debug]:log (\[String]:as ##asdfQQQ:##);
                         \[Debug]:log (\id:content);
-                        \[Debug]:log (\[String]:as ##\n##);@@
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\t:description);
+                        \[Debug]:log (\[String]:as ##\n##);
 
 
-               \determineType \method:type;
+               \determineType \methodResult:type;
             } *{
 
                         @@\[Debug]:log (\[String]:as ##asdfSSS:##);
@@ -2466,6 +2469,14 @@ import std.stdio;writeln("B::");
                         \[Debug]:log (\[String]:as ##:##);
                         \[Debug]:log (\expressionType:description);
                         \[Debug]:log (\[String]:as ##\n##);@@
+                        \[Debug]:log (\[String]:as ##asdfDDD:##);
+                        \[Debug]:log (\identifier:content);
+                        \[Debug]:log (\[String]:as ##:##);
+                        \[Debug]:log (\expressionType:description);
+                        \[Debug]:log (\[String]:as ##\n##);
+                        [SourcePosition] pos = \identifier:position;
+                        \[Debug]:log \pos:description;
+                        \[Debug]:log (\[String]:as ##\n##);
 
 
                \analyzer:addError \[Error]:cannotFindInstanceMethod \identifier:position;
@@ -2476,9 +2487,10 @@ import std.stdio;writeln("B::");
       };
       \:ifTypeMethod *([DainaType] type, [DainaGeneralIdentifier] identifier) {
          [Maybe<[?]>] maybeMethod = \:findMethod analyzer type identifier (\[Maybe<[List<[DainaType]>]>]:nothing) *([DainaClassMethod<[DainaExpression]>] method) -> \[Boolean]:or (\method:isTypeMethod) (\method:isConstructorMethod);
-         \maybeMethod:isOrElse *([DainaClassMethod<[DainaExpression]>] method) {
+         \maybeMethod:isOrElse *([Method] methodResult) {
+            [DainaClassMethod<[DainaExpression]>] method = \methodResult:method;
             [Boolean] isConstructorMethod = \method:isConstructorMethod;
-            [DainaType] methodType = \method:type;
+            [DainaType] methodType = \methodResult:type;
             [DainaType] invokedMethodType = \isConstructorMethod:ifOrElse (*->\(\methodType:get) [:[DainaTypeEnum<[DainaType]>]] {
                \$~> \[DainaTypeEnum<[]>]:default *->methodType
                |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputTypes, [[DainaTypeEnum<['A]>]->['A]] outputType)
@@ -2587,31 +2599,47 @@ import std.stdio;writeln("B::");
             \do;
          };
       };
-
    }
 
-   - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+   - instantiateWithGenerics *([DainaType] typeToInstantiate, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [DainaType] {
+      @asdfasdfasdf
+   } -> typeToInstantiate
+
+   - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[Method]>] {
       [DainaClassIdentifier] rootClass = \(\owner:get) [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
          |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
       };
    } -> \:recursive_findMethod analyzer rootClass owner methodID inputTypes chooseMethod
 
-   - recursive_findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaClassIdentifier] rootClass, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[DainaClassMethod<[DainaExpression]>]>] {
+   - recursive_findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaClassIdentifier] rootClass, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[Method]>] {
       [DainaClassIdentifier] classID = \(\owner:get) [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
-         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> id
+         |++ classAndGenerics *([DainaClassIdentifier] id, [] _) -> id
       };
-      [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClass = \analyzer:findClassMethod rootClass classID methodID inputTypes chooseMethod;
-      [Variable<[?]>] foundMethod = \[Variable<[?]>]:as fromThisClass;
-      \fromThisClass:isOrElse *{} *{
+      [List<[[DainaTypeEnum<['A]>]->['A]]>] generics = \(\owner:get) [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default *-> \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+         |++ classAndGenerics *([] _, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> generics
+      };
+      [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClassOwner = \analyzer:findClassMethod rootClass classID methodID inputTypes chooseMethod;
+      [Variable<[?]>] foundMethod = \[Variable<[?]>]:as \[Maybe<[Method]>]:nothing;
+      \fromThisClassOwner:isOrElse *([DainaClassMethod<[DainaExpression]>] ownerMethod) {
+         [DainaType] instantiatedMethodType = \:instantiateWithGenerics (\ownerMethod:type) generics;
+         \foundMethod:set \[Maybe<[Method]>]:as [:[Method]] {
+            |++ method *->ownerMethod
+            |++ type *->instantiatedMethodType
+         };
+      } *{
          [List<[?]>] parents = \analyzer:parentsOfClass classID;
          \parents:iterate *([DainaType] parent) {
-            [Maybe<[DainaClassMethod<[DainaExpression]>]>] maybeFromParentClass = \:recursive_findMethod analyzer rootClass parent methodID inputTypes chooseMethod;
-            \maybeFromParentClass:isOrElse *([DainaClassMethod<[DainaExpression]>] fromParentClass) {
+            [DainaType] instantiatedParent = \:instantiateWithGenerics parent generics;
+            [Maybe<[Method]>] maybeFromParentClass = \:recursive_findMethod analyzer rootClass instantiatedParent methodID inputTypes chooseMethod;
+            \maybeFromParentClass:isOrElse *([Method] fromParentClass) {
+               [DainaClassMethod<[DainaExpression]>] fromParentClassMethod = \fromParentClass:method;
                [Maybe<[?]>] maybeExisting = \foundMethod:get;
-               \maybeExisting:isOrElse *([DainaClassMethod<[DainaExpression]>] existing) {
-                  \analyzer:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\existing:position) (\fromParentClass:position);
+               \maybeExisting:isOrElse *([Method] existingMethod) {
+                  [DainaClassMethod<[DainaExpression]>] existing = \existingMethod:method;
+                  \analyzer:addError \[Error]:ambigousOverloadedMethodInvocation (\methodID:position) (\existing:position) (\fromParentClassMethod:position);
                } *{
                   \foundMethod:set \[Maybe<[?]>]:as fromParentClass;
                };
@@ -2621,7 +2649,10 @@ import std.stdio;writeln("B::");
    } -> \foundMethod:get
 }
 
-
+[Method] (DainaClassMethod, DainaExpression, DainaType) {
+   ++ method [->[DainaClassMethod<[DainaExpression]>]]
+   ++ type [->[DainaType]]
+}
 
 
 [DainaClass :[DainaASTComponent]] (
