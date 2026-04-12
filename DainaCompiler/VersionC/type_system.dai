@@ -326,6 +326,7 @@
    ++ findInstanceObject [[&GENERAL_ID]->[&OBJECT_DECLARATION]]
    ++ findClassMethod [[&CLASS_ID][&GENERAL_ID][Maybe<[List<[&TYPE]>]>][[&CLASS_METHOD]->[Boolean]]->[Maybe<[&CLASS_METHOD]>]]
    ++ parentsOfClass [[&CLASS_ID]->[List<[&TYPE]>]]
+   ++ instantiateWithGenerics [[&TYPE][&CLASS_ID][List<[&TYPE]>]->[&TYPE]]
 }
 
 [DainaAnalyzerScope<DainaExpression> :[AnalyzerScope<[DainaType][DainaClassIdentifier][DainaGeneralIdentifier][DainaClassMethod<[&DainaExpression]>][DainaObjectDeclaration]>]] (@[DainaClassIdentifier][&DainaClass]
@@ -403,6 +404,83 @@
          \:addError \[Error]:internalInconsistency \[String]:as ##scope escape failed##
       };
    }
+
+   - instantiateGenerics *([[DainaTypeEnum<['A]>]->['A]] typeToInstantiate, [[String]->[Maybe<[[DainaTypeEnum<['A]>]->['A]]>]] typeForGenericName) -> [[DainaTypeEnum<['A]>]->['A]] {
+      [DainaAnalyzer] analyzer = ^;
+      [[[DainaTypeEnum<['A]>]->['A]]->[[DainaTypeEnum<['A]>]->['A]]] instantiateTypeSingular = *([[DainaTypeEnum<['A]>]->['A]] type) -> \:instantiateGenerics type typeForGenericName;
+      
+      [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[List<[[DainaTypeEnum<['A]>]->['A]]>]] instantiateTypeList = *([List<[[DainaTypeEnum<['A]>]->['A]]>] typeList) -> [List<[[DainaTypeEnum<['A]>]->['A]]>] {
+         [List<[[DainaTypeEnum<['A]>]->['A]]>] instantiated = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+         \typeList:iterate *([[DainaTypeEnum<['A]>]->['A]] typeEnum) {
+            \instantiated:append \instantiateTypeSingular typeEnum;
+         }
+      } -> instantiated;
+
+      \[Debug]:log (\[String]:as ##asdfl1:##);
+      [DainaType] t = \[DainaType]:as typeToInstantiate;
+      \[Debug]:log \t:description;
+      \[Debug]:log (\[String]:as ##\n##);
+      [?] instantiated = \typeToInstantiate [:[DainaTypeEnum<[[DainaTypeEnum<['A]>]->['A]]>]] {
+         |++ root *->typeToInstantiate
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [[DainaTypeEnum<['A]>]->['A]] {
+            \[Debug]:log (\[String]:as ##asdf:t1\n##);
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics id \instantiateTypeList generics
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputs, [[DainaTypeEnum<['A]>]->['A]] outputEnum) -> [[DainaTypeEnum<['A]>]->['A]] {
+            \[Debug]:log (\[String]:as ##asdf:t2\n##);
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:method (\instantiateTypeList inputs) (\instantiateTypeSingular outputEnum)
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes) -> [[DainaTypeEnum<['A]>]->['A]] {
+            \[Debug]:log (\[String]:as ##asdf:t3\n##);
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:disjoint (\instantiateTypeList subtypes)
+         |++ classGeneric *([DainaGeneralIdentifier] id) -> [[DainaTypeEnum<['A]>]->['A]] {
+            \[Debug]:log (\[String]:as ##asdf:t4\n##);
+            [Maybe<[[DainaTypeEnum<['A]>]->['A]]>] maybeInstantiated = \typeForGenericName \id:content;
+            \[Debug]:log (\[String]:as ##asdf:t4-\n##);
+         } -> \maybeInstantiated:isOrElse (*(a)->a) *->[[DainaTypeEnum<['A]>]->['A]]{
+            \analyzer:addError \[Error]:missingClassGeneric \id:position;
+         }->typeToInstantiate
+         |++ methodGeneric *->typeToInstantiate
+         |++ dataSegment *->typeToInstantiate
+         |++ inferred *->typeToInstantiate
+         |++ inferredMethodContext *->typeToInstantiate
+         |++ inferredSelfContext *->typeToInstantiate
+         |++ inferredParentContext *->typeToInstantiate
+      };
+      \[Debug]:log (\[String]:as ##asdfl2:\n##);
+   } -> instantiated
+
+   |++ instantiateWithGenerics *([DainaType] typeToInstantiate, [DainaClassIdentifier] classID, [List<[DainaType]>] generics) -> [DainaType] {
+      [Maybe<[DainaType]>] maybeInstantiated = \[Maybe<[DainaType]>]:if *([[DainaType]->] instantiate) {
+         [Maybe<[DainaClass]>] maybeClass = \.classIndex:get \classID:content;
+         \maybeClass:isOrElse *([DainaClass] class) {
+            [DainaGenericDeclarationList] genericDeclarationList = \class:genericDeclarationList;
+            [Natural] instantiationLength = \generics:length;
+            [Boolean] genericListLengthMatches = \instantiationLength:isEqualTo \genericDeclarationList:length;
+            \genericListLengthMatches:ifOrElse *{
+               \[Debug]:log (\[String]:as ##asdf:m0\n##);
+               \instantiate \[DainaType]:as \:instantiateGenerics (\typeToInstantiate:get) *([String] genericName) -> [Maybe<[[DainaTypeEnum<['A]>]->['A]]>] {
+                  \[Debug]:log (\[String]:as ##asdf:m1\n##);
+                  [Maybe<[Natural]>] index = \genericDeclarationList:indexOf genericName;
+                   \[Debug]:log (\[String]:as ##asdf:m2\n##);
+                  [Maybe<[DainaType]>] genericForName = \index:isOrElse (*([Natural]i)->\generics:atIndex i) [Maybe<[DainaType]>]:nothing;
+                   \[Debug]:log (\[String]:as ##asdf:m3\n##);
+                   [] _ = << dlang ##import std.stdio;writeln(LOBJECT_genericForName);##;
+                   [Maybe<[[DainaTypeEnum<['A]>]->['A]]>] instantiatedType = \genericForName:isOrElse (*([DainaType]t)->[Maybe<[[DainaTypeEnum<['A]>]->['A]]>]{
+                     [] _ = << dlang ##import std.stdio;writeln(LOBJECT_t);##;
+                     [] asdf = \t:get;
+                     [] _ = << dlang ##import std.stdio;writeln(LOBJECT_asdf);##;
+                     
+                  }->\[Maybe<[[DainaTypeEnum<['A]>]->['A]]>]:as asdf) [Maybe<[[DainaTypeEnum<['A]>]->['A]]>]:nothing;
+                   \[Debug]:log (\[String]:as ##asdf:m4\n##);
+               } -> instantiatedType
+               \[Debug]:log (\[String]:as ##asdf:m5\n##);
+            } *{
+               \:addError \[Error]:internalInconsistency \[String]:as ##generic instantiation didn't match##;
+            };
+         } *{
+            \:addError \[Error]:internalInconsistency \[String]:as ##unknown class##;
+         };
+      };
+   } -> \maybeInstantiated:isOrElse (*(a)->a) *->typeToInstantiate
 
    - maybeFindLocalObject *([DainaGeneralIdentifier] identifier) -> [Maybe<[DainaObjectDeclaration]>] {
       [Maybe<[?]>] localObjectDeclaration = \[Maybe<[DainaObjectDeclaration]>]:if *([[DainaObjectDeclaration]->] foundLocalObject) {

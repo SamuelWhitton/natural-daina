@@ -257,6 +257,10 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting closing bracket for generic declaration list##) context)
 
+   :: duplicateClassGeneric *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Duplicate class generic##) context)
+
    :: expectingDependancy *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Expecting dependancy##) context)
@@ -475,6 +479,10 @@
    :: missingClass *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find class##) context)
+
+   :: missingClassGeneric *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Cannot find class generic##) context)
 
    :: foundDependancyRecursion *([List<[SourcePosition]>] circularDependanciesPath) -> [Error] {
    } -> (\[Error]:errorWithContext (\[String]:as ##Dependancy recursion is not allowed##) circularDependanciesPath)
@@ -1367,17 +1375,21 @@ import std.stdio;writeln("B::");
          String,
          Error, M, O,
          DainaGeneralIdentifier,
+         Natural,
 
          Debug
       )
-   [List<[DainaGeneralIdentifier]>] generics
+   [Index<[Natural]>] positionOfGenerics
+   [Variable<[Natural]>] numberOfGenerics
 {
    ~ base *{
       \$~base;
-      .generics = \[List<[DainaGeneralIdentifier]>]:empty;
+      .positionOfGenerics = \[Index<[Natural]>]:empty;
+      .numberOfGenerics = \[Variable<[?]>]:as \[Natural]:as ##0##;
    }
 
-   ++ get *->.generics
+   ++ indexOf *([String] genericName) -> \.positionOfGenerics:get genericName
+   ++ length .numberOfGenerics:get
 
    |++ parse *([Parser] parser) {
       \$parse parser;
@@ -1387,7 +1399,14 @@ import std.stdio;writeln("B::");
             \(\[DainaGeneralIdentifier]:isFirstToken (\parser:token)):ifOrElse *{
                [DainaGeneralIdentifier] generic = \[DainaGeneralIdentifier]:base;
                \generic:parse parser;
-               \.generics:append generic;
+               [Maybe<[]>] existing = \.positionOfGenerics:get \generic:content;
+               \existing:isOrElse *{
+                  \parser:addError (\[Error]:duplicateClassGeneric (\parser:position));
+               } *{
+                  [Natural] currentIndex = \.numberOfGenerics:get;
+                  \.positionOfGenerics:set (\generic:content) \[Maybe<[?]>]:as currentIndex;
+                  \.numberOfGenerics:set \currentIndex:adding \[Natural]:as ##1##;
+               };
                \(\[Token]:equals (\parser:token) \[Token]:comma):ifOrElse *{
                   \parser:gotoNextToken;
                } stop;
@@ -2601,10 +2620,6 @@ import std.stdio;writeln("B::");
       };
    }
 
-   - instantiateWithGenerics *([DainaType] typeToInstantiate, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [DainaType] {
-      @asdfasdfasdf
-   } -> typeToInstantiate
-
    - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[Method]>] {
       [DainaClassIdentifier] rootClass = \(\owner:get) [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
@@ -2613,18 +2628,21 @@ import std.stdio;writeln("B::");
    } -> \:recursive_findMethod analyzer rootClass owner methodID inputTypes chooseMethod
 
    - recursive_findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaClassIdentifier] rootClass, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[Method]>] {
-      [DainaClassIdentifier] classID = \(\owner:get) [:[DainaTypeEnum<[]>]] {
+      [DainaClassIdentifier] classID = \(\owner:get) [:[DainaTypeEnum<[DainaClassIdentifier]>]] {
          \$~> \[DainaTypeEnum<[]>]:default *-> \[DainaClassIdentifier]:base;
          |++ classAndGenerics *([DainaClassIdentifier] id, [] _) -> id
       };
-      [List<[[DainaTypeEnum<['A]>]->['A]]>] generics = \(\owner:get) [:[DainaTypeEnum<[]>]] {
-         \$~> \[DainaTypeEnum<[]>]:default *-> \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
-         |++ classAndGenerics *([] _, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> generics
+      [List<[DainaType]>] generics = \(\owner:get) [:[DainaTypeEnum<[DainaType]>]] {
+         \$~> \[DainaTypeEnum<[DainaType]>]:default *-> \[List<[DainaType]>]:empty;
+         |++ classAndGenerics *([] _, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [List<[DainaType]>] {
+            [List<[DainaType]>] genericTypes = \[List<[DainaType]>]:empty;
+            \generics:iterate *([[DainaTypeEnum<['A]>]->['A]] generic) \genericTypes:append \[DainaType]:as generic;
+         } -> genericTypes
       };
       [Maybe<[DainaClassMethod<[DainaExpression]>]>] fromThisClassOwner = \analyzer:findClassMethod rootClass classID methodID inputTypes chooseMethod;
       [Variable<[?]>] foundMethod = \[Variable<[?]>]:as \[Maybe<[Method]>]:nothing;
       \fromThisClassOwner:isOrElse *([DainaClassMethod<[DainaExpression]>] ownerMethod) {
-         [DainaType] instantiatedMethodType = \:instantiateWithGenerics (\ownerMethod:type) generics;
+         [DainaType] instantiatedMethodType = \analyzer:instantiateWithGenerics (\ownerMethod:type) classID generics;
          \foundMethod:set \[Maybe<[Method]>]:as [:[Method]] {
             |++ method *->ownerMethod
             |++ type *->instantiatedMethodType
@@ -2632,7 +2650,7 @@ import std.stdio;writeln("B::");
       } *{
          [List<[?]>] parents = \analyzer:parentsOfClass classID;
          \parents:iterate *([DainaType] parent) {
-            [DainaType] instantiatedParent = \:instantiateWithGenerics parent generics;
+            [DainaType] instantiatedParent = \analyzer:instantiateWithGenerics parent classID generics;
             [Maybe<[Method]>] maybeFromParentClass = \:recursive_findMethod analyzer rootClass instantiatedParent methodID inputTypes chooseMethod;
             \maybeFromParentClass:isOrElse *([Method] fromParentClass) {
                [DainaClassMethod<[DainaExpression]>] fromParentClassMethod = \fromParentClass:method;
@@ -2693,7 +2711,7 @@ import std.stdio;writeln("B::");
 {
    ++ dependancyStructure *->.dependancyStructure
 
-   ++ genericDeclarationList *->\.genericDeclarationList:get
+   ++ genericDeclarationList *->.genericDeclarationList
 
 
    :: parseClasses *([Parser] parser) -> [List<[DainaClass]>] {
