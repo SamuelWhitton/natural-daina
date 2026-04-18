@@ -1348,6 +1348,11 @@ import std.stdio;writeln("B::");
       .content = \[String]:as ####;
    }
 
+   ~ as *([String] content) {
+      \$~base;
+      .content = content;
+   }
+
    ++ content *->.content
 
    ++ isVoidIdentifier *-> \.content:isEqualTo \[String]:as ##_##
@@ -2448,7 +2453,7 @@ import std.stdio;writeln("B::");
             \paramTypes:append \paramType:get;
          };
             @[] _ = << dlang ##import std.stdio;writeln(LOBJECT_declaredOutputType);##;
-         \determineType \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method (paramTypes) \declaredOutputType:get;
+         \determineType \[DainaType]:raisingMethodGenericsOf \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method (paramTypes) \declaredOutputType:get;
 
          \body:analyze analyzer;
          \maybeOutput:isOrElse *([DainaExpression] output) {
@@ -2458,7 +2463,7 @@ import std.stdio;writeln("B::");
             \declaredOutputTypeIsConcrete:ifOrElse *{} *{
                [Maybe<[DainaType]>] maybeOutputEvaluatedType = \output:evaluatedType;
                \maybeOutputEvaluatedType:isOrElse *([DainaType] outputEvaluatedType) {
-                  \determineType \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method (paramTypes) \outputEvaluatedType:get;
+                  \determineType \[DainaType]:raisingMethodGenericsOf \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:method (paramTypes) \outputEvaluatedType:get;
                } *{};
             };
          } *{};

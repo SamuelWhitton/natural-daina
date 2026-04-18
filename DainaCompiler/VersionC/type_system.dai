@@ -77,6 +77,35 @@
       .representedType = \[Variable<[?]>]:as enum;
    } 
 
+   :: raisingMethodGenericsOf *([DainaType] original) -> \[DainaType]:as \[DainaType]:recursive_raisingMethodGenericsOf \original:get
+
+   :: - recursive_raisingMethodGenericsOf *([[DainaTypeEnum<['A]>]->['A]] original) -> [[DainaTypeEnum<['A]>]->['A]] {
+      [[[DainaTypeEnum<['A]>]->['A]]->[[DainaTypeEnum<['A]>]->['A]]] raiseSingular = *([[DainaTypeEnum<['A]>]->['A]] type) -> \[DainaType]:recursive_raisingMethodGenericsOf type;
+      [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[List<[[DainaTypeEnum<['A]>]->['A]]>]] raiseList = *([List<[[DainaTypeEnum<['A]>]->['A]]>] typeList) -> [List<[[DainaTypeEnum<['A]>]->['A]]>] {
+         [List<[[DainaTypeEnum<['A]>]->['A]]>] raised = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+         \typeList:iterate *([[DainaTypeEnum<['A]>]->['A]] typeEnum) {
+            \raised:append \raiseSingular typeEnum;
+         }
+      } -> raised;
+      [?] raised = \original [:[DainaTypeEnum<[[DainaTypeEnum<['A]>]->['A]]>]] {
+         |++ root *->original
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [[DainaTypeEnum<['A]>]->['A]] {
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics id \raiseList generics
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputs, [[DainaTypeEnum<['A]>]->['A]] outputEnum) -> [[DainaTypeEnum<['A]>]->['A]] {
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:method (\raiseList inputs) (\raiseSingular outputEnum)
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes) -> [[DainaTypeEnum<['A]>]->['A]] {
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:disjoint (\raiseList subtypes)
+         |++ classGeneric *->original
+         |++ methodGeneric *([Natural] level, [DainaGeneralIdentifier] id) -> [[DainaTypeEnum<['A]>]->['A]] {  
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:methodGeneric (\level:adding \[Natural]:as ##1##) id
+         |++ dataSegment *->original
+         |++ inferred *->original
+         |++ inferredMethodContext *->original
+         |++ inferredSelfContext *->original
+         |++ inferredParentContext *->original
+      };
+   } -> raised
+
    ++ description *-> [String] {
       [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[String]] descriptionOfTypeList = *([List<[[DainaTypeEnum<['A]>]->['A]]>] typeList) -> [String] {
             [Variable<[String]>] description = \[Variable<[String]>]:as \[String]:as ####;
@@ -109,9 +138,20 @@
             [String] desc2 = \desc1:appending \descriptionOfTypeList subtypes;
             [String] desc3 = \desc2:appending \[String]:as ##]##;
          } -> desc3
-         |++ classGeneric *->\[String]:as ##[&GEN*]##
-         |++ methodGeneric *->\[String]:as ##['*GEN*]##
-         |++ dataSegment *->\[String]:as ##[%SEG*]##
+         |++ classGeneric *([DainaGeneralIdentifier] id)->[String]{
+            [String] genericName = \id:content;
+            [String] openBracket = \[String]:as ##[&##;
+         }->\openBracket:appending (\genericName:appending \[String]:as ##]##)
+         |++ methodGeneric *([Natural] level, [DainaGeneralIdentifier] id)->[String]{
+            [String] levelString = \[String]:stringFormatOf level;
+            [String] sep = \[String]:as ##'##;
+            [String] genericName = \levelString:appending \sep:appending \id:content;
+            [String] openBracket = \[String]:as ##[##;
+         }->\openBracket:appending (\genericName:appending \[String]:as ##]##)
+         |++ dataSegment *([DainaGeneralIdentifier] id)->[String]{
+            [String] genericName = \id:content;
+            [String] openBracket = \[String]:as ##[%##;
+         }->\openBracket:appending (\genericName:appending \[String]:as ##]##)
          |++ inferred *->\[String]:as ##[?]##
          |++ inferredMethodContext *->\[String]:as ##[?*]##
          |++ inferredSelfContext *->\[String]:as ##[?:]##
@@ -448,7 +488,13 @@
       \[Debug]:log (\[String]:as ##asdfl2:\n##);
    } -> instantiated
 
-   |++ instantiateWithGenerics *([DainaType] typeToInstantiate, [DainaClassIdentifier] classID, [List<[DainaType]>] generics) -> [DainaType] {
+   |++ instantiateWithGenerics *([DainaType] typeToInstantiate, [DainaClassIdentifier] classID, [List<[DainaType]>] rawGenerics) -> [DainaType] {
+      [List<[DainaType]>] generics = \[List<[DainaType]>]:empty;
+      [Variable<[Natural]>] genericNumberTracker = \[Variable<[?]>]:as \[Natural]:as ##0##;
+      \rawGenerics:iterate *([DainaType] rawGeneric) {
+         \generics:append \[DainaType]:as \:convertInferredToMethodGeneric (\rawGeneric:get) genericNumberTracker;
+      };
+
       [Maybe<[DainaType]>] maybeInstantiated = \[Maybe<[DainaType]>]:if *([[DainaType]->] instantiate) {
          [Maybe<[DainaClass]>] maybeClass = \.classIndex:get \classID:content;
          \maybeClass:isOrElse *([DainaClass] class) {
@@ -481,6 +527,36 @@
          };
       };
    } -> \maybeInstantiated:isOrElse (*(a)->a) *->typeToInstantiate
+
+   - convertInferredToMethodGeneric *([[DainaTypeEnum<['A]>]->['A]] original, [Variable<[Natural]>] currentGeneric) -> [[DainaTypeEnum<['A]>]->['A]] {
+      [[[DainaTypeEnum<['A]>]->['A]]->[[DainaTypeEnum<['A]>]->['A]]] convertSingular = *([[DainaTypeEnum<['A]>]->['A]] type) -> \:convertInferredToMethodGeneric type currentGeneric;
+      [[List<[[DainaTypeEnum<['A]>]->['A]]>]->[List<[[DainaTypeEnum<['A]>]->['A]]>]] convertList = *([List<[[DainaTypeEnum<['A]>]->['A]]>] typeList) -> [List<[[DainaTypeEnum<['A]>]->['A]]>] {
+         [List<[[DainaTypeEnum<['A]>]->['A]]>] converted = \[List<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+         \typeList:iterate *([[DainaTypeEnum<['A]>]->['A]] typeEnum) {
+            \converted:append \convertSingular typeEnum;
+         }
+      } -> converted;
+      [?] converted = \original [:[DainaTypeEnum<[[DainaTypeEnum<['A]>]->['A]]>]] {
+         |++ root *->original
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) -> [[DainaTypeEnum<['A]>]->['A]] {
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:classAndGenerics id \convertList generics
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputs, [[DainaTypeEnum<['A]>]->['A]] outputEnum) -> [[DainaTypeEnum<['A]>]->['A]] {
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:method (\convertList inputs) (\convertSingular outputEnum)
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes) -> [[DainaTypeEnum<['A]>]->['A]] {
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:disjoint (\convertList subtypes)
+         |++ classGeneric *->original
+         |++ methodGeneric *->original
+         |++ dataSegment *->original
+         |++ inferred *->[[DainaTypeEnum<['A]>]->['A]] {
+            [Natural] current = \currentGeneric:get;
+            \currentGeneric:set \current:adding \[Natural]:as ##1##;
+            [String] currentAsString = \[String]:stringFormatOf current;
+         } -> *([DainaTypeEnum<["A]>] e) -> \e:methodGeneric current \[DainaGeneralIdentifier]:as \currentAsString:appending \[String]:as ##?##
+         |++ inferredMethodContext *->original
+         |++ inferredSelfContext *->original
+         |++ inferredParentContext *->original
+      };
+   } -> converted
 
    - maybeFindLocalObject *([DainaGeneralIdentifier] identifier) -> [Maybe<[DainaObjectDeclaration]>] {
       [Maybe<[?]>] localObjectDeclaration = \[Maybe<[DainaObjectDeclaration]>]:if *([[DainaObjectDeclaration]->] foundLocalObject) {
