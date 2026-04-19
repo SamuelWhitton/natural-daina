@@ -238,6 +238,7 @@ asdf if you write the method output as ->[] you must still write the output for 
 asdf show example of how single statement or block method body and prologue can be accessed inside method output and prelogue, but not inside embedded block inside that (might already exist somewhere)
 asdf can remove the [?] in a local declaration??
 asdf entryPoint is not required, might be written somewhere?
+asdf must cast method from no-param to params in order to call it with params (might be somehwere already)
 
 
 ---
