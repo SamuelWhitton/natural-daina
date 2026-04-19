@@ -531,6 +531,12 @@
    :: invokedExpressionIsNotAMethod *([SourcePosition] position) -> [Error] {
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Invoked expression is not a method##) context)
+
+   :: numberOfInputsDoesntMatchInvocation *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Number of inputs doesn't match invocation##) context)
+
+   
    
 }
 
@@ -2527,9 +2533,14 @@ import std.stdio;writeln("B::");
       };
       \:ifInvocation *([DainaExpression] method, [List<[DainaExpression]>] params) {
          \method:analyze analyzer;
+         [List<[DainaExpression]>] actualParams = \[List<[DainaExpression]>]:empty;
          \params:iterate *([DainaExpression] param) {
             \param:analyze analyzer;
+            \actualParams:append param;
          };
+         [?] indexMethodGenerics = :indexMethodGenerics;
+         [?] instantiateMethodGenerics = :instantiateMethodGenerics;
+         [?] invocationPosition = \:position;
          [Maybe<[?]>] maybeMethodType = \method:evaluatedType;
          \maybeMethodType:isOrElse *([DainaType] methodType) {
             \(\methodType:get) [:[DainaTypeEnum<[]>]] {
@@ -2540,8 +2551,20 @@ import std.stdio;writeln("B::");
                         \[Debug]:log (\[String]:as ##:##);
                         \[Debug]:log (\[String]:as ##\n##);
                };
-               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
-                  \determineType \[DainaType]:as outputType;
+               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] expectedTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
+                  [Natural] numInputs = \inputTypes:length;
+                  [Boolean] numInputsMatch = \numInputs:isEqualTo \actualTypes:length;
+                  \numInputsMatch:ifOrElse *{
+                     [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics = \[Index<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
+                     \expectedTypes:iterate *([[DainaTypeEnum<['A]>]->['A]] expectedType) {
+                        [DainaExpression] param = (\actualParams:removeFirst);
+                        [DainaType] actualType = \param:evaluatedType;
+                        \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                     };
+                     \determineType \[DainaType]:as \instantiateMethodGenerics analyzer outputType invocationPosition indexedGenerics;
+                  } *{
+                     \analyzer:addError \[Error]:numberOfInputsDoesntMatchInvocation invocationPosition;
+                  };
                }
             };
          } *{
@@ -2624,6 +2647,16 @@ import std.stdio;writeln("B::");
          };
       };
    }
+
+   - indexMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] input, [SourcePosition] inputSource, [[DainaTypeEnum<['A]>]->['A]] expected, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) {
+@asdfasdfasdf
+
+   }
+
+   - instantiateMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] type, [SourcePosition] source, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) -> [[DainaTypeEnum<['A]>]->['A]] {
+@asdfasdfasdf
+
+   } -> type
 
    - findMethod *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [DainaType] owner, [DainaGeneralIdentifier] methodID, [Maybe<[List<[DainaType]>]>] inputTypes, [[DainaClassMethod<[DainaExpression]>]->[Boolean]] chooseMethod) -> [Maybe<[Method]>] {
       [DainaClassIdentifier] rootClass = \(\owner:get) [:[DainaTypeEnum<[]>]] {
