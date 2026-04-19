@@ -146,6 +146,7 @@ Goals
 - low footprint language
 - multi use language features
 - copy paste homogeneity
+- objects/classes/composition/inheritance, no matter what was used originally it can be combined willy nilly later on
 
 ```
 
