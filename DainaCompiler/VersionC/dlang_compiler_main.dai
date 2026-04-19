@@ -536,6 +536,10 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Number of inputs doesn't match invocation##) context)
 
+   :: notAValidInput *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Not a valid input##) context)
+
    
    
 }
@@ -2552,14 +2556,22 @@ import std.stdio;writeln("B::");
                         \[Debug]:log (\[String]:as ##\n##);
                };
                |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] expectedTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
-                  [Natural] numInputs = \inputTypes:length;
-                  [Boolean] numInputsMatch = \numInputs:isEqualTo \actualTypes:length;
+                  [Natural] numInputs = \expectedTypes:length;
+                  [Boolean] numInputsMatch = \numInputs:isEqualTo \actualParams:length;
                   \numInputsMatch:ifOrElse *{
                      [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics = \[Index<[[DainaTypeEnum<['A]>]->['A]]>]:empty;
                      \expectedTypes:iterate *([[DainaTypeEnum<['A]>]->['A]] expectedType) {
-                        [DainaExpression] param = (\actualParams:removeFirst);
-                        [DainaType] actualType = \param:evaluatedType;
-                        \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                        [Maybe<[DainaExpression]>] maybeParam = (\actualParams:removeFirst);
+                        \maybeParam:isOrElse *([DainaExpression] param) {
+                           [Maybe<[DainaType]>] maybeActualType = \param:evaluatedType;
+                           \maybeActualType:isOrElse *([DainaType] actualType) {
+                              \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                           } *{
+                              \analyzer:addError \[Error]:notAValidInput \param:position;
+                           };
+                        } *{
+                           \analyzer:addError \[Error]:internalInconsistency \[String]:as ##parameter count became invalid##
+                        };
                      };
                      \determineType \[DainaType]:as \instantiateMethodGenerics analyzer outputType invocationPosition indexedGenerics;
                   } *{
