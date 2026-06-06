@@ -240,6 +240,7 @@ asdf show example of how single statement or block method body and prologue can 
 asdf can remove the [?] in a local declaration??
 asdf entryPoint is not required, might be written somewhere?
 asdf must cast method from no-param to params in order to call it with params (might be somehwere already)
+asdf explain that rising and falling generics dont understand mutability but instead the concept that methods bust not be invoked with types that differ from the original construction of the object
 
 
 ---
