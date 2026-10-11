@@ -540,6 +540,10 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Not a valid input##) context)
 
+   :: inputTypeCouldNotBeInferred *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Input type could not be inferred##) context)
+
    
    
 }
@@ -2565,7 +2569,12 @@ import std.stdio;writeln("B::");
                         \maybeParam:isOrElse *([DainaExpression] param) {
                            [Maybe<[DainaType]>] maybeActualType = \param:evaluatedType;
                            \maybeActualType:isOrElse *([DainaType] actualType) {
-                              \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                              [Boolean] inputTypeIsConcrete = \actualType:isConcrete;
+                              \inputTypeIsConcrete:ifOrElse *{
+                                 \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                              } *{
+                                 \analyzer:addError \[Error]:inputTypeCouldNotBeInferred (\param:position);
+                              };
                            } *{
                               \analyzer:addError \[Error]:notAValidInput \param:position;
                            };
@@ -2662,7 +2671,13 @@ import std.stdio;writeln("B::");
 
    - indexMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] input, [SourcePosition] inputSource, [[DainaTypeEnum<['A]>]->['A]] expected, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) {
 @asdfasdfasdf
-
+      \input [:[DainaTypeEnum<[]>]] {
+               \$~> \[DainaTypeEnum<[]>]:default *{
+               };
+               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] expectedTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
+                
+               }
+            };
    }
 
    - instantiateMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] type, [SourcePosition] source, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) -> [[DainaTypeEnum<['A]>]->['A]] {
