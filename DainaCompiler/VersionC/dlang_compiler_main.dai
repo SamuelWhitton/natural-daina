@@ -544,6 +544,11 @@
       [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
    } -> (\[Error]:errorWithContext (\[String]:as ##Input type could not be inferred##) context)
 
+   :: inputTypeDoesNotMatchExpectedType *([SourcePosition] position) -> [Error] {
+      [List<[SourcePosition]>] context = \[List<[SourcePosition]>]:empty; \context:append position;
+   } -> (\[Error]:errorWithContext (\[String]:as ##Input type does not match expected type##) context)
+
+
    
    
 }
@@ -2570,8 +2575,14 @@ import std.stdio;writeln("B::");
                            [Maybe<[DainaType]>] maybeActualType = \param:evaluatedType;
                            \maybeActualType:isOrElse *([DainaType] actualType) {
                               [Boolean] inputTypeIsConcrete = \actualType:isConcrete;
+                              [DainaType] _expectedType = \[DainaType]:as expectedType;
+                              [Boolean] inputTypeMatchesExpectedType = \_expectedType:isParentOf actualType;
                               \inputTypeIsConcrete:ifOrElse *{
-                                 \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                                 \inputTypeMatchesExpectedType:ifOrElse *{
+                                    \indexMethodGenerics analyzer (\actualType:get) (\param:position) expectedType indexedGenerics;
+                                 } *{
+                                    \analyzer:addError \[Error]:inputTypeDoesNotMatchExpectedType (\param:position);
+                                 };
                               } *{
                                  \analyzer:addError \[Error]:inputTypeCouldNotBeInferred (\param:position);
                               };
