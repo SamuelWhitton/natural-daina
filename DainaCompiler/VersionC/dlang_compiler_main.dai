@@ -2681,14 +2681,82 @@ import std.stdio;writeln("B::");
    }
 
    - indexMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] input, [SourcePosition] inputSource, [[DainaTypeEnum<['A]>]->['A]] expected, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) {
-@asdfasdfasdf
-      \input [:[DainaTypeEnum<[]>]] {
-               \$~> \[DainaTypeEnum<[]>]:default *{
-               };
-               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] expectedTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
-                
+      \[Debug]:log \inputSource:description;
+                  \[Debug]:log (\[String]:as ##\n##);
+                  \[Debug]:log (\[String]:as ##asdf:::##);
+                  [DainaType] t = \[DainaType]:as expected;
+                  \[Debug]:log \t:description;
+                  \[Debug]:log (\[String]:as ##:##);
+                  [DainaType] t2 = \[DainaType]:as input;
+                  \[Debug]:log \t2:description;
+                  \[Debug]:log (\[String]:as ##\n##);
+      [?] indexMethodGenerics = :indexMethodGenerics;
+      \expected [:[DainaTypeEnum<[]>]] {
+         \$~> \[DainaTypeEnum<[]>]:default *{
+         };
+         
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) {
+            @asdfasdfasdf
+         }
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] expectedInputTypes, [[DainaTypeEnum<['A]>]->['A]] expectedOutputType) {
+            \input [:[DainaTypeEnum<[]>]] {
+               \$~> \[DainaTypeEnum<[]>]:default *{};
+               |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
+                  \[Loops]:iterate expectedInputTypes *([Natural] index, [[DainaTypeEnum<['A]>]->['A]] expectedInputType) {
+                     [Maybe<[[DainaTypeEnum<['A]>]->['A]]>] maybeInputType = \inputTypes:atIndex index;
+                     \maybeInputType:isOrElse *([[DainaTypeEnum<['A]>]->['A]] inputType) {
+                        \indexMethodGenerics analyzer inputType inputSource expectedInputType indexedGenerics;
+                     } *{};
+                  };
+                  @@\[Debug]:log (\[String]:as ##asdfKDLS:##);
+                  [DainaType] t = \[DainaType]:as expectedOutputType;
+                  \[Debug]:log \t:description;
+                  \[Debug]:log (\[String]:as ##:##);
+                  [DainaType] t2 = \[DainaType]:as outputType;
+                  \[Debug]:log \t2:description;
+                  \[Debug]:log (\[String]:as ##\n##);@@
+                  \indexMethodGenerics analyzer outputType inputSource expectedOutputType indexedGenerics;
                }
             };
+         }
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes) {
+            \subtypes:iterate *([[DainaTypeEnum<['A]>]->['A]] subtype) {
+               \indexMethodGenerics analyzer input inputSource subtype indexedGenerics;
+            };
+         }
+         |++ methodGeneric *([Natural] level, [DainaGeneralIdentifier] id) {  
+            [Boolean] baselineGeneric = \level:isEqualTo \[Natural]:as ##1##;
+            \baselineGeneric:ifOrElse *{
+               [Maybe<[[DainaTypeEnum<['A]>]->['A]]>] maybeExistingIndexedGeneric = \indexedGenerics:get (\id:content);
+               \maybeExistingIndexedGeneric:isOrElse *([[DainaTypeEnum<['A]>]->['A]] existingIndexedGeneric) {
+                  [DainaType] inputType = \[DainaType]:as input;
+                  [Boolean] inputTypeIsParentOfExistingGeneric = \inputType:isParentOf \[DainaType]:as existingIndexedGeneric;
+                  \inputTypeIsParentOfExistingGeneric:ifOrElse *{
+                     \indexedGenerics:set (\id:content) \[Maybe<[?]>]:as input;
+                  } *{};
+               } *{
+                  \indexedGenerics:set (\id:content) \[Maybe<[?]>]:as input;
+               };
+            } *{};
+         }
+@@
+         |++ root *->\[Boolean]:true
+         |++ classAndGenerics *([DainaClassIdentifier] id, [List<[[DainaTypeEnum<['A]>]->['A]]>] generics) 
+            -> \allConcrete generics
+         |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] inputs, [[DainaTypeEnum<['A]>]->['A]] outputEnum) -> [Boolean]
+            {[DainaType] outputType = \[DainaType]:as outputEnum}
+            -> \[Boolean]:and (\allConcrete inputs) \outputType:isConcrete
+         |++ disjoint *([List<[[DainaTypeEnum<['A]>]->['A]]>] subtypes)
+            -> \allConcrete subtypes
+         |++ classGeneric *->\[Boolean]:true
+         |++ methodGeneric *->\[Boolean]:true
+         |++ dataSegment *->\[Boolean]:true
+         |++ inferred *->\[Boolean]:false
+         |++ inferredMethodContext *->\[Boolean]:false
+         |++ inferredSelfContext *->\[Boolean]:false
+         |++ inferredParentContext *->\[Boolean]:false
+@@
+      };
    }
 
    - instantiateMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] type, [SourcePosition] source, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) -> [[DainaTypeEnum<['A]>]->['A]] {
