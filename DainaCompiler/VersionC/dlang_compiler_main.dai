@@ -2497,11 +2497,11 @@ import std.stdio;writeln("B::");
                [DainaClassMethod<[DainaExpression]>] method = \methodResult:method;
                [DainaType] t = \method:type;
                [DainaGeneralIdentifier] id = \method:identifier;
-                        \[Debug]:log (\[String]:as ##asdfQQQ:##);
+                        @@\[Debug]:log (\[String]:as ##asdfQQQ:##);
                         \[Debug]:log (\id:content);
                         \[Debug]:log (\[String]:as ##:##);
                         \[Debug]:log (\t:description);
-                        \[Debug]:log (\[String]:as ##\n##);
+                        \[Debug]:log (\[String]:as ##\n##);@@
 
 
                \determineType \methodResult:type;
@@ -2512,14 +2512,15 @@ import std.stdio;writeln("B::");
                         \[Debug]:log (\[String]:as ##:##);
                         \[Debug]:log (\expressionType:description);
                         \[Debug]:log (\[String]:as ##\n##);@@
-                        \[Debug]:log (\[String]:as ##asdfDDD:##);
+
+                        @@\[Debug]:log (\[String]:as ##asdfDDD:##);
                         \[Debug]:log (\identifier:content);
                         \[Debug]:log (\[String]:as ##:##);
                         \[Debug]:log (\expressionType:description);
                         \[Debug]:log (\[String]:as ##\n##);
                         [SourcePosition] pos = \identifier:position;
                         \[Debug]:log \pos:description;
-                        \[Debug]:log (\[String]:as ##\n##);
+                        \[Debug]:log (\[String]:as ##\n##);@@
 
 
                \analyzer:addError \[Error]:cannotFindInstanceMethod \identifier:position;
@@ -2559,10 +2560,10 @@ import std.stdio;writeln("B::");
             \(\methodType:get) [:[DainaTypeEnum<[]>]] {
                \$~> \[DainaTypeEnum<[]>]:default *{
                   \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
-                  \[Debug]:log (\[String]:as ##asdfNOT1:##);
+                  @@\[Debug]:log (\[String]:as ##asdfNOT1:##);
                         \[Debug]:log (\methodType:description);
                         \[Debug]:log (\[String]:as ##:##);
-                        \[Debug]:log (\[String]:as ##\n##);
+                        \[Debug]:log (\[String]:as ##\n##);@@
                };
                |++ method *([List<[[DainaTypeEnum<['A]>]->['A]]>] expectedTypes, [[DainaTypeEnum<['A]>]->['A]] outputType) {
                   [Natural] numInputs = \expectedTypes:length;
@@ -2601,9 +2602,9 @@ import std.stdio;writeln("B::");
             };
          } *{
             \analyzer:addError \[Error]:invokedExpressionIsNotAMethod \method:position;
-            \[Debug]:log (\[String]:as ##asdfNOT2:##);
+            @@\[Debug]:log (\[String]:as ##asdfNOT2:##);
                         \[Debug]:log (\[String]:as ##:##);
-                        \[Debug]:log (\[String]:as ##\n##);
+                        \[Debug]:log (\[String]:as ##\n##);@@
          };
       };
       \:ifProxyObject *([DainaExpression] object) {
@@ -2682,7 +2683,7 @@ import std.stdio;writeln("B::");
    }
 
    - indexMethodGenerics *([DainaAnalyzerScope<[DainaExpression]>] analyzer, [[DainaTypeEnum<['A]>]->['A]] input, [SourcePosition] inputSource, [[DainaTypeEnum<['A]>]->['A]] expected, [Index<[[DainaTypeEnum<['A]>]->['A]]>] indexedGenerics) {
-      \[Debug]:log \inputSource:description;
+      @@\[Debug]:log \inputSource:description;
                   \[Debug]:log (\[String]:as ##\n##);
                   \[Debug]:log (\[String]:as ##asdf:::##);
                   [DainaType] t = \[DainaType]:as expected;
@@ -2690,7 +2691,7 @@ import std.stdio;writeln("B::");
                   \[Debug]:log (\[String]:as ##:##);
                   [DainaType] t2 = \[DainaType]:as input;
                   \[Debug]:log \t2:description;
-                  \[Debug]:log (\[String]:as ##\n##);
+                  \[Debug]:log (\[String]:as ##\n##);@@
       [?] indexMethodGenerics = :indexMethodGenerics;
       \expected [:[DainaTypeEnum<[]>]] {
          \$~> \[DainaTypeEnum<[]>]:default *{
@@ -3031,13 +3032,13 @@ import std.stdio;writeln("B::");
             };
             [DainaType] type = \classMethod:type;
             [Boolean] isConcreteType = \type:isConcrete;
-               \[Debug]:log \type:description;
+               @\[Debug]:log \type:description;
                
                
                \isConcreteType:ifOrElse *{
-                  \[Debug]:log \[String]:as ##:GOOD\n##;
+                  @\[Debug]:log \[String]:as ##:GOOD\n##;
                   } *{
-                  \[Debug]:log \[String]:as ##:BAD\n##;
+                  @\[Debug]:log \[String]:as ##:BAD\n##;
                   \analyzer:addError \[Error]:internalInconsistency \[String]:as ##unimplemented type is not concrete##;
                };
 
