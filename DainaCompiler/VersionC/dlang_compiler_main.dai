@@ -2619,6 +2619,7 @@ import std.stdio;writeln("B::");
       \:ifSelfReference *{
       };
       \:ifDataSegment *([String] dataSegmentContent) {
+         \determineType \[DainaType]:as *([DainaTypeEnum<["A]>] e) -> \e:dataSegment \[DainaGeneralIdentifier]:base;
       };
       \:ifAnonymousClassObject *([List<[DainaType]>] parents, [List<[DainaExpression]>] constructor, [List<[DainaClassMethod<[DainaExpression]>]>] classMethods) {
          \constructor:iterate *([DainaExpression] constructorStatement) {
